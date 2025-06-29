@@ -16,10 +16,11 @@ import { AppMenu } from './app.menu';
   `,
   styles: [`
     :host {
-      --sidebar-bg:rgb(21,128,61);
+      --primary-color:rgb(42, 157, 82);
+      --hover-color: #48bca8;
+      --active-color: #1d7a6c;
       --text-color: #ffffff;
-      --active-color: #f4c430;
-      --hover-color: #128c3d;
+      --shadow-color: rgba(0, 0, 0, 0.2);
     }
 
     .layout-sidebar {

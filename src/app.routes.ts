@@ -4,14 +4,12 @@ import { AppLayout } from './app/layout/component/app.layout';
 //import { Documentation } from './app/pages/documentation/documentation';
 //import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
-
 import { AccueilComponent } from './app/pages/accueil/accueil.component';
 import { SaisonsComponent } from './app/pages/saisons/saisons.component';
 import { VillesComponent } from './app/pages/villes/villes.component';
 import { StadesComponent } from './app/pages/stades/stades.component';
 import { EquipesComponent } from './app/pages/equipes/equipes.component';
 import { LoginComponent } from './app/pages/login/login.component';
-
 
 export const appRoutes: Routes = [
     {

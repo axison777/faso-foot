@@ -46,15 +46,17 @@ import { LayoutService } from '../service/layout.service';
     </div>
   `,
   styles: [`
-    :host {
-      --topbar-bg:rgb(22,163,74);
+        :host {
+      --primary-color:rgb(42, 157, 82);
+      --hover-color: #48bca8;
+      --active-color: #1d7a6c;
       --text-color: #ffffff;
-      --hover-color: #128c3d;
+      --shadow-color: rgba(0, 0, 0, 0.2);
     }
 
+
     .layout-topbar {
-      background: var(--topbar-bg);
-      color: var(--text-color);
+background: rgb(50,145,87);   
       display: flex;
       justify-content: flex-end;
       align-items: center;
