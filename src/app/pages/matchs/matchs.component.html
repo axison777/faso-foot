@@ -1,0 +1,32 @@
+<div class="card" *ngFor="let phase of phases">
+  <h2 class="text-2xl font-bold mb-4">{{ phase.phase }}</h2>
+
+  <div *ngFor="let journee of phase.journees; let i = index"       class="p-4 mb-4 rounded-xl shadow-sm">
+
+    <div class="text-xl font-semibold mb-2">
+      {{ journee.nom }} – {{ journee.jour }} {{ formatDate(journee.date) }}
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr class="bg-primary text-white">
+            <th class="p-2 text-left">N°</th>
+            <th class="p-2 text-left">Stade</th>
+            <th class="p-2 text-left">Opposition</th>
+            <th class="p-2 text-left">Heure</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let match of journee.matchs" class="border-b dark:border-surface-600">
+            <td class="p-2">{{ match.numero }}</td>
+            <td class="p-2">{{ match.stade }}</td>
+            <td class="p-2">{{ match.equipe1 }} <strong>#</strong> {{ match.equipe2 }}</td>
+            <td class="p-2">{{ match.heure }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

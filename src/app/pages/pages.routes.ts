@@ -1,11 +1,14 @@
 import { Routes } from '@angular/router';
-import { Documentation } from './documentation/documentation';
-import { Crud } from './crud/crud';
+
 import { Empty } from './empty/empty';
+import { EquipesComponent } from './equipes/equipes.component';
+import { SaisonsComponent } from './saisons/saisons.component';
+import { MatchsComponent } from './matchs/matchs.component';
 
 export default [
-    { path: 'documentation', component: Documentation },
-    { path: 'crud', component: Crud },
+    {path: 'equipes', component: EquipesComponent},
+    {path: 'saisons', component: SaisonsComponent},
+    {path: 'matchs/:id', component: MatchsComponent},
     { path: 'empty', component: Empty },
-    { path: '**', redirectTo: '/notfound' }
+   // { path: '**', redirectTo: '/notfound' }
 ] as Routes;

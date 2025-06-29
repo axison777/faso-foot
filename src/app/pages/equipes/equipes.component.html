@@ -1,0 +1,112 @@
+<p-toast></p-toast>
+<div class="card mb-4">
+  <div class="flex justify-between items-center flex-wrap gap-3">
+    <span class="text-xl font-semibold">Filtrer par ligue</span>
+
+    <p-dropdown
+      [options]="leagues"
+      [(ngModel)]="selectedLeagueFilter"
+      optionLabel="name"
+      placeholder="Toutes les ligues"
+      appendTo="body"
+      showClear
+      class="w-full sm:w-16rem"
+      (onChange)="filterByLeague()"
+    ></p-dropdown>
+  </div>
+</div>
+
+<div class="card">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-xl font-semibold">Liste des équipes</span>
+    <button pButton label="Ajouter une équipe" icon="pi pi-plus" (click)="openNewTeamDialog()"></button>
+  </div>
+
+  <p-table #dt [value]="teams" dataKey="id" [paginator]="true" [rows]="10" [showGridlines]="true" [responsiveLayout]="'scroll'" [globalFilterFields]="['name', 'league.name']">
+    <ng-template pTemplate="caption">
+      <div class="flex justify-end">
+        <p-iconfield iconPosition="left">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input pInputText type="text" placeholder="Rechercher..." (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Ligue</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-team>
+      <tr>
+        <td>{{ team.id }}</td>
+        <td>{{ team.name }}</td>
+        <td>{{ getLigueName(team.league) }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="3">Aucune équipe trouvée.</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  [(visible)]="displayDialog"
+  [style]="{ width: '450px', height: 'fit-content' }"
+  [draggable]="false"
+  [resizable]="false"
+  header="Nouvelle équipe"
+  [modal]="true"
+>
+  <ng-template #content>
+    <div class="flex flex-col gap-6 mb-10">
+      <div>
+        <label for="teamName" class="block font-bold ">Nom de l'équipe</label>
+        <input
+          id="teamName"
+          type="text"
+          pInputText
+          [(ngModel)]="newTeamName"
+          required
+          autofocus
+          class="w-full"
+        />
+        <small class="text-red-500" *ngIf="!newTeamName && displayDialog">Le nom est requis.</small>
+      </div>
+
+      <div class="mb-5">
+        <label for="league" class="block font-bold ">Ligue</label>
+        <p-dropdown
+          id="league"
+          [options]="leagues"
+          optionLabel="name"
+          [(ngModel)]="selectedLeague"
+          placeholder="Sélectionner une ligue"
+          class="w-full"
+          appendTo="body"
+        ></p-dropdown>
+        <small class="text-red-500" *ngIf="!selectedLeague && displayDialog">La ligue est requise.</small>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button
+      label="Annuler"
+      icon="pi pi-times"
+      text
+      (click)="displayDialog = false"
+    ></p-button>
+    <p-button
+      label="Créer"
+      icon="pi pi-check"
+      (click)="saveTeam()"
+      [disabled]="!newTeamName || !selectedLeague"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+

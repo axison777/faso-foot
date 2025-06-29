@@ -53,10 +53,32 @@
                             "outputHashing": "all"
                         },
                         "development": {
-                            "optimization": false,
-                            "extractLicenses": false,
-                            "sourceMap": true
-                        }
+                        "optimization": false,
+                        "extractLicenses": false,
+                        "sourceMap": true,
+                        "fileReplacements": [
+                            {
+                            "replace": "src/environments/environment.ts",
+                            "with": "src/environments/environment.development.ts"
+                            }
+                        ]
+                        },
+                        "test": {
+                        "fileReplacements": [
+                            {
+                            "replace": "src/environments/environment.ts",
+                            "with": "src/environments/environment.test.ts"
+                            }
+                        ]
+                        },
+                        "formation": {
+                        "fileReplacements": [
+                            {
+                            "replace": "src/environments/environment.ts",
+                            "with": "src/environments/environment.formation.ts"
+                            }
+              ]
+            }
                     },
                     "defaultConfiguration": "production"
                 },
@@ -68,7 +90,13 @@
                         },
                         "development": {
                             "buildTarget": "sakai-ng:build:development"
+                        },"test": {
+                        "buildTarget": "sakai-ng:build:test"
+                        },
+                        "formation": {
+                        "buildTarget": "sakai-ng:build:formation"
                         }
+
                     },
                     "defaultConfiguration": "development"
                 },
