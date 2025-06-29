@@ -4,8 +4,8 @@
   width: 100%;
   min-width: 0;
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8fafc; /* Fond gris très clair */
-  color: #1e293b; /* Texte gris foncé */
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
 .header {
@@ -19,7 +19,7 @@
   gap: 15px;
 
   h1 {
-    color: #0f766e; /* Vert teal cohérent */
+    color: rgb(50,145,87); /* Vert principal */
     margin: 0;
     font-size: 2.2rem;
     font-weight: 600;
@@ -29,7 +29,7 @@
   }
 
   .btn-primary {
-    background-color: #0f766e;
+    background-color: rgb(50,145,87); /* Vert principal - même que sidebar */
     color: #ffffff;
     border: none;
     padding: 12px 24px;
@@ -42,9 +42,9 @@
     min-width: 120px;
 
     &:hover {
-      background-color: #0d5b56;
+      background-color: #0f7a32; /* Vert plus foncé au hover */
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+      box-shadow: 0 4px 12px rgba(18, 140, 61, 0.3);
     }
 
     &:active {
@@ -64,7 +64,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
   h3 {
-    color: #0f766e;
+    color: #128c3d; /* Vert principal */
     margin: 0 0 20px 0;
     font-size: 1.4rem;
     font-weight: 600;
@@ -93,8 +93,8 @@
 
       &:focus {
         outline: none;
-        border-color: #0891b2;
-        box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2);
+        border-color: #128c3d; /* Vert principal */
+        box-shadow: 0 0 0 3px rgba(18, 140, 61, 0.2);
       }
 
       &::placeholder {
@@ -132,13 +132,13 @@
       min-width: 120px;
 
       &.btn-primary {
-        background-color: #0f766e;
+        background-color: rgb(255, 255, 255); /* Vert principal */
         color: #ffffff;
 
         &:hover:not(:disabled) {
-          background-color: #0d5b56;
+          background-color:rgb(50,145,87);
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+          box-shadow: 0 4px 12px rgba(18, 140, 61, 0.3);
         }
 
         &:disabled {
@@ -150,7 +150,7 @@
       }
 
       &.btn-secondary {
-        background-color: #6b7280;
+        background-color: #6b7280; /* Gris neutre */
         color: #ffffff;
 
         &:hover {
@@ -172,7 +172,7 @@
     max-width: 400px;
     padding: 12px 20px;
     font-size: 1rem;
-    border: 2px solid #0f766e;
+    border: 2px solid #128c3d; /* Vert principal */
     border-radius: 8px;
     outline: none;
     transition: all 0.3s ease;
@@ -180,8 +180,8 @@
     color: #1e293b;
 
     &:focus {
-      border-color: #0891b2;
-      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2);
+      border-color: #0f7a32;
+      box-shadow: 0 0 0 3px rgba(18, 140, 61, 0.2);
     }
 
     &::placeholder {
@@ -210,9 +210,9 @@
   border-collapse: collapse;
 
   thead {
-    background: #0f766e;
-    color: #ffffff;
-    
+    background:rgb(22,123,74); /* Vert clair - comme topbar */
+    color: whitesmoke; /* Texte foncé pour contraste */
+
     th {
       padding: 16px 15px;
       text-align: left;
@@ -221,16 +221,18 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       border: none;
-      
+      background:rgb(50,145,87); /* Vert clair - comme topbar */
+      color: whitesmoke; /* Texte foncé pour contraste */
+
       &:first-child {
         border-top-left-radius: 12px;
-        width: 70%; /* Plus large pour le nom */
+        width: 70%;
       }
-      
+
       &:last-child {
         border-top-right-radius: 12px;
         text-align: center;
-        width: 30%; /* Pour les actions */
+        width: 30%;
       }
     }
   }
@@ -239,9 +241,9 @@
     tr {
       transition: all 0.3s ease;
       border-bottom: 1px solid #e2e8f0;
-      
+
       &:hover {
-        background-color: #f0fdfa;
+        background-color: #f0fdf4; /* Vert très clair au hover */
         transform: scale(1.002);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       }
@@ -253,14 +255,14 @@
       td {
         padding: 16px 15px;
         vertical-align: middle;
-        
+
         &.ville-nom {
           font-weight: 600;
-          color: #0f766e;
+          color: #1e293b; /* Vert principal */
           font-size: 1.05rem;
           width: 70%;
         }
-        
+
         &.actions {
           text-align: center;
           white-space: nowrap;
@@ -276,48 +278,61 @@
   gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
-
+  
   .btn {
     padding: 8px 12px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px; /* Changé de 6px à 8px pour correspondre aux stades */
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.875rem; /* 14px - même taille que les stades */
     font-weight: 500;
     transition: all 0.3s ease;
     min-width: 36px;
-
+    
     &.btn-info {
-      background: #0891b2; /* Bleu cyan */
+      background-color:rgb(50,145,87); /* Bleu cyan - même que les stades */
       color: #ffffff;
       
       &:hover {
-        background: #0e7490;
+        background-color: rgb(50,145,87); /* Même hover que les stades */
         transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
+        box-shadow: 0 2px 8px rgb(50,145,87);
       }
     }
-
+    
     &.btn-warning {
-      background: #f59e0b; /* Orange pour édition */
-      color: #ffffff;
+      background-color: #f59e0b; /* Orange - même que les stades */
+      color: #ffffff; /* Texte blanc au lieu de foncé */
       
       &:hover {
-        background: #d97706;
+        background-color: #d97706; /* Même hover que les stades */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
       }
     }
-
+    
     &.btn-danger {
-      background: #dc2626; /* Rouge pour suppression */
+      background-color: #dc2626; /* Rouge - même que les stades */
       color: #ffffff;
       
       &:hover {
-        background: #b91c1c;
+        background-color: #b91c1c; /* Même hover que les stades */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
       }
+    }
+  }
+}
+
+/* Mise à jour de la responsivité pour correspondre aux stades */
+@media (max-width: 768px) {
+  .btn-group {
+    gap: 4px; /* Changé pour correspondre aux stades */
+    
+    .btn {
+      font-size: 0.75rem; /* 12px - même que les stades */
+      padding: 6px 8px; /* Même padding que les stades */
+      min-width: 32px; /* Même largeur minimale que les stades */
     }
   }
 }
@@ -353,7 +368,7 @@
   .villes-container {
     padding: 15px;
   }
-  
+
   .header h1 {
     font-size: 2rem;
   }
@@ -368,12 +383,12 @@
     flex-direction: column;
     text-align: center;
     gap: 1rem;
-    
+
     h1 {
       font-size: 1.8rem;
       text-align: center;
     }
-    
+
     .btn-primary {
       width: 100%;
       max-width: 300px;
@@ -405,15 +420,15 @@
 
   .villes-table {
     font-size: 0.9rem;
-    
+
     thead th {
       padding: 12px 8px;
       font-size: 0.8rem;
     }
-    
+
     tbody td {
       padding: 12px 8px;
-      
+
       &.ville-nom {
         font-size: 1rem;
       }
@@ -422,7 +437,7 @@
 
   .btn-group {
     gap: 4px;
-    
+
     .btn {
       font-size: 0.75rem;
       padding: 6px 8px;
@@ -436,12 +451,12 @@
     padding: 10px 16px;
     font-size: 0.9rem;
   }
-  
+
   .villes-table {
     thead th:first-child {
       width: 65%;
     }
-    
+
     thead th:last-child {
       width: 35%;
     }
@@ -449,7 +464,7 @@
 
   .form-actions {
     flex-direction: column;
-    
+
     .btn {
       width: 100%;
     }

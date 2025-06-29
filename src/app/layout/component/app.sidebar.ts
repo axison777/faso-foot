@@ -8,7 +8,7 @@ import { AppMenu } from './app.menu';
   template: `
     <div class="layout-sidebar">
       <div class="sidebar-logo">
-        <img src="./assets/logoo.png" alt="Logo CBF" class="logo-image" />
+        <img src="assets/images/logoo.png" alt="Logo CBF" class="logo-image" />
         <span class="logo-text">Championnat BF<br />CBF</span>
       </div>
       <app-menu></app-menu>
@@ -16,16 +16,17 @@ import { AppMenu } from './app.menu';
   `,
   styles: [`
     :host {
-      --sidebar-bg:rgb(21,128,61);
+      --primary-color:rgb(42, 157, 82);
+      --hover-color: #48bca8;
+      --active-color: #1d7a6c;
       --text-color: #ffffff;
-      --active-color: #f4c430;
-      --hover-color: #128c3d;
+      --shadow-color: rgba(0, 0, 0, 0.2);
     }
 
     .layout-sidebar {
       width: 280px;
       height: 100vh;
-      background: var(--sidebar-bg);
+background: rgb(50,145,87);     
       color: var(--text-color);
       display: flex;
       flex-direction: column;

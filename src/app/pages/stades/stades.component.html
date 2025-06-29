@@ -1,7 +1,9 @@
 <div class="stades-container">
   <div class="header">
     <h1>Gestion des Stades</h1>
-    <button class="btn-primary" (click)="toggleForm()">Ajouter Stade</button>
+    <button class="btn-primary" (click)="toggleForm()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter Stade
+    </button>
   </div>
 
   <div class="search-container">
@@ -9,8 +11,8 @@
   </div>
 
   <!-- Formulaire déroulant -->
-  <div *ngIf="showForm" class="form-container bg-white p-6 rounded-lg border border-gray-300 mb-6">
-    <h2 class="text-xl font-semibold text-green-700 mb-4">Ajouter un nouveau stade</h2>
+  <div *ngIf="showForm" class="form-container bg-[#2d3436] p-6 rounded-xl border border-[#34495e] mb-6">
+    <h2 class="text-white text-xl font-semibold mb-4">Ajouter un nouveau stade</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <select [(ngModel)]="newStade.ville" class="search-input">
         <option value="" disabled selected>Sélectionner une ville</option>
@@ -19,8 +21,12 @@
       <input [(ngModel)]="newStade.nom" placeholder="Nom du stade" class="search-input" />
     </div>
     <div class="mt-4 flex justify-end gap-4">
-      <button (click)="toggleForm()" class="btn btn-warning">Annuler</button>
-      <button (click)="enregistrerStade()" class="btn btn-primary">Enregistrer</button>
+      <button (click)="toggleForm()" class="btn btn-warning" title="Annuler l'ajout">
+        <i class="pi pi-times mr-2"></i> Annuler
+      </button>
+      <button (click)="enregistrerStade()" class="btn btn-primary" title="Enregistrer le stade">
+        <i class="pi pi-check-circle mr-2"></i> Enregistrer
+      </button>
     </div>
   </div>
 
@@ -40,9 +46,9 @@
           <td>{{ stade.nom }}</td>
           <td class="actions">
             <div class="btn-group">
-              <button class="btn btn-info"><i class="pi pi-eye"></i></button>
-              <button class="btn btn-warning"><i class="pi pi-pencil"></i></button>
-              <button class="btn btn-danger"><i class="pi pi-trash"></i></button>
+              <button class="btn btn-info" title="Voir le stade"><i class="pi pi-eye"></i></button>
+              <button class="btn btn-warning" title="Modifier le stade"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-danger" title="Supprimer le stade"><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>

@@ -21,86 +21,7 @@ import { LayoutService } from '../service/layout.service';
             <app-footer></app-footer>
         </div>
         <div class="layout-mask animate-fadein"></div>
-    </div>`,
-    styles: [`
-        .layout-wrapper {
-            display: flex;
-            margin: 0;
-            padding: 0;
-        }
-
-        .layout-sidebar {
-            background-color: #2f855a; /* Vert professionnel */
-            margin: 0;
-            padding: 0;
-            border-right: none;
-            color: white;
-        }
-
-        .layout-sidebar-logo {
-            padding: 0.5rem 1rem;
-            margin-bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding-bottom: 0.5rem; // réduit l’espace
-            margin-bottom: 0; // assure qu’il n’y a pas de marge
-        }
-
-        .layout-menu {
-            margin-top: 0.5rem;
-        }
-
-        .layout-menu li a {
-            color: white !important;
-            font-weight: 500;
-              color: #ffffff !important;
-        }
-
-        .layout-menu li a:hover {
-            background-color: #fcd116 !important; /* Jaune */
-            color: black !important;
-        }
-
-        .layout-topbar {
-            background-color: #2f855a;
-            margin: 0;
-            padding: 0 1rem;
-            border-left: none;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            color: white;
-        }
-
-         /* ... ton code existant ... */
-
-  .layout-main-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 2rem;
-    background-color: #f4f4f4; /* couleur douce */
-    min-height: 100vh;
-    box-sizing: border-box;
-  }
-
-  .layout-main {
-    flex: 1;
-    display: flex;
-    justify-content: center; /* Centre le contenu horizontalement */
-    align-items: flex-start;
-    padding: 2rem;
-    box-sizing: border-box;
-    width: 100%;
-  }
-
-  router-outlet + * {
-    width: 100%;
-    max-width: 1000px;
-  }
-    `]
+    </div> `
 })
 export class AppLayout {
     overlayMenuOpenSubscription: Subscription;
@@ -108,6 +29,7 @@ export class AppLayout {
     menuOutsideClickListener: any;
 
     @ViewChild(AppSidebar) appSidebar!: AppSidebar;
+
     @ViewChild(AppTopbar) appTopBar!: AppTopbar;
 
     constructor(

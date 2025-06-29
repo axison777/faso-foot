@@ -7,8 +7,8 @@
   width: 100%;
   min-width: 0;
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8fafc; /* Fond gris très clair pour moins de fatigue */
-  color: #1e293b; /* Texte gris foncé pour meilleure lisibilité */
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
 .header {
@@ -18,21 +18,21 @@
   margin-bottom: 30px;
   padding-bottom: 15px;
   border-bottom: 2px solid #e2e8f0;
-  flex-wrap: wrap; /* Permet le retour à la ligne sur mobile */
-  gap: 15px; /* Espacement entre les éléments */
+  flex-wrap: wrap;
+  gap: 15px;
 
   h1 {
-    color: #0f766e; /* Vert teal plus doux */
+    color: rgb(50,145,87);
     margin: 0;
     font-size: 2.2rem;
     font-weight: 600;
     letter-spacing: 0.5px;
-    flex: 1; /* Prend l'espace disponible */
-    min-width: 200px; /* Largeur minimale */
+    flex: 1;
+    min-width: 200px;
   }
 
   .btn-primary {
-    background-color: #0f766e;
+    background-color: rgb(50,145,87);
     color: #ffffff;
     border: none;
     padding: 12px 24px;
@@ -41,13 +41,16 @@
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
-    white-space: nowrap; /* Empêche le texte de se couper */
-    min-width: 120px; /* Largeur minimale du bouton */
+    white-space: nowrap;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 
     &:hover {
-      background-color: #0d5b56;
+      background-color: rgb(40,120,70);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+      box-shadow: 0 4px 12px rgba(50,145,87, 0.3);
     }
 
     &:active {
@@ -62,17 +65,17 @@
 
   .search-input {
     @apply w-full max-w-md p-3 text-base border-2 rounded-lg outline-none transition-all;
-    border-color: #0f766e;
+    border-color: rgb(50,145,87);
     background-color: #ffffff;
     color: #1e293b;
 
     &:focus {
-      border-color: #0891b2; /* Bleu cyan pour le focus */
-      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2);
+      border-color: rgb(40,120,70);
+      box-shadow: 0 0 0 3px rgba(50,145,87, 0.2);
     }
 
     &::placeholder {
-      color: #64748b; /* Gris moyen pour les placeholders */
+      color: #64748b;
     }
   }
 }
@@ -87,42 +90,42 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Conteneur du tableau - occupe toute la largeur */
 .table-container {
   @apply bg-white rounded-lg border border-[#e2e8f0];
-  width: 100% !important; /* Force la largeur complète */
+  width: 100% !important;
   max-width: 100% !important;
   margin: 0;
   padding: 0;
-  overflow-x: auto; /* Scroll horizontal sur mobile si nécessaire */
+  overflow-x: auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .stades-table {
   @apply w-full;
-  width: 100% !important; /* Force la largeur complète */
-  table-layout: fixed; /* Distribution fixe des colonnes */
+  width: 100% !important;
+  table-layout: fixed;
   border-collapse: collapse;
 
   thead {
-    @apply bg-[#0f766e] text-white;
-    
+    background-color: rgb(50,145,87);
+    color: white;
+
     th {
       @apply p-4 text-left font-semibold text-sm uppercase tracking-wide;
-      width: 33.33%; /* Répartition équitable */
-      
+      width: 33.33%;
+
       &:first-child {
         @apply rounded-tl-lg;
-        width: 35%; /* Un peu plus large pour la ville */
+        width: 35%;
       }
-      
+
       &:nth-child(2) {
-        width: 40%; /* Plus large pour le nom du stade */
+        width: 40%;
       }
-      
+
       &:last-child {
         @apply rounded-tr-lg text-center;
-        width: 25%; /* Plus petit pour les actions */
+        width: 25%;
       }
     }
   }
@@ -130,10 +133,10 @@
   tbody {
     tr {
       @apply transition-all border-b border-[#e2e8f0];
-      
+
       &:hover {
-        @apply bg-[#f0fdfa]; /* Vert très clair au survol */
-        transform: scale(1.002); /* Effet plus subtil */
+        background-color: #f0fdfa;
+        transform: scale(1.002);
       }
 
       &:last-child {
@@ -142,20 +145,19 @@
 
       td {
         @apply p-3.5;
-        color: #1e293b; /* Texte gris foncé pour meilleure lisibilité */
+        color: #1e293b;
         font-weight: 500;
-        
+
         &:first-child {
           width: 35%;
-          color: #0f766e; /* Vert pour les villes */
+          color: rgb(50,145,87);
           font-weight: 600;
         }
-        
+
         &:nth-child(2) {
           width: 40%;
-          color: #1e293b;
         }
-        
+
         &:last-child {
           width: 25%;
           text-align: center;
@@ -170,21 +172,25 @@
 
   .btn {
     @apply p-2 rounded-lg cursor-pointer text-sm font-medium transition-all;
-    min-width: 36px; /* Taille minimale pour les boutons */
+    min-width: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
     &.btn-info {
-      @apply bg-[#0891b2] text-white; /* Bleu cyan */
-      
+      background-color: rgb(50,145,87);
+      color: white;
+
       &:hover {
-        @apply bg-[#0e7490];
+        background-color: rgb(40,120,70);
         transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
+        box-shadow: 0 2px 8px rgba(50,145,87, 0.3);
       }
     }
 
     &.btn-warning {
-      @apply bg-[#f59e0b] text-white; /* Orange pour édition */
-      
+      @apply bg-[#f59e0b] text-white;
+
       &:hover {
         @apply bg-[#d97706];
         transform: translateY(-1px);
@@ -193,18 +199,19 @@
     }
 
     &.btn-primary {
-      @apply bg-[#0f766e] text-white;
-      
+      background-color: rgb(50,145,87);
+      color: white;
+
       &:hover {
-        @apply bg-[#0d5b56];
+        background-color: rgb(40,120,70);
         transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(15, 118, 110, 0.3);
+        box-shadow: 0 2px 8px rgba(50,145,87, 0.3);
       }
     }
 
     &.btn-danger {
-      @apply bg-[#dc2626] text-white; /* Rouge pour suppression */
-      
+      @apply bg-[#dc2626] text-white;
+
       &:hover {
         @apply bg-[#b91c1c];
         transform: translateY(-1px);
@@ -217,7 +224,7 @@
 .loading,
 .no-results {
   @apply text-center text-lg bg-white rounded-lg border border-[#e2e8f0];
-  color: #64748b; /* Gris moyen pour meilleure lisibilité */
+  color: #64748b;
   padding: 60px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -232,12 +239,11 @@
   color: #64748b;
 }
 
-/* Responsivité améliorée */
 @media (max-width: 1024px) {
   .stades-container {
     padding: 15px;
   }
-  
+
   .header h1 {
     font-size: 2rem;
   }
@@ -250,15 +256,15 @@
 
   .header {
     @apply flex-col text-center gap-4;
-    
+
     h1 {
       font-size: 1.8rem;
       text-align: center;
     }
-    
+
     .btn-primary {
-      width: 100%; /* Bouton pleine largeur sur mobile */
-      max-width: 300px; /* Mais pas trop large */
+      width: 100%;
+      max-width: 300px;
       margin: 0 auto;
     }
   }
@@ -268,18 +274,18 @@
   }
 
   .table-container {
-    margin: 0 -10px; /* Étend le tableau sur les bords */
+    margin: 0 -10px;
     border-radius: 0;
   }
 
   .stades-table {
     font-size: 0.9rem;
-    
+
     thead th {
       padding: 12px 8px;
       font-size: 0.75rem;
     }
-    
+
     tbody td {
       padding: 12px 8px;
     }
@@ -287,7 +293,7 @@
 
   .btn-group {
     @apply gap-1;
-    
+
     .btn {
       @apply text-xs p-1.5;
       min-width: 32px;
@@ -300,23 +306,22 @@
     padding: 10px 16px;
     font-size: 0.9rem;
   }
-  
+
   .stades-table {
     thead th:first-child {
       width: 30%;
     }
-    
+
     thead th:nth-child(2) {
       width: 45%;
     }
-    
+
     thead th:last-child {
       width: 25%;
     }
   }
 }
 
-/* Animation pour le formulaire */
 @keyframes slideDown {
   from {
     max-height: 0;
@@ -330,7 +335,6 @@
   }
 }
 
-/* Amélioration de l'accessibilité */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
