@@ -339,17 +339,17 @@ export class AppConfigurator {
                         primary: color.palette,
                         colorScheme: {
                             light: {
-                                primary: {
-                                    color: '{primary.600}',
-                                    contrastColor: '#ffffff',
-                                    hoverColor: '{primary.700}',
-                                    activeColor: '{primary.800}'
+                           primary: {
+                                    color: '{primary.500}',
+                                    contrastColor: '{surface.900}',
+                                    hoverColor: '{primary.400}',
+                                    activeColor: '{primary.300}'
                                 },
                                 highlight: {
-                                    background: '{primary.600}',
-                                    focusBackground: '{primary.700}',
-                                    color: '#ffffff',
-                                    focusColor: '#ffffff'
+                                    background: '{primary.500}',
+                                    focusBackground: '{primary.400}',
+                                    color: '{surface.900}',
+                                    focusColor: '{surface.900}'
                                 }
                             },
                             dark: {

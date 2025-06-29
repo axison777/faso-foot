@@ -38,7 +38,7 @@ interface Constraints{
     geo_grouping: boolean;
     max_matches_per_day: number;
     must_play_in_home_stadium: boolean;
-    cities:{id:string, count: number}[]
+    cities:{id:string, min: number}[]
 
 }
 interface Saison {

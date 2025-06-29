@@ -8,7 +8,7 @@ import { AppMenu } from './app.menu';
   template: `
     <div class="layout-sidebar">
       <div class="sidebar-logo">
-        <img src="./assets/logoo.png" alt="Logo CBF" class="logo-image" />
+        <img src="assets/Logo-FBF.png" alt="Logo CBF" class="logo-image"   />
         <span class="logo-text">Championnat BF<br />CBF</span>
       </div>
       <app-menu></app-menu>
@@ -30,7 +30,7 @@ import { AppMenu } from './app.menu';
       display: flex;
       flex-direction: column;
       padding: 0;
-      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+     /*  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
       user-select: none;
       transition: width 0.3s ease;
       position: fixed;
@@ -51,6 +51,8 @@ import { AppMenu } from './app.menu';
       width: 80px;
       height: auto;
       margin-bottom: 0.5rem;
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
     }
 
     .logo-text {

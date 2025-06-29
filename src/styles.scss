@@ -5,3 +5,15 @@
 @use './assets/demo/demo.scss';
 
 
+
+body {
+  font-family: 'Lato', sans-serif;
+}
+
+
+:root {
+    --surface-hover: #004d40; /* nouvelle couleur au survol */
+}
+
+
+
