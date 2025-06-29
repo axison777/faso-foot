@@ -176,7 +176,7 @@ export class EquipesComponent implements OnInit {
     if (this.selectedLeagueFilter) {
       this.dt.filter(this.selectedLeagueFilter.name, 'league.name', 'equals');
     } else {
-      this.dt.filter('', 'league.name', 'equals'); 
+      this.dt.filter('', 'league.name', 'equals');
     }
   }
   }

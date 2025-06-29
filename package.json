@@ -12,6 +12,7 @@
     "private": true,
     "dependencies": {
         "@angular/animations": "^19.0.0",
+        "@angular/cdk": "^19.2.19",
         "@angular/common": "^19.0.0",
         "@angular/compiler": "^19.0.0",
         "@angular/core": "^19.0.0",
@@ -20,7 +21,8 @@
         "@angular/platform-browser-dynamic": "^19.0.0",
         "@angular/router": "^19.0.0",
         "@primeng/themes": "^19.0.5",
-        "chart.js": "4.4.2",
+        "chart.js": "^4.5.0",
+        "ng2-charts": "^4.1.1",
         "primeclt": "^0.1.5",
         "primeicons": "^7.0.0",
         "primeng": "^19.0.8",

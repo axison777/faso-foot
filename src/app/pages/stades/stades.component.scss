@@ -1,0 +1,340 @@
+/* Pas d'importation de styles.scss, utilisation de valeurs fixes */
+@use 'tailwindcss/tailwind.css' as *;
+
+/* Conteneur principal pour les stades */
+.stades-container {
+  padding: 20px;
+  width: 100%;
+  min-width: 0;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8fafc; /* Fond gris très clair pour moins de fatigue */
+  color: #1e293b; /* Texte gris foncé pour meilleure lisibilité */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+  flex-wrap: wrap; /* Permet le retour à la ligne sur mobile */
+  gap: 15px; /* Espacement entre les éléments */
+
+  h1 {
+    color: #0f766e; /* Vert teal plus doux */
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    flex: 1; /* Prend l'espace disponible */
+    min-width: 200px; /* Largeur minimale */
+  }
+
+  .btn-primary {
+    background-color: #0f766e;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    white-space: nowrap; /* Empêche le texte de se couper */
+    min-width: 120px; /* Largeur minimale du bouton */
+
+    &:hover {
+      background-color: #0d5b56;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+.search-container {
+  margin-bottom: 25px;
+  width: 100%;
+
+  .search-input {
+    @apply w-full max-w-md p-3 text-base border-2 rounded-lg outline-none transition-all;
+    border-color: #0f766e;
+    background-color: #ffffff;
+    color: #1e293b;
+
+    &:focus {
+      border-color: #0891b2; /* Bleu cyan pour le focus */
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2);
+    }
+
+    &::placeholder {
+      color: #64748b; /* Gris moyen pour les placeholders */
+    }
+  }
+}
+
+.form-container {
+  animation: slideDown 0.3s ease-out;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Conteneur du tableau - occupe toute la largeur */
+.table-container {
+  @apply bg-white rounded-lg border border-[#e2e8f0];
+  width: 100% !important; /* Force la largeur complète */
+  max-width: 100% !important;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto; /* Scroll horizontal sur mobile si nécessaire */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stades-table {
+  @apply w-full;
+  width: 100% !important; /* Force la largeur complète */
+  table-layout: fixed; /* Distribution fixe des colonnes */
+  border-collapse: collapse;
+
+  thead {
+    @apply bg-[#0f766e] text-white;
+    
+    th {
+      @apply p-4 text-left font-semibold text-sm uppercase tracking-wide;
+      width: 33.33%; /* Répartition équitable */
+      
+      &:first-child {
+        @apply rounded-tl-lg;
+        width: 35%; /* Un peu plus large pour la ville */
+      }
+      
+      &:nth-child(2) {
+        width: 40%; /* Plus large pour le nom du stade */
+      }
+      
+      &:last-child {
+        @apply rounded-tr-lg text-center;
+        width: 25%; /* Plus petit pour les actions */
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      @apply transition-all border-b border-[#e2e8f0];
+      
+      &:hover {
+        @apply bg-[#f0fdfa]; /* Vert très clair au survol */
+        transform: scale(1.002); /* Effet plus subtil */
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        @apply p-3.5;
+        color: #1e293b; /* Texte gris foncé pour meilleure lisibilité */
+        font-weight: 500;
+        
+        &:first-child {
+          width: 35%;
+          color: #0f766e; /* Vert pour les villes */
+          font-weight: 600;
+        }
+        
+        &:nth-child(2) {
+          width: 40%;
+          color: #1e293b;
+        }
+        
+        &:last-child {
+          width: 25%;
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
+.btn-group {
+  @apply flex gap-2 justify-center flex-wrap;
+
+  .btn {
+    @apply p-2 rounded-lg cursor-pointer text-sm font-medium transition-all;
+    min-width: 36px; /* Taille minimale pour les boutons */
+
+    &.btn-info {
+      @apply bg-[#0891b2] text-white; /* Bleu cyan */
+      
+      &:hover {
+        @apply bg-[#0e7490];
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
+      }
+    }
+
+    &.btn-warning {
+      @apply bg-[#f59e0b] text-white; /* Orange pour édition */
+      
+      &:hover {
+        @apply bg-[#d97706];
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+      }
+    }
+
+    &.btn-primary {
+      @apply bg-[#0f766e] text-white;
+      
+      &:hover {
+        @apply bg-[#0d5b56];
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(15, 118, 110, 0.3);
+      }
+    }
+
+    &.btn-danger {
+      @apply bg-[#dc2626] text-white; /* Rouge pour suppression */
+      
+      &:hover {
+        @apply bg-[#b91c1c];
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+      }
+    }
+  }
+}
+
+.loading,
+.no-results {
+  @apply text-center text-lg bg-white rounded-lg border border-[#e2e8f0];
+  color: #64748b; /* Gris moyen pour meilleure lisibilité */
+  padding: 60px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-results .icon {
+  @apply text-3xl mb-4 opacity-50;
+  color: #94a3b8;
+}
+
+.table-info {
+  @apply mt-4 text-right text-sm italic;
+  color: #64748b;
+}
+
+/* Responsivité améliorée */
+@media (max-width: 1024px) {
+  .stades-container {
+    padding: 15px;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .stades-container {
+    padding: 10px;
+  }
+
+  .header {
+    @apply flex-col text-center gap-4;
+    
+    h1 {
+      font-size: 1.8rem;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      width: 100%; /* Bouton pleine largeur sur mobile */
+      max-width: 300px; /* Mais pas trop large */
+      margin: 0 auto;
+    }
+  }
+
+  .search-input {
+    @apply max-w-full;
+  }
+
+  .table-container {
+    margin: 0 -10px; /* Étend le tableau sur les bords */
+    border-radius: 0;
+  }
+
+  .stades-table {
+    font-size: 0.9rem;
+    
+    thead th {
+      padding: 12px 8px;
+      font-size: 0.75rem;
+    }
+    
+    tbody td {
+      padding: 12px 8px;
+    }
+  }
+
+  .btn-group {
+    @apply gap-1;
+    
+    .btn {
+      @apply text-xs p-1.5;
+      min-width: 32px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header .btn-primary {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+  
+  .stades-table {
+    thead th:first-child {
+      width: 30%;
+    }
+    
+    thead th:nth-child(2) {
+      width: 45%;
+    }
+    
+    thead th:last-child {
+      width: 25%;
+    }
+  }
+}
+
+/* Animation pour le formulaire */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    max-height: 300px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Amélioration de l'accessibilité */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

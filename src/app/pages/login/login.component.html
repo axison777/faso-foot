@@ -1,0 +1,115 @@
+<div class="login-container">
+  <section class="login-section">
+    <!-- Left side - Logo et informations -->
+    <div class="logo-side">
+      <div class="logo-content">
+        <div class="logo-header">
+          <img 
+            src="assets/Logo-FBF.png" 
+            alt="Logo CBF" 
+            class="logo-image"
+          />
+          <div class="logo-title">
+            CONFÉDÉRATION BURKINABÈ DE FOOTBALL
+          </div>
+        </div>
+        <h1 class="app-title">CBF</h1>
+        <p class="app-description">
+          Bienvenue sur l'espace numérique de gestion<br />
+          du championnat de football du Burkina Faso.
+        </p>
+      </div>
+    </div>
+
+    <!-- Right side - Formulaire de connexion -->
+    <div class="form-side">
+      <div class="form-container">
+        <h4 class="form-title">Identifiez-vous</h4>
+
+        <!-- Messages d'erreur -->
+        <div *ngIf="error" class="alert alert-error">
+          {{ error }}
+        </div>
+
+        <!-- Messages de succès -->
+        <div *ngIf="success" class="alert alert-success">
+          {{ success }}
+        </div>
+
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+          <!-- Champ Email -->
+          <div class="input-group">
+            <label for="email" class="sr-only">Email</label>
+            <span class="input-icon">
+              📧
+            </span>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Adresse email"
+              [(ngModel)]="formData.email"
+              (input)="onInputChange()"
+              required
+              class="form-input"
+              #emailInput="ngModel"
+            />
+          </div>
+
+          <!-- Champ Mot de passe -->
+          <div class="input-group">
+            <label for="password" class="sr-only">Mot de passe</label>
+            <span class="input-icon">
+              🔒
+            </span>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              name="password"
+              placeholder="Mot de passe"
+              [(ngModel)]="formData.password"
+              (input)="onInputChange()"
+              required
+              class="form-input"
+              #passwordInput="ngModel"
+            />
+            <span 
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+            >
+              {{ showPassword ? '🙈' : '👁️' }}
+            </span>
+          </div>
+
+          <!-- Identifiants de démonstration -->
+          <div class="demo-credentials">
+            <p class="demo-title">Identifiants de démonstration :</p>
+            <div class="demo-list">
+              <p *ngFor="let cred of defaultCredentials">
+                {{ cred.email }} / {{ cred.password }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Lien mot de passe oublié -->
+          <div class="forgot-password">
+            <a routerLink="/mot-de-passe-oublie" class="forgot-link">
+              Mot de passe oublié ?
+            </a>
+          </div>
+
+          <!-- Bouton de connexion -->
+          <button
+            type="submit"
+            [disabled]="loading || !formData.email || !formData.password"
+            class="login-button"
+          >
+            <span *ngIf="loading" class="loading-spinner"></span>
+            <span *ngIf="loading">Connexion en cours...</span>
+            <span *ngIf="!loading">Se connecter</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>

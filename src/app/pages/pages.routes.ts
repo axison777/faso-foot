@@ -6,7 +6,7 @@ import { SaisonsComponent } from './saisons/saisons.component';
 import { MatchsComponent } from './matchs/matchs.component';
 
 export default [
-    {path: 'equipes', component: EquipesComponent},
+   {path: 'equipes', component: EquipesComponent},
     {path: 'saisons', component: SaisonsComponent},
     {path: 'matchs/:id', component: MatchsComponent},
     { path: 'empty', component: Empty },
