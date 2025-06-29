@@ -1,0 +1,63 @@
+
+<div class="dashboard-container">
+  <h2 class="dashboard-title">Tableau de bord</h2>
+
+  <div class="cards-grid">
+    <div class="card-item">
+      <i class="pi pi-users card-icon"></i>
+      <div>
+        <p class="card-title">Équipes inscrites</p>
+        <h3 class="card-value">16</h3>
+      </div>
+    </div>
+
+    <div class="card-item">
+      <i class="pi pi-building card-icon"></i>
+      <div>
+        <p class="card-title">Stades utilisés</p>
+        <h3 class="card-value">8</h3>
+      </div>
+    </div>
+
+    <div class="card-item">
+      <i class="pi pi-futbol card-icon"></i>
+      <div>
+        <p class="card-title">Matchs joués</p>
+        <h3 class="card-value">120</h3>
+      </div>
+    </div>
+
+    <div class="card-item">
+      <i class="pi pi-star card-icon"></i>
+      <div>
+        <p class="card-title">Équipe D</p>
+        <h3 class="card-value">300 pts</h3>
+      </div>
+    </div>
+
+    <div class="card-item">
+      <i class="pi pi-map-marker card-icon"></i>
+      <div>
+        <p class="card-title">Répartition par lieu</p>
+        <h3 class="card-value">Stade A</h3>
+      </div>
+    </div>
+
+    <div class="card-item">
+      <i class="pi pi-bolt card-icon"></i>
+      <div>
+        <p class="card-title">Total de buts</p>
+        <h3 class="card-value">300</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <h3>Classement du championnat</h3>
+    <canvas baseChart
+            [data]="barChartData"
+            [options]="barChartOptions"
+            [type]="'bar'">
+    </canvas>
+  </div>
+</div>
