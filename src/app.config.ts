@@ -21,8 +21,8 @@ export const appConfig: ApplicationConfig = {
         providePrimeNG({
       ripple: true,
       translation: {
-        accept: 'Accepter',
-        reject: 'Rejeter',
+        accept: 'OK',
+        reject: 'Annuler',
         dayNames: ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'],
         dayNamesShort: ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam'],
         dayNamesMin: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],

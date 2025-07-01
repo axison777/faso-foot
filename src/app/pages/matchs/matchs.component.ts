@@ -1,8 +1,8 @@
 import { formatDate, NgClass, NgFor } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SaisonService } from '../../service/saison.service';
 import { MatchService } from '../../service/match.service';
+import { SaisonService } from '../../service/saison.service';
 interface RawMatch {
   id: string;
   home_team: string;
@@ -46,7 +46,7 @@ interface Phase {
   styleUrl: './matchs.component.scss'
 })
 export class MatchsComponent implements OnInit{
-    saisonId!: number;
+    saisonId!: string;
     phases: any[] = [];
     MATCHS_FAKE = [
   {
@@ -149,22 +149,26 @@ export class MatchsComponent implements OnInit{
 ];
 
 
-    constructor(private route: ActivatedRoute, private saisonService: SaisonService, private matchService: MatchService) {}
+    constructor(private route: ActivatedRoute,private matchService: MatchService, private saisonService: SaisonService) {}
 
 
     ngOnInit(): void {
-        this.saisonId = +this.route.snapshot.paramMap.get('id')!;
+        this.saisonId = this.route.snapshot.paramMap.get('id')!;
         this.loadMatchs();
 
     }
 
 
   loadMatchs() {
+   /*  this.matchService.getBySeasonId(this.saisonId).subscribe((res:any) => {
+
+    }) */
     this.MATCHS_FAKE = this.transformMatchesToPhases(this.rawMatches);
     let matches=[]
-    this.matchService.getAll().subscribe( {
+    this.matchService.getBySeasonId(this.saisonId).subscribe( {
         next: (res:any) => {
-          matches = res?.data?.matches;
+          matches = res?.data?.season?.matches;
+          console.log(matches);
           this.phases = this.transformMatchesToPhases(matches);
         }
 

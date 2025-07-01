@@ -1,6 +1,3 @@
-/* Pas d'importation de styles.scss, utilisation de valeurs fixes */
-@use 'tailwindcss/tailwind.css' as *;
-
 /* Conteneur principal pour les stades */
 .stades-container {
   padding: 20px;
@@ -22,7 +19,7 @@
   gap: 15px;
 
   h1 {
-    color: rgb(50,145,87);
+    color: rgb(50,145,87); /* Vert principal */
     margin: 0;
     font-size: 2.2rem;
     font-weight: 600;
@@ -32,7 +29,7 @@
   }
 
   .btn-primary {
-    background-color: rgb(50,145,87);
+    background-color: rgb(50,145,87); /* Vert principal - même que sidebar */
     color: #ffffff;
     border: none;
     padding: 12px 24px;
@@ -43,18 +40,125 @@
     font-weight: 500;
     white-space: nowrap;
     min-width: 120px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 
     &:hover {
-      background-color: rgb(40,120,70);
+      background-color: #0f7a32; /* Vert plus foncé au hover */
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(50,145,87, 0.3);
+      box-shadow: 0 4px 12px rgba(18, 140, 61, 0.3);
     }
 
     &:active {
       transform: translateY(0);
+    }
+  }
+}
+
+/* Formulaire intégré */
+.form-container {
+  animation: slideDown 0.3s ease-out;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 25px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    color: #128c3d; /* Vert principal */
+    margin: 0 0 20px 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #374151;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background-color: #ffffff;
+      color: #1e293b;
+
+      &:focus {
+        outline: none;
+        border-color: #128c3d; /* Vert principal */
+        box-shadow: 0 0 0 3px rgba(18, 140, 61, 0.2);
+      }
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+
+      &.ng-invalid.ng-touched {
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+      }
+    }
+
+    .error-message {
+      color: #dc2626;
+      font-size: 0.85rem;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 120px;
+
+      &.btn-primary {
+        background-color: rgb(255, 255, 255); /* Vert principal */
+        color: #ffffff;
+
+        &:hover:not(:disabled) {
+          background-color:rgb(50,145,87);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(18, 140, 61, 0.3);
+        }
+
+        &:disabled {
+          background-color: #9ca3af;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+      }
+
+      &.btn-secondary {
+        background-color: #6b7280; /* Gris neutre */
+        color: #ffffff;
+
+        &:hover {
+          background-color: #4b5563;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+        }
+      }
     }
   }
 }
@@ -64,14 +168,20 @@
   width: 100%;
 
   .search-input {
-    @apply w-full max-w-md p-3 text-base border-2 rounded-lg outline-none transition-all;
-    border-color: rgb(50,145,87);
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: 2px solid #128c3d; /* Vert principal */
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.3s ease;
     background-color: #ffffff;
     color: #1e293b;
 
     &:focus {
-      border-color: rgb(40,120,70);
-      box-shadow: 0 0 0 3px rgba(50,145,87, 0.2);
+      border-color: #0f7a32;
+      box-shadow: 0 0 0 3px rgba(18, 140, 61, 0.2);
     }
 
     &::placeholder {
@@ -80,63 +190,62 @@
   }
 }
 
-.form-container {
-  animation: slideDown 0.3s ease-out;
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
+/* Conteneur du tableau - pleine largeur */
 .table-container {
-  @apply bg-white rounded-lg border border-[#e2e8f0];
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
   width: 100% !important;
   max-width: 100% !important;
   margin: 0;
   padding: 0;
   overflow-x: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .stades-table {
-  @apply w-full;
   width: 100% !important;
   table-layout: fixed;
   border-collapse: collapse;
 
   thead {
-    background-color: rgb(50,145,87);
-    color: white;
+    background:rgb(22,123,74); /* Vert clair - comme topbar */
+    color: whitesmoke; /* Texte foncé pour contraste */
 
     th {
-      @apply p-4 text-left font-semibold text-sm uppercase tracking-wide;
-      width: 33.33%;
+      padding: 16px 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: none;
+      background:rgb(50,145,87); /* Vert clair - comme topbar */
+      color: whitesmoke; /* Texte foncé pour contraste */
 
       &:first-child {
-        @apply rounded-tl-lg;
-        width: 35%;
-      }
-
-      &:nth-child(2) {
-        width: 40%;
+        border-top-left-radius: 12px;
+        width: 70%;
       }
 
       &:last-child {
-        @apply rounded-tr-lg text-center;
-        width: 25%;
+        border-top-right-radius: 12px;
+        text-align: center;
+        width: 30%;
       }
     }
   }
 
   tbody {
     tr {
-      @apply transition-all border-b border-[#e2e8f0];
+      transition: all 0.3s ease;
+      border-bottom: 1px solid #e2e8f0;
 
       &:hover {
-        background-color: #f0fdfa;
+        background-color: #f0fdf4; /* Vert très clair au hover */
         transform: scale(1.002);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       }
 
       &:last-child {
@@ -144,23 +253,20 @@
       }
 
       td {
-        @apply p-3.5;
-        color: #1e293b;
-        font-weight: 500;
+        padding: 16px 15px;
+        vertical-align: middle;
 
-        &:first-child {
-          width: 35%;
-          color: rgb(50,145,87);
+        &.stade-nom {
           font-weight: 600;
+          color: #1e293b; /* Vert principal */
+          font-size: 1.05rem;
+          width: 70%;
         }
 
-        &:nth-child(2) {
-          width: 40%;
-        }
-
-        &:last-child {
-          width: 25%;
+        &.actions {
           text-align: center;
+          white-space: nowrap;
+          width: 30%;
         }
       }
     }
@@ -168,52 +274,49 @@
 }
 
 .btn-group {
-  @apply flex gap-2 justify-center flex-wrap;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
 
   .btn {
-    @apply p-2 rounded-lg cursor-pointer text-sm font-medium transition-all;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px; /* Changé de 6px à 8px pour correspondre aux stades */
+    cursor: pointer;
+    font-size: 0.875rem; /* 14px - même taille que les stades */
+    font-weight: 500;
+    transition: all 0.3s ease;
     min-width: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
 
     &.btn-info {
-      background-color: rgb(50,145,87);
-      color: white;
+      background-color:rgb(50,145,87); /* Bleu cyan - même que les stades */
+      color: #ffffff;
 
       &:hover {
-        background-color: rgb(40,120,70);
+        background-color: rgb(50,145,87); /* Même hover que les stades */
         transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(50,145,87, 0.3);
+        box-shadow: 0 2px 8px rgb(50,145,87);
       }
     }
 
     &.btn-warning {
-      @apply bg-[#f59e0b] text-white;
+      background-color: #f59e0b; /* Orange - même que les stades */
+      color: #ffffff; /* Texte blanc au lieu de foncé */
 
       &:hover {
-        @apply bg-[#d97706];
+        background-color: #d97706; /* Même hover que les stades */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
       }
     }
 
-    &.btn-primary {
-      background-color: rgb(50,145,87);
-      color: white;
-
-      &:hover {
-        background-color: rgb(40,120,70);
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(50,145,87, 0.3);
-      }
-    }
-
     &.btn-danger {
-      @apply bg-[#dc2626] text-white;
+      background-color: #dc2626; /* Rouge - même que les stades */
+      color: #ffffff;
 
       &:hover {
-        @apply bg-[#b91c1c];
+        background-color: #b91c1c; /* Même hover que les stades */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
       }
@@ -221,24 +324,46 @@
   }
 }
 
-.loading,
-.no-results {
-  @apply text-center text-lg bg-white rounded-lg border border-[#e2e8f0];
-  color: #64748b;
+/* Mise à jour de la responsivité pour correspondre aux stades */
+@media (max-width: 768px) {
+  .btn-group {
+    gap: 4px; /* Changé pour correspondre aux stades */
+
+    .btn {
+      font-size: 0.75rem; /* 12px - même que les stades */
+      padding: 6px 8px; /* Même padding que les stades */
+      min-width: 32px; /* Même largeur minimale que les stades */
+    }
+  }
+}
+
+.loading, .no-results {
+  text-align: center;
   padding: 60px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #64748b;
+  font-size: 1.2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
 }
 
 .no-results .icon {
-  @apply text-3xl mb-4 opacity-50;
+  font-size: 3rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
   color: #94a3b8;
 }
 
 .table-info {
-  @apply mt-4 text-right text-sm italic;
+  margin-top: 15px;
+  text-align: right;
   color: #64748b;
+  font-size: 0.9rem;
+  font-style: italic;
 }
 
+/* Responsivité améliorée */
 @media (max-width: 1024px) {
   .stades-container {
     padding: 15px;
@@ -255,7 +380,9 @@
   }
 
   .header {
-    @apply flex-col text-center gap-4;
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
 
     h1 {
       font-size: 1.8rem;
@@ -270,7 +397,20 @@
   }
 
   .search-input {
-    @apply max-w-full;
+    max-width: 100%;
+  }
+
+  .form-container {
+    padding: 20px;
+    margin: 0 -10px 25px -10px;
+    border-radius: 0;
+
+    .form-actions {
+      .btn {
+        flex: 1;
+        min-width: auto;
+      }
+    }
   }
 
   .table-container {
@@ -283,20 +423,25 @@
 
     thead th {
       padding: 12px 8px;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
     }
 
     tbody td {
       padding: 12px 8px;
+
+      &.stade-nom {
+        font-size: 1rem;
+      }
     }
   }
 
   .btn-group {
-    @apply gap-1;
+    gap: 4px;
 
     .btn {
-      @apply text-xs p-1.5;
-      min-width: 32px;
+      font-size: 0.75rem;
+      padding: 6px 8px;
+      min-width: 30px;
     }
   }
 }
@@ -309,19 +454,24 @@
 
   .stades-table {
     thead th:first-child {
-      width: 30%;
-    }
-
-    thead th:nth-child(2) {
-      width: 45%;
+      width: 65%;
     }
 
     thead th:last-child {
-      width: 25%;
+      width: 35%;
+    }
+  }
+
+  .form-actions {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
     }
   }
 }
 
+/* Animation pour le formulaire */
 @keyframes slideDown {
   from {
     max-height: 0;
@@ -329,12 +479,13 @@
     transform: translateY(-10px);
   }
   to {
-    max-height: 300px;
+    max-height: 400px;
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+/* Amélioration de l'accessibilité */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

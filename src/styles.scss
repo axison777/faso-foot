@@ -13,6 +13,19 @@ body {
 
 :root {
     --surface-hover: #004d40; /* nouvelle couleur au survol */
+     --primary-color:rgb(50, 145, 87) !important;
+    --p-button-primary-background: rgb(50, 145, 87) !important;
+    --p-button-primary-border-color: rgb(50, 145, 87) !important;
+    --highlight-bg: #e7fffb !important;
+    --highlight-text-color: #004d40 !important;
+
+
+}
+
+.layout-menu ul a.active-route {
+    font-weight: 700;
+    color: #c73e3e;
+    background-color: #e7fffb;
 }
 
 

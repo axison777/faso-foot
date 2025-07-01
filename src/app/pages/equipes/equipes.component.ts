@@ -1,188 +1,164 @@
-// equipes.component.ts
-import { Component, OnInit, ViewChild } from '@angular/core';
-//import { Team, League } from '../service/team.model';
-
-import { MessageService } from 'primeng/api';
-import { TeamService } from '../../service/team.service';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+//import { Equipe } from '../../models/equipe.model';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { Table, TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { DialogModule } from 'primeng/dialog';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { NgIf } from '@angular/common';
-
-
-export interface League {
-  id: number;
-  name: string;
-}
-
-export interface Team {
-  id: number;
-  name: string;
-  league: League;
-}
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { SelectModule } from 'primeng/select';
+import { Equipe, EquipeService } from '../../service/equipe.service';
 
 @Component({
   selector: 'app-equipes',
-  imports: [
-    FormsModule,
-    TableModule,
-    DialogModule,
-    InputTextModule,
-    DropdownModule,
-    ButtonModule,
-    ToastModule,
-    IconFieldModule,
-    InputIconModule,
-    NgIf
-  ],
   templateUrl: './equipes.component.html',
+  standalone: true,
   styleUrls: ['./equipes.component.scss'],
-  providers: [MessageService],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DialogModule,
+    ButtonModule,
+    InputTextModule,
+    ConfirmDialogModule,
+    ToastModule,
+    SelectModule
+  ]
 })
 export class EquipesComponent implements OnInit {
-@ViewChild('dt') dt!: Table;
-  teams: Team[] = [];
-  leagues: League[] = [];
+  equipes: Equipe[] = [];
+  selectedEquipe!: Equipe;
+  searchTerm: string = '';
+  loading: boolean = false;
 
-  newTeamName: string = '';
-  selectedLeagueId: number | null = null;
-  selectedLeague: League | null = null;
+  // Nouvelles propriétés pour le formulaire intégré
+  showForm: boolean = false;
+  newEquipe = { name: '' };
+  isEditing: boolean = false;
+  editingEquipeId: number | null = null;
 
-  loading = false;
-  displayDialog: boolean = false;
-  selectedLeagueFilter: League | null = null;
-
-  submitted: boolean = false;
-
-
-
-  constructor(
-    private teamService: TeamService,
-    private messageService: MessageService
-  ) {}
+  constructor(private equipeService: EquipeService, private router: Router,private messageService: MessageService, private confirmationService: ConfirmationService,) {}
 
   ngOnInit(): void {
-    //this.loadData();
-    this.leagues = [
-      { id: 1, name: 'Ligue A' },
-      { id: 2, name: 'Ligue B' },
-      { id: 3, name: 'Ligue C' }
-    ];
-
-    this.teams = [
-      { id: 1, name: 'Équipe Alpha', league: this.leagues[0] },
-      { id: 2, name: 'Équipe Bravo', league: this.leagues[1] },
-      { id: 3, name: 'Équipe Charlie', league: this.leagues[2] }
-    ];
+    this.loadEquipes();
   }
 
-  loadData() {
+  loadEquipes(): void {
     this.loading = true;
-    this.teamService.getTeams().subscribe((data) => {
-      this.teams = data;
+    this.equipeService.getAll().subscribe({
+      next: (res:any) => {
+         this.equipes = res?.data?.teams;
       this.loading = false;
-    });
+      }
 
-    this.teamService.getLeagues().subscribe((data) => {
-      this.leagues = data;
     });
   }
 
-  createTeam() {
-    if (!this.newTeamName || !this.selectedLeagueId) return;
-
-    this.teamService
-      .createTeam({ name: this.newTeamName, leagueId: this.selectedLeagueId })
-      .subscribe({
-        next: (team) => {
-          this.teams.push(team);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Équipe créée',
-            detail: `${team.name} a été ajoutée`,
-          });
-          this.newTeamName = '';
-          this.selectedLeagueId = null;
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Impossible de créer l’équipe',
-          });
-        },
-      });
-  }
-
-  ///////////// fake
-  openNewTeamDialog() {
-    this.displayDialog = true;
-    this.newTeamName = '';
-    this.selectedLeague = null;
-  }
-
- /*  saveTeam() {
-    if (!this.newTeamName || !this.selectedLeague) return;
-
-    const newTeam: Team = {
-      id: this.teams.length + 1,
-      name: this.newTeamName,
-      league: this.selectedLeague
-    };
-
-    this.teams.push(newTeam);
-    this.displayDialog = false;
-
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Équipe ajoutée',
-      detail: `${newTeam.name} a été créée.`,
-      life: 3000
-    });
-  } */
-
-    saveTeam() {
-  this.submitted = true;
-
-  if (!this.newTeamName || !this.selectedLeague) return;
-
-  const newTeam: Team = {
-    id: this.teams.length + 1,
-    name: this.newTeamName,
-    league: this.selectedLeague
-  };
-
-  this.teams.push(newTeam);
-  this.displayDialog = false;
-  this.submitted = false;
-
-  this.messageService.add({
-    severity: 'success',
-    summary: 'Équipe ajoutée',
-    detail: `${newTeam.name} a été créée.`,
-    life: 3000
-  });
-}
-
-  filterByLeague() {
-  if (this.dt) {
-    if (this.selectedLeagueFilter) {
-      this.dt.filter(this.selectedLeagueFilter.name, 'league.name', 'equals');
-    } else {
-      this.dt.filter('', 'league.name', 'equals');
+  // Nouvelle méthode pour afficher/masquer le formulaire
+  toggleForm(): void {
+    this.showForm = !this.showForm;
+    if (this.showForm) {
+      this.resetForm();
     }
   }
-  }
-  getLigueName(league: League): string {
-    return league?.name ?? '';
+
+  // Réinitialiser le formulaire
+  resetForm(): void {
+    this.newEquipe = { name: '' };
+    this.isEditing = false;
+    this.editingEquipeId = null;
   }
 
+  // Enregistrer une nouvelle equipe
+  enregistrerEquipe(): void {
+    if (this.newEquipe.name.trim()) {
+      if (this.isEditing && this.editingEquipeId) {
+        // Mode édition
+        const equipeToUpdate = { id: this.editingEquipeId, name: this.newEquipe.name.trim() };
+        this.equipeService.update(this.editingEquipeId, equipeToUpdate).subscribe({
+          next: () => {
+            this.loadEquipes();
+            this.toggleForm();
+            this.messageService.add({
+            severity: 'success',
+            summary: 'Equipe modifiée',
+            detail: `${this.newEquipe.name} modifiée.`,
+            life: 3000
+            });
 
+          },
+          error: (error) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Erreur lors de la création de la equipe',
+            })
+
+          }
+
+        });
+      } else {
+        // Mode création
+        const nouvelleEquipe = { name: this.newEquipe.name.trim() };
+        this.equipeService.create(nouvelleEquipe).subscribe({
+          next: () => {
+            this.loadEquipes();
+            this.toggleForm();
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Equipe créée',
+              /* detail: `${this.newEquipe.name} modifiée.`, */
+              life: 3000
+            });
+          },
+          error: (error) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Erreur lors de la création de la equipe',
+            })
+          }
+        });
+      }
+    }
+  }
+
+  // CORRECTION: Ajouter la méthode manquante
+  annulerFormulaire(): void {
+    this.showForm = false;
+    this.resetForm();
+  }
+
+  // Modifier une equipe (ouvre le formulaire en mode édition)
+  editEquipe(equipe: Equipe): void {
+    this.newEquipe = { name: equipe.name };
+    this.isEditing = true;
+    this.editingEquipeId = equipe.id;
+    this.showForm = true;
+  }
+
+  deleteEquipe(id: number): void {
+    if (confirm('Voulez-vous vraiment supprimer cette equipe ?')) {
+      this.equipeService.delete(id).subscribe(() => {
+        this.loadEquipes();
+      });
+    }
+  }
+
+  viewEquipe(equipe: Equipe): void {
+    alert(`Détails de la equipe:\n\nNom: ${equipe.name}`);
+  }
+
+  get filteredEquipes(): Equipe[] {
+    if (!this.searchTerm) {
+      return this.equipes;
+    }
+    return this.equipes.filter(v =>
+      v.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
 }

@@ -1,18 +1,18 @@
-// src/app/services/saison.service.ts
+// src/app/services/equipe.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-export interface Saison {
+export interface Equipe {
   id: number;
-  nom: string;
+  name: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class SaisonService {
-    apiUrl=environment.apiUrl+'/seasons/'
+export class EquipeService {
+    apiUrl=environment.apiUrl+'/teams/'
 
   constructor(private http: HttpClient) {}
 
@@ -20,12 +20,12 @@ export class SaisonService {
     return this.http.get<any[]>(this.apiUrl+'all');
   }
 
-  create(saison: Partial<any>): Observable<any> {
-    return this.http.post<any>(this.apiUrl, saison);
+  create(equipe: Partial<any>): Observable<any> {
+    return this.http.post<any>(this.apiUrl, equipe);
   }
 
-  update(id: number, saison: Partial<any>): Observable<any> {
-    return this.http.put<Saison>(`${this.apiUrl}${id}/`, saison);
+  update(id: number, equipe: Partial<any>): Observable<any> {
+    return this.http.put<Equipe>(`${this.apiUrl}${id}/`, equipe);
   }
 
   delete(id: number): Observable<void> {

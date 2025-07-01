@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { AuthService } from '../service/auth.service';
+/* import { AuthService } from '../service/auth.service'; */
 import { LoginCredentials } from '../../models/auth.model';
 
 @Component({
@@ -15,7 +15,7 @@ import { LoginCredentials } from '../../models/auth.model';
 })
 export class LoginComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  
+
   formData: LoginCredentials = {
     email: '',
     password: ''
@@ -30,18 +30,16 @@ export class LoginComponent implements OnInit, OnDestroy {
   defaultCredentials: any[] = [];
 
   constructor(
-    private authService: AuthService,
+   // private authService: AuthService,
     private router: Router
   ) {
     // CORRECTION: Initialiser dans le constructeur après l'injection
-    this.defaultCredentials = this.authService.getDefaultCredentials();
+   // this.defaultCredentials = this.authService.getDefaultCredentials();
   }
 
   ngOnInit(): void {
     // Rediriger si déjà connecté
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
-    }
+
   }
 
   ngOnDestroy(): void {
@@ -52,7 +50,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   onInputChange(): void {
     this.error = ''; // Effacer l'erreur quand l'utilisateur tape
     this.success = '';
-    
+
     // Vérifier si les identifiants correspondent aux valeurs par défaut
     if (this.formData.email && this.formData.password) {
       this.checkDefaultCredentials();
@@ -67,10 +65,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (isDefaultCredential) {
       this.success = "Connexion réussie !";
       this.loading = true;
-      
+
       // Rediriger vers le dashboard après un court délai
       setTimeout(() => {
-        this.performLogin();
+        //this.performLogin();
       }, 800);
     }
   }
@@ -96,27 +94,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.performLogin();
+    //this.performLogin();
   }
 
-  private performLogin(): void {
-    this.error = '';
-    this.loading = true;
 
-    this.authService.login(this.formData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.success = "Connexion réussie !";
-          setTimeout(() => {
-            this.router.navigate(['/villes']); // Redirection vers villes pour l'instant
-          }, 800);
-        },
-        error: (err) => {
-          this.error = err.message;
-          this.loading = false;
-          this.success = '';
-        }
-      });
-  }
 }

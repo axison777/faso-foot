@@ -1,112 +1,105 @@
+<p-confirmDialog></p-confirmDialog>
 <p-toast></p-toast>
-<div class="card mb-4">
-  <div class="flex justify-between items-center flex-wrap gap-3">
-    <span class="text-xl font-semibold">Filtrer par ligue</span>
-
-    <p-dropdown
-      [options]="leagues"
-      [(ngModel)]="selectedLeagueFilter"
-      optionLabel="name"
-      placeholder="Toutes les ligues"
-      appendTo="body"
-      showClear
-      class="w-full sm:w-16rem"
-      (onChange)="filterByLeague()"
-    ></p-dropdown>
-  </div>
-</div>
-
-<div class="card">
-  <div class="flex justify-between items-center mb-4">
-    <span class="text-xl font-semibold">Liste des équipes</span>
-    <button pButton label="Ajouter une équipe" icon="pi pi-plus" (click)="openNewTeamDialog()"></button>
+<div class="equipes-container">
+  <!-- Header -->
+  <div class="header">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Equipes</h1>
+    <button class="btn-primary" (click)="toggleForm()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter equipe
+    </button>
   </div>
 
-  <p-table #dt [value]="teams" dataKey="id" [paginator]="true" [rows]="10" [showGridlines]="true" [responsiveLayout]="'scroll'" [globalFilterFields]="['name', 'league.name']">
-    <ng-template pTemplate="caption">
-      <div class="flex justify-end">
-        <p-iconfield iconPosition="left">
-          <p-inputicon>
-            <i class="pi pi-search"></i>
-          </p-inputicon>
-          <input pInputText type="text" placeholder="Rechercher..." (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
-        </p-iconfield>
-      </div>
-    </ng-template>
-
-    <ng-template pTemplate="header">
-      <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Ligue</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-team>
-      <tr>
-        <td>{{ team.id }}</td>
-        <td>{{ team.name }}</td>
-        <td>{{ getLigueName(team.league) }}</td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr><td colspan="3">Aucune équipe trouvée.</td></tr>
-    </ng-template>
-  </p-table>
-</div>
-
-<p-dialog
-  [(visible)]="displayDialog"
-  [style]="{ width: '450px', height: 'fit-content' }"
-  [draggable]="false"
-  [resizable]="false"
-  header="Nouvelle équipe"
-  [modal]="true"
->
+  <!-- Formulaire intégré -->
+<p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier la equipe' : 'Ajouter une nouvelle equipe'" [modal]="true" [closable]="false">
   <ng-template #content>
-    <div class="flex flex-col gap-6 mb-10">
+    <form (ngSubmit)="enregistrerEquipe()" #equipeForm="ngForm" class="flex flex-col gap-6">
+
       <div>
-        <label for="teamName" class="block font-bold ">Nom de l'équipe</label>
+        <label for="name" class="block font-bold mb-2">Nom de l'equipe *</label>
         <input
-          id="teamName"
-          type="text"
           pInputText
-          [(ngModel)]="newTeamName"
+          type="text"
+          id="name"
+          name="name"
+          [(ngModel)]="newEquipe.name"
           required
-          autofocus
+          placeholder="Entrez le nom de l'equipe"
+          #nomInput="ngModel"
           class="w-full"
         />
-        <small class="text-red-500" *ngIf="!newTeamName && displayDialog">Le nom est requis.</small>
+        <small class="text-red-500" *ngIf="nomInput.invalid && nomInput.touched">Le nom de l'equipe est requis.</small>
       </div>
 
-      <div class="mb-5">
-        <label for="league" class="block font-bold ">Ligue</label>
-        <p-dropdown
-          id="league"
-          [options]="leagues"
-          optionLabel="name"
-          [(ngModel)]="selectedLeague"
-          placeholder="Sélectionner une ligue"
-          class="w-full"
-          appendTo="body"
-        ></p-dropdown>
-        <small class="text-red-500" *ngIf="!selectedLeague && displayDialog">La ligue est requise.</small>
-      </div>
-    </div>
+    </form>
   </ng-template>
 
   <ng-template #footer>
-    <p-button
-      label="Annuler"
-      icon="pi pi-times"
-      text
-      (click)="displayDialog = false"
-    ></p-button>
-    <p-button
-      label="Créer"
-      icon="pi pi-check"
-      (click)="saveTeam()"
-      [disabled]="!newTeamName || !selectedLeague"
-    ></p-button>
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Annuler"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="annulerFormulaire()"
+      />
+      <p-button
+        [label]="isEditing ? 'Modifier' : 'Enregistrer'"
+        icon="pi pi-check"
+        type="submit"
+        form="equipeForm"
+        (click)="enregistrerEquipe()"
+      />
+    </div>
   </ng-template>
 </p-dialog>
 
+
+  <!-- Search -->
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher par nom de l'équipe..."
+    >
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Chargement des equipes...
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && filteredEquipes.length > 0" class="table-container">
+    <table class="equipes-table">
+      <thead>
+        <tr>
+          <th>Nom de l'équipe</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let equipe of filteredEquipes">
+          <td class="equipe-nom">{{ equipe.name }}</td>
+          <td class="actions">
+            <div class="btn-group">
+              <!-- <button class="btn btn-info"><i class="pi pi-eye"></i></button> -->
+              <button class="btn btn-warning" (click)="editEquipe(equipe)"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-danger" (click)="deleteEquipe(equipe.id)"><i class="pi pi-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+   <!--  <div class="table-info">
+      {{ filteredEquipes.length }} equipe(s) affichée(s) sur {{ equipes.length }} au total
+    </div> -->
+  </div>
+
+  <!-- No results -->
+  <div *ngIf="!loading && filteredEquipes.length === 0" class="no-results">
+    <div class="icon">🔍</div>
+    <p>Aucune equipe trouvée pour "{{ searchTerm }}"</p>
+  </div>
+</div>

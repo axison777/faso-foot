@@ -6,9 +6,14 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class MatchService {
+    baseUrl = environment.apiUrl+'/';
     apiUrl=environment.apiUrl+'/matches/'
   constructor(private http: HttpClient) { }
    getAll(): Observable<any[]> {
       return this.http.get<any[]>(this.apiUrl+'all');
+    }
+
+    getBySeasonId(id:string): Observable<any[]> {
+      return this.http.get<any[]>(this.baseUrl+"seasons"+"/"+id);
     }
 }

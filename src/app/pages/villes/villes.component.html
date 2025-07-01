@@ -1,59 +1,65 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
 <div class="villes-container">
   <!-- Header -->
   <div class="header">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <h1>Liste des Villes</h1>
+    <h1>Villes</h1>
     <button class="btn-primary" (click)="toggleForm()">
       <i class="pi pi-plus-circle mr-2"></i> Ajouter ville
     </button>
   </div>
 
   <!-- Formulaire intégré -->
-  <div *ngIf="showForm" class="form-container">
-    <h3>{{ isEditing ? 'Modifier la ville' : 'Ajouter une nouvelle ville' }}</h3>
-    <form (ngSubmit)="enregistrerVille()" #villeForm="ngForm">
-      <div class="form-group">
-        <label for="nom">Nom de la ville *</label>
-        <input 
-          type="text" 
-          id="nom"
-          name="nom"
-          [(ngModel)]="newVille.nom" 
-          required
-          class="form-input"
-          placeholder="Entrez le nom de la ville"
-          #nomInput="ngModel"
-        >
-        <div *ngIf="nomInput.invalid && nomInput.touched" class="error-message">
-          Le nom de la ville est requis
+    <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier la ville' : 'Ajouter une nouvelle ville'" [modal]="true" [closable]="false">
+    <ng-template #content>
+        <form (ngSubmit)="enregistrerVille()" #villeForm="ngForm" class="flex flex-col gap-6">
+
+        <div>
+            <label for="name" class="block font-bold mb-2">Nom de la ville *</label>
+            <input
+            pInputText
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="newVille.name"
+            required
+            placeholder="Entrez le nom de la ville"
+            #nomInput="ngModel"
+            class="w-full"
+            />
+            <small class="text-red-500" *ngIf="nomInput.invalid && nomInput.touched">Le nom de la ville est requis.</small>
         </div>
-      </div>
-      
-      <div class="form-actions">
-        <button 
-          type="submit" 
-          class="btn btn-primary"
-          [disabled]="villeForm.invalid"
-        >
-          {{ isEditing ? ' Modifier' : 'Enregistrer' }}
-        </button>
-        <button 
-          type="button" 
-          class="btn btn-secondary"
-          (click)="annulerFormulaire()"
-        >
-          Annuler
-        </button>
-      </div>
-    </form>
-  </div>
+
+        </form>
+    </ng-template>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+        <p-button
+            label="Annuler"
+            icon="pi pi-times"
+            class="p-button-text"
+            (click)="annulerFormulaire()"
+        />
+        <p-button
+            [label]="isEditing ? 'Modifier' : 'Enregistrer'"
+            icon="pi pi-check"
+            type="submit"
+            form="villeForm"
+            (click)="enregistrerVille()"
+        />
+        </div>
+    </ng-template>
+    </p-dialog>
+
 
   <!-- Search -->
   <div class="search-container">
-    <input 
+    <input
       type="text"
       class="search-input"
-      [(ngModel)]="searchTerm" 
+      [(ngModel)]="searchTerm"
       placeholder="Rechercher par nom de ville..."
     >
   </div>
@@ -74,21 +80,21 @@
       </thead>
       <tbody>
         <tr *ngFor="let ville of filteredVilles">
-          <td class="ville-nom">{{ ville.nom }}</td>
+          <td class="ville-nom">{{ ville.name }}</td>
           <td class="actions">
             <div class="btn-group">
-              <button class="btn btn-info"><i class="pi pi-eye"></i></button>
-              <button class="btn btn-warning"><i class="pi pi-pencil"></i></button>
-              <button class="btn btn-danger"><i class="pi pi-trash"></i></button>
+              <!-- <button class="btn btn-info"><i class="pi pi-eye"></i></button> -->
+              <button class="btn btn-warning" (click)="editVille(ville)"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-danger" (click)="deleteVille(ville.id)"><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
-        
-    <div class="table-info">
+
+   <!--  <div class="table-info">
       {{ filteredVilles.length }} ville(s) affichée(s) sur {{ villes.length }} au total
-    </div>
+    </div> -->
   </div>
 
   <!-- No results -->

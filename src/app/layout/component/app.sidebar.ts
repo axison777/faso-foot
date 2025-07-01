@@ -1,5 +1,6 @@
 import { Component, ElementRef } from '@angular/core';
 import { AppMenu } from './app.menu';
+import { LayoutService } from '../service/layout.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -7,10 +8,16 @@ import { AppMenu } from './app.menu';
   imports: [AppMenu],
   template: `
     <div class="layout-sidebar">
-      <div class="sidebar-logo">
+        <div class="flex justify-center">
+            <div class="sidebar-logo">
         <img src="assets/Logo-FBF.png" alt="Logo CBF" class="logo-image"   />
         <span class="logo-text">Championnat BF<br />CBF</span>
       </div>
+      <!--  <button class="layout-topbar-action" (click)="layoutService.onMenuToggle()">
+          <i class="pi pi-bars"></i>
+        </button> -->
+        </div>
+
       <app-menu></app-menu>
     </div>
   `,
@@ -26,7 +33,7 @@ import { AppMenu } from './app.menu';
     .layout-sidebar {
       width: 280px;
       height: 100vh;
-      background: var(--sidebar-bg);
+      background: rgb(50,145,87);
       color: var(--text-color);
       display: flex;
       flex-direction: column;
@@ -45,11 +52,11 @@ import { AppMenu } from './app.menu';
       flex-direction: column;
       align-items: center;
       padding: 1.5rem 0;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
 
     .logo-image {
-      width: 80px;
+      width: 130px;
       height: auto;
       margin-bottom: 0.5rem;
       margin-left: 0.5rem;
@@ -115,5 +122,5 @@ import { AppMenu } from './app.menu';
   `]
 })
 export class AppSidebar {
-  constructor(public el: ElementRef) {}
+  constructor(public el: ElementRef,public layoutService: LayoutService) {}
 }

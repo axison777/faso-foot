@@ -5,15 +5,15 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 export interface Stade {
   id: number;
-  nom: string;
-  ville_id: number;
+  name: string;
+  city_id: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class StadeService {
-    apiUrl=environment.apiUrl+'/cities'
+    apiUrl=environment.apiUrl+'/stadiums/'
 
   constructor(private http: HttpClient) {}
 

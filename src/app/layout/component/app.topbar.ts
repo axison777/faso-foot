@@ -9,14 +9,15 @@ import { LayoutService } from '../service/layout.service';
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+  imports: [RouterModule, CommonModule, StyleClassModule],
   template: `
-    <div class="layout-topbar">
-      <div class="layout-topbar-actions">
-        <button class="layout-topbar-action" (click)="layoutService.onMenuToggle()">
+    <div class="layout-topbar" [class.sidebar-visible]="isStaticMenuDesktopActive || isStaticMenuMobileActive">
+         <button class="layout-topbar-action" (click)="layoutService.onMenuToggle()">
           <i class="pi pi-bars"></i>
         </button>
-        <div class="layout-config-menu">
+      <div class="layout-topbar-actions">
+
+     <!--    <div class="layout-config-menu">
           <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
             <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
           </button>
@@ -37,7 +38,7 @@ import { LayoutService } from '../service/layout.service';
         </div>
         <button class="layout-topbar-action" pStyleClass="@next" [hideOnOutsideClick]="true">
           <i class="pi pi-bell"></i>
-        </button>
+        </button> -->
         <button class="layout-topbar-action">
           <i class="pi pi-user"></i>
           <span>Admin User</span>
@@ -56,16 +57,25 @@ import { LayoutService } from '../service/layout.service';
 
 
     .layout-topbar {
-background: rgb(50,145,87);   
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 0 2rem;
-      height: 64px;
-      position: fixed;
-      width: 100%;
-      z-index: 1000;
-    }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #329157;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  transition: all 0.3s ease;
+  z-index: 999;
+
+  &.sidebar-visible {
+    left: 280px;
+    width: calc(100% - 280px);
+  }
+}
+
 
     .layout-topbar-actions {
       display: flex;
@@ -123,4 +133,11 @@ export class AppTopbar {
   toggleDarkMode() {
     this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
   }
+  get isStaticMenuDesktopActive(): boolean {
+  return !this.layoutService.layoutState().staticMenuDesktopInactive && this.layoutService.isDesktop();
+
+}
+  get isStaticMenuMobileActive(): boolean {
+  return !this.layoutService.layoutState().staticMenuMobileActive && this.layoutService.isMobile();
+}
 }

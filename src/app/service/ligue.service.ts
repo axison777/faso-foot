@@ -1,9 +1,9 @@
-// src/app/services/saison.service.ts
+// src/app/services/ligue.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-export interface Saison {
+export interface Ligue {
   id: number;
   nom: string;
 }
@@ -11,8 +11,8 @@ export interface Saison {
 @Injectable({
   providedIn: 'root'
 })
-export class SaisonService {
-    apiUrl=environment.apiUrl+'/seasons/'
+export class LigueService {
+    apiUrl=environment.apiUrl+'/leagues/'
 
   constructor(private http: HttpClient) {}
 
@@ -20,12 +20,12 @@ export class SaisonService {
     return this.http.get<any[]>(this.apiUrl+'all');
   }
 
-  create(saison: Partial<any>): Observable<any> {
-    return this.http.post<any>(this.apiUrl, saison);
+  create(ligue: Partial<any>): Observable<any> {
+    return this.http.post<any>(this.apiUrl, ligue);
   }
 
-  update(id: number, saison: Partial<any>): Observable<any> {
-    return this.http.put<Saison>(`${this.apiUrl}${id}/`, saison);
+  update(id: number, ligue: Partial<any>): Observable<any> {
+    return this.http.put<Ligue>(`${this.apiUrl}${id}/`, ligue);
   }
 
   delete(id: number): Observable<void> {

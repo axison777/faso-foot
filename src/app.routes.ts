@@ -10,6 +10,7 @@ import { VillesComponent } from './app/pages/villes/villes.component';
 import { StadesComponent } from './app/pages/stades/stades.component';
 import { EquipesComponent } from './app/pages/equipes/equipes.component';
 import { LoginComponent } from './app/pages/login/login.component';
+import { MatchsComponent } from './app/pages/matchs/matchs.component';
 
 export const appRoutes: Routes = [
     {
@@ -25,6 +26,7 @@ export const appRoutes: Routes = [
             { path: 'villes', component: VillesComponent },
             { path: 'stades', component: StadesComponent },
             { path: 'equipes', component: EquipesComponent },
+             {path: 'matchs/:id', component: MatchsComponent},
         ]
     },
 

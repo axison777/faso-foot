@@ -1,54 +1,109 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
 <div class="stades-container">
+  <!-- Header -->
   <div class="header">
-    <h1>Gestion des Stades</h1>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Stades</h1>
     <button class="btn-primary" (click)="toggleForm()">
-      <i class="pi pi-plus-circle mr-2"></i> Ajouter Stade
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter stade
     </button>
   </div>
 
+  <!-- Formulaire intégré -->
+  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le stade' : 'Ajouter un nouveau stade'" [modal]="true" [closable]="false">
+    <ng-template #content>
+      <form (ngSubmit)="enregistrerStade()" #stadeForm="ngForm" class="flex flex-col gap-6">
+        <!-- Nom du stade -->
+        <div>
+          <label for="name" class="block font-bold mb-2">Nom du stade *</label>
+          <input
+            pInputText
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="newStade.name"
+            required
+            placeholder="Entrez le nom du stade"
+            #nomInput="ngModel"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="nomInput.invalid && nomInput.touched">Le nom du stade est requis.</small>
+        </div>
+
+        <!-- Ville associée -->
+        <div *ngIf="!isEditing">
+          <label for="ville" class="block font-bold mb-2">Ville *</label>
+          <p-select
+            id="ville"
+            name="ville"
+            [options]="villes"
+            optionLabel="name"
+            optionValue="id"
+            [(ngModel)]="newStade.city_id"
+            placeholder="Sélectionnez une ville"
+            required
+            [showClear]="true"
+            class="w-full"
+            appendTo="body"
+          ></p-select>
+        </div>
+      </form>
+    </ng-template>
+
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button
+          label="Annuler"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="annulerFormulaire()"
+        />
+        <p-button
+          [label]="isEditing ? 'Modifier' : 'Enregistrer'"
+          icon="pi pi-check"
+          type="submit"
+          form="stadeForm"
+          (click)="enregistrerStade()"
+        />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Search -->
   <div class="search-container">
-    <input type="text" class="search-input" placeholder="Rechercher un stade..." />
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher par nom de stade..."
+    >
   </div>
 
-  <!-- Formulaire déroulant -->
-  <div *ngIf="showForm" class="form-container bg-[#2d3436] p-6 rounded-xl border border-[#34495e] mb-6">
-    <h2 class="text-white text-xl font-semibold mb-4">Ajouter un nouveau stade</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <select [(ngModel)]="newStade.ville" class="search-input">
-        <option value="" disabled selected>Sélectionner une ville</option>
-        <option *ngFor="let ville of villes" [value]="ville">{{ ville }}</option>
-      </select>
-      <input [(ngModel)]="newStade.nom" placeholder="Nom du stade" class="search-input" />
-    </div>
-    <div class="mt-4 flex justify-end gap-4">
-      <button (click)="toggleForm()" class="btn btn-warning" title="Annuler l'ajout">
-        <i class="pi pi-times mr-2"></i> Annuler
-      </button>
-      <button (click)="enregistrerStade()" class="btn btn-primary" title="Enregistrer le stade">
-        <i class="pi pi-check-circle mr-2"></i> Enregistrer
-      </button>
-    </div>
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Chargement des stades...
   </div>
 
-  <!-- Liste des stades -->
-  <div class="table-container">
+  <!-- Table -->
+  <div *ngIf="!loading && filteredStades.length > 0" class="table-container">
     <table class="stades-table">
       <thead>
         <tr>
-          <th>Ville</th>
-          <th>Nom</th>
+          <th>Nom du Stade</th>
+
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let stade of stades">
-          <td>{{ stade.ville }}</td>
-          <td>{{ stade.nom }}</td>
+        <tr *ngFor="let stade of filteredStades">
+          <td class="stade-nom">{{ stade.name }}</td>
+
           <td class="actions">
             <div class="btn-group">
-              <button class="btn btn-info" title="Voir le stade"><i class="pi pi-eye"></i></button>
-              <button class="btn btn-warning" title="Modifier le stade"><i class="pi pi-pencil"></i></button>
-              <button class="btn btn-danger" title="Supprimer le stade"><i class="pi pi-trash"></i></button>
+              <button class="btn btn-warning" (click)="editStade(stade)"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-danger" (click)="deleteStade(stade.id)"><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>
@@ -56,5 +111,9 @@
     </table>
   </div>
 
-  <div class="table-info">Total : {{ stades.length }} stades</div>
+  <!-- No results -->
+  <div *ngIf="!loading && filteredStades.length === 0" class="no-results">
+    <div class="icon">🔍</div>
+    <p>Aucun stade trouvé pour "{{ searchTerm }}"</p>
+  </div>
 </div>

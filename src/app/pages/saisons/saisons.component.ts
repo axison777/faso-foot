@@ -7,7 +7,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { CalendarModule } from 'primeng/calendar';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ConfirmationService } from 'primeng/api';
@@ -21,7 +21,9 @@ import { AccordionModule } from 'primeng/accordion';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { Checkbox } from 'primeng/checkbox';
 import { CardModule } from 'primeng/card';
+import { SaisonService } from '../../service/saison.service';
 import { VilleService } from '../../service/ville.service';
+import { LigueService } from '../../service/ligue.service';
 
 interface League {
   id: number;
@@ -48,8 +50,8 @@ interface Saison {
   year: number;
   teamCount: number;
   calendarGenerated: boolean;
-  startDate: Date;
-  endDate: Date;
+  start_date: Date;
+  end_date: Date;
   constraints?: Constraints;
 }
 
@@ -77,7 +79,8 @@ interface Saison {
     AccordionModule,
     InputNumberModule,
     Checkbox,
-    CardModule
+    CardModule,
+    CommonModule
 
 
   ],
@@ -94,8 +97,8 @@ export class SaisonsComponent implements OnInit{
 
   selectedLeague: League | null = null;
   newSaisonName = '';
-  startDate!: Date;
-  endDate!: Date;
+  start_date!: Date;
+  end_date!: Date;
   displayDialog = false;
   loading = false;
 selectedSaisonToGenerate!: Saison;
@@ -130,21 +133,23 @@ selectedSaisonToGenerate!: Saison;
   ];
 
   ligues = [
-    { id: 1, nom: 'Ligue 1' },
-    { id: 2, nom: 'Ligue 2' }
+    { id: 1, name: 'Ligue 1' },
+    { id: 2, name: 'Ligue 2' }
   ];
 
-  villes = [
-    { id: '1', nom: 'Bobo-Dioulasso' },
-    { id: '2', nom: 'Ouagadougou' },
-    { id: '3', nom: 'Koudougou' }
+   villes = [
+    { id: '1', name: 'Bobo-Dioulasso' },
+    { id: '2', name: 'Ouagadougou' },
+    { id: '3', name: 'Koudougou' }
   ];
   form: FormGroup;
 
 ////
+searchTerm: string = '';
 
   constructor(private messageService: MessageService, private confirmationService: ConfirmationService, private router: Router,
-    private fb: FormBuilder, private villeService:VilleService
+    private villeService: VilleService,private fb: FormBuilder, private saisonService:SaisonService,
+     private ligueService: LigueService
   ) {
     // données fictives
     this.saisons = [
@@ -155,8 +160,8 @@ selectedSaisonToGenerate!: Saison;
         year: 2023,
         teamCount: 10,
         calendarGenerated: true,
-        startDate: new Date('2023-08-01'),
-        endDate: new Date('2024-05-31')
+        start_date: new Date('2023-08-01'),
+        end_date: new Date('2024-05-31')
       },
       {
         id: 2,
@@ -165,13 +170,13 @@ selectedSaisonToGenerate!: Saison;
         year: 2024,
         teamCount: 8,
         calendarGenerated: false,
-        startDate: new Date('2024-08-01'),
-        endDate: new Date('2025-05-31')
+        start_date: new Date('2024-08-01'),
+        end_date: new Date('2025-05-31')
       }
     ];
 
      this.form = this.fb.group({
-    nom: ['', Validators.required],
+    //nom: ['', Validators.required],
     ligue: [null, Validators.required],
     date_debut: [null],
     date_fin: [null],
@@ -187,7 +192,23 @@ selectedSaisonToGenerate!: Saison;
     cities: this.fb.array([])
   });
   }
+
     ngOnInit(): void {
+          this.loading = true;
+        this.saisonService.getAll().subscribe( {
+          next: (res:any) => {
+            this.saisons = res?.data?.seasons;
+
+          },
+          error: (error) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Erreur lors du chargement des saisons',
+            })
+          }
+
+        })
         this.villeService.getAll().subscribe( {
           next: (res:any) => {
             this.villes = res?.data?.cities;
@@ -199,44 +220,73 @@ selectedSaisonToGenerate!: Saison;
               detail: 'Erreur lors du chargement des villes',
             })
           }
-
         })
+        this.ligueService.getAll().subscribe( {
+          next: (res:any) => {
+            this.ligues = res?.data?.leagues;
+          },
+          error: (error) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Erreur lors du chargement des ligues',
+            })
+          }
+        })
+
+
+        this.loading = false;
 
     }
 
   createSaison() {
-    if (!this.newSaisonName || !this.selectedLeague || !this.startDate || !this.endDate) return;
-
-    const newSaison: Saison = {
-      id: this.saisons.length + 1,
-      name: this.newSaisonName,
-      league: this.selectedLeague,
-      year: new Date(this.startDate).getFullYear(),
-      teamCount: Math.floor(Math.random() * 10) + 6,
+    //if (!this.newSaisonName || !this.selectedLeague || !this.start_date || !this.end_date) return;
+/*
+    let newSaison: any = {
+      name: this.form.get('nom')?.value,
+      league: this.form,
       calendarGenerated: false,
-      startDate: this.startDate,
-      endDate: this.endDate
-    };
+      start_date: this.form.get('date_debut')?.value,
+      end_date: this.form.get('date_fin')?.value,
+      cities:this.form.get('cities')?.value
+    }; */
 
-    this.saisons.push(newSaison);
-    this.displayDialog = false;
+     const formValue = this.form.value;
+     //this.cities= formValue.cities;
+    let newSaison  = {
+    //id: this.editingSaison ? this.editingSaison.id : this.saisons.length + 1,
+    //name: formValue.nom,
+    league_id: formValue.ligue.id,
+    //year: new Date(formValue.date_debut).getFullYear(),
+    //teamCount: this.editingSaison ? this.editingSaison.teamCount : Math.floor(Math.random() * 10) + 6,
+    //calendarGenerated: this.editingSaison ? this.editingSaison.calendarGenerated : false,
+    start_date: formValue.date_debut?.toISOString(),
+    end_date: formValue.date_fin?.toISOString(),
+    constraints: {
+      max_matches_per_week: formValue.max_matches_per_week,
+      max_matches_per_month: formValue.max_matches_per_month,
+      min_days_between_matches: formValue.min_days_between_matches,
+      max_travels_per_month: formValue.max_travels_per_month,
+      allowed_days: formValue.allowed_days,
+      max_distance_km: formValue.max_distance_km,
+      geo_grouping: formValue.geo_grouping,
+      max_matches_per_day: formValue.max_matches_per_day,
+      must_play_in_home_stadium: formValue.must_play_in_home_stadium,
+      cities: formValue.cities.map((c: any) => ({
+        id: c.id.id,
+        min: c.count
+      }))
+    }}
 
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Saison créée',
-      detail: `${newSaison.name} (${newSaison.league.name}) ajoutée.`,
-      life: 3000
-    });
+    return newSaison;
 
-    this.newSaisonName = '';
-    this.selectedLeague = null;
   }
 
   genererCalendrier(saison: Saison) {
   this.confirmationService.confirm({
-    message: `Voulez-vous générer le calendrier pour "${saison.name}" du ${this.formatDate(saison.startDate)} au ${this.formatDate(saison.endDate)} ?`,
+    message: `Voulez-vous générer le calendrier pour "${saison?.league?.name}" du ${this.formatDate(saison?.start_date)} au ${this.formatDate(saison.end_date)} ?`,
     header: 'Confirmation',
-    icon: 'pi pi-exclamation-triangle',
+
     accept: () => {
       this.selectedSaisonToGenerate = saison;
       this.simulerGenerationCalendrier(saison);  // simulate fake loading
@@ -267,13 +317,25 @@ formatDate(date: Date): string {
   return new Intl.DateTimeFormat('fr-FR').format(new Date(date));
 }
 rechargerSaisons() {
-  // Ici, dans un vrai cas : appel au backend
-  this.saisons = [...this.saisons]; // rafraîchissement visuel pour Angular
+        this.saisonService.getAll().subscribe( {
+          next: (res:any) => {
+            this.saisons = res?.data?.seasons;
+
+          },
+          error: (error) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Erreur lors du chargement des saisons',
+            })
+          }
+
+        })
 }
 
 
  voirMatchs(saison: Saison) {
-  this.router.navigate(['/pages/matchs', saison.id]);
+  this.router.navigate(['/matchs', saison.id]);
 }
 
 
@@ -294,8 +356,30 @@ rechargerSaisons() {
   }
 
   submitSaison() {
-    console.log('Saison à envoyer', this.saison);
-    // TODO: envoyer via service
+    this.loading = true;
+    let saison=this.createSaison()
+    this.saisonService.create(saison).subscribe({
+      next: (res: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Succès',
+          detail: `Saison ajoutée.`,
+          life: 5000
+        });
+        this.rechargerSaisons();
+        this.loading = false;
+        this.displayDialog = false;
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Une erreur est survenue.',
+          life: 5000
+        });
+        this.loading = false;
+      }
+    });
   }
   get cities(): FormArray {
   return this.form.get('cities') as FormArray;
@@ -313,5 +397,14 @@ addVille() {
 removeVille(index: number) {
   this.cities.removeAt(index);
 }
+
+  get filteredSaisons(): any[] {
+    if (!this.searchTerm) {
+      return this.saisons;
+    }
+    return this.saisons.filter(s =>
+      s.league.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
 
 }

@@ -1,5 +1,5 @@
 export interface Ville {
   id: number;
-  nom: string;
+  name: string;
   // Supprimé codePostal et pays pour simplifier
 }

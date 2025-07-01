@@ -13,7 +13,8 @@
         transform var(--layout-section-transition-duration),
         left var(--layout-section-transition-duration);
     background-color: var(--surface-overlay);
-    border-radius: var(--content-border-radius);
+    //border-radius: var(--content-border-radius);
+    border-radius: 1px;
     padding: 0.5rem 1.5rem;
 }
 
@@ -24,7 +25,7 @@
 
     .layout-root-menuitem {
         > .layout-menuitem-root-text {
-            font-size: 0.857rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
             font-weight: 700;
             color: var(--text-color);
@@ -58,6 +59,8 @@
         margin: 0;
         padding: 0;
         list-style-type: none;
+        font-size: medium;
+
 
         a {
             display: flex;
@@ -66,7 +69,7 @@
             outline: 0 none;
             color: var(--text-color);
             cursor: pointer;
-            padding: 0.75rem 1rem;
+            padding: 0.85rem 1rem;
             border-radius: var(--content-border-radius);
             transition:
                 background-color var(--element-transition-duration),
@@ -157,4 +160,8 @@
 .layout-submenu-enter-active {
     overflow: hidden;
     transition: max-height 1s ease-in-out;
+}
+
+li{
+     margin-bottom: 10px;
 }
