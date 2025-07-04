@@ -1,4 +1,15 @@
-<div class="p-4">
+
+
+<div class="layout-container">
+  <div class="layout-header">
+    <div class="layout-header-line1">LIGUE 1</div>
+    <div class="layout-header-line2">Calendrier des matchs</div>
+    <div class="layout-header-line3">Saison 2025–2026</div>
+  </div>
+
+  <div class="layout-body">
+    <div class="layout-card">
+      <div class="p-4">
   <div class="flex justify-center gap-4 mb-6">
     <button
     class=""
@@ -46,10 +57,15 @@
       </ng-template>
     </p-carousel>
 
+
     <div class="flex justify-center gap-4 mt-6">
-      <button pButton type="button" label="Exporter en format PDF" style="font-weight: 700;"  class="btn btn-pdf" ></button>
-      <button pButton type="button" label="Exporter en format Excel" class="btn btn-excel" ></button>
+      <button class="btn-pdf">Exporter en format PDF</button>
+      <button class="btn-excel">Exporter en format Excel</button>
     </div>
   </div>
 </div>
+      <ng-content></ng-content>
+    </div>
 
+  </div>
+</div>
