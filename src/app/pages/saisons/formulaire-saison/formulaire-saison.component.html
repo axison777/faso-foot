@@ -1,0 +1,258 @@
+<div class="p-6">
+  <p-card>
+    <p-stepper [value]="1" class="form-stepper">
+      <p-step-list>
+        <p-step [value]="1">Ligue et dates</p-step>
+        <p-step [value]="2">Équipes</p-step>
+        <p-step [value]="3">Stades</p-step>
+        <p-step [value]="4">Contraintes</p-step>
+        <p-step [value]="5">Derbies</p-step>
+      </p-step-list>
+
+      <p-step-panels>
+        <!-- Step 1 -->
+        <p-step-panel [value]="1">
+          <ng-template #content let-activateCallback="activateCallback">
+            <form [formGroup]="step1Form" class="flex flex-col gap-6">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 mb-2">
+                  <label class="font-bold block mb-1">Ligue</label>
+                  <p-select formControlName="league_id" [options]="leagues" optionLabel="name" optionValue="id" placeholder="Sélectionner une ligue" class="w-full" />
+                </div>
+                <div>
+                  <label class="font-bold block mb-1 w-full">Date de début</label>
+                  <p-datepicker formControlName="start_date" showIcon class="w-full" dateFormat="dd/mm/yy" [style]="{'width': '70%'}" />
+                </div>
+                <div>
+                  <label class="font-bold block mb-1">Date de fin</label>
+                  <p-datepicker formControlName="end_date" showIcon class="w-full" dateFormat="dd/mm/yy" [style]="{'width': '70%'}" />
+                </div>
+              </div>
+            </form>
+            <div class="flex justify-end pt-6">
+              <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(2)" />
+            </div>
+          </ng-template>
+        </p-step-panel>
+
+        <!-- Step 2 -->
+        <p-step-panel [value]="2">
+          <ng-template #content let-activateCallback="activateCallback">
+<form [formGroup]="step2Form" class="flex flex-col gap-6">
+  <!-- Barre de recherche -->
+  <div>
+    <label class="font-bold block mb-1">Rechercher une équipe</label>
+    <input
+      pInputText
+      type="text"
+      [formControl]="searchControl"
+      placeholder="Nom, code ou ville"
+      class="w-full"
+    />
+  </div>
+
+  <!-- Grille des cartes -->
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div *ngFor="let team of filteredTeams(); let i = index; trackBy: trackByTeamId"
+         class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2"
+         [ngClass]="{ 'ring-2 ring-primary-500': teamSelectionControls[i].value }">
+
+      <p-checkbox
+        binary="true"
+        [formControl]="teamSelectionControls[i]"
+        class="absolute top-2 left-2"
+        [id]="'team-' + team.id"
+      />
+
+      <img [src]="team.logo" alt="Logo" class="w-12 h-12 object-contain" />
+      <div class="text-sm font-semibold">{{ team.abbreviation }}</div>
+      <div class="text-xs text-gray-500 text-center">{{ team.name }}</div>
+    </div>
+  </div>
+
+  <!-- Équipes sélectionnées -->
+  <div *ngIf="selectedTeamObjects.length" class="mt-4">
+    <label class="font-bold block mb-2">Équipes sélectionnées ({{ selectedTeamObjects.length }})</label>
+    <div class="flex flex-wrap gap-2">
+      <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+        <img [src]="team.logo" alt="Logo" class="w-5 h-5 object-contain" />
+        <span class="text-sm">{{ team.abbreviation }}</span>
+        <button pButton icon="pi pi-times" class="p-button-rounded p-button-sm p-button-text"
+                (click)="uncheckTeam(team.id)" type="button"></button>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+            <div class="form-nav pt-6">
+              <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(1)" />
+              <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(3)" />
+            </div>
+          </ng-template>
+        </p-step-panel>
+
+        <!-- Step 3 -->
+        <p-step-panel [value]="3">
+          <ng-template #content let-activateCallback="activateCallback">
+           <form [formGroup]="step3Form" class="flex flex-col gap-6">
+  <!-- Sélection des stades via un multiselect -->
+  <div>
+    <label class="font-bold block mb-1">Sélectionner les stades</label>
+    <p-multiSelect
+      [options]="stadiums"
+      optionLabel="name"
+      optionValue="id"
+      formControlName="selected_stadiums"
+    (onChange)="change()"
+      placeholder="Choisir les stades"
+      class="w-full"
+    />
+  </div>
+
+  <!-- Stades sélectionnés (chips personnalisés) -->
+  <div *ngIf="selectedStadiumObjects.length" class="mt-4">
+    <label class="font-bold block mb-2">Stades sélectionnés ({{ selectedStadiumObjects.length }})</label>
+    <div class="flex flex-wrap gap-2">
+      <div *ngFor="let stadium of selectedStadiumObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+        <span class="text-sm">{{ stadium.name }}</span>
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-rounded p-button-sm p-button-text"
+          (click)="removeStadium(stadium.id)"
+          type="button"
+        ></button>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+            <div class="form-nav">
+              <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />
+              <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(4)" />
+            </div>
+          </ng-template>
+        </p-step-panel>
+
+        <!-- Step 4 -->
+        <p-step-panel [value]="4">
+          <ng-template #content let-activateCallback="activateCallback">
+            <form [formGroup]="step4Form" class="flex flex-col gap-6">
+              <p-panel header="Contraintes de calendrier" toggleable [collapsed]="false">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="font-bold block mb-1">Matchs max/semaine</label>
+                    <p-inputNumber formControlName="max_matches_per_week" class="w-full" />
+                  </div>
+                  <div>
+                    <label class="font-bold block mb-1">Matchs max/mois</label>
+                    <p-inputNumber formControlName="max_matches_per_month" class="w-full" />
+                  </div>
+                  <div>
+                    <label class="font-bold block mb-1">Jours min entre matchs</label>
+                    <p-inputNumber formControlName="min_days_between_matches" class="w-full" />
+                  </div>
+                  <div>
+                    <label class="font-bold block mb-1">Déplacements max/mois</label>
+                    <p-inputNumber formControlName="max_travels_per_month" class="w-full" />
+                  </div>
+                  <div>
+                    <label class="font-bold block mb-1">Distance max (km)</label>
+                    <p-inputNumber formControlName="max_distance_km" class="w-full" />
+                  </div>
+                  <div>
+                    <label class="font-bold block mb-1">Matchs max/jour</label>
+                    <p-inputNumber formControlName="max_matches_per_day" class="w-full" />
+                  </div>
+                  <div class="col-span-2">
+                    <label class="font-bold block mb-1">Jours autorisés</label>
+                    <p-multiSelect formControlName="allowed_days" [options]="allowedDaysOptions" display="chip" class="w-full" />
+                  </div>
+                  <div class="flex items-center gap-2 col-span-1">
+                    <p-checkbox formControlName="geo_grouping" binary="true" inputId="geo" />
+                    <label for="geo">Regrouper géographiquement</label>
+                  </div>
+                  <div class="flex items-center gap-2 col-span-1">
+                    <p-checkbox formControlName="must_play_in_home_stadium" binary="true" inputId="home" />
+                    <label for="home">Jouer à domicile obligatoirement</label>
+                  </div>
+                </div>
+                             <div class="mt-5">
+                <div class="flex justify-between items-center mb-1">
+                    <label class="font-bold">Répartition par saisons</label>
+                    <p-button label="Ajouter une ville" icon="pi pi-plus" (click)="addCity()" size="small" text />
+                </div>
+                <div formArrayName="cities" class="flex flex-col gap-3">
+    <p-card
+        *ngFor="let city of cities.controls; let i = index"
+        [formGroupName]="i"
+        class="w-full p-3">
+
+        <div class="grid grid-cols-5 gap-3 items-center w-full">
+        <p-select
+            [options]="cityList"
+            optionLabel="name"
+            formControlName="id"
+            placeholder="Ville"
+            class="w-full col-span-2"
+        />
+        <p-inputnumber
+            formControlName="count"
+            placeholder="Nb"
+            class="w-full col-span-2"
+        />
+        <button
+            pButton
+            icon="pi pi-trash"
+            (click)="removeCity(i)"
+            class="p-button-rounded p-button-text p-button-danger w-full col-span-1"
+            type="button">
+        </button>
+        </div>
+
+    </p-card>
+    </div>
+
+                </div>
+              </p-panel>
+
+
+            </form>
+            <div class="form-nav">
+              <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(3)" />
+              <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(5)" />
+            </div>
+          </ng-template>
+        </p-step-panel>
+
+        <!-- Step 5 -->
+        <p-step-panel [value]="5">
+          <ng-template #content let-activateCallback="activateCallback">
+            <form [formGroup]="step5Form" class="flex flex-col gap-6">
+              <div formArrayName="derbies" class="flex flex-col gap-4">
+                <p-card *ngFor="let derby of derbies.controls; let i = index" [formGroupName]="i" class="p-4">
+                  <div class="grid grid-cols-3 gap-4">
+                    <p-select formControlName="team1" [options]="teams" optionLabel="name" optionValue="id" placeholder="Équipe 1" class="w-full" />
+                    <p-select formControlName="team2" [options]="teams" optionLabel="name" optionValue="id" placeholder="Équipe 2" class="w-full" />
+                    <p-datepicker formControlName="first_leg_date" placeholder="Date aller" showIcon class="w-full" />
+                    <p-select formControlName="first_leg_stadium" [options]="stadiums" optionLabel="name" optionValue="id" placeholder="Stade aller" class="w-full" />
+                    <p-datepicker formControlName="second_leg_date" placeholder="Date retour" showIcon class="w-full" />
+                    <p-select formControlName="second_leg_stadium" [options]="stadiums" optionLabel="name" optionValue="id" placeholder="Stade retour" class="w-full" />
+                    <p-button icon="pi pi-trash" class="p-button-danger p-button-text col-span-3" (click)="removeDerby(i)" label="Supprimer le derby" />
+                  </div>
+                </p-card>
+              </div>
+              <p-button label="Ajouter un derby" icon="pi pi-plus" (click)="addDerby()" class="self-start" />
+            </form>
+            <div class="form-nav">
+              <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(4)" />
+              <p-button label="Valider" icon="pi pi-check" severity="success" (click)="submitForm()" />
+            </div>
+          </ng-template>
+        </p-step-panel>
+      </p-step-panels>
+    </p-stepper>
+  </p-card>
+</div>

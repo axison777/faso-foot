@@ -11,6 +11,8 @@ import { StadesComponent } from './app/pages/stades/stades.component';
 import { EquipesComponent } from './app/pages/equipes/equipes.component';
 import { LoginComponent } from './app/pages/login/login.component';
 import { MatchsComponent } from './app/pages/matchs/matchs.component';
+import { FormulaireSaisonComponent } from './app/pages/saisons/formulaire-saison/formulaire-saison.component';
+import { CalendrierComponent } from './app/pages/saisons/calendrier/calendrier.component';
 
 export const appRoutes: Routes = [
     {
@@ -20,13 +22,16 @@ export const appRoutes: Routes = [
            // { path: '', component: Dashboard },
             //{ path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             //{ path: 'documentation', component: Documentation },
-            { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
+            { path: '', component: AccueilComponent },
             { path: 'accueil', component: AccueilComponent },
             { path: 'saisons', component: SaisonsComponent },
             { path: 'villes', component: VillesComponent },
             { path: 'stades', component: StadesComponent },
             { path: 'equipes', component: EquipesComponent },
              {path: 'matchs/:id', component: MatchsComponent},
+            { path: 'login', component: LoginComponent },
+            {path: 'ajout-saison', component: FormulaireSaisonComponent},
+            {path: 'calendrier/:id', component: CalendrierComponent}
         ]
     },
 

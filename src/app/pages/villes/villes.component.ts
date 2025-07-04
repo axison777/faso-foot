@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Ville } from '../../models/ville.model';
+import { City } from '../../models/city.model';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { VilleService } from '../../service/ville.service';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Ville, VilleService } from '../../service/ville.service';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -20,6 +20,7 @@ import { SelectModule } from 'primeng/select';
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     DialogModule,
     ButtonModule,
     InputTextModule,
@@ -29,29 +30,47 @@ import { SelectModule } from 'primeng/select';
   ]
 })
 export class VillesComponent implements OnInit {
-  villes: Ville[] = [];
-  selectedVille!: Ville;
+  citys: City[] = [];
+  selectedCity!: City;
   searchTerm: string = '';
   loading: boolean = false;
 
   // Nouvelles propriétés pour le formulaire intégré
   showForm: boolean = false;
-  newVille = { name: '' };
+  newCity?:City;
   isEditing: boolean = false;
-  editingVilleId: number | null = null;
+  editingCityId?: number ;
+  cityForm!: FormGroup;
 
-  constructor(private villeService: VilleService, private router: Router,private messageService: MessageService, private confirmationService: ConfirmationService,) {}
+  constructor(private villeService: VilleService, private router: Router,private messageService: MessageService, private confirmationService: ConfirmationService,
+   private fb:FormBuilder
+  ) {
 
-  ngOnInit(): void {
-    this.loadVilles();
+    this.cityForm = this.fb.group({
+      name: ['', Validators.required],
+      location: ['', Validators.required]
+    });
+
   }
 
-  loadVilles(): void {
+  ngOnInit(): void {
+    this.loadCitys();
+  }
+
+  loadCitys(): void {
     this.loading = true;
     this.villeService.getAll().subscribe({
       next: (res:any) => {
-         this.villes = res?.data?.cities;
+         this.citys = res?.data?.cities;
       this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des citys',
+        })
       }
 
     });
@@ -67,25 +86,25 @@ export class VillesComponent implements OnInit {
 
   // Réinitialiser le formulaire
   resetForm(): void {
-    this.newVille = { name: '' };
+    this.newCity = { name: '' };
     this.isEditing = false;
-    this.editingVilleId = null;
+    this.editingCityId = undefined;
   }
 
-  // Enregistrer une nouvelle ville
-  enregistrerVille(): void {
-    if (this.newVille.name.trim()) {
-      if (this.isEditing && this.editingVilleId) {
+  // Enregistrer une nouvelle city
+  enregistrerCity(): void {
+    if (this.newCity?.name?.trim()) {
+      if (this.isEditing && this.editingCityId) {
         // Mode édition
-        const villeToUpdate = { id: this.editingVilleId, name: this.newVille.name.trim() };
-        this.villeService.update(this.editingVilleId, villeToUpdate).subscribe({
+        const cityToUpdate:City = { name: this.cityForm.get('name')?.value?.trim(), location: this.cityForm.get('location')?.value?.trim() };
+        this.villeService.update(this.editingCityId, cityToUpdate).subscribe({
           next: () => {
-            this.loadVilles();
+            this.loadCitys();
             this.toggleForm();
             this.messageService.add({
             severity: 'success',
-            summary: 'Ville créée',
-            detail: `${this.newVille.name} ajoutée.`,
+            summary: 'Ville modifiée',
+
             life: 3000
             });
 
@@ -94,7 +113,7 @@ export class VillesComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erreur',
-              detail: 'Erreur lors de la création de la ville',
+              detail: 'Erreur lors de la création de la city',
             })
 
           }
@@ -102,15 +121,15 @@ export class VillesComponent implements OnInit {
         });
       } else {
         // Mode création
-        const nouvelleVille = { name: this.newVille.name.trim() };
-        this.villeService.create(nouvelleVille).subscribe({
+        const nouvelleCity = { name: this.newCity.name.trim() };
+        this.villeService.create(nouvelleCity).subscribe({
           next: () => {
-            this.loadVilles();
+            this.loadCitys();
             this.toggleForm();
             this.messageService.add({
               severity: 'success',
-              summary: 'Ville modifiée',
-              /* detail: `${this.newVille.name} modifiée.`, */
+              summary: 'City modifiée',
+              /* detail: `${this.newCity.name} modifiée.`, */
               life: 3000
             });
           },
@@ -118,7 +137,7 @@ export class VillesComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erreur',
-              detail: 'Erreur lors de la création de la ville',
+              detail: 'Erreur lors de la création de la city',
             })
           }
         });
@@ -132,32 +151,53 @@ export class VillesComponent implements OnInit {
     this.resetForm();
   }
 
-  // Modifier une ville (ouvre le formulaire en mode édition)
-  editVille(ville: Ville): void {
-    this.newVille = { name: ville.name };
+  // Modifier une city (ouvre le formulaire en mode édition)
+  editCity(city: City): void {
+    this.newCity = { name: city.name };
+    this.cityForm.get('name')?.setValue(city.name);
+    this.cityForm.get('location')?.setValue(city.location);
     this.isEditing = true;
-    this.editingVilleId = ville.id;
+    this.editingCityId = city.id;
     this.showForm = true;
   }
 
-  deleteVille(id: number): void {
-    if (confirm('Voulez-vous vraiment supprimer cette ville ?')) {
-      this.villeService.delete(id).subscribe(() => {
-        this.loadVilles();
-      });
-    }
+  deleteCity(id: number): void {
+    this.confirmationService.confirm({
+      message: 'Etes-vous sur de vouloir supprimer cette ville?',
+      header: 'Confirmation de suppression',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.villeService.delete(id).subscribe({
+          next: () => {
+            this.loadCitys();
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Ville supprimée',
+              life: 3000
+            });
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Erreur lors de la suppression de la ville',
+            })
+          }
+        });
+      }
+    });
   }
 
-  viewVille(ville: Ville): void {
-    alert(`Détails de la ville:\n\nNom: ${ville.name}`);
+  viewCity(city: City): void {
+    alert(`Détails de la city:\n\nNom: ${city.name}`);
   }
 
-  get filteredVilles(): Ville[] {
+  get filteredCitys(): City[] {
     if (!this.searchTerm) {
-      return this.villes;
+      return this.citys;
     }
-    return this.villes.filter(v =>
-      v.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+    return this.citys.filter(v =>
+      v.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 }

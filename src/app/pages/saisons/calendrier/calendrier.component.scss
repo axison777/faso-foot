@@ -1,0 +1,52 @@
+:host ::ng-deep .custom-carousel .p-carousel-indicators .p-carousel-indicator {
+  margin: 0 0.25rem;
+}
+
+:host ::ng-deep .custom-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
+  background-color: #166534; // vert foncé pour l’indicateur actif
+}
+
+:host ::ng-deep .custom-carousel .p-carousel-indicators .p-carousel-indicator button {
+  background-color: #d1d5db; // gris clair pour inactif
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+ .p-tabview-nav  {
+  width: 50% !important;
+  flex: none !important;
+  justify-content: center;
+}
+
+p-button-outlined{
+    border: none !important;
+}
+
+.saison{
+    border: 2px solid #166534 !important;
+    border-color: #166534 !important;
+}
+
+.btn-pdf {
+  background-color: #45b386;  /* vert clair */
+  color: #003f2f;              /* vert très foncé pour contraste */
+  width: 300px;
+  height: 50px;
+  font-weight:900 !important;
+}
+
+.btn-pdf:hover {
+  background-color: #3da77a;
+}
+
+.btn-excel {
+  background-color: #00473f;  /* vert très foncé */
+  color: #50c896;             /* vert clair pour contraste */
+  width: 300px;
+  font-weight:900 !important;
+}
+
+.btn-excel:hover {
+  background-color: #003c35;
+}

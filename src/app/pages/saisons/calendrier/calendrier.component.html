@@ -1,0 +1,54 @@
+<div class="p-4">
+  <div class="flex justify-center gap-4 mb-6">
+    <button
+    class=""
+      *ngFor="let phase of phases; let i = index"
+      pButton
+        style="font-weight: 700; font-size: 20px;"
+      [class.p-button-primary]="selectedPhaseIndex === i"
+      [class.p-button-outlined]="selectedPhaseIndex !== i"
+      (click)="selectedPhaseIndex = i"
+    >   {{ phase.name }} ({{ phase.start | date : 'dd/MM/yyyy' }} au {{ phase.end | date : 'dd/MM/yyyy' }})</button>
+  </div>
+
+  <div *ngIf="phases[selectedPhaseIndex] as phase">
+<!--     <h2 class="text-xl font-bold text-center text-green-800 mb-4">
+      {{ phase.name }} ({{ phase.start }} au {{ phase.end }})
+    </h2>
+ -->
+    <p-carousel
+      [value]="phase.matchdays"
+      [numVisible]="3"
+      [numScroll]="3"
+      [circular]="true"
+      [responsiveOptions]="[
+        { breakpoint: '1024px', numVisible: 2, numScroll: 2 },
+        { breakpoint: '600px', numVisible: 1, numScroll: 1 }
+      ]"
+      class="custom-carousel"
+    >
+      <ng-template pTemplate="item" let-day>
+        <div class=" saison bg-white shadow p-4 mx-2 min-h-[300px]">
+          <h3 class="text-lg font-semibold text-green-700 mb-3 text-center">
+            {{ day.label }}
+          </h3>
+          <div class="divide-y divide-gray-200">
+            <div *ngFor="let match of day.matches" class="py-2">
+              <div class="flex justify-between font-medium text-gray-700">
+                <span>{{ match.team1 }} <strong>VS</strong> {{ match.team2 }}</span>
+                <span>{{ match.time }}</span>
+              </div>
+              <div class="text-gray-500 text-sm">{{ match.stadium }}</div>
+              <div class="text-gray-400 text-xs">{{ match.date | date: 'fullDate' }}</div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-carousel>
+
+    <div class="flex justify-center gap-4 mt-6">
+      <button pButton type="button" label="Exporter en format PDF" style="font-weight: 700;"  class="btn btn-pdf" ></button>
+      <button pButton type="button" label="Exporter en format Excel" class="btn btn-excel" ></button>
+    </div>
+  </div>
+</div>

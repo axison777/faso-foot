@@ -10,7 +10,7 @@
   <div class="header">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <h1>Saisons</h1>
-    <button class="btn-primary" (click)="displayDialog = true">
+    <button class="btn-primary" (click)="addSeason()">
       <i class="pi pi-plus-circle mr-2"></i> Ajouter saison
     </button>
   </div>
@@ -55,6 +55,11 @@
               </button>
               <button class="btn btn-info" *ngIf="saison?.calendar_generated"
                 (click)="voirMatchs(saison)">
+                <i class="me-2 my-1 pi pi-eye"></i>
+                <span>Voir</span>
+              </button>
+              <button class="btn btn-info" *ngIf="saison?.calendar_generated"
+                (click)="voirCalendrier(saison)">
                 <i class="me-2 my-1 pi pi-eye"></i>
                 <span>Voir</span>
               </button>

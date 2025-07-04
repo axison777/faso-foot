@@ -10,8 +10,8 @@ import { LayoutService } from '../service/layout.service';
     <div class="layout-sidebar">
         <div class="flex justify-center">
             <div class="sidebar-logo">
-        <img src="assets/Logo-FBF.png" alt="Logo CBF" class="logo-image"   />
-        <span class="logo-text">Championnat BF<br />CBF</span>
+        <img src="assets/images/Logo-FBF.png" alt="Logo CBF" class="logo-image"   />
+        <span class="logo-text">Fédération Burkinabè<br />de Football</span>
       </div>
       <!--  <button class="layout-topbar-action" (click)="layoutService.onMenuToggle()">
           <i class="pi pi-bars"></i>
@@ -29,7 +29,11 @@ import { LayoutService } from '../service/layout.service';
       --text-color: #ffffff;
       --shadow-color: rgba(0, 0, 0, 0.2);
     }
-
+    .layout-menu ul a.active-route {
+    font-weight: 700;
+    color: #c73e3e !important;
+    background-color: #e7fffb !important;
+}
     .layout-sidebar {
       width: 280px;
       height: 100vh;

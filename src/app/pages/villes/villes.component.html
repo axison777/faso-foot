@@ -11,43 +11,54 @@
   </div>
 
   <!-- Formulaire intégré -->
-    <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier la ville' : 'Ajouter une nouvelle ville'" [modal]="true" [closable]="false">
+    <p-dialog [(visible)]="showForm" [style]="{ width: '800px' }" [header]="isEditing ? 'Modifier la ville' : 'Ajouter une nouvelle ville'" [modal]="true" [closable]="false">
     <ng-template #content>
-        <form (ngSubmit)="enregistrerVille()" #villeForm="ngForm" class="flex flex-col gap-6">
-
-        <div>
-            <label for="name" class="block font-bold mb-2">Nom de la ville *</label>
-            <input
-            pInputText
-            type="text"
-            id="name"
-            name="name"
-            [(ngModel)]="newVille.name"
-            required
-            placeholder="Entrez le nom de la ville"
-            #nomInput="ngModel"
-            class="w-full"
-            />
-            <small class="text-red-500" *ngIf="nomInput.invalid && nomInput.touched">Le nom de la ville est requis.</small>
-        </div>
-
-        </form>
+        <form [formGroup]="cityForm" (ngSubmit)="enregistrerCity()" class="flex flex-col gap-6">
+  <div>
+    <label for="name" class="block font-bold mb-2">Nom de la ville *</label>
+    <input
+      pInputText
+      type="text"
+      id="name"
+      formControlName="name"
+      placeholder="Entrez le nom de la ville"
+      class="w-full"
+      value=""
+    />
+    <small class="text-red-500" *ngIf="cityForm.get('name')?.invalid && cityForm.get('name')?.touched">
+      Le nom de la ville est requis.
+    </small>
+  </div>
+  
+  <div>
+    <label for="name" class="block font-bold mb-2">Localisation de la ville *</label>
+    <input
+      pInputText
+      type="text"
+      id="name"
+      formControlName="location"
+      placeholder="Entrez la localisation de la ville"
+      class="w-full"
+    />
+    <small class="text-red-500" *ngIf="cityForm.get('location')?.invalid && cityForm.get('location')?.touched">
+      La localisation de la ville est requise.
+    </small>
+  </div>
+</form>
     </ng-template>
 
     <ng-template #footer>
         <div class="flex justify-end gap-2">
-        <p-button
-            label="Annuler"
-            icon="pi pi-times"
-            class="p-button-text"
-            (click)="annulerFormulaire()"
-        />
+            <button class="btn btn-danger">
+
+            </button>
+
         <p-button
             [label]="isEditing ? 'Modifier' : 'Enregistrer'"
             icon="pi pi-check"
             type="submit"
             form="villeForm"
-            (click)="enregistrerVille()"
+            (click)="enregistrerCity()"
         />
         </div>
     </ng-template>
@@ -70,7 +81,7 @@
   </div>
 
   <!-- Table -->
-  <div *ngIf="!loading && filteredVilles.length > 0" class="table-container">
+  <div *ngIf="!loading && filteredCitys.length > 0" class="table-container">
     <table class="villes-table">
       <thead>
         <tr>
@@ -79,13 +90,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let ville of filteredVilles">
-          <td class="ville-nom">{{ ville.name }}</td>
+        <tr *ngFor="let city of filteredCitys">
+          <td class="ville-nom">{{ city.name }}</td>
           <td class="actions">
             <div class="btn-group">
               <!-- <button class="btn btn-info"><i class="pi pi-eye"></i></button> -->
-              <button class="btn btn-warning" (click)="editVille(ville)"><i class="pi pi-pencil"></i></button>
-              <button class="btn btn-danger" (click)="deleteVille(ville.id)"><i class="pi pi-trash"></i></button>
+              <button class="btn btn-warning" (click)="editCity(city)"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-danger" (click)="deleteCity(city.id!)"><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>
@@ -93,12 +104,12 @@
     </table>
 
    <!--  <div class="table-info">
-      {{ filteredVilles.length }} ville(s) affichée(s) sur {{ villes.length }} au total
+      {{ filteredCitys.length }} city(s) affichée(s) sur {{ citys.length }} au total
     </div> -->
   </div>
 
   <!-- No results -->
-  <div *ngIf="!loading && filteredVilles.length === 0" class="no-results">
+  <div *ngIf="!loading && filteredCitys.length === 0 && searchTerm && citys.length > 0"  class="no-results">
     <div class="icon">🔍</div>
     <p>Aucune ville trouvée pour "{{ searchTerm }}"</p>
   </div>

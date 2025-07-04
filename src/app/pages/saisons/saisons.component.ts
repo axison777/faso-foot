@@ -340,11 +340,7 @@ rechargerSaisons() {
 
 
   voirCalendrier(saison: Saison) {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Calendrier',
-      detail: `Voir le calendrier de ${saison.name}.`
-    });
+    this.router.navigate(['/calendrier', saison.id]);
   }
 
   ///
@@ -392,6 +388,9 @@ addVille() {
       count: [null, Validators.required]
     })
   );
+}
+addSeason() {
+this.router.navigate(['/ajout-saison']);
 }
 
 removeVille(index: number) {

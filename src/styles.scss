@@ -12,12 +12,75 @@ body {
 
 
 :root {
+    --p-primary-500: rgb(50, 145, 87) !important;
     --surface-hover: #004d40; /* nouvelle couleur au survol */
      --primary-color:rgb(50, 145, 87) !important;
     --p-button-primary-background: rgb(50, 145, 87) !important;
     --p-button-primary-border-color: rgb(50, 145, 87) !important;
     --highlight-bg: #e7fffb !important;
     --highlight-text-color: #004d40 !important;
+
+     --primary-color: rgb(50, 145, 87) !important;
+  --primary-color-text: #ffffff !important;
+
+  --p-primary-color: var(--primary-color) !important;
+  --p-primary-text-color: var(--primary-color-text) !important;
+
+  /* Bouton principal */
+  --p-button-primary-background: var(--primary-color) !important;
+  --p-button-primary-border-color: var(--primary-color) !important;
+  --p-button-primary-text-color: var(--primary-color-text) !important;
+
+  /* Hover / focus / shadow */
+  --primary-color-hover: rgb(40, 120, 70) !important;
+  --primary-color-shadow: rgba(50, 145, 87, 0.3);
+  --focus-ring: 0 0 0 0.2rem rgba(50, 145, 87, 0.4) !important;
+
+  /* Checkbox / Radio */
+  --p-checkbox-active-border-color: var(--primary-color) !important;
+  --p-checkbox-active-background: var(--primary-color) !important;
+  --p-checkbox-icon-color: var(--primary-color-text) !important;
+
+  --p-radiobutton-checked-background: var(--primary-color) !important;
+  --p-radiobutton-checked-border-color: var(--primary-color) !important;
+  --p-radiobutton-icon-color: var(--primary-color-text) !important;
+
+  /* Input et dropdown focus */
+  --p-focus-border-color: var(--primary-color) !important;
+  --p-dropdown-focus-border-color: var(--primary-color) !important;
+
+  /* Steps (Stepper) */
+  --p-steps-item-active-border-color: var(--primary-color) !important;
+  --p-steps-item-active-text-color: var(--primary-color) !important;
+
+  /* Switch & toggle */
+  --p-inputswitch-checked-background: var(--primary-color) !important;
+  --p-inputswitch-checked-border-color: var(--primary-color) !important;
+
+  /* Slider */
+  --p-slider-range-background: var(--primary-color) !important;
+  --p-slider-handle-background: var(--primary-color) !important;
+
+  /* Calendar */
+  --p-datepicker-selected-day-background-color: var(--primary-color) !important;
+
+  /* Tags (chips, multiselect) */
+  --p-highlight-bg: var(--primary-color) !important;
+  --p-highlight-text-color: var(--primary-color-text) !important;
+
+  /* Danger & Warning */
+  --danger-color: #dc2626 !important;
+  --danger-hover: #b91c1c !important;
+  --warning-color: #f59e0b !important;
+  --warning-hover: #d97706 !important;
+
+  --p-button-danger-background: var(--danger-color) !important;
+  --p-button-danger-border-color: var(--danger-color) !important;
+  --p-button-danger-text-color: #ffffff !important;
+
+  --p-button-warning-background: var(--warning-color) !important;
+  --p-button-warning-border-color: var(--warning-color) !important;
+  --p-button-warning-text-color: #ffffff !important;
 
 
 }

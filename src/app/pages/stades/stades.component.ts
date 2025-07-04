@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Stade, StadeService } from '../../service/stade.service';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { StadeService } from '../../service/stade.service';
 import { Ville, VilleService } from '../../service/ville.service';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +12,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
+import { Stadium } from '../../models/stadium.model';
 
 @Component({
   selector: 'app-stades',
@@ -26,21 +27,23 @@ import { SelectModule } from 'primeng/select';
     InputTextModule,
     ConfirmDialogModule,
     ToastModule,
-    SelectModule
+    SelectModule,
+    ReactiveFormsModule
   ]
 })
 export class StadesComponent implements OnInit {
-  stades: Stade[] = [];
+  stadiums: Stadium[] = [];
   villes: Ville[] = [];
 
-  selectedStade!: Stade;
+  selectedStadium!: Stadium;
   searchTerm: string = '';
   loading: boolean = false;
 
   showForm: boolean = false;
-  newStade: any = { name: '', city_id: null };
+  newStadium: any = { name: '', city_id: null };
   isEditing: boolean = false;
-  editingStadeId: number | null = null;
+  editingStadiumId?: number | null = null;
+  stadiumForm!: FormGroup;
 
   constructor(
     private stadeService: StadeService,
@@ -48,21 +51,35 @@ export class StadesComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-  ) {}
+    private fb:FormBuilder
+  ) {
+     this.stadiumForm = this.fb.group({
+          name: ['', Validators.required],
+          abbreviation: ['', Validators.required],
+          city_id: ['', Validators.required]
+        });
+  }
 
   ngOnInit(): void {
-    this.loadStades();
+    this.loadStadiums();
     this.loadVilles();
   }
 
-  loadStades(): void {
+  loadStadiums(): void {
     this.loading = true;
     this.stadeService.getAll().subscribe({
       next: (res: any) => {
-        this.stades = res?.data || [];
+        this.stadiums = res?.data || [];
         this.loading = false;
       },
-      error: () => this.loading = false
+      error: () =>{
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des stades',
+        })
+      }
     });
   }
 
@@ -82,25 +99,25 @@ export class StadesComponent implements OnInit {
   }
 
   resetForm(): void {
-    this.newStade = { name: '', city_id: null };
+    this.stadiumForm.reset();
     this.isEditing = false;
-    this.editingStadeId = null;
+    this.editingStadiumId = null;
   }
 
-  enregistrerStade(): void {
-    if (this.newStade.name.trim() && this.newStade.city_id) {
-      const stadePayload = {
-        name: this.newStade.name.trim(),
-        city_id: this.newStade.city_id
+  enregistrerStadium(): void {
+    if (this.newStadium.name.trim() && this.newStadium.city_id) {
+      const stadiumPayload = {
+        name: this.newStadium.name.trim(),
+        city_id: this.newStadium.city_id
       };
 
       const onSuccess = () => {
-        this.loadStades();
+        this.loadStadiums();
         this.toggleForm();
         this.messageService.add({
           severity: 'success',
           summary: this.isEditing ? 'Stade modifié' : 'Stade créé',
-          detail: `${this.newStade.name}`,
+          detail: `${this.newStadium.name}`,
           life: 3000
         });
       };
@@ -113,10 +130,10 @@ export class StadesComponent implements OnInit {
         });
       };
 
-      if (this.isEditing && this.editingStadeId) {
-        this.stadeService.update(this.editingStadeId, {name: stadePayload.name}).subscribe({ next: onSuccess, error: onError });
+      if (this.isEditing && this.editingStadiumId) {
+        this.stadeService.update(this.editingStadiumId, {name: stadiumPayload.name}).subscribe({ next: onSuccess, error: onError });
       } else {
-        this.stadeService.create({name: stadePayload.name, city_id: stadePayload.city_id}).subscribe({ next: onSuccess, error: onError });
+        this.stadeService.create({name: stadiumPayload.name, city_id: stadiumPayload.city_id}).subscribe({ next: onSuccess, error: onError });
       }
     }
   }
@@ -126,22 +143,20 @@ export class StadesComponent implements OnInit {
     this.resetForm();
   }
 
-  editStade(stade: Stade): void {
-    this.newStade = {
-      name: stade.name,
-      city_id: stade.city_id || null
-    };
+  editStadium(stadium: Stadium): void {
+    this.stadiumForm.get('name')?.setValue(stadium.name);
+    this.stadiumForm.get('city_id')?.patchValue(stadium.city_id);
     this.isEditing = true;
-    this.editingStadeId = stade.id;
+    this.editingStadiumId = stadium.id;
     this.showForm = true;
   }
 
-  deleteStade(id: number): void {
+  deleteStadium(id: number): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer ce stade ?',
       accept: () => {
         this.stadeService.delete(id).subscribe(() => {
-          this.loadStades();
+          this.loadStadiums();
           this.messageService.add({
             severity: 'success',
             summary: 'Suppression réussie',
@@ -152,10 +167,10 @@ export class StadesComponent implements OnInit {
     });
   }
 
-  get filteredStades(): Stade[] {
-    if (!this.searchTerm) return this.stades;
-    return this.stades.filter(stade =>
-      stade.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+  get filteredStadiums(): Stadium[] {
+    if (!this.searchTerm) return this.stadiums;
+    return this.stadiums.filter(stadium =>
+      stadium?.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 }
