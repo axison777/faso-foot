@@ -233,15 +233,72 @@
             <form [formGroup]="step5Form" class="flex flex-col gap-6">
               <div formArrayName="derbies" class="flex flex-col gap-4">
                 <p-card *ngFor="let derby of derbies.controls; let i = index" [formGroupName]="i" class="p-4">
-                  <div class="grid grid-cols-3 gap-4">
-                    <p-select formControlName="team1" [options]="teams" optionLabel="name" optionValue="id" placeholder="Équipe 1" class="w-full" />
-                    <p-select formControlName="team2" [options]="teams" optionLabel="name" optionValue="id" placeholder="Équipe 2" class="w-full" />
-                    <p-datepicker formControlName="first_leg_date" placeholder="Date aller" showIcon class="w-full" />
-                    <p-select formControlName="first_leg_stadium" [options]="stadiums" optionLabel="name" optionValue="id" placeholder="Stade aller" class="w-full" />
-                    <p-datepicker formControlName="second_leg_date" placeholder="Date retour" showIcon class="w-full" />
-                    <p-select formControlName="second_leg_stadium" [options]="stadiums" optionLabel="name" optionValue="id" placeholder="Stade retour" class="w-full" />
-                    <p-button icon="pi pi-trash" class="p-button-danger p-button-text col-span-3" (click)="removeDerby(i)" label="Supprimer le derby" />
-                  </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-gray-50">
+  <!-- Équipes -->
+  <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <p-select
+      formControlName="team1"
+      [options]="teams"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Équipe 1"
+      class="w-full" />
+
+    <p-select
+      formControlName="team2"
+      [options]="teams"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Équipe 2"
+      class="w-full" />
+  </div>
+
+  <!-- Aller -->
+  <div class="col-span-1">
+    <p-datepicker
+      formControlName="first_leg_date"
+      placeholder="Date aller"
+      showIcon
+      class="w-full" />
+  </div>
+  <div class="col-span-1 md:col-span-2">
+    <p-select
+      formControlName="first_leg_stadium"
+      [options]="stadiums"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Stade aller"
+      class="w-full" />
+  </div>
+
+  <!-- Retour -->
+  <div class="col-span-1">
+    <p-datepicker
+      formControlName="second_leg_date"
+      placeholder="Date retour"
+      showIcon
+      class="w-full" />
+  </div>
+  <div class="col-span-1 md:col-span-2">
+    <p-select
+      formControlName="second_leg_stadium"
+      [options]="stadiums"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Stade retour"
+      class="w-full" />
+  </div>
+
+  <!-- Bouton supprimer -->
+  <div class="col-span-1 md:col-span-3 text-right mt-2">
+    <p-button
+      icon="pi pi-trash"
+      class="p-button-danger p-button-text"
+      (click)="removeDerby(i)"
+      label="Supprimer le derby" />
+  </div>
+</div>
+
                 </p-card>
               </div>
               <p-button label="Ajouter un derby" icon="pi pi-plus" (click)="addDerby()" class="self-start" />
