@@ -24,6 +24,7 @@ import { CardModule } from 'primeng/card';
 import { SaisonService } from '../../service/saison.service';
 import { VilleService } from '../../service/ville.service';
 import { LigueService } from '../../service/ligue.service';
+import { Season } from '../../models/season.model';
 
 interface League {
   id: number;
@@ -105,22 +106,7 @@ selectedSaisonToGenerate!: Saison;
 //
   saisonDialog = true;
 
-  saison: any = {
-    nom: '',
-    ligue: null,
-    date_debut: null,
-    date_fin: null,
-    max_matches_per_week: null,
-    max_matches_per_month: null,
-    min_days_between_matches: null,
-    max_travels_per_month: null,
-    allowed_days: [],
-    max_distance_km: null,
-    geo_grouping: false,
-    max_matches_per_day: null,
-    must_play_in_home_stadium: false,
-    cities: []
-  };
+  saison?: Season;
 
   jours = [
     { label: 'Lundi', value: 'Monday' },
@@ -142,7 +128,7 @@ selectedSaisonToGenerate!: Saison;
     { id: '2', name: 'Ouagadougou' },
     { id: '3', name: 'Koudougou' }
   ];
-  form: FormGroup;
+  seasonForm: FormGroup;
 
 ////
 searchTerm: string = '';
@@ -175,20 +161,14 @@ searchTerm: string = '';
       }
     ];
 
-     this.form = this.fb.group({
-    //nom: ['', Validators.required],
-    ligue: [null, Validators.required],
-    date_debut: [null],
-    date_fin: [null],
-    max_matches_per_week: [null],
-    max_matches_per_month: [null],
-    min_days_between_matches: [null],
-    max_travels_per_month: [null],
-    allowed_days: [[]],
-    max_distance_km: [null],
-    geo_grouping: [false],
-    max_matches_per_day: [null],
-    must_play_in_home_stadium: [false],
+    this.seasonForm = this.fb.group({
+    league_id: [null, Validators.required],
+    start_date: [null, Validators.required],
+    end_date: [null, Validators.required],
+    match_start_time: [null, Validators.required],
+    allowed_match_days: [null, Validators.required],
+    min_hours_between_team_matches: [null, Validators.required],
+    min_days_between_phases: [null, Validators.required],
     cities: this.fb.array([])
   });
   }
@@ -251,7 +231,7 @@ searchTerm: string = '';
       cities:this.form.get('cities')?.value
     }; */
 
-     const formValue = this.form.value;
+     const formValue = this.seasonForm.value;
      //this.cities= formValue.cities;
     let newSaison  = {
     //id: this.editingSaison ? this.editingSaison.id : this.saisons.length + 1,
@@ -378,7 +358,7 @@ rechargerSaisons() {
     });
   }
   get cities(): FormArray {
-  return this.form.get('cities') as FormArray;
+  return this.seasonForm.get('cities') as FormArray;
 }
 
 addVille() {

@@ -93,7 +93,15 @@ export class FormulaireSaisonComponent implements OnInit {
     { id: 'city-10', name: 'Lille' },
   ];
 
-  allowedDaysOptions = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  allowedDaysOptions = [
+    { label: 'Lundi', value: 'Monday' },
+    { label: 'Mardi', value: 'Tuesday' },
+    { label: 'Mercredi', value: 'Wednesday' },
+    { label: 'Jeudi', value: 'Thursday' },
+    { label: 'Vendredi', value: 'Friday' },
+    { label: 'Samedi', value: 'Saturday' },
+    { label: 'Dimanche', value: 'Sunday' }
+    ];
 
   searchTeam: string = '';
 
@@ -105,7 +113,13 @@ teamControls: FormArray<FormControl<boolean>> = new FormArray<FormControl<boolea
 
 selectedStadiumObjects: any[] = [];
 
+
   ngOnInit(): void {
+    const initialTime = new Date();
+    initialTime.setHours(16); // Set hours
+    initialTime.setMinutes(0); // Set minutes
+    initialTime.setSeconds(0);
+    initialTime.setMilliseconds(0);
     this.step1Form = this.fb.group({
       league_id: [null, Validators.required],
       start_date: [null, Validators.required],
@@ -121,15 +135,10 @@ selectedStadiumObjects: any[] = [];
     });
 
     this.step4Form = this.fb.group({
-      max_matches_per_week: [2],
-      max_matches_per_month: [8],
-      max_matches_per_day: [2],
-      min_days_between_matches: [2],
-      max_travels_per_month: [3],
-      allowed_days: [[]],
-      max_distance_km: [300],
-      geo_grouping: [false],
-      must_play_in_home_stadium: [true],
+      match_start_time: [initialTime, Validators.required],
+      allowed_match_days: [[ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], Validators.required],
+      min_hours_between_team_matches: [48, Validators.required],
+      min_days_between_phases: [30, Validators.required],
       cities: this.fb.array([])
     });
 

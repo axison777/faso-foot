@@ -86,7 +86,7 @@
 
     <p-dialog [(visible)]="displayDialog" [style]="{ width: '1000px' }" header="Créer une saison" [modal]="true">
 
-        <ng-template #content><form [formGroup]="form">
+        <ng-template #content><form [formGroup]="seasonForm">
         <div class="flex flex-col gap-5">
             <!-- Champs principaux -->
             <div class="grid grid-cols-2 gap-4">
@@ -101,22 +101,13 @@
             </div>
 
             <!-- Contraintes Dépliables -->
-    <p-panel header="Contraintes de calendrier" [collapsed]="true" [toggleable]="true" class="mt-2">
-                <div class="grid grid-cols-2 gap-4">
+    <!-- <p-panel header="Contraintes de calendrier" [collapsed]="true" [toggleable]="true" class="mt-2"> -->
+
+        <div class="grid grid-cols-2 gap-4">
+
+
                 <div>
-                    <label class="font-bold block mb-1">Date de début</label>
-                    <p-datepicker formControlName="date_debut" dateFormat="dd/mm/yy" showIcon class="w-full" />
-                </div>
-                <div>
-                    <label class="font-bold block mb-1">Date de fin</label>
-                    <p-datepicker formControlName="date_fin" dateFormat="dd/mm/yy" showIcon class="w-full" />
-                </div>
-                <div>
-                    <label class="font-bold block mb-1">Matchs max/semaine</label>
-                    <p-inputnumber formControlName="max_matches_per_week" class="w-full" />
-                </div>
-                <div>
-                    <label class="font-bold block mb-1">Matchs max/mois</label>
+                    <label class="font-bold block mb-1">Matchs maxsss/mois</label>
                     <p-inputnumber formControlName="max_matches_per_month" class="w-full" />
                 </div>
                 <div>
@@ -195,13 +186,13 @@
     </div>
 
                 </div>
-    </p-panel>
+  <!--   </p-panel> -->
         </div></form>
         </ng-template>
 
         <ng-template #footer>
         <p-button label="Annuler" icon="pi pi-times" text (click)="displayDialog = false"  />
-        <p-button label="Créer" icon="pi pi-check" (click)="submitSaison()" [disabled]="form.invalid" />
+        <p-button label="Créer" icon="pi pi-check" (click)="submitSaison()" [disabled]="seasonForm.invalid" />
         </ng-template>
 
     </p-dialog>

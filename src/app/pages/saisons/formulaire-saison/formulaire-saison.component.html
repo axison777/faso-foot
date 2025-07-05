@@ -1,6 +1,6 @@
 <div class="p-6">
-  <p-card>
-    <p-stepper [value]="1" class="form-stepper">
+  <p-card styleClass="px-10 pt-5">
+    <p-stepper [value]="1" class="form-stepper" >
       <p-step-list>
         <p-step [value]="1">Ligue et dates</p-step>
         <p-step [value]="2">Équipes</p-step>
@@ -9,9 +9,9 @@
         <p-step [value]="5">Derbies</p-step>
       </p-step-list>
 
-      <p-step-panels>
+      <p-step-panels >
         <!-- Step 1 -->
-        <p-step-panel [value]="1">
+        <p-step-panel [value]="1" >
           <ng-template #content let-activateCallback="activateCallback">
             <form [formGroup]="step1Form" class="flex flex-col gap-6">
               <div class="grid grid-cols-2 gap-4">
@@ -129,7 +129,7 @@
 </form>
 
 
-            <div class="form-nav">
+            <div class="form-nav pt-6">
               <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />
               <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(4)" />
             </div>
@@ -140,87 +140,85 @@
         <p-step-panel [value]="4">
           <ng-template #content let-activateCallback="activateCallback">
             <form [formGroup]="step4Form" class="flex flex-col gap-6">
-              <p-panel header="Contraintes de calendrier" toggleable [collapsed]="false">
+<!--               <p-panel header="Contraintes de calendrier" toggleable [collapsed]="false"> -->
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <label class="font-bold block mb-1">Matchs max/semaine</label>
-                    <p-inputNumber formControlName="max_matches_per_week" class="w-full" />
+                    <label class="font-bold block mb-1">Heure de début des matchs</label>
+                    <p-datepicker formControlName="match_start_time" class="w-full"  [timeOnly]="true" />
                   </div>
                   <div>
-                    <label class="font-bold block mb-1">Matchs max/mois</label>
-                    <p-inputNumber formControlName="max_matches_per_month" class="w-full" />
+                    <label class="font-bold block mb-1">Nombre minimal d'heures entre 2 matchs</label>
+                    <p-inputNumber formControlName="min_hours_between_team_matches" class="w-full" />
                   </div>
                   <div>
-                    <label class="font-bold block mb-1">Jours min entre matchs</label>
-                    <p-inputNumber formControlName="min_days_between_matches" class="w-full" />
+                    <label class="font-bold block mb-1">Nombre de jours de repos minimum entre phases</label>
+                    <p-inputNumber formControlName="min_days_between_phases" class="w-full" />
                   </div>
-                  <div>
-                    <label class="font-bold block mb-1">Déplacements max/mois</label>
-                    <p-inputNumber formControlName="max_travels_per_month" class="w-full" />
-                  </div>
-                  <div>
-                    <label class="font-bold block mb-1">Distance max (km)</label>
-                    <p-inputNumber formControlName="max_distance_km" class="w-full" />
-                  </div>
-                  <div>
-                    <label class="font-bold block mb-1">Matchs max/jour</label>
-                    <p-inputNumber formControlName="max_matches_per_day" class="w-full" />
-                  </div>
+
                   <div class="col-span-2">
-                    <label class="font-bold block mb-1">Jours autorisés</label>
-                    <p-multiSelect formControlName="allowed_days" [options]="allowedDaysOptions" display="chip" class="w-full" />
+                    <label class="font-bold block mb-1">Jours de match autorisés</label>
+                    <p-multiSelect formControlName="allowed_match_days" [options]="allowedDaysOptions"   optionLabel="label"
+                    optionValue="value" display="chip"  class="w-full" />
                   </div>
-                  <div class="flex items-center gap-2 col-span-1">
-                    <p-checkbox formControlName="geo_grouping" binary="true" inputId="geo" />
-                    <label for="geo">Regrouper géographiquement</label>
-                  </div>
-                  <div class="flex items-center gap-2 col-span-1">
-                    <p-checkbox formControlName="must_play_in_home_stadium" binary="true" inputId="home" />
-                    <label for="home">Jouer à domicile obligatoirement</label>
-                  </div>
+
                 </div>
-                             <div class="mt-5">
+                             <p-card class="mt-5">
                 <div class="flex justify-between items-center mb-1">
-                    <label class="font-bold">Répartition par saisons</label>
-                    <p-button label="Ajouter une ville" icon="pi pi-plus" (click)="addCity()" size="small" text />
+                    <label class="font-bold">Répartition des matchs par ville</label>
+                    <p-button [raised]="true" severity="warn" label="Ajouter une ville" icon="pi pi-plus" ic (click)="addCity()" size="small" styleClass="mb-2" />
                 </div>
                 <div formArrayName="cities" class="flex flex-col gap-3">
-    <p-card
-        *ngFor="let city of cities.controls; let i = index"
-        [formGroupName]="i"
-        class="w-full p-3">
-
-        <div class="grid grid-cols-5 gap-3 items-center w-full">
+<div
+  *ngFor="let city of cities.controls; let i = index"
+  [formGroupName]="i"
+  styleClass="w-full mb-4 shadow-sm rounded-lg border border-gray-200"
+>
+  <div class="flex justify-between items-start p-4 gap-4 flex-wrap">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 flex-1 w-full">
+      <!-- Sélecteur de ville -->
+      <div class="md:col-span-2 w-full">
+        <label class="font-bold block mb-1">Ville</label>
         <p-select
-            [options]="cityList"
-            optionLabel="name"
-            formControlName="id"
-            placeholder="Ville"
-            class="w-full col-span-2"
+          [options]="cityList"
+          optionLabel="name"
+          formControlName="id"
+          placeholder="Ville"
+          class="w-full"
         />
-        <p-inputnumber
-            formControlName="count"
-            placeholder="Nb"
-            class="w-full col-span-2"
-        />
-        <button
-            pButton
-            icon="pi pi-trash"
-            (click)="removeCity(i)"
-            class="p-button-rounded p-button-text p-button-danger w-full col-span-1"
-            type="button">
-        </button>
-        </div>
+      </div>
 
-    </p-card>
+      <!-- Nombre de matchs -->
+      <div class="md:col-span-2 w-full">
+        <label class="font-bold block mb-1">Nombre de matchs</label>
+        <p-inputnumber
+          formControlName="count"
+          placeholder="Nb"
+          class="w-full"
+        />
+      </div>
+
+      <!-- Bouton de suppression -->
+      <div class="flex items-end w-full md:w-auto">
+        <button
+          pButton
+          icon="pi pi-trash"
+          (click)="removeCity(i)"
+          class="p-button-rounded p-button-text p-button-danger w-full md:w-auto"
+          type="button"
+        ></button>
+      </div>
+    </div>
+  </div>
+</div>
+
     </div>
 
-                </div>
-              </p-panel>
+                </p-card>
+<!--               </p-panel> -->
 
 
             </form>
-            <div class="form-nav">
+            <div class="form-nav pt-6">
               <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(3)" />
               <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(5)" />
             </div>
@@ -231,9 +229,11 @@
         <p-step-panel [value]="5">
           <ng-template #content let-activateCallback="activateCallback">
             <form [formGroup]="step5Form" class="flex flex-col gap-6">
+
               <div formArrayName="derbies" class="flex flex-col gap-4">
+                  <p-button label="Ajouter un derby" icon="pi pi-plus" (click)="addDerby()" size="small" severity="warn" class="self-end" />
                 <p-card *ngFor="let derby of derbies.controls; let i = index" [formGroupName]="i" class="p-4">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-gray-50">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4  rounded-lg ">
   <!-- Équipes -->
   <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
     <p-select
@@ -293,7 +293,9 @@
   <div class="col-span-1 md:col-span-3 text-right mt-2">
     <p-button
       icon="pi pi-trash"
-      class="p-button-danger p-button-text"
+      severity="danger"
+      size="small"
+      [raised]="true"
       (click)="removeDerby(i)"
       label="Supprimer le derby" />
   </div>
@@ -301,11 +303,11 @@
 
                 </p-card>
               </div>
-              <p-button label="Ajouter un derby" icon="pi pi-plus" (click)="addDerby()" class="self-start" />
+
             </form>
             <div class="form-nav">
               <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(4)" />
-              <p-button label="Valider" icon="pi pi-check" severity="success" (click)="submitForm()" />
+              <p-button label="Valider" icon="pi pi-check" severity="primary" (click)="submitForm()" />
             </div>
           </ng-template>
         </p-step-panel>
