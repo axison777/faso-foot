@@ -1,3 +1,4 @@
+import { League } from "./league.model";
 import { MatchDay } from "./match-day.model";
 
 export interface Season {
@@ -5,4 +6,7 @@ export interface Season {
   start_date?: Date;
   end_date?: Date;
   match_days?: MatchDay[];
+
+  league_id?: number;
+  league?: League;
 }

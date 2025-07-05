@@ -1,5 +1,6 @@
 <p-confirmDialog></p-confirmDialog>
 <p-toast></p-toast>
+
 <div class="equipes-container">
   <!-- Header -->
   <div class="header">
@@ -10,49 +11,85 @@
     </button>
   </div>
 
-  <!-- Formulaire intégré -->
-<p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier la equipe' : 'Ajouter une nouvelle equipe'" [modal]="true" [closable]="false">
-  <ng-template #content>
-    <form (ngSubmit)="enregistrerEquipe()" #equipeForm="ngForm" class="flex flex-col gap-6">
 
-      <div>
-        <label for="name" class="block font-bold mb-2">Nom de l'equipe *</label>
-        <input
-          pInputText
-          type="text"
-          id="name"
-          name="name"
-          [(ngModel)]="newEquipe.name"
-          required
-          placeholder="Entrez le nom de l'equipe"
-          #nomInput="ngModel"
-          class="w-full"
+  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le equipe' : 'Ajouter un nouveau equipe'" [modal]="true" [closable]="false">
+    <ng-template #content>
+<form [formGroup]="teamForm" (ngSubmit)="saveTeam()" class="flex flex-col gap-6">
+
+
+    <div>
+    <label for="name" class="block font-bold mb-2">Nom  <span class="text-red-500">*</span></label>
+    <input
+      pInputText
+      type="text"
+      id="name"
+      formControlName="name"
+      placeholder="Entrez le nom de l'équipe"
+      class="w-full"
+    />
+    <small class="text-red-500" *ngIf="teamForm.get('name')?.invalid && teamForm.get('name')?.touched">
+      Le nom  est requis.
+    </small>
+  </div>
+
+    <div>
+    <label for="name" class="block font-bold mb-2">Abréviation   <span class="text-red-500">*</span></label>
+    <input
+      pInputText
+      type="text"
+      id="abbreviation"
+      formControlName="abbreviation"
+      placeholder="Entrez l'abréviation de l'équipe"
+      class="w-full"
+    />
+    <small class="text-red-500" *ngIf="teamForm.get('abbreviation')?.invalid && teamForm.get('abbreviation')?.touched">
+      L'abréviation  est requise.
+    </small>
+  </div>
+
+
+
+  <div >
+    <label for="ville" class="block font-bold mb-2">Ville  <span class="text-red-500">*</span></label>
+    <p-select
+      id="ville"
+      formControlName="city_id"
+      [options]="villes"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Sélectionnez une ville"
+
+      class="w-full"
+      appendTo="body"
+    ></p-select>
+    <small class="text-red-500" *ngIf="teamForm.get('city_id')?.invalid && teamForm.get('city_id')?.touched">
+      La ville est requise.
+    </small>
+  </div>
+</form>
+
+    </ng-template>
+
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button
+          styleClass=""
+          label="Annuler"
+          icon="pi pi-times"
+          [raised]="true"
+          severity="secondary"
+          (click)="toggleForm()"
         />
-        <small class="text-red-500" *ngIf="nomInput.invalid && nomInput.touched">Le nom de l'equipe est requis.</small>
+        <p-button
+          [label]="isEditing ? 'Modifier' : 'Enregistrer'"
+          icon="pi pi-check"
+          type="submit"
+          form="equipeForm"
+
+        />
       </div>
-
-    </form>
-  </ng-template>
-
-  <ng-template #footer>
-    <div class="flex justify-end gap-2">
-      <p-button
-        label="Annuler"
-        icon="pi pi-times"
-        class="p-button-text"
-        (click)="annulerFormulaire()"
-      />
-      <p-button
-        [label]="isEditing ? 'Modifier' : 'Enregistrer'"
-        icon="pi pi-check"
-        type="submit"
-        form="equipeForm"
-        (click)="enregistrerEquipe()"
-      />
-    </div>
-  </ng-template>
-</p-dialog>
-
+    </ng-template>
+  </p-dialog>
 
   <!-- Search -->
   <div class="search-container">
@@ -60,7 +97,7 @@
       type="text"
       class="search-input"
       [(ngModel)]="searchTerm"
-      placeholder="Rechercher par nom de l'équipe..."
+      placeholder="Rechercher par nom de equipe..."
     >
   </div>
 
@@ -70,36 +107,33 @@
   </div>
 
   <!-- Table -->
-  <div *ngIf="!loading && filteredEquipes.length > 0" class="table-container">
+  <div *ngIf="!loading && filteredTeams.length > 0" class="table-container">
     <table class="equipes-table">
       <thead>
         <tr>
-          <th>Nom de l'équipe</th>
+          <th>Nom du Equipe</th>
+
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let equipe of filteredEquipes">
-          <td class="equipe-nom">{{ equipe.name }}</td>
+        <tr *ngFor="let team of filteredTeams">
+          <td class="equipe-nom">{{ team.name }}</td>
+
           <td class="actions">
             <div class="btn-group">
-              <!-- <button class="btn btn-info"><i class="pi pi-eye"></i></button> -->
-              <button class="btn btn-warning" (click)="editEquipe(equipe)"><i class="pi pi-pencil"></i></button>
-              <button class="btn btn-danger" (click)="deleteEquipe(equipe.id)"><i class="pi pi-trash"></i></button>
+              <button class="btn btn-warning" (click)="editTeam(team)"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-danger" (click)="deleteTeam(team.id!)"><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
-
-   <!--  <div class="table-info">
-      {{ filteredEquipes.length }} equipe(s) affichée(s) sur {{ equipes.length }} au total
-    </div> -->
   </div>
 
   <!-- No results -->
-  <div *ngIf="!loading && filteredEquipes.length === 0" class="no-results">
+  <div *ngIf="!loading && filteredTeams.length === 0 && searchTerm && teams.length > 0" class="no-results">
     <div class="icon">🔍</div>
-    <p>Aucune equipe trouvée pour "{{ searchTerm }}"</p>
+    <p>Aucun equipe trouvé pour "{{ searchTerm }}"</p>
   </div>
 </div>

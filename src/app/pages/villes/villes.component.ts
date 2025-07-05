@@ -69,7 +69,7 @@ export class VillesComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors du chargement des citys',
+          detail: 'Erreur lors du chargement des villes',
         })
       }
 
@@ -84,74 +84,60 @@ export class VillesComponent implements OnInit {
     }
   }
 
+
   // Réinitialiser le formulaire
   resetForm(): void {
-    this.newCity = { name: '' };
+    this.cityForm.reset();
     this.isEditing = false;
     this.editingCityId = undefined;
   }
 
   // Enregistrer une nouvelle city
-  enregistrerCity(): void {
+  saveCity(): void {
+      const onSuccess = () => {
+         this.loadCitys();
+            this.toggleForm();
+            this.messageService.add({
+            severity: 'success',
+              summary: this.isEditing ? 'Ville modifiée' : 'Ville créée',
+          detail: this.isEditing? undefined: `${this.newCity?.name}`,
+            life: 3000
+            });
+
+      };
+
+      const onError = () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: `Erreur lors de la ${this.isEditing ? 'modification' : 'création'} du stade`,
+        });
+      };
     if (this.newCity?.name?.trim()) {
       if (this.isEditing && this.editingCityId) {
         // Mode édition
         const cityToUpdate:City = { name: this.cityForm.get('name')?.value?.trim(), location: this.cityForm.get('location')?.value?.trim() };
         this.villeService.update(this.editingCityId, cityToUpdate).subscribe({
-          next: () => {
-            this.loadCitys();
-            this.toggleForm();
-            this.messageService.add({
-            severity: 'success',
-            summary: 'Ville modifiée',
-
-            life: 3000
-            });
-
-          },
-          error: (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Erreur lors de la création de la city',
-            })
-
-          }
-
+          next: onSuccess,
+          error:onError
         });
       } else {
         // Mode création
         const nouvelleCity = { name: this.newCity.name.trim() };
         this.villeService.create(nouvelleCity).subscribe({
-          next: () => {
-            this.loadCitys();
-            this.toggleForm();
-            this.messageService.add({
-              severity: 'success',
-              summary: 'City modifiée',
-              /* detail: `${this.newCity.name} modifiée.`, */
-              life: 3000
-            });
-          },
-          error: (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Erreur lors de la création de la city',
-            })
-          }
+          next: onSuccess,
+          error: onError
         });
       }
     }
   }
 
-  // CORRECTION: Ajouter la méthode manquante
   annulerFormulaire(): void {
     this.showForm = false;
     this.resetForm();
   }
 
-  // Modifier une city (ouvre le formulaire en mode édition)
+  // Modifier une ville
   editCity(city: City): void {
     this.newCity = { name: city.name };
     this.cityForm.get('name')?.setValue(city.name);
@@ -188,9 +174,7 @@ export class VillesComponent implements OnInit {
     });
   }
 
-  viewCity(city: City): void {
-    alert(`Détails de la city:\n\nNom: ${city.name}`);
-  }
+
 
   get filteredCitys(): City[] {
     if (!this.searchTerm) {

@@ -20,16 +20,26 @@ body {
     --highlight-bg: #e7fffb !important;
     --highlight-text-color: #004d40 !important;
 
-     --primary-color: rgb(50, 145, 87) !important;
+  /* Couleur principale */
+  --primary-color: rgb(50, 145, 87) !important;
   --primary-color-text: #ffffff !important;
-
   --p-primary-color: var(--primary-color) !important;
   --p-primary-text-color: var(--primary-color-text) !important;
+
+  /* Couleur secondaire */
+  --secondary-color: #004d40 !important;
+  --secondary-color-text: #ffffff !important;
+  --p-secondary-color: var(--secondary-color) !important;
+  --p-secondary-text-color: var(--secondary-color-text) !important;
+
 
   /* Bouton principal */
   --p-button-primary-background: var(--primary-color) !important;
   --p-button-primary-border-color: var(--primary-color) !important;
   --p-button-primary-text-color: var(--primary-color-text) !important;
+  --p-button-primary-hover-background: var(--primary-color-hover) !important;
+
+
 
   /* Hover / focus / shadow */
   --primary-color-hover: rgb(40, 120, 70) !important;
@@ -77,10 +87,12 @@ body {
   --p-button-danger-background: var(--danger-color) !important;
   --p-button-danger-border-color: var(--danger-color) !important;
   --p-button-danger-text-color: #ffffff !important;
+  --p-button-danger-hover-background: var(--danger-hover) !important;
 
-  --p-button-warning-background: var(--warning-color) !important;
-  --p-button-warning-border-color: var(--warning-color) !important;
-  --p-button-warning-text-color: #ffffff !important;
+  --p-button-warn-background: var(--warning-color) !important;
+  --p-button-warn-border-color: var(--warning-color) !important;
+  --p-button-warn-text-color: #ffffff !important;
+  --p-button-warn-hover-background: var(--warning-hover) !important;
 
 
 }

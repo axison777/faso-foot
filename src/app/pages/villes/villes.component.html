@@ -13,9 +13,9 @@
   <!-- Formulaire intégré -->
     <p-dialog [(visible)]="showForm" [style]="{ width: '800px' }" [header]="isEditing ? 'Modifier la ville' : 'Ajouter une nouvelle ville'" [modal]="true" [closable]="false">
     <ng-template #content>
-        <form [formGroup]="cityForm" (ngSubmit)="enregistrerCity()" class="flex flex-col gap-6">
+        <form [formGroup]="cityForm" (ngSubmit)="saveCity()" class="flex flex-col gap-6">
   <div>
-    <label for="name" class="block font-bold mb-2">Nom de la ville *</label>
+    <label for="name" class="block font-bold mb-2">Nom de la ville <span class="text-red-500">*</span></label>
     <input
       pInputText
       type="text"
@@ -26,12 +26,12 @@
       value=""
     />
     <small class="text-red-500" *ngIf="cityForm.get('name')?.invalid && cityForm.get('name')?.touched">
-      Le nom de la ville est requis.
+      Le nom est requis.
     </small>
   </div>
-  
+
   <div>
-    <label for="name" class="block font-bold mb-2">Localisation de la ville *</label>
+    <label for="name" class="block font-bold mb-2">Localisation de la ville <span class="text-red-500">*</span></label>
     <input
       pInputText
       type="text"
@@ -41,7 +41,7 @@
       class="w-full"
     />
     <small class="text-red-500" *ngIf="cityForm.get('location')?.invalid && cityForm.get('location')?.touched">
-      La localisation de la ville est requise.
+      La localisation est requise.
     </small>
   </div>
 </form>
@@ -49,16 +49,21 @@
 
     <ng-template #footer>
         <div class="flex justify-end gap-2">
-            <button class="btn btn-danger">
-
-            </button>
+           <p-button
+          styleClass=""
+          label="Annuler"
+          icon="pi pi-times"
+          [raised]="true"
+          severity="secondary"
+          (click)="toggleForm()"
+        />
 
         <p-button
             [label]="isEditing ? 'Modifier' : 'Enregistrer'"
             icon="pi pi-check"
             type="submit"
             form="villeForm"
-            (click)="enregistrerCity()"
+
         />
         </div>
     </ng-template>

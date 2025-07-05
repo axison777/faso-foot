@@ -15,6 +15,7 @@ import { FormulaireSaisonComponent } from './app/pages/saisons/formulaire-saison
 import { CalendrierComponent } from './app/pages/saisons/calendrier/calendrier.component';
 
 export const appRoutes: Routes = [
+    { path: 'login', component: LoginComponent },
     {
         path: '',
         component: AppLayout,
@@ -29,7 +30,7 @@ export const appRoutes: Routes = [
             { path: 'stades', component: StadesComponent },
             { path: 'equipes', component: EquipesComponent },
              {path: 'matchs/:id', component: MatchsComponent},
-            { path: 'login', component: LoginComponent },
+
             {path: 'ajout-saison', component: FormulaireSaisonComponent},
             {path: 'calendrier/:id', component: CalendrierComponent}
         ]

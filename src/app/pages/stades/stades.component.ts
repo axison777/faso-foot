@@ -104,7 +104,7 @@ export class StadesComponent implements OnInit {
     this.editingStadiumId = null;
   }
 
-  enregistrerStadium(): void {
+  saveStadium(): void {
     if (this.newStadium.name.trim() && this.newStadium.city_id) {
       const stadiumPayload = {
         name: this.newStadium.name.trim(),
@@ -136,11 +136,6 @@ export class StadesComponent implements OnInit {
         this.stadeService.create({name: stadiumPayload.name, city_id: stadiumPayload.city_id}).subscribe({ next: onSuccess, error: onError });
       }
     }
-  }
-
-  annulerFormulaire(): void {
-    this.showForm = false;
-    this.resetForm();
   }
 
   editStadium(stadium: Stadium): void {

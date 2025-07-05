@@ -14,11 +14,11 @@
 
   <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le stade' : 'Ajouter un nouveau stade'" [modal]="true" [closable]="false">
     <ng-template #content>
-<form [formGroup]="stadiumForm" (ngSubmit)="enregistrerStadium()" class="flex flex-col gap-6">
+<form [formGroup]="stadiumForm" (ngSubmit)="saveStadium()" class="flex flex-col gap-6">
 
 
     <div>
-    <label for="name" class="block font-bold mb-2">Nom du stade *</label>
+    <label for="name" class="block font-bold mb-2">Nom du stade <span class="text-red-500">*</span></label>
     <input
       pInputText
       type="text"
@@ -28,12 +28,12 @@
       class="w-full"
     />
     <small class="text-red-500" *ngIf="stadiumForm.get('name')?.invalid && stadiumForm.get('name')?.touched">
-      Le nom du stade est requis.
+      Le nom  est requis.
     </small>
   </div>
 
     <div>
-    <label for="name" class="block font-bold mb-2">Abréviation du stade *</label>
+    <label for="name" class="block font-bold mb-2">Abréviation du stade <span class="text-red-500">*</span></label>
     <input
       pInputText
       type="text"
@@ -43,14 +43,14 @@
       class="w-full"
     />
     <small class="text-red-500" *ngIf="stadiumForm.get('abbreviation')?.invalid && stadiumForm.get('abbreviation')?.touched">
-      L'abréviation du stade est requise.
+      L'abréviation est requise.
     </small>
   </div>
 
 
 
-  <div *ngIf="isEditing">
-    <label for="ville" class="block font-bold mb-2">Ville *</label>
+  <div >
+    <label for="ville" class="block font-bold mb-2">Ville <span class="text-red-500">*</span></label>
     <p-select
       id="ville"
       formControlName="city_id"
@@ -58,7 +58,7 @@
       optionLabel="name"
       optionValue="id"
       placeholder="Sélectionnez une ville"
-    
+
       class="w-full"
       appendTo="body"
     ></p-select>
@@ -75,15 +75,16 @@
         <p-button
           label="Annuler"
           icon="pi pi-times"
-          class="p-button-text"
-          (click)="annulerFormulaire()"
+          [raised]="true"
+          severity="secondary"
+          (click)="toggleForm()"
         />
         <p-button
+        [raised]="true"
           [label]="isEditing ? 'Modifier' : 'Enregistrer'"
           icon="pi pi-check"
           type="submit"
           form="stadeForm"
-          (click)="enregistrerStadium()"
         />
       </div>
     </ng-template>
@@ -120,7 +121,7 @@
 
           <td class="actions">
             <div class="btn-group">
-              <button class="btn btn-warning" (click)="editStadium(stadium)"><i class="pi pi-pencil"></i></button>
+              <p-button severity="warn" icon="pi pi-pencil"  (click)="editStadium(stadium)"/>
               <button class="btn btn-danger" (click)="deleteStadium(stadium.id!)"><i class="pi pi-trash"></i></button>
             </div>
           </td>

@@ -4,5 +4,6 @@ export interface MatchDay {
   end_date?: Date;
   number?: number;
   matches?: Math[];
+  status?: string;
 
 }
