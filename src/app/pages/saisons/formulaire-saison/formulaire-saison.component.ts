@@ -15,6 +15,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
+import { SaisonService } from '../../../service/saison.service';
+import { skip } from 'rxjs';
 
 @Component({
   selector: 'app-formulaire-saison',
@@ -107,11 +109,12 @@ export class FormulaireSaisonComponent implements OnInit {
 
   selectedStadiums: string[] = [];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder,private saisonService: SaisonService) {}
   searchControl = new FormControl('');
 teamControls: FormArray<FormControl<boolean>> = new FormArray<FormControl<boolean>>([]);
 
 selectedStadiumObjects: any[] = [];
+skipDateControl!: FormControl ;
 
 
   ngOnInit(): void {
@@ -139,12 +142,15 @@ selectedStadiumObjects: any[] = [];
       allowed_match_days: [[ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], Validators.required],
       min_hours_between_team_matches: [48, Validators.required],
       min_days_between_phases: [30, Validators.required],
+      skip_dates: this.fb.array([]),
       cities: this.fb.array([])
     });
 
     this.step5Form = this.fb.group({
       derbies: this.fb.array([])
     });
+
+    this.skipDateControl= new FormControl(null)
 
     this.searchControl.valueChanges.subscribe(() => {
     this.updateTeamControls();
@@ -185,13 +191,41 @@ selectedStadiumObjects: any[] = [];
         ...this.step1Form.value,
         ...this.step2Form.value,
         ...this.step3Form.value,
-        constraints: this.step4Form.value,
-        derbies: this.step5Form.value.derbies
+        ...this.step4Form.value,
+        skip_dates: this.skipDateControl.value,
+        derbies:this.step5Form.value.derbies
       };
 
       console.log('Formulaire soumis :', formData);
+      this.saisonService.create(formData).subscribe({
+        next: (response) => {
+          console.log('Saison créée avec succès :', response);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la création de la saison :', error);
+        }
+      });
     } else {
       console.warn('Formulaire invalide');
+      const formData = {
+        ...this.step1Form.value,
+        ...this.step2Form.value,
+        ...this.step3Form.value,
+        ...this.step4Form.value,
+        skip_dates: this.skipDateControl.value,
+        derbies:this.step5Form.value.derbies
+      };
+
+      console.log('Formulaire soumis :', formData);
+      this.saisonService.create(formData).subscribe({
+        next: (response) => {
+          console.log('Saison créée avec succès :', response);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la création de la saison :', error);
+        }
+      });
+
     }
   }
 
@@ -308,6 +342,32 @@ addCity() {
     })
   );
 }
+
+ get skipDates(): FormArray {
+    return this.step4Form.get('skip_dates') as FormArray;
+  }
+
+  addSkipDate(): void {
+    const date = this.skipDateControl?.value;
+    if (date && !this.skipDateExists(date)) {
+      this.skipDates.push(
+        this.fb.group({
+          date: new FormControl(date),
+        })
+      );
+      this.skipDateControl?.reset();
+    }
+  }
+
+  removeSkipDate(index: number): void {
+    this.skipDates.removeAt(index);
+  }
+
+  private skipDateExists(date: Date): boolean {
+    return this.skipDates.controls.some(
+      ctrl => new Date(ctrl.value.date).toDateString() === date.toDateString()
+    );
+  }
 
 
 

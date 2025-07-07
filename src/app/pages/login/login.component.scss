@@ -3,7 +3,7 @@
   flex-direction: column;
   min-height: 100vh;
   background-color: #1f2937;
-  font-family: 'Inter', 'Roboto', sans-serif;
+
 }
 
 .login-section {
@@ -56,13 +56,23 @@
   user-select: none;
 }
 
-.logo-image {
+.logo-image-fbf {
   width: 96px;
   height: auto;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 
   @media (min-width: 768px) {
     width: 320px;
+  }
+}
+
+.logo-image-lfp {
+  width: 96px;
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+
+  @media (min-width: 768px) {
+    width: 220px;
   }
 }
 
@@ -112,7 +122,7 @@
   flex: 1;
   align-items: center;
   justify-content: center;
-  background-color: white;
+  background-color: #e5e7eb;
   padding: 2rem;
   user-select: none;
 
@@ -120,7 +130,7 @@
     width: 50%;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     background-color: #1f2937;
   }
 }
@@ -136,7 +146,7 @@
   font-weight: 700;
   color: #16a34a;
 
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     color: #4ade80;
   }
 }
@@ -152,7 +162,7 @@
     border: 1px solid #fecaca;
     color: #991b1b;
 
-    @media (prefers-color-scheme: dark) {
+    @media (prefers-color-scheme: light) {
       background-color: rgba(127, 29, 29, 0.2);
       border-color: #991b1b;
       color: #fca5a5;
@@ -164,7 +174,7 @@
     border: 1px solid #bbf7d0;
     color: #166534;
 
-    @media (prefers-color-scheme: dark) {
+    @media (prefers-color-scheme: light) {
       background-color: rgba(21, 128, 61, 0.2);
       border-color: #166534;
       color: #86efac;
@@ -205,7 +215,7 @@ form {
   font-size: 1.25rem;
   z-index: 1;
 
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     color: #9ca3af;
   }
 }
@@ -232,7 +242,7 @@ form {
     color: #9ca3af;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     color: #e5e7eb;
     background-color: #374151;
     border-bottom-color: #22c55e;
@@ -258,7 +268,7 @@ form {
     color: #16a34a;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     color: #9ca3af;
 
     &:hover {
@@ -273,7 +283,7 @@ form {
   color: #6b7280;
   font-style: italic;
 
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     color: #9ca3af;
   }
 }
@@ -312,7 +322,7 @@ form {
     color: #166534;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     color: #4ade80;
 
     &:hover {

@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { ChartConfiguration } from 'chart.js';
 import { NgChartsModule } from 'ng2-charts';
+import { MenuModule } from 'primeng/menu';
 @Component({
   selector: 'app-accueil',
  standalone: true,
   imports: [
-    NgChartsModule
+    NgChartsModule,MenuModule
   ],
   templateUrl: './accueil.component.html',
   styleUrls: ['./accueil.component.scss']

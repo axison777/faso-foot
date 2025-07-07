@@ -1,17 +1,16 @@
+<p-toast></p-toast>
 <div class="login-container">
   <section class="login-section">
-    <!-- Left side - Logo et informations -->
+    <!-- Left side -->
     <div class="logo-side">
       <div class="logo-content">
         <div class="logo-header">
-          <img
-            src="assets/images/Logo-FBF.png"
-            alt="Logo CBF"
-            class="logo-image"
-          />
-          <div class="logo-title">
-            CONFÉDÉRATION BURKINABÈ DE FOOTBALL
-          </div>
+            <div class="flex gap-5">
+                <img src="assets/images/Logo-FBF.png" alt="Logo CBF" class="logo-image-fbf" />
+                <img src="assets/images/lfp.png" alt="Logo CBF" class="logo-image-lfp" />
+            </div>
+
+          <div class="logo-title">CONFÉDÉRATION BURKINABÈ DE FOOTBALL</div>
         </div>
         <h1 class="app-title">CBF</h1>
         <p class="app-description">
@@ -21,67 +20,68 @@
       </div>
     </div>
 
-    <!-- Right side - Formulaire de connexion -->
+    <!-- Right side -->
     <div class="form-side">
-      <div class="form-container">
+      <div class="form-container card">
         <h4 class="form-title">Identifiez-vous</h4>
 
-        <!-- Messages d'erreur -->
-        <div *ngIf="error" class="alert alert-error">
-          {{ error }}
-        </div>
+        <!-- Erreurs -->
+<!--         <div *ngIf="error" class="alert alert-error">{{ error }}</div>
+        <div *ngIf="success" class="alert alert-success">{{ success }}</div> -->
 
-        <!-- Messages de succès -->
-        <div *ngIf="success" class="alert alert-success">
-          {{ success }}
-        </div>
-
-        <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-          <!-- Champ Email -->
-          <div class="input-group">
-            <label for="email" class="sr-only">Email</label>
-            <span class="input-icon">
-              📧
-            </span>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Adresse email"
-              [(ngModel)]="formData.email"
-              (input)="onInputChange()"
-              required
-              class="form-input"
-              #emailInput="ngModel"
-            />
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <!-- Email -->
+          <div class="mb-4">
+            <label for="email" class="block font-bold mb-2">Email</label>
+            <p-iconfield>
+              <p-inputicon class="pi pi-envelope" />
+              <input
+                type="email"
+                id="email"
+                pInputText
+                formControlName="email"
+                class="w-full"
+                placeholder="Adresse email"
+              />
+            </p-iconfield>
+            <div class="text-red-500 text-sm mt-1" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+              <span *ngIf="loginForm.get('email')?.errors?.['required']">
+                L'email est requis.
+              </span>
+              <span *ngIf="loginForm.get('email')?.errors?.['email']">
+                Email invalide.
+              </span>
+            </div>
           </div>
 
-          <!-- Champ Mot de passe -->
-          <div class="input-group">
-            <label for="password" class="sr-only">Mot de passe</label>
-            <span class="input-icon">
-              🔒
-            </span>
-            <input
-              [type]="showPassword ? 'text' : 'password'"
-              id="password"
-              name="password"
-              placeholder="Mot de passe"
-              [(ngModel)]="formData.password"
-              (input)="onInputChange()"
-              required
-              class="form-input"
-              #passwordInput="ngModel"
-            />
-            <span
-              class="password-toggle"
-              (click)="togglePasswordVisibility()"
-            >
-              {{ showPassword ? '🙈' : '👁️' }}
-            </span>
+          <!-- Mot de passe -->
+          <div class="mb-4">
+            <label for="password" class="block font-bold mb-2">Mot de passe</label>
+            <p-iconfield>
+              <p-inputicon class="pi pi-lock" />
+              <input
+                pInputText
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Mot de passe"
+                class="w-full"
+              />
+              <p-inputicon
+                [class.pi-eye]="!showPassword"
+                [class.pi-eye-slash]="showPassword"
+                class="cursor-pointer pi"
+                (click)="togglePasswordVisibility()"
+              ></p-inputicon>
+            </p-iconfield>
+            <div class="text-red-500 text-sm mt-1" *ngIf="loginForm.get('password')?.touched ">
+              <span *ngIf="loginForm.get('password')?.errors?.['required']">
+                Le mot de passe est requis.
+              </span>
+            </div>
           </div>
 
-          <!-- Identifiants de démonstration -->
+          <!-- Démo -->
           <div class="demo-credentials">
             <p class="demo-title">Identifiants de démonstration :</p>
             <div class="demo-list">
@@ -91,17 +91,17 @@
             </div>
           </div>
 
-          <!-- Lien mot de passe oublié -->
-          <div class="forgot-password">
+          <!-- Mot de passe oublié -->
+         <!--  <div class="forgot-password mb-3">
             <a routerLink="/mot-de-passe-oublie" class="forgot-link">
               Mot de passe oublié ?
             </a>
-          </div>
+          </div> -->
 
-          <!-- Bouton de connexion -->
+          <!-- Bouton -->
           <button
             type="submit"
-            [disabled]="loading || !formData.email || !formData.password"
+            [disabled]="loading || loginForm.invalid"
             class="login-button"
           >
             <span *ngIf="loading" class="loading-spinner"></span>

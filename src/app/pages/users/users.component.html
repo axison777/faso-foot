@@ -1,0 +1,128 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="users-container">
+  <!-- Header -->
+  <div class="header">
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Utilisateurs</h1>
+    <button class="btn-primary" (click)="toggleForm()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter un utilisateur
+    </button>
+  </div>
+
+  <!-- Formulaire -->
+  <p-dialog
+    [(visible)]="showForm"
+    [style]="{ width: '500px' }"
+    header="Ajouter un nouvel utilisateur"
+    [modal]="true"
+    [closable]="false"
+  >
+    <form [formGroup]="userForm" (ngSubmit)="saveUser()" class="flex flex-col gap-5">
+      <div>
+        <label class="block font-bold mb-2">Prénom <span class="text-red-500">*</span></label>
+        <input pInputText type="text" formControlName="first_name" placeholder="Prénom" class="w-full" />
+        <small class="text-red-500" *ngIf="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
+          Champ requis
+        </small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
+        <input pInputText type="text" formControlName="last_name" placeholder="Nom" class="w-full" />
+        <small class="text-red-500" *ngIf="userForm.get('last_name')?.invalid && userForm.get('last_name')?.touched">
+          Champ requis
+        </small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Email <span class="text-red-500">*</span></label>
+        <input pInputText type="email" formControlName="email" placeholder="Email" class="w-full" />
+        <small class="text-red-500" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+          Email invalide
+        </small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Mot de passe <span class="text-red-500">*</span></label>
+        <input pInputText type="password" formControlName="password" placeholder="Mot de passe" class="w-full" />
+        <small class="text-red-500" *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+          Mot de passe requis
+        </small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Rôle <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="roles"
+          formControlName="role"
+          optionLabel="name"
+          optionValue="value"
+          placeholder="Sélectionnez un rôle"
+          class="w-full"
+        ></p-select>
+        <small class="text-red-500" *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched">
+          Rôle requis
+        </small>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <p-button label="Annuler" icon="pi pi-times" severity="secondary" (click)="toggleForm()" />
+        <p-button label="Enregistrer" icon="pi pi-check" type="submit" />
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Search -->
+  <div class="search-container mt-4 mb-3">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher par prénom ou nom..."
+    />
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Chargement des utilisateurs...
+  </div>
+
+  <!-- Table des utilisateurs -->
+  <div *ngIf="!loading && filteredUsers.length > 0" class="table-container">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Nom complet</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers">
+          <td>{{ user.first_name }} {{ user.last_name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+          <td class="actions">
+            <div class="btn-group">
+              <button class="btn btn-success" >
+                <i class="pi pi-check-circle mr-1"></i> Activer
+              </button>
+              <button class="btn btn-danger" (click)="deleteUser(user.id!)">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Aucun résultat -->
+  <div *ngIf="!loading && filteredUsers.length === 0 && searchTerm && users.length > 0" class="no-results">
+    <div class="icon">🔍</div>
+    <p>Aucun utilisateur trouvé pour "{{ searchTerm }}"</p>
+  </div>
+</div>
