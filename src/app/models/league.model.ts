@@ -4,6 +4,7 @@ export interface League {
   id?: number;
   name?: string;
   teams_count?: number;
-  seasons?: Season[]
+  seasons?: Season[];
+  logo?: string;
 
 }

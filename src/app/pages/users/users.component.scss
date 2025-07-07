@@ -1,35 +1,5 @@
-.custom-spinner-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1050;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4); // semi-transparent
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: all;
-}
-
-.custom-spinner {
-  width: 64px;
-  height: 64px;
-  border: 8px solid rgba(255, 255, 255, 0.2);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Conteneur principal pour les saisons */
-.saisons-container {
+/* Conteneur principal pour les users */
+.users-container {
   padding: 20px;
   width: 100%;
   min-width: 0;
@@ -59,7 +29,7 @@
   }
 
   .btn-primary {
-    background-color: rgb(50,145,87) !important; /* Vert principal - même que sidebar */
+    background-color: rgb(50,145,87); /* Vert principal - même que sidebar */
     color: #ffffff;
     border: none;
     padding: 12px 24px;
@@ -162,7 +132,7 @@
       min-width: 120px;
 
       &.btn-primary {
-        background-color:  rgb(50,145,87) !important; /* Vert principal */
+        background-color: rgb(255, 255, 255); /* Vert principal */
         color: #ffffff;
 
         &:hover:not(:disabled) {
@@ -234,14 +204,14 @@
   overflow-x: auto;
 }
 
-.saisons-table {
-  width: 100% !important;
-  table-layout: fixed;
+.users-table {
+  width: 100%;
+  table-layout: auto;
   border-collapse: collapse;
 
   thead {
-    background:rgb(22,123,74); /* Vert clair - comme topbar */
-    color: whitesmoke; /* Texte foncé pour contraste */
+    background: rgb(22, 123, 74);
+    color: whitesmoke;
 
     th {
       padding: 16px 15px;
@@ -251,20 +221,16 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       border: none;
-      background:rgb(50,145,87); /* Vert clair - comme topbar */
-      color: whitesmoke; /* Texte foncé pour contraste */
+      background: rgb(50, 145, 87);
+      color: whitesmoke;
 
       &:first-child {
         border-top-left-radius: 12px;
-
-
       }
-
 
       &:last-child {
         border-top-right-radius: 12px;
         text-align: center;
-
       }
     }
   }
@@ -275,7 +241,7 @@
       border-bottom: 1px solid #e2e8f0;
 
       &:hover {
-        background-color: #f0fdf4; /* Vert très clair au hover */
+        background-color: #f0fdf4;
         transform: scale(1.0000002);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       }
@@ -286,25 +252,23 @@
 
       td {
         padding: 16px 15px;
+        vertical-align: middle;
 
-
-        &.saison-nom {
+        &.user-nom {
           font-weight: 600;
-          color: #1e293b; /* Vert principal */
+          color: #1e293b;
           font-size: 1.05rem;
-
-
         }
 
         &.actions {
           text-align: center;
           white-space: nowrap;
-
         }
       }
     }
   }
 }
+
 
 .btn-group {
   display: flex;
@@ -315,41 +279,41 @@
   .btn {
     padding: 8px 12px;
     border: none;
-    border-radius: 8px; /* Changé de 6px à 8px pour correspondre aux stades */
+    border-radius: 8px; /* Changé de 6px à 8px pour correspondre aux users */
     cursor: pointer;
-    font-size: 0.875rem; /* 14px - même taille que les stades */
+    font-size: 0.875rem; /* 14px - même taille que les users */
     font-weight: 500;
     transition: all 0.3s ease;
     min-width: 36px;
 
     &.btn-info {
-      background-color:rgb(50,145,87); /* Bleu cyan - même que les stades */
+      background-color:rgb(50,145,87); /* Bleu cyan - même que les users */
       color: #ffffff;
 
       &:hover {
-        background-color: rgb(50,145,87); /* Même hover que les stades */
+        background-color: rgb(50,145,87); /* Même hover que les users */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgb(50,145,87);
       }
     }
 
     &.btn-warning {
-      background-color: #f59e0b; /* Orange - même que les stades */
+      background-color: #f59e0b; /* Orange - même que les users */
       color: #ffffff; /* Texte blanc au lieu de foncé */
 
       &:hover {
-        background-color: #d97706; /* Même hover que les stades */
+        background-color: #d97706; /* Même hover que les users */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
       }
     }
 
     &.btn-danger {
-      background-color: #dc2626; /* Rouge - même que les stades */
+      background-color: #dc2626; /* Rouge - même que les users */
       color: #ffffff;
 
       &:hover {
-        background-color: #b91c1c; /* Même hover que les stades */
+        background-color: #b91c1c; /* Même hover que les users */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
       }
@@ -357,15 +321,15 @@
   }
 }
 
-/* Mise à jour de la responsivité pour correspondre aux stades */
+/* Mise à jour de la responsivité pour correspondre aux users */
 @media (max-width: 768px) {
   .btn-group {
-    gap: 4px; /* Changé pour correspondre aux stades */
+    gap: 4px; /* Changé pour correspondre aux users */
 
     .btn {
-      font-size: 0.75rem; /* 12px - même que les stades */
-      padding: 6px 8px; /* Même padding que les stades */
-      min-width: 32px; /* Même largeur minimale que les stades */
+      font-size: 0.75rem; /* 12px - même que les users */
+      padding: 6px 8px; /* Même padding que les users */
+      min-width: 32px; /* Même largeur minimale que les users */
     }
   }
 }
@@ -398,7 +362,7 @@
 
 /* Responsivité améliorée */
 @media (max-width: 1024px) {
-  .saisons-container {
+  .users-container {
     padding: 15px;
   }
 
@@ -408,7 +372,7 @@
 }
 
 @media (max-width: 768px) {
-  .saisons-container {
+  .users-container {
     padding: 10px;
   }
 
@@ -451,7 +415,7 @@
     border-radius: 0;
   }
 
-  .saisons-table {
+  .users-table {
     font-size: 0.9rem;
 
     thead th {
@@ -462,7 +426,7 @@
     tbody td {
       padding: 12px 8px;
 
-      &.saison-nom {
+      &.user-nom {
         font-size: 1rem;
       }
     }
@@ -485,7 +449,7 @@
     font-size: 0.9rem;
   }
 
-  .saisons-table {
+  .users-table {
     thead th:first-child {
       width: 65%;
     }
@@ -526,4 +490,3 @@
     transition-duration: 0.01ms !important;
   }
 }
-

@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     standalone: true,
     selector: 'app-footer',
     template: `<div class="layout-footer">
-        Designed and Developed by
+        Powered by
         <a href="https://tpe.bf" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline">Tech Pôle Expertise</a>
     </div>`
 })

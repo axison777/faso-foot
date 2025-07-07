@@ -1,81 +1,90 @@
 import { Component } from '@angular/core';
-import { MenuItem } from 'primeng/api';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
-import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
+import { MenuModule } from 'primeng/menu';
+import { TieredMenuModule } from 'primeng/tieredmenu';
+import { MenuItem } from 'primeng/api';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule],
+  imports: [
+    RouterModule,
+    CommonModule,
+    StyleClassModule,
+    MenuModule,
+    TieredMenuModule
+  ],
   template: `
-    <div class="layout-topbar" [class.sidebar-visible]="isStaticMenuDesktopActive || isStaticMenuMobileActive">
-         <button class="layout-topbar-action" (click)="layoutService.onMenuToggle()">
-          <i class="pi pi-bars"></i>
-        </button>
+    <div class="layout-topbar" [class.sidebar-visible]="isSidebarVisible">
+      <!-- Bouton burger (toggle sidebar) -->
+      <button class="layout-topbar-action" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-bars"></i>
+      </button>
+
+      <!-- Actions utilisateur -->
       <div class="layout-topbar-actions">
 
-     <!--    <div class="layout-config-menu">
-          <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
-            <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
-          </button>
-          <div class="relative">
-            <button
-              class="layout-topbar-action layout-topbar-action-highlight"
-              pStyleClass="@next"
-              enterFromClass="hidden"
-              enterActiveClass="animate-scalein"
-              leaveToClass="hidden"
-              leaveActiveClass="animate-fadeout"
-              [hideOnOutsideClick]="true"
-            >
-              <i class="pi pi-palette"></i>
-            </button>
-            <app-configurator />
-          </div>
-        </div>
-        <button class="layout-topbar-action" pStyleClass="@next" [hideOnOutsideClick]="true">
-          <i class="pi pi-bell"></i>
-        </button> -->
-        <button class="layout-topbar-action">
+     <!--  <button class="login-button">Se connecter</button> -->
+
+        <span class="user-name hidden md:inline font-bold text-md text-white">
+          {{ getUserFullName() }}
+        </span>
+
+
+
+        <button
+          class="layout-topbar-action"
+          (click)="profileMenu.toggle($event)"
+          pRipple
+        [ngClass]="{ 'active': isProfileMenuOpen }"
+        >
           <i class="pi pi-user"></i>
-          <span>Admin User</span>
         </button>
+        <p-tieredMenu #profileMenu [model]="profileMenuItems" popup appendTo="body"
+        (onHide)="isProfileMenuOpen = false"
+        (onShow)="isProfileMenuOpen = true"
+        ></p-tieredMenu>
       </div>
     </div>
   `,
   styles: [`
-        :host {
-      --primary-color:rgb(42, 157, 82);
-      --hover-color: #48bca8;
+    :host {
+      --primary-color: rgb(42, 157, 82);
+      --hover-color: #004d40;
       --active-color: #1d7a6c;
       --text-color: #ffffff;
       --shadow-color: rgba(0, 0, 0, 0.2);
     }
-
-
-    .layout-topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  background-color: #329157;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1rem;
-  transition: all 0.3s ease;
-  z-index: 999;
-
-  &.sidebar-visible {
-    left: 280px;
-    width: calc(100% - 280px);
-  }
+    ::ng-deep .p-tieredmenu.p-tieredmenu-overlay {
+  z-index: 1300 !important;
+  margin-left: 8px !important;
+  margin-top: 5px !important;
 }
 
+    .layout-topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      transition: all 0.3s ease;
+      z-index: 1100;
+      box-shadow: 0 2px 6px var(--shadow-color);
+    }
+
+    .layout-topbar.sidebar-visible {
+      left: 280px;
+      width: calc(100% - 280px);
+    }
 
     .layout-topbar-actions {
       display: flex;
@@ -95,6 +104,7 @@ import { LayoutService } from '../service/layout.service';
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      user-select: none;
     }
 
     .layout-topbar-action:hover {
@@ -102,42 +112,91 @@ import { LayoutService } from '../service/layout.service';
       transform: scale(1.1);
     }
 
-    .layout-topbar-action-highlight::after {
-      content: '';
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      background: #ff6b6b;
-      border-radius: 50%;
-      top: 8px;
-      right: 8px;
+    .user-name {
+      color: var(--text-color);
     }
 
     @media (max-width: 576px) {
       .layout-topbar {
         height: 56px;
-        padding: 0 1rem;
       }
 
-      .layout-topbar-action span {
+      .user-name {
         display: none;
       }
     }
+
+    .layout-topbar-action.active {
+    background-color: #e7fffb;;
+    color: #c73e3e;
+    transform: scale(1.05);
+}
+
+.login-button{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  background-color:rgb(255, 247, 246);
+  color: #c73e3e;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+
+
   `]
 })
 export class AppTopbar {
-  items!: MenuItem[];
+  userFullName = 'Jean Ouédraogo';
 
-  constructor(public layoutService: LayoutService) {}
+  profileMenuItems: MenuItem[] = [];
+  isProfileMenuOpen = false;
+  constructor(
+    public layoutService: LayoutService,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
-  toggleDarkMode() {
-    this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+  ngOnInit(): void {
+    this.profileMenuItems = [
+      {
+        label: 'Changer de mot de passe',
+        icon: 'pi pi-key',
+        command: () => this.router.navigate(['/changer-mot-de-passe'])
+      },
+
+      {
+        label: 'Se déconnecter',
+        icon: 'pi pi-sign-out',
+        command: () => this.logout()
+      }
+    ];
+
   }
-  get isStaticMenuDesktopActive(): boolean {
-  return !this.layoutService.layoutState().staticMenuDesktopInactive && this.layoutService.isDesktop();
 
+  logout(): void {
+    // log out logic (à adapter)
+    console.log('Déconnexion...');
+    this.router.navigate(['/login']);
+  }
+
+  getUserFullName(): string {
+  const user = this.authService.user();
+  return user ? `${user.first_name} ${user.last_name}` : '';
 }
-  get isStaticMenuMobileActive(): boolean {
-  return !this.layoutService.layoutState().staticMenuMobileActive && this.layoutService.isMobile();
-}
+
+  get isSidebarVisible(): boolean {
+    const state = this.layoutService.layoutState();
+
+    return (
+      (!state.staticMenuDesktopInactive && this.layoutService.isDesktop()) ||
+      (state.staticMenuMobileActive === true && this.layoutService.isMobile()) ||
+      (state.overlayMenuActive === true)
+    );
+  }
 }

@@ -1,45 +1,58 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-/* import { AuthService } from '../service/auth.service'; */
-import { LoginCredentials } from '../../models/auth.model';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../service/auth.service';
+
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputIconModule } from 'primeng/inputicon';
+import { PasswordModule } from 'primeng/password';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    IconFieldModule,
+    InputTextModule,
+    InputIconModule,
+    PasswordModule,
+    ToastModule,
+
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  formData: LoginCredentials = {
-    email: '',
-    password: ''
-  };
-
-  error: string = '';
-  loading: boolean = false;
-  showPassword: boolean = false;
-  success: string = '';
-
-  // CORRECTION: Déclarer sans initialiser ici
+  loginForm!: FormGroup;
+  loading = false;
+  error = '';
+  success = '';
+  showPassword = false;
   defaultCredentials: any[] = [];
 
   constructor(
-   // private authService: AuthService,
-    private router: Router
-  ) {
-    // CORRECTION: Initialiser dans le constructeur après l'injection
-   // this.defaultCredentials = this.authService.getDefaultCredentials();
-  }
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private messageService: MessageService,
+  ) {}
 
   ngOnInit(): void {
-    // Rediriger si déjà connecté
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
 
+     if (this.authService.isAuthenticated()) this.router.navigate(['/']);
   }
 
   ngOnDestroy(): void {
@@ -47,55 +60,33 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onInputChange(): void {
-    this.error = ''; // Effacer l'erreur quand l'utilisateur tape
-    this.success = '';
-
-    // Vérifier si les identifiants correspondent aux valeurs par défaut
-    if (this.formData.email && this.formData.password) {
-      this.checkDefaultCredentials();
-    }
-  }
-
-  private checkDefaultCredentials(): void {
-    const isDefaultCredential = this.defaultCredentials.some(
-      cred => this.formData.email === cred.email && this.formData.password === cred.password
-    );
-
-    if (isDefaultCredential) {
-      this.success = "Connexion réussie !";
-      this.loading = true;
-
-      // Rediriger vers le dashboard après un court délai
-      setTimeout(() => {
-        //this.performLogin();
-      }, 800);
-    }
-  }
-
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {
-    const { email, password } = this.formData;
 
-    // Si ce sont les identifiants par défaut, la redirection est déjà gérée
-    const isDefaultCredential = this.defaultCredentials.some(
-      cred => email === cred.email && password === cred.password
-    );
-
-    if (isDefaultCredential) {
+    if (this.loginForm.invalid) {
+      this.error = "Veuillez remplir tous les champs correctement.";
       return;
     }
 
-    if (!email || !password) {
-      this.error = "Veuillez remplir tous les champs";
-      return;
-    }
+    this.loading = true;
+    const credentials = this.loginForm.value;
+    console.log(credentials);
 
-    //this.performLogin();
+    this.authService.login(credentials)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+            this.loading = false;
+          this.messageService.add({ severity: 'success', summary: 'Connexion reussie' });
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+         this.messageService.add({ severity: 'error', summary: 'Connexion echouée', detail: err.error.message });
+          this.loading = false;
+        }
+      });
   }
-
-
 }

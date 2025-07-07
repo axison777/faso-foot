@@ -13,6 +13,9 @@ import { LoginComponent } from './app/pages/login/login.component';
 import { MatchsComponent } from './app/pages/matchs/matchs.component';
 import { FormulaireSaisonComponent } from './app/pages/saisons/formulaire-saison/formulaire-saison.component';
 import { CalendrierComponent } from './app/pages/saisons/calendrier/calendrier.component';
+import { UsersComponent } from './app/pages/users/users.component';
+import { LiguesComponent } from './app/pages/ligues/ligues.component';
+/* import { CalendarComponent } from './app/pages/calendar/calendar.component'; */
 
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -30,9 +33,14 @@ export const appRoutes: Routes = [
             { path: 'stades', component: StadesComponent },
             { path: 'equipes', component: EquipesComponent },
              {path: 'matchs/:id', component: MatchsComponent},
+             {path: 'utilisateurs', component: UsersComponent},
+             {path: 'ligues', component:LiguesComponent},
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent},
-            {path: 'calendrier/:id', component: CalendrierComponent}
+            {path: 'calendrier/:id', component: CalendrierComponent},
+          /*    {path: 'calendar', component:CalendarComponent}, */
+
+
         ]
     },
 
