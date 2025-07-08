@@ -48,19 +48,37 @@
     </small>
   </div>
 
-  <!-- ✅ Champ Adresse -->
+
+<!-- ✅ Champ Téléphone -->
 <div>
-  <label for="address" class="block font-bold mb-2">Adresse de l'équipe <span class="text-red-500">*</span></label>
+  <label for="phone" class="block font-bold mb-2">Téléphone de l'équipe <span class="text-red-500">*</span></label>
+<input
+  pInputText
+  type="tel"
+  id="phone"
+  formControlName="phone"
+  placeholder="Ex: 70000000"
+  class="w-full"
+  (keypress)="allowOnlyNumbers($event)"
+/>
+  <small class="text-red-500" *ngIf="teamForm.get('phone')?.invalid && teamForm.get('phone')?.touched">
+    Le téléphone est requis et doit être valide.
+  </small>
+</div>
+
+<!-- ✅ Champ Email -->
+<div>
+  <label for="email" class="block font-bold mb-2">Email de l'équipe <span class="text-red-500">*</span></label>
   <input
     pInputText
-    type="text"
-    id="address"
-    formControlName="address"
-    placeholder="Entrez l'adresse de l'équipe"
+    type="email"
+    id="email"
+    formControlName="email"
+    placeholder="ex: equipe@email.com"
     class="w-full"
   />
-  <small class="text-red-500" *ngIf="teamForm.get('address')?.invalid && teamForm.get('address')?.touched">
-    L'adresse est requise.
+  <small class="text-red-500" *ngIf="teamForm.get('email')?.invalid && teamForm.get('email')?.touched">
+    L'email est requis et doit être valide.
   </small>
 </div>
 
@@ -126,22 +144,29 @@
 
   <p-dialog
   header="Détails de l'équipe"
+  styleClass="custom-green-header"
   [(visible)]="showDetails"
   [modal]="true"
   [style]="{ width: '500px', 'max-width': '95vw' }"
   [closable]="true"
-  [contentStyle]="{ 'padding': '1.5rem' }"
+  [contentStyle]="{ 'padding': '1.5rem', 'background-color': '#ffffff' }"
   [baseZIndex]="10000"
 >
   <div *ngIf="selectedTeam" class="team-details-container">
+    <!-- Titre principal comme sur le stade -->
+    <h2 style="margin-bottom: 1rem; color: rgb(50,145,87); font-size: 1.5rem; text-align: center;">
+      {{ selectedTeam.name }}
+    </h2>
+
     <div class="team-logo-container" *ngIf="selectedTeam.logo_url">
       <img [src]="selectedTeam.logo_url" alt="Logo de l'équipe" class="team-logo" />
     </div>
+
     <div class="team-info">
-      <p><strong>Nom :</strong> {{ selectedTeam.name }}</p>
-      <p><strong>Abréviation :</strong> {{ selectedTeam.abbreviation }}</p>
-      <p><strong>Adresse :</strong> {{ selectedTeam.address }}</p>
-      <p><strong>Ville :</strong> {{ getCityNameById(selectedTeam.city_id) }}</p>
+      <p><strong>Abréviation :</strong> {{ selectedTeam.abbreviation || '-' }}</p>
+      <p><strong>Email :</strong> {{ selectedTeam.email || '-' }}</p>
+      <p><strong>Téléphone :</strong> {{ selectedTeam.phone || '-' }}</p>
+      <p><strong>Ville :</strong> {{ getCityNameById(selectedTeam.city_id) || '-' }}</p>
     </div>
   </div>
 </p-dialog>

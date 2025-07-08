@@ -59,7 +59,8 @@ export class EquipesComponent implements OnInit {
     this.teamForm = this.fb.group({
       name: ['', Validators.required],
       abbreviation: ['', Validators.required],
-      address: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(/^\+?\d{8,14}$/)]],
+      email: ['', [Validators.required, Validators.email]],
       city_id: ['', Validators.required],
       logo: ['']
     });
@@ -129,7 +130,8 @@ export class EquipesComponent implements OnInit {
       const formData = new FormData();
       formData.append('name', this.teamForm.get('name')?.value);
       formData.append('abbreviation', this.teamForm.get('abbreviation')?.value);
-      formData.append('address', this.teamForm.get('address')?.value);
+      formData.append('phone', this.teamForm.get('phone')?.value);
+      formData.append('email', this.teamForm.get('email')?.value);
       formData.append('city_id', this.teamForm.get('city_id')?.value);
 
       if (this.logoFile) {
@@ -173,7 +175,8 @@ export class EquipesComponent implements OnInit {
   editTeam(team: Team): void {
     this.teamForm.get('name')?.setValue(team.name);
     this.teamForm.get('abbreviation')?.setValue(team.abbreviation);
-    this.teamForm.get('address')?.setValue(team.address);
+    this.teamForm.get('phone')?.setValue(team.phone);
+    this.teamForm.get('email')?.setValue(team.email);
     this.teamForm.get('city_id')?.patchValue(team.city_id);
     this.isEditing = true;
     this.editingTeamId = team.id;
@@ -195,6 +198,12 @@ export class EquipesComponent implements OnInit {
       }
     });
   }
+  allowOnlyNumbers(event: KeyboardEvent): void {
+  const charCode = event.charCode;
+  if (charCode < 48 || charCode > 57) {
+    event.preventDefault();
+  }
+}
 
   get filteredTeams(): Team[] {
     if (!this.searchTerm) return this.teams;
