@@ -25,7 +25,7 @@ export class EquipeService {
   }
 
   update(id: number, equipe: Partial<any>): Observable<any> {
-    return this.http.put<Equipe>(`${this.apiUrl}${id}/`, equipe);
+    return this.http.post<Equipe>(`${this.apiUrl}${id}/`, equipe);
   }
 
   delete(id: number): Observable<void> {

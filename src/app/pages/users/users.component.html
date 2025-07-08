@@ -61,6 +61,7 @@
           optionValue="value"
           placeholder="Sélectionnez un rôle"
           class="w-full"
+          appendTo="body"
         ></p-select>
         <small class="text-red-500" *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched">
           Rôle requis
@@ -107,8 +108,8 @@
           <td>{{ user.role }}</td>
           <td class="actions">
             <div class="btn-group">
-              <button class="btn btn-success" >
-                <i class="pi pi-check-circle mr-1"></i> Activer
+              <button class="btn btn-info" >
+                <i class="pi pi-check-circle "></i>
               </button>
               <button class="btn btn-danger" (click)="deleteUser(user.id!)">
                 <i class="pi pi-trash"></i>

@@ -137,6 +137,8 @@ export class EquipesComponent implements OnInit {
       if (this.logoFile) {
         formData.append('logo', this.logoFile);
       }
+      if( this.isEditing && this.editingTeamId)
+        formData.append('_method', 'PUT');
 
       const onSuccess = () => {
         this.loadTeams();
