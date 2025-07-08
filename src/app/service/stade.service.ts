@@ -18,7 +18,7 @@ export class StadeService {
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Stade[]> {
-    return this.http.get<Stade[]>(this.apiUrl);
+    return this.http.get<Stade[]>(this.apiUrl+'all');
   }
 
   create(stade: Partial<Stade>): Observable<Stade> {
@@ -26,7 +26,7 @@ export class StadeService {
   }
 
   update(id: number, stade: Partial<Stade>): Observable<Stade> {
-    return this.http.put<Stade>(`${this.apiUrl}${id}/`, stade);
+    return this.http.post<Stade>(`${this.apiUrl}${id}/`, stade);
   }
 
   delete(id: number): Observable<void> {

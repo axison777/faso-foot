@@ -12,7 +12,8 @@
   </div>
 
 
-  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le equipe' : 'Ajouter un nouveau equipe'" [modal]="true" [closable]="false">
+  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier l\'équipe' : 'Ajouter une nouvelle équipe'"
+ [modal]="true" [closable]="false">
     <ng-template #content>
 <form [formGroup]="teamForm" (ngSubmit)="saveTeam()" class="flex flex-col gap-6">
   <!-- Nom -->
@@ -116,6 +117,7 @@
           icon="pi pi-check"
           type="submit"
           form="equipeForm"
+          (click)="saveTeam()"
 
         />
       </div>

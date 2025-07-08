@@ -2,7 +2,10 @@
 
   <div class="bg-green-top">
       <div class="layout-header">
-    <div class="layout-header-line1">LIGUE 1</div>
+    <div class="layout-header-line1 flex justify-center items-end ">
+        <img class="ligue-logo" src="assets/images/Ligue1-Logo2.png" alt="">
+        <span>LIGUE 1</span>
+        </div>
     <div class="layout-header-line2">Calendrier des matchs</div>
     <div class="layout-header-line3">Saison 2025–2026</div>
   </div>
@@ -23,48 +26,62 @@
           [class.inactive-phase]="selectedPhaseIndex !== i"
           (click)="selectedPhaseIndex = i"
         >
-          {{ phase.name }} ({{ phase.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }})
+          <!-- {{ phase.name }} ({{ phase.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }}) -->
+            {{ phase.name }} ({{ phase.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }})
         </button>
       </div>
 
-      <div *ngIf="phases[selectedPhaseIndex] as phase">
-        <p-carousel
-          [value]="phase.matchdays"
-          [numVisible]="3"
-          [numScroll]="3"
-          [circular]="true"
-          [responsiveOptions]="[
-            { breakpoint: '1024px', numVisible: 2, numScroll: 2 },
-            { breakpoint: '600px', numVisible: 1, numScroll: 1 }
-          ]"
-          class="custom-carousel"
-        >
-          <ng-template pTemplate="item" let-day>
-            <div class="saison bg-white  p-4 mx-2 min-h-[300px]">
-              <span class="text-lg font-semibold text-green-700  text-center match-day-title">
-                {{ day.label }}
-              </span>
-              <div class="divide-y divide-gray-200 px-7 py-4 match-day-content" >
-                <div *ngFor="let match of day.matches" class="py-2">
-                  <div class="flex justify-between font-medium text-gray-700">
-                    <span>{{ match.team1 }} <strong>VS</strong> {{ match.team2 }}</span>
-                    <span>{{ match.time }}</span>
-                  </div>
-                  <div class="text-gray-500 text-sm">{{ match.stadium }}</div>
-                  <div class="text-gray-400 text-xs">{{ match.date | date: 'fullDate' }}</div>
-                </div>
-              </div>
+<div *ngIf="phases[selectedPhaseIndex] as phase">
+  <p-carousel
+    [value]="phase.matchdays"
+    [numVisible]="3"
+    [numScroll]="3"
+    [circular]="true"
+    [responsiveOptions]="[
+      { breakpoint: '1024px', numVisible: 2, numScroll: 2 },
+      { breakpoint: '600px', numVisible: 1, numScroll: 1 }
+    ]"
+    class="custom-carousel"
+  >
+    <ng-template pTemplate="item" let-day>
+      <div class="saison bg-white p-2 mx-2 min-h-[300px]">
+        <span class="text-lg font-semibold text-green-700 text-center match-day-title">
+          {{ day.label }}
+        </span>
+
+        <div class="divide-y divide-gray-200  pb-2 match-day-content">
+          <ng-container *ngFor="let group of day.groupedMatchesByDate">
+               <div class="flex justify-between items-center match-day-header px-2 py-1">
+      <span class="text-green-800 font-semibold text-[12px] capitalize">
+        {{ group.date | date: 'EEEE d MMMM y' }}
+      </span>
+      <span class="text-green-800 font-semibold text-[12px]">
+        {{ group.matches[0].time }}
+      </span>
+    </div>
+            <div *ngFor="let match of group.matches" class="py-1">
+ <div class="flex justify-between items-center font-semibold text-black text-[13px] px-2">
+          <span>
+            {{ match.team1 }} <span class="font-normal text-[1px]">VS</span> {{ match.team2 }}
+          </span>
+          <span class="text-gray-600 text-[11px]">
+          {{ match.stadium }}
+        </span>
+        </div>
+
             </div>
-          </ng-template>
-        </p-carousel>
-
-
+          </ng-container>
+        </div>
       </div>
+    </ng-template>
+  </p-carousel>
+</div>
+
 
     </div>
       <div class="flex justify-center gap-4 mt-6">
-          <button class="btn-pdf">Exporter en format PDF</button>
-          <button class="btn-excel">Exporter en format Excel</button>
+          <button class="btn-pdf" >Exporter en format PDF</button>
+          <button class="btn-excel" (click)="exportAsExcel(phases[selectedPhaseIndex])">Exporter en format Excel</button>
         </div>
   </div>
 </div>

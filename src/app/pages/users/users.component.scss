@@ -279,41 +279,41 @@
   .btn {
     padding: 8px 12px;
     border: none;
-    border-radius: 8px; /* Changé de 6px à 8px pour correspondre aux users */
+    border-radius: 8px; /* Changé de 6px à 8px pour correspondre aux stades */
     cursor: pointer;
-    font-size: 0.875rem; /* 14px - même taille que les users */
+    font-size: 0.875rem; /* 14px - même taille que les stades */
     font-weight: 500;
     transition: all 0.3s ease;
     min-width: 36px;
 
     &.btn-info {
-      background-color:rgb(50,145,87); /* Bleu cyan - même que les users */
+      background-color:rgb(50,145,87); /* Bleu cyan - même que les stades */
       color: #ffffff;
 
       &:hover {
-        background-color: rgb(50,145,87); /* Même hover que les users */
+        background-color: rgb(50,145,87); /* Même hover que les stades */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgb(50,145,87);
       }
     }
 
     &.btn-warning {
-      background-color: #f59e0b; /* Orange - même que les users */
+      background-color: #f59e0b; /* Orange - même que les stades */
       color: #ffffff; /* Texte blanc au lieu de foncé */
 
       &:hover {
-        background-color: #d97706; /* Même hover que les users */
+        background-color: #d97706; /* Même hover que les stades */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
       }
     }
 
     &.btn-danger {
-      background-color: #dc2626; /* Rouge - même que les users */
+      background-color: #dc2626; /* Rouge - même que les stades */
       color: #ffffff;
 
       &:hover {
-        background-color: #b91c1c; /* Même hover que les users */
+        background-color: #b91c1c; /* Même hover que les stades */
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
       }

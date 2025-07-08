@@ -33,15 +33,21 @@
 .main-card {
   background-color: white;
   border-radius: 12px;
-  padding: 30px;
+  padding-top: 30px;
+  padding-bottom: 30px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-top: -320px;
+  margin-top: -315px;
 }
 
 /* Autres styles */
 .saison {
  /*  border: 2px solid #166534 !important; */
   background-color: white;
+   display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 320px; /* facultatif */
+
 }
 
 .btn-pdf {
@@ -86,14 +92,14 @@
 
 .layout-header {
   background-color: #3EB489;
-  padding: 20px 0 20px;
+  padding: 5px 0 20px;
   text-align: center;
   color: white;
 
   .layout-header-line1 {
     font-size: 24px;
     font-weight: 800;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
 
   .layout-header-line2 {
@@ -112,8 +118,10 @@
 .match-day-title {
         width: 55%;
         height: 25%;
+        max-height: 30px;
+        max-width: 157px;
         background-color: #00473F;
-        clip-path: polygon(0 100%, 80% 100%, 100% 0, 0% 0);
+        clip-path: polygon(0 100%, 85% 100%, 100% 0, 0% 0);
         margin: 0 !important;
         display: flex;
         align-items: end;
@@ -125,6 +133,7 @@
 
 .match-day-content {
     border: 1px solid #00463C ;
+    height: calc(100% - 30px);
 }
 
 .active-phase {
@@ -134,5 +143,16 @@
 .inactive-phase {
   background-color:inherit !important;
   color: #00473F !important;
+
+}
+
+.match-day-header{
+    background-color: #D8E6D5;
+    color: #00463C;
+}
+
+.ligue-logo {
+    width: 40px;
+
 
 }
