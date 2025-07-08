@@ -108,8 +108,10 @@
   <!-- Detail du stade -->
   <p-dialog header="Détails du Stade" [(visible)]="displayDialog" [style]="{ width: '500px' }" [styleClass]="'custom-dialog'">
     <h3>{{ stadeDetails.name }}</h3>
+    <p> Abbreviation: {{ stadeDetails.abbreviation }}</p>
     <p> Ville: {{ stadeDetails.city }}</p>
     <p>Match maximun par jour: {{ stadeDetails.max_matches_per_day }}</p>
+
   </p-dialog>
 
   <!-- Table -->
