@@ -85,10 +85,16 @@
     Chargement des villes...
   </div>
 
+
+  <!-- Detail de la ville -->
+  <p-dialog header="Détails de la Ville" [(visible)]="displayDialog" [style]="{ width: '500px' }" [styleClass]="'custom-dialog'">
+    <h3>{{ cityDetails.name }}</h3>
+    <p>Localisation: {{ cityDetails.location }}</p>
+  </p-dialog>
   <!-- Table -->
   <div *ngIf="!loading && filteredCitys.length > 0" class="table-container">
     <table class="villes-table">
-      <thead>
+      <thead> 
         <tr>
           <th>Nom de la Ville</th>
           <th>Actions</th>
@@ -96,11 +102,12 @@
       </thead>
       <tbody>
         <tr *ngFor="let city of filteredCitys">
-          <td class="ville-nom">{{ city.name }}</td>
+          <td class="ville-nom" >{{ city.name }}</td>
           <td class="actions">
             <div class="btn-group">
               <!-- <button class="btn btn-info"><i class="pi pi-eye"></i></button> -->
               <button class="btn btn-warning" (click)="editCity(city)"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-details" (click)="showDialog(city)"><i class="pi pi-eye"></i></button>
               <button class="btn btn-danger" (click)="deleteCity(city.id!)"><i class="pi pi-trash"></i></button>
             </div>
           </td>

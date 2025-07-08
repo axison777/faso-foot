@@ -105,3 +105,28 @@ body {
 
 
 
+//Style du p-dialog des details de la ville
+
+
+.custom-dialog .p-dialog {
+  width: 500px !important;
+}
+
+.custom-dialog .p-dialog-header {
+  background-color: green !important;
+  color: white !important;
+}
+
+
+.custom-dialog .p-dialog-content {
+  padding: 20px;
+}
+
+.custom-dialog .p-dialog-header-icons {
+  color: red !important; 
+}
+
+/* Assurez-vous que la couleur change également au survol */
+.custom-dialog .p-dialog-header-icons:hover {
+  color: darkred !important;
+}

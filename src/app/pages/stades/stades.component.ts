@@ -45,6 +45,14 @@ export class StadesComponent implements OnInit {
   editingStadiumId?: number | null = null;
   stadiumForm!: FormGroup;
 
+  //information du stade
+  displayDialog: boolean = false;
+  stadeDetails: any = {
+    name: '',
+    city: '',
+    max_matches_per_day:''
+  };
+
   constructor(
     private stadeService: StadeService,
     private villeService: VilleService,
@@ -168,4 +176,15 @@ export class StadesComponent implements OnInit {
       stadium?.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
+
+   //Afficher et faire disparaitre les details de la ville
+  showDialog(city: any) {
+    this.stadeDetails = {
+      name: city.name,
+      location: city.location
+    };
+    this.displayDialog = true;
+  }
+
+  
 }

@@ -42,6 +42,13 @@ export class VillesComponent implements OnInit {
   editingCityId?: number ;
   cityForm!: FormGroup;
 
+  //information de la ville
+  displayDialog: boolean = false;
+  cityDetails: any = {
+    title: '',
+    location: ''
+  };
+
   constructor(private villeService: VilleService, private router: Router,private messageService: MessageService, private confirmationService: ConfirmationService,
    private fb:FormBuilder
   ) {
@@ -184,4 +191,16 @@ export class VillesComponent implements OnInit {
       v.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
+
+  //Afficher et faire disparaitre les details de la ville
+  showDialog(city: any) {
+    this.cityDetails = {
+      name: city.name,
+      location: city.location
+    };
+    this.displayDialog = true;
+  }
+
+  
+
 }
