@@ -534,3 +534,16 @@
     }
   }
 }
+
+::ng-deep .p-dialog.custom-green-header .p-dialog-header {
+  background-color: rgb(50, 145, 87); /* Vert principal */
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+::ng-deep .p-dialog .p-dialog-header .p-dialog-header-icon {
+  display: flex !important;
+}

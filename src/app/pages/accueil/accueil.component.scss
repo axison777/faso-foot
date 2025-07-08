@@ -58,3 +58,18 @@
   margin-bottom: 1rem;
   color: #3EB489;
 }
+
+.cards-grid {
+  display: flex;
+  flex-direction: row; /* Disposition en ligne pour avoir deux colonnes */
+  justify-content: space-between; /* Espacement entre les colonnes gauche et droite */
+  gap: 1rem; /* Espacement entre les colonnes */
+  margin-bottom: 2rem;
+}
+
+.card-column {
+  display: flex;
+  flex-direction: column; /* Disposition verticale pour les cartes dans chaque colonne */
+  gap: 1rem; /* Espacement entre les cartes dans une colonne */
+  width: 48%; /* Chaque colonne prend environ la moitié de la largeur */
+}
