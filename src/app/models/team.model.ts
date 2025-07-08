@@ -9,5 +9,7 @@ export interface Team {
   logo?: string;
   city_id?: number;
   city?: City;
+  address?: string;
+  logo_url?: string;
 
 }

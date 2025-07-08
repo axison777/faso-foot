@@ -15,10 +15,9 @@
   <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le equipe' : 'Ajouter un nouveau equipe'" [modal]="true" [closable]="false">
     <ng-template #content>
 <form [formGroup]="teamForm" (ngSubmit)="saveTeam()" class="flex flex-col gap-6">
-
-
-    <div>
-    <label for="name" class="block font-bold mb-2">Nom  <span class="text-red-500">*</span></label>
+  <!-- Nom -->
+  <div>
+    <label for="name" class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
     <input
       pInputText
       type="text"
@@ -28,12 +27,13 @@
       class="w-full"
     />
     <small class="text-red-500" *ngIf="teamForm.get('name')?.invalid && teamForm.get('name')?.touched">
-      Le nom  est requis.
+      Le nom est requis.
     </small>
   </div>
 
-    <div>
-    <label for="name" class="block font-bold mb-2">Abréviation   <span class="text-red-500">*</span></label>
+  <!-- Abréviation -->
+  <div>
+    <label for="abbreviation" class="block font-bold mb-2">Abréviation <span class="text-red-500">*</span></label>
     <input
       pInputText
       type="text"
@@ -43,14 +43,29 @@
       class="w-full"
     />
     <small class="text-red-500" *ngIf="teamForm.get('abbreviation')?.invalid && teamForm.get('abbreviation')?.touched">
-      L'abréviation  est requise.
+      L'abréviation est requise.
     </small>
   </div>
 
+  <!-- ✅ Champ Adresse -->
+<div>
+  <label for="address" class="block font-bold mb-2">Adresse de l'équipe <span class="text-red-500">*</span></label>
+  <input
+    pInputText
+    type="text"
+    id="address"
+    formControlName="address"
+    placeholder="Entrez l'adresse de l'équipe"
+    class="w-full"
+  />
+  <small class="text-red-500" *ngIf="teamForm.get('address')?.invalid && teamForm.get('address')?.touched">
+    L'adresse est requise.
+  </small>
+</div>
 
-
-  <div >
-    <label for="ville" class="block font-bold mb-2">Ville  <span class="text-red-500">*</span></label>
+  <!-- Ville -->
+  <div>
+    <label for="ville" class="block font-bold mb-2">Ville <span class="text-red-500">*</span></label>
     <p-select
       id="ville"
       formControlName="city_id"
@@ -58,7 +73,6 @@
       optionLabel="name"
       optionValue="id"
       placeholder="Sélectionnez une ville"
-
       class="w-full"
       appendTo="body"
     ></p-select>
@@ -66,10 +80,27 @@
       La ville est requise.
     </small>
   </div>
+
+  <!-- ✅ Champ Fichier Logo -->
+<div>
+  <label for="logo" class="block font-bold mb-2">Logo de l'équipe</label>
+  <input
+    type="file"
+    id="logo"
+    (change)="onLogoSelected($event)"
+    accept="image/*"
+    class="w-full border rounded p-2"
+  />
+  <small class="text-gray-500">Formats acceptés : JPG, PNG, etc.</small>
+
+  <!-- ✅ Aperçu -->
+  <div *ngIf="logoPreview" class="mt-2">
+    <label class="block text-sm text-gray-700 mb-1">Aperçu :</label>
+    <img [src]="logoPreview" alt="Aperçu logo" class="h-16 object-contain border rounded" />
+  </div>
+</div>
 </form>
-
     </ng-template>
-
     <ng-template #footer>
       <div class="flex justify-end gap-2">
         <p-button
@@ -91,6 +122,28 @@
     </ng-template>
   </p-dialog>
 
+  <p-dialog
+  header="Détails de l'équipe"
+  [(visible)]="showDetails"
+  [modal]="true"
+  [style]="{ width: '500px', 'max-width': '95vw' }"
+  [closable]="true"
+  [contentStyle]="{ 'padding': '1.5rem' }"
+  [baseZIndex]="10000"
+>
+  <div *ngIf="selectedTeam" class="team-details-container">
+    <div class="team-logo-container" *ngIf="selectedTeam.logo_url">
+      <img [src]="selectedTeam.logo_url" alt="Logo de l'équipe" class="team-logo" />
+    </div>
+    <div class="team-info">
+      <p><strong>Nom :</strong> {{ selectedTeam.name }}</p>
+      <p><strong>Abréviation :</strong> {{ selectedTeam.abbreviation }}</p>
+      <p><strong>Adresse :</strong> {{ selectedTeam.address }}</p>
+      <p><strong>Ville :</strong> {{ getCityNameById(selectedTeam.city_id) }}</p>
+    </div>
+  </div>
+</p-dialog>
+
   <!-- Search -->
   <div class="search-container">
     <input
@@ -111,7 +164,7 @@
     <table class="equipes-table">
       <thead>
         <tr>
-          <th>Nom du Equipe</th>
+          <th>Nom Des Equipe</th>
 
           <th>Actions</th>
         </tr>
@@ -123,6 +176,7 @@
           <td class="actions">
             <div class="btn-group">
               <button class="btn btn-warning" (click)="editTeam(team)"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-info" (click)="viewTeamDetails(team)"> <i class="pi pi-eye"></i></button>
               <button class="btn btn-danger" (click)="deleteTeam(team.id!)"><i class="pi pi-trash"></i></button>
             </div>
           </td>
