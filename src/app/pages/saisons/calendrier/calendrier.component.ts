@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { RouterModule } from '@angular/router';
 
 
 interface Match {
@@ -32,7 +33,7 @@ interface Phase {
 @Component({
   selector: 'app-calendrier',
   standalone: true,
-  imports: [CommonModule, CarouselModule, TabViewModule,TabsModule, ButtonModule],
+  imports: [CommonModule, CarouselModule, TabViewModule,TabsModule, ButtonModule, RouterModule],
   templateUrl: './calendrier.component.html',
   styleUrls: ['./calendrier.component.scss']
 })

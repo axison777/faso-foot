@@ -80,7 +80,7 @@
 
     </div>
       <div class="flex justify-center gap-4 mt-6">
-          <button class="btn-pdf" >Exporter en format PDF</button>
+          <button [routerLink]="['/export-pdf']" routerLinkActive="router-link-active"  class="btn-pdf" >Exporter en format PDF</button>
           <button class="btn-excel" (click)="exportAsExcel(phases[selectedPhaseIndex])">Exporter en format Excel</button>
         </div>
   </div>
