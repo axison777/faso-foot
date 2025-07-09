@@ -270,6 +270,7 @@
     <p-select
       [options]="cityList"
       optionLabel="name"
+      optionValue="id"
       formControlName="id"
       placeholder="Ville"
       class="w-full"
@@ -280,7 +281,7 @@
   <div class="w-full md:w-1/4">
     <label class="font-bold block mb-1">Nombre minimum de matchs</label>
     <p-inputnumber
-      formControlName="count"
+      formControlName="min"
 
       class="w-full"
     ></p-inputnumber>
@@ -329,7 +330,7 @@
     <div>
       <label class="block font-bold mb-1">Équipe 1</label>
       <p-select
-        formControlName="team1"
+        formControlName="team_one_id"
         [options]="teams"
         optionLabel="name"
         optionValue="id"
@@ -340,7 +341,7 @@
     <div>
       <label class="block font-bold mb-1">Équipe 2</label>
       <p-select
-        formControlName="team2"
+        formControlName="team_two_id"
         [options]="teams"
         optionLabel="name"
         optionValue="id"
@@ -366,7 +367,7 @@
     <div>
       <label class="block font-bold mb-1">Stade aller</label>
       <p-select
-        formControlName="first_leg_stadium"
+        formControlName="first_leg_stadium_id"
         [options]="stadiums"
         optionLabel="name"
         optionValue="id"
@@ -392,7 +393,7 @@
     <div>
       <label class="block font-bold mb-1">Stade du match retour</label>
       <p-select
-        formControlName="second_leg_stadium"
+        formControlName="second_leg_stadium_id"
         [options]="stadiums"
         optionLabel="name"
         optionValue="id"

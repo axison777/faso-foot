@@ -136,7 +136,7 @@ searchTerm: string = '';
      private ligueService: LigueService
   ) {
     // données fictives
-    this.saisons = [
+/*     this.saisons = [
       {
         id: '1',
         name: 'Saison 2023-2024',
@@ -157,7 +157,7 @@ searchTerm: string = '';
         start_date: new Date('2024-08-01'),
         end_date: new Date('2025-05-31')
       }
-    ];
+    ]; */
 
     this.seasonForm = this.fb.group({
     league_id: [null, Validators.required],
@@ -174,6 +174,7 @@ searchTerm: string = '';
     ngOnInit(): void {
           this.loading = true;
         this.saisonService.getAll().subscribe( {
+
           next: (res:any) => {
             this.saisons = res?.data?.seasons;
 
@@ -380,8 +381,19 @@ removeVille(index: number) {
       return this.saisons;
     }
     return this.saisons.filter(s =>
-      s.league.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      (
+  s.start_date.toString().includes(this.searchTerm)
+        || s.end_date.toString().includes(this.searchTerm)
+    )
     );
   }
+
+getParsedDate(rawDate:string): Date {
+  const parts = rawDate?.split('/');
+  const day = +parts[0];
+  const month = +parts[1] - 1;
+  const year = +parts[2];
+  return new Date(year, month, day);
+}
 
 }

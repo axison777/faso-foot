@@ -21,7 +21,7 @@ export class SaisonService {
   }
 
   create(saison: Partial<any>): Observable<any> {
-    return this.http.post<any>(environment.apiUrl+'/matchdays/generate', saison);
+    return this.http.post<any>(this.apiUrl+'generate-calendar', saison);
   }
 
   update(id?: string, saison?: Partial<any>): Observable<any> {

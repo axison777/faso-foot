@@ -1,7 +1,7 @@
 // fichier: saison-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
@@ -21,6 +21,9 @@ import { LigueService } from '../../../service/ligue.service';
 import { StadeService } from '../../../service/stade.service';
 import { Ville, VilleService } from '../../../service/ville.service';
 import { EquipeService } from '../../../service/equipe.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-formulaire-saison',
@@ -42,7 +45,8 @@ import { EquipeService } from '../../../service/equipe.service';
     Checkbox,
     PanelModule,
     CardModule,
-    InputTextModule
+    InputTextModule,
+    ToastModule
   ]
 })
 export class FormulaireSaisonComponent implements OnInit {
@@ -122,7 +126,9 @@ skipDateControl!: FormControl ;
     private ligueService:LigueService,
     private stadeService: StadeService,
     private villeService: VilleService,
-    private equipeService: EquipeService
+    private equipeService: EquipeService,
+    private messageService:MessageService,
+    private router: Router
 
   ) {
         const initialTime = new Date();
@@ -182,12 +188,12 @@ skipDateControl!: FormControl ;
 
   addDerby(): void {
     const derbyGroup = this.fb.group({
-      team1: [null, Validators.required],
-      team2: [null, Validators.required],
+      team_one_id: [null, Validators.required],
+      team_two_id: [null, Validators.required],
       first_leg_date: [null, Validators.required],
-      first_leg_stadium: [null, Validators.required],
+      first_leg_stadium_id: [null, Validators.required],
       second_leg_date: [null, Validators.required],
-      second_leg_stadium: [null, Validators.required]
+      second_leg_stadium_id: [null, Validators.required]
     });
     this.derbies.push(derbyGroup);
   }
@@ -197,6 +203,12 @@ skipDateControl!: FormControl ;
   }
 
   submitForm(): void {
+
+    console.log(formatDate(this.step4Form.value.match_start_time, 'HH:mm', 'fr-FR') );
+    let skipDatesValues:any[]=[];
+    this.skipDates.controls.forEach((control) => {
+      skipDatesValues.push(control.value);
+    });
     if (
       this.step1Form.valid &&
       this.step2Form.valid &&
@@ -206,40 +218,83 @@ skipDateControl!: FormControl ;
     ) {
       const formData = {
         ...this.step1Form.value,
-        ...this.step2Form.value,
-        ...this.step3Form.value,
-        ...this.step4Form.value,
-        skip_dates: this.skipDateControl.value,
+        teams_ids: this.selectedTeamIds,
+        stadiums_ids: this.step3Form.value.selected_stadiums,
+        /* ...this.step4Form.value, */
+        // step4Form values
+        match_start_time: formatDate(this.step4Form.value.match_start_time, 'HH:mm', 'fr-FR')  ,
+        allowed_match_days: this.step4Form.value.allowed_match_days,
+        min_hours_between_team_matches: this.step4Form.value.min_hours_between_team_matches,
+        min_days_between_phases: this.step4Form.value.min_days_between_phases,
+        cities: this.step4Form.value.cities,
+        skip_dates: skipDatesValues,
         derbies:this.step5Form.value.derbies
       };
 
- 
+
       this.saisonService.create(formData).subscribe({
         next: (response) => {
           console.log('Saison créée avec succès :', response);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: `Saison ajoutée.`,
+            life: 5000
+          });
+          setTimeout(() => {
+            this.router.navigate(['/saisons']);
+          }, 1500);
         },
         error: (error) => {
           console.error('Erreur lors de la création de la saison :', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: `Une erreur est survenue.`,
+            life: 5000
+          });
         }
       });
     } else {
       console.warn('Formulaire invalide');
-      const formData = {
+        const formData = {
         ...this.step1Form.value,
-        ...this.step2Form.value,
-        ...this.step3Form.value,
-        ...this.step4Form.value,
-        skip_dates: this.skipDateControl.value,
+        teams_ids: this.selectedTeamIds,
+        stadiums_ids: this.step3Form.value.selected_stadiums,
+        /* ...this.step4Form.value, */
+        // step4Form values
+        match_start_time: formatDate(this.step4Form.value.match_start_time, 'HH:mm', 'fr-FR')  ,
+        allowed_match_days: this.step4Form.value.allowed_match_days,
+        min_hours_between_team_matches: this.step4Form.value.min_hours_between_team_matches,
+        min_days_between_phases: this.step4Form.value.min_days_between_phases,
+        cities: this.step4Form.value.cities,
+        skip_dates: skipDatesValues,
         derbies:this.step5Form.value.derbies
       };
-
       console.log('Formulaire soumis :', formData);
       this.saisonService.create(formData).subscribe({
         next: (response) => {
+
           console.log('Saison créée avec succès :', response);
+           this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: `Saison ajoutée.`,
+            life: 5000
+          });
+          setTimeout(() => {
+            this.router.navigate(['/saisons']);
+          }, 1500);
+
         },
         error: (error) => {
           console.error('Erreur lors de la création de la saison :', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: `Une erreur est survenue.`,
+            life: 5000
+          });
         }
       });
 
@@ -355,7 +410,7 @@ addCity() {
   this.cities.push(
     this.fb.group({
       id: [null, Validators.required],
-      count: [null, Validators.required]
+      min: [null, Validators.required]
     })
   );
 }
