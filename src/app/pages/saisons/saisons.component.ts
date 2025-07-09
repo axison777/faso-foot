@@ -279,8 +279,6 @@ simulerGenerationCalendrier(saison: Saison) {
   setTimeout(() => {
     // simulate success
 
-
-
     this.messageService.add({
       severity: 'success',
       summary: 'Succès',
@@ -324,8 +322,6 @@ rechargerSaisons() {
   }
 
   ///
-
-
 
   closeDialog() {
     this.saisonDialog = false;
