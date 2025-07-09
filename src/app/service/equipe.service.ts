@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 export interface Equipe {
-  id: number;
+  id?: string;
   name: string;
 }
 
@@ -24,11 +24,11 @@ export class EquipeService {
     return this.http.post<any>(this.apiUrl, equipe);
   }
 
-  update(id: number, equipe: Partial<any>): Observable<any> {
+  update(id?: string, equipe?: Partial<any>): Observable<any> {
     return this.http.post<Equipe>(`${this.apiUrl}${id}/`, equipe);
   }
 
-  delete(id: number): Observable<void> {
+  delete(id?: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}${id}/`);
   }
 }

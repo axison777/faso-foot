@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 export interface Ligue {
-  id: number;
+  id?: string;
   nom: string;
 }
 
@@ -24,11 +24,11 @@ export class LigueService {
     return this.http.post<any>(this.apiUrl, ligue);
   }
 
-  update(id: number, ligue: Partial<any>): Observable<any> {
-    return this.http.put<Ligue>(`${this.apiUrl}${id}/`, ligue);
+  update(id?: string, ligue?: Partial<any>): Observable<any> {
+    return this.http.post<Ligue>(`${this.apiUrl}${id}/`, ligue);
   }
 
-  delete(id: number): Observable<void> {
+  delete(id?: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}${id}/`);
   }
 }

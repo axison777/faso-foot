@@ -4,9 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 export interface Stade {
-  id: number;
+  id?: string;
   name: string;
-  city_id: number;
+  city_id?: string;
 }
 
 @Injectable({
@@ -25,11 +25,11 @@ export class StadeService {
     return this.http.post<Stade>(this.apiUrl, stade);
   }
 
-  update(id: number, stade: Partial<Stade>): Observable<Stade> {
-    return this.http.post<Stade>(`${this.apiUrl}${id}/`, stade);
+  update(id?: string, stade?: Partial<Stade>): Observable<Stade> {
+    return this.http.put<Stade>(`${this.apiUrl}${id}/`, stade);
   }
 
-  delete(id: number): Observable<void> {
+  delete(id?: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}${id}/`);
   }
 }

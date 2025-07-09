@@ -12,7 +12,8 @@
   </div>
 
   <!-- Formulaire intégré -->
-  <p-dialog [(visible)]="showForm" [style]="{ width: '800px' }" [header]="isEditing ? 'Modifier la ville' : 'Ajouter une nouvelle ville'" [modal]="true" [closable]="false">
+  <p-dialog
+[draggable]="false" [(visible)]="showForm" [style]="{ width: '800px' }" [header]="isEditing ? 'Modifier la ville' : 'Ajouter une nouvelle ville'" [modal]="true" [closable]="false">
     <ng-template #content>
       <form id="cityForm" [formGroup]="cityForm" (ngSubmit)="saveCity()" class="flex flex-col gap-6">
         <!-- Nom -->
@@ -59,6 +60,7 @@
           (click)="toggleForm()"
         />
         <p-button
+          (click)="saveCity()"
           [label]="isEditing ? 'Modifier' : 'Enregistrer'"
           icon="pi pi-check"
           type="submit"
@@ -83,6 +85,13 @@
     Chargement des villes...
   </div>
 
+
+  <!-- Detail de la ville -->
+  <p-dialog
+[draggable]="false" [modal]="true" header="Détails de la Ville" [(visible)]="displayDialog" [style]="{ width: '500px' }" [styleClass]="'custom-dialog'">
+    <h3>{{ cityDetails.name }}</h3>
+    <p>Localisation: {{ cityDetails.location }}</p>
+  </p-dialog>
   <!-- Table -->
   <div *ngIf="!loading && filteredCitys.length > 0" class="table-container">
     <table class="villes-table">
@@ -94,15 +103,13 @@
       </thead>
       <tbody>
         <tr *ngFor="let city of filteredCitys">
-          <td class="ville-nom">{{ city.name }}</td>
+          <td class="ville-nom" >{{ city.name }}</td>
           <td class="actions">
             <div class="btn-group">
-              <button class="btn btn-warning" (click)="editCity(city)">
-                <i class="pi pi-pencil"></i>
-              </button>
-              <button class="btn btn-danger" (click)="deleteCity(city.id!)">
-                <i class="pi pi-trash"></i>
-              </button>
+              <!-- <button class="btn btn-info"><i class="pi pi-eye"></i></button> -->
+              <button class="btn btn-warning" (click)="editCity(city)"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-info" (click)="showDialog(city)"><i class="pi pi-eye"></i></button>
+              <button class="btn btn-danger" (click)="deleteCity(city.id!)"><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>

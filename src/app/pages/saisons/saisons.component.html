@@ -78,8 +78,8 @@
 
 </div>
 
-    <p-dialog [(visible)]="displayDialog" [style]="{ width: '1000px' }" header="Créer une saison" [modal]="true">
-
+<p-dialog
+[draggable]="false" [(visible)]="displayDialog" [style]="{ width: '1000px' }" header="Créer une saison" [modal]="true">
         <ng-template #content><form [formGroup]="seasonForm">
         <div class="flex flex-col gap-5">
             <!-- Champs principaux -->

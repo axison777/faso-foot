@@ -547,3 +547,23 @@
 ::ng-deep .p-dialog .p-dialog-header .p-dialog-header-icon {
   display: flex !important;
 }
+
+::ng-deep .p-dialog-close-button{
+    color: rgb(255, 255, 255) !important;
+    background-color: transparent !important;
+
+    opacity: 1;
+
+}
+
+::ng-deep .p-dialog-close-button svg {
+  width: 1.5rem !important;
+  height: 1.5rem !important
+
+}
+
+::ng-deep .p-dialog-close-button:hover {
+  background-color: #004d40 !important; /* effet léger blanc semi-transparent */
+  color: white !important;
+}
+

@@ -32,6 +32,21 @@
     </small>
   </div>
 
+
+    <div>
+    <label for="teams_count" class="block font-bold mb-2">Nombre d'équipe <span class="text-red-500">*</span></label>
+    <p-inputnumber
+      type="text"
+      id="teams_count"
+      formControlName="teams_count"
+      placeholder="Entrez le nom de la ligue"
+      class="w-full"
+    />
+    <small class="text-red-500" *ngIf="leagueForm.get('teams_count')?.invalid && leagueForm.get('teams_count')?.touched">
+      Le nom  est requis.
+    </small>
+  </div>
+
  <div>
   <label for="logo" class="block font-bold mb-2">Logo <span class="text-red-500">*</span></label>
 
@@ -45,7 +60,6 @@
   <p-fileupload
     #fileUploader
     name="logo"
-    mode="basic"
     [customUpload]="true"
     [auto]="false"
     accept="image/*"
@@ -58,6 +72,9 @@
     [mode]="'advanced'"
 
   >
+     <ng-template #empty>
+        <div>Glisser le fichier ici</div>
+    </ng-template>
   </p-fileupload>
 
   <small class="text-red-500" *ngIf="leagueForm.get('logo')?.invalid && leagueForm.get('logo')?.touched">

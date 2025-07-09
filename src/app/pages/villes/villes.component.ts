@@ -37,15 +37,18 @@ export class VillesComponent implements OnInit {
 
   showForm: boolean = false;
   isEditing: boolean = false;
-  editingCityId?: number;
+  editingCityId?: string;
   cityForm!: FormGroup;
 
-  constructor(
-    private villeService: VilleService,
-    private router: Router,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private fb: FormBuilder
+  //information de la ville
+  displayDialog: boolean = false;
+  cityDetails: any = {
+    title: '',
+    location: ''
+  };
+
+  constructor(private villeService: VilleService, private router: Router,private messageService: MessageService, private confirmationService: ConfirmationService,
+   private fb:FormBuilder
   ) {
     this.cityForm = this.fb.group({
       name: ['', Validators.required],
@@ -137,7 +140,7 @@ export class VillesComponent implements OnInit {
     this.showForm = true;
   }
 
-  deleteCity(id: number): void {
+  deleteCity(id: string): void {
     this.confirmationService.confirm({
       message: 'Etes-vous sur de vouloir supprimer cette ville ?',
       header: 'Confirmation de suppression',
@@ -172,4 +175,16 @@ export class VillesComponent implements OnInit {
       v.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
+
+  //Afficher et faire disparaitre les details de la ville
+  showDialog(city: any) {
+    this.cityDetails = {
+      name: city.name,
+      location: city.location
+    };
+    this.displayDialog = true;
+  }
+
+
+
 }

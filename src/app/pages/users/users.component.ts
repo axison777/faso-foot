@@ -43,7 +43,7 @@ export class UsersComponent implements OnInit {
   showForm: boolean = false;
   newUser: any = { name: '', city_id: null };
   isEditing: boolean = false;
-  editingUserId?: number | null = null;
+  editingUserId?: string | null = null;
   userForm!: FormGroup;
   roles=[{ name: 'Admin', value: 'admin' }, { name: 'Manager', value: 'manager' }];
 
@@ -87,8 +87,8 @@ export class UsersComponent implements OnInit {
       }
     }); */
     this.users=[
-        { id: 1, first_name: 'Ahmed', last_name: 'Koné', email: 'DxO7J@example.com', role: 'Admin' },
-        { id: 2, first_name: 'Fatou', last_name: 'Diallo', email: 'Rg7JF@example.com', role: 'Manager' }
+        { id: '1', first_name: 'Ahmed', last_name: 'Koné', email: 'DxO7J@example.com', role: 'Admin' },
+        { id: '1', first_name: 'Fatou', last_name: 'Diallo', email: 'Rg7JF@example.com', role: 'Manager' }
 
     ]
     this.loading = false;
@@ -162,7 +162,7 @@ export class UsersComponent implements OnInit {
     this.showForm = true;
   } */
 
-  deleteUser(id: number): void {
+  deleteUser(id?: string): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer ce user ?',
       accept: () => {

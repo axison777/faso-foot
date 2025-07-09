@@ -321,6 +321,17 @@
         box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
       }
     }
+
+    &.btn-details {
+      background-color: #09cf2d; /* Rouge - même que les stades */
+      color: #ffffff;
+
+      &:hover {
+        background-color: #0ce33e; /* Même hover que les stades */
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(38, 220, 120, 0.3);
+      }
+    }
   }
 }
 

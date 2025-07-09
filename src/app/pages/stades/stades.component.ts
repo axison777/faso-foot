@@ -42,8 +42,16 @@ export class StadesComponent implements OnInit {
   showForm: boolean = false;
   newStadium: any = { name: '', city_id: null };
   isEditing: boolean = false;
-  editingStadiumId?: number | null = null;
+  editingStadiumId?: string | null = null;
   stadiumForm!: FormGroup;
+
+  //information du stade
+  displayDialog: boolean = false;
+  stadeDetails: any = {
+    name: '',
+    city: '',
+    max_matches_per_day:''
+  };
 
   constructor(
     private stadeService: StadeService,
@@ -69,7 +77,7 @@ export class StadesComponent implements OnInit {
     this.loading = true;
     this.stadeService.getAll().subscribe({
       next: (res: any) => {
-        this.stadiums = res?.data || [];
+        this.stadiums = res?.data?.stadiums || [];
         this.loading = false;
       },
       error: () =>{
@@ -105,11 +113,14 @@ export class StadesComponent implements OnInit {
   }
 
   saveStadium(): void {
-    if (this.newStadium.name.trim() && this.newStadium.city_id) {
+    if (this.stadiumForm.valid) {
       const stadiumPayload = {
-        name: this.newStadium.name.trim(),
-        city_id: this.newStadium.city_id
+        name: this.stadiumForm.get('name')?.value,
+        abbreviation: this.stadiumForm.get('abbreviation')?.value,
+        city_id: this.stadiumForm.get('city_id')?.value
       };
+
+
 
       const onSuccess = () => {
         this.loadStadiums();
@@ -131,10 +142,13 @@ export class StadesComponent implements OnInit {
       };
 
       if (this.isEditing && this.editingStadiumId) {
-        this.stadeService.update(this.editingStadiumId, {name: stadiumPayload.name}).subscribe({ next: onSuccess, error: onError });
+        this.stadeService.update(this.editingStadiumId, stadiumPayload).subscribe({ next: onSuccess, error: onError });
       } else {
-        this.stadeService.create({name: stadiumPayload.name, city_id: stadiumPayload.city_id}).subscribe({ next: onSuccess, error: onError });
+        this.stadeService.create(stadiumPayload).subscribe({ next: onSuccess, error: onError });
       }
+    }
+    else {
+        this.stadiumForm.markAllAsTouched();
     }
   }
 
@@ -146,7 +160,7 @@ export class StadesComponent implements OnInit {
     this.showForm = true;
   }
 
-  deleteStadium(id: number): void {
+  deleteStadium(id?: string): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer ce stade ?',
       accept: () => {
@@ -168,4 +182,15 @@ export class StadesComponent implements OnInit {
       stadium?.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
+
+   //Afficher et faire disparaitre les details de la ville
+  showDialog(city: any) {
+    this.stadeDetails = {
+      name: city.name,
+      location: city.location
+    };
+    this.displayDialog = true;
+  }
+
+
 }

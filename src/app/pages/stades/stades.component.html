@@ -12,7 +12,8 @@
   </div>
 
 
-  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le stade' : 'Ajouter un nouveau stade'" [modal]="true" [closable]="false">
+  <p-dialog
+[draggable]="false" [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le stade' : 'Ajouter un nouveau stade'" [modal]="true" [closable]="false">
     <ng-template #content>
 <form [formGroup]="stadiumForm" (ngSubmit)="saveStadium()" class="flex flex-col gap-6">
 
@@ -81,6 +82,7 @@
         />
         <p-button
         [raised]="true"
+        (click)="saveStadium()"
           [label]="isEditing ? 'Modifier' : 'Enregistrer'"
           icon="pi pi-check"
           type="submit"
@@ -105,6 +107,16 @@
     Chargement des stades...
   </div>
 
+  <!-- Detail du stade -->
+  <p-dialog
+[draggable]="false" [modal]="true" header="Détails du Stade" [(visible)]="displayDialog" [style]="{ width: '500px' }" [styleClass]="'custom-dialog'">
+    <h3>{{ stadeDetails.name }}</h3>
+    <p> Abbreviation: {{ stadeDetails.abbreviation }}</p>
+    <p> Ville: {{ stadeDetails.city }}</p>
+    <p>Match maximun par jour: {{ stadeDetails.max_matches_per_day }}</p>
+
+  </p-dialog>
+
   <!-- Table -->
   <div *ngIf="!loading && filteredStadiums.length > 0" class="table-container">
     <table class="stades-table">
@@ -122,6 +134,7 @@
           <td class="actions">
             <div class="btn-group">
               <p-button severity="warn" icon="pi pi-pencil"  (click)="editStadium(stadium)"/>
+              <button class="btn btn-info" (click)="showDialog(stadium)"><i class="pi pi-eye"></i></button>
               <button class="btn btn-danger" (click)="deleteStadium(stadium.id!)"><i class="pi pi-trash"></i></button>
             </div>
           </td>

@@ -1,4 +1,4 @@
-import { HTTP_INTERCEPTORS, provideHttpClient, withFetch } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, LOCALE_ID } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
@@ -11,14 +11,16 @@ export const appConfig: ApplicationConfig = {
     providers: [
         { provide: LOCALE_ID, useValue: 'fr-FR' },
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
-        provideHttpClient(withFetch()),
-        provideAnimationsAsync(),
-        {
+        provideHttpClient(withFetch(), withInterceptors([
+            AuthInterceptor
+        ])),
+        provideAnimationsAsync()
+   /*   ,   {
         provide: HTTP_INTERCEPTORS,
         useClass: AuthInterceptor,
 
         multi: true
-        }
+        } */
 ,
         providePrimeNG({
       ripple: true,
