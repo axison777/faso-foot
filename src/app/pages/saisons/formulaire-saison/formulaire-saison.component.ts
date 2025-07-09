@@ -204,11 +204,11 @@ skipDateControl!: FormControl ;
 
   submitForm(): void {
 
-    console.log(formatDate(this.step4Form.value.match_start_time, 'HH:mm', 'fr-FR') );
     let skipDatesValues:any[]=[];
     this.skipDates.controls.forEach((control) => {
-      skipDatesValues.push(control.value);
+      skipDatesValues.push(control.value?.date);
     });
+
     if (
       this.step1Form.valid &&
       this.step2Form.valid &&
