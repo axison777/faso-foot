@@ -1,15 +1,14 @@
 import { City } from "./city.model";
 
 export interface Team {
-  id?: number;
+  id?: string;
   name?: string;
   phone?: string;
   email?: string;
   abbreviation?: string;
   logo?: string;
-  city_id?: number;
+  city_id?: string;
   city?: City;
-  address?: string;
   logo_url?: string;
 
 }

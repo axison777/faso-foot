@@ -27,7 +27,7 @@ import { LigueService } from '../../service/ligue.service';
 import { Season } from '../../models/season.model';
 
 interface League {
-  id: number;
+  id?: string;
   name: string;
 }
 
@@ -45,7 +45,7 @@ interface Constraints{
 
 }
 interface Saison {
-  id: number;
+  id?: string;
   name: string;
   league: League;
   year: number;
@@ -92,8 +92,6 @@ interface Saison {
 export class SaisonsComponent implements OnInit{
   saisons: Saison[] = [];
   leagues: League[] = [
-    { id: 1, name: 'Ligue 1' },
-    { id: 2, name: 'Ligue 2' }
   ];
 
   selectedLeague: League | null = null;
@@ -140,7 +138,7 @@ searchTerm: string = '';
     // données fictives
     this.saisons = [
       {
-        id: 1,
+        id: '1',
         name: 'Saison 2023-2024',
         league: this.leagues[0],
         year: 2023,
@@ -150,7 +148,7 @@ searchTerm: string = '';
         end_date: new Date('2024-05-31')
       },
       {
-        id: 2,
+        id:'2',
         name: 'Saison 2024-2025',
         league: this.leagues[1],
         year: 2024,

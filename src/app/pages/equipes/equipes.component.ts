@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { Team } from '../../models/team.model';
+import { FileUploadModule } from 'primeng/fileupload';
 
 @Component({
   selector: 'app-equipes',
@@ -28,7 +29,8 @@ import { Team } from '../../models/team.model';
     ConfirmDialogModule,
     ToastModule,
     SelectModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FileUploadModule,
   ]
 })
 export class EquipesComponent implements OnInit {
@@ -43,10 +45,10 @@ export class EquipesComponent implements OnInit {
   showForm: boolean = false;
   newTeam: any = { name: '', city_id: null };
   isEditing: boolean = false;
-  editingTeamId?: number | null = null;
+  editingTeamId?: string | null = null;
   teamForm!: FormGroup;
-  logoFile: File | null = null;
-  logoPreview: string | ArrayBuffer | null = null;
+  currentLogo: string | null = null;
+  selectedFile: File | null = null;
 
   constructor(
     private equipeService: EquipeService,
@@ -71,16 +73,11 @@ export class EquipesComponent implements OnInit {
     this.loadVilles();
   }
 
-  onLogoSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.logoFile = input.files[0];
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.logoPreview = reader.result;
-      };
-      reader.readAsDataURL(this.logoFile);
+  onFileSelect(event: any): void {
+    const file = event.files?.[0];
+    if (file) {
+      this.selectedFile = file;
+      this.teamForm.get('logo')?.setValue(file.name); // activer validation
     }
   }
 
@@ -121,8 +118,8 @@ export class EquipesComponent implements OnInit {
     this.teamForm.reset();
     this.isEditing = false;
     this.editingTeamId = null;
-    this.logoFile = null;
-    this.logoPreview = null;
+    this.currentLogo = null;
+    this.selectedFile = null;
   }
 
   saveTeam(): void {
@@ -134,11 +131,13 @@ export class EquipesComponent implements OnInit {
       formData.append('email', this.teamForm.get('email')?.value);
       formData.append('city_id', this.teamForm.get('city_id')?.value);
 
-      if (this.logoFile) {
-        formData.append('logo', this.logoFile);
-      }
-      if( this.isEditing && this.editingTeamId)
-        formData.append('_method', 'PUT');
+    if (this.selectedFile ) {
+      formData.append('logo', this.selectedFile);
+    }
+    if (this.isEditing && this.selectedFile) {
+      formData.append('_method', 'PUT');
+
+    }
 
       const onSuccess = () => {
         this.loadTeams();
@@ -178,12 +177,14 @@ export class EquipesComponent implements OnInit {
     this.teamForm.get('phone')?.setValue(team.phone);
     this.teamForm.get('email')?.setValue(team.email);
     this.teamForm.get('city_id')?.patchValue(team.city_id);
+    this.currentLogo = team.logo ?? null;
+    this.teamForm.get('logo')?.patchValue(team.logo ? team.logo : '');
     this.isEditing = true;
     this.editingTeamId = team.id;
     this.showForm = true;
   }
 
-  deleteTeam(id: number): void {
+  deleteTeam(id?: string): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer cette équipe ?',
       accept: () => {
@@ -213,8 +214,8 @@ export class EquipesComponent implements OnInit {
   }
 
   /** 🔍 Méthode ajoutée pour afficher le nom de la ville */
-  getCityNameById(cityId: number | undefined): string {
+  getCityNameById(cityId: string | undefined): string {
     const ville = this.villes.find(v => v.id === cityId);
-    return ville ? ville.nom : 'Ville inconnue';
+    return ville ? ville?.name : 'Ville inconnue';
   }
 }

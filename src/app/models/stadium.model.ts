@@ -1,8 +1,8 @@
 import { City } from "./city.model";
 
 export interface Stadium {
-  id?: number;
-  city_id?: number;
+  id?: string;
+  city_id?: string;
   city?: City;
   name?: string;
   abbreviation?: string;

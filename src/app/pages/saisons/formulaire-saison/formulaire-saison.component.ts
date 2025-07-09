@@ -17,6 +17,10 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { SaisonService } from '../../../service/saison.service';
 import { skip } from 'rxjs';
+import { LigueService } from '../../../service/ligue.service';
+import { StadeService } from '../../../service/stade.service';
+import { Ville, VilleService } from '../../../service/ville.service';
+import { EquipeService } from '../../../service/equipe.service';
 
 @Component({
   selector: 'app-formulaire-saison',
@@ -108,17 +112,20 @@ export class FormulaireSaisonComponent implements OnInit {
   searchTeam: string = '';
 
   selectedStadiums: string[] = [];
-
-  constructor(private fb: FormBuilder,private saisonService: SaisonService) {}
   searchControl = new FormControl('');
 teamControls: FormArray<FormControl<boolean>> = new FormArray<FormControl<boolean>>([]);
 
 selectedStadiumObjects: any[] = [];
 skipDateControl!: FormControl ;
 
+  constructor(private fb: FormBuilder,private saisonService: SaisonService,
+    private ligueService:LigueService,
+    private stadeService: StadeService,
+    private villeService: VilleService,
+    private equipeService: EquipeService
 
-  ngOnInit(): void {
-    const initialTime = new Date();
+  ) {
+        const initialTime = new Date();
     initialTime.setHours(16); // Set hours
     initialTime.setMinutes(0); // Set minutes
     initialTime.setSeconds(0);
@@ -156,6 +163,16 @@ skipDateControl!: FormControl ;
     this.updateTeamControls();
   });
   this.updateTeamControls();
+  }
+
+
+
+  ngOnInit(): void {
+    this.loadLeagues();
+    this.loadStadiums();
+    this.loadCities();
+    this.loadTeams();
+
 
   }
 
@@ -196,7 +213,7 @@ skipDateControl!: FormControl ;
         derbies:this.step5Form.value.derbies
       };
 
-      console.log('Formulaire soumis :', formData);
+ 
       this.saisonService.create(formData).subscribe({
         next: (response) => {
           console.log('Saison créée avec succès :', response);
@@ -235,7 +252,7 @@ filteredTeams(): any[] {
   return this.teams.filter(team =>
     team.name.toLowerCase().includes(term) ||
     team.abbreviation.toLowerCase().includes(term)
-  );
+  ).slice(0, 8);
 }
 
 toggleTeamSelection(teamId: string): void {
@@ -368,6 +385,49 @@ addCity() {
       ctrl => new Date(ctrl.value.date).toDateString() === date.toDateString()
     );
   }
+    loadLeagues(): void {
+        this.ligueService.getAll().subscribe({
+        next: (res: any) => {
+            this.leagues = res?.data?.leagues || [];
+        },
+        error: (err) => {
+            console.error('Erreur lors du chargement des ligues', err);
+        }
+        });
+    }
+
+    loadStadiums(): void {
+        this.stadeService.getAll().subscribe({
+            next: (res: any) => {
+                this.stadiums = res?.data?.stadiums || [];
+            },
+            error: (err) => {
+                console.error('Erreur lors du chargement des stades', err);
+            }
+        });
+    }
+    loadCities(): void {
+        this.villeService.getAll().subscribe({
+            next: (res: any) => {
+                this.cityList = res?.data?.cities || [];
+            },
+            error: (err) => {
+                console.error('Erreur lors du chargement des villes', err);
+            }
+        });
+    }
+
+    loadTeams(): void {
+        this.equipeService.getAll().subscribe({
+            next: (res: any) => {
+                this.teams = res?.data?.teams || [];
+                this.updateTeamControls();
+            },
+            error: (err) => {
+                console.error('Erreur lors du chargement des équipes', err);
+            }
+        });
+    }
 
 
 

@@ -164,11 +164,11 @@ export class AppTopbar {
 
   ngOnInit(): void {
     this.profileMenuItems = [
-      {
+/*       {
         label: 'Changer de mot de passe',
         icon: 'pi pi-key',
         command: () => this.router.navigate(['/changer-mot-de-passe'])
-      },
+      }, */
 
       {
         label: 'Se déconnecter',

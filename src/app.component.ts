@@ -9,7 +9,7 @@ import { ExportMatchComponent } from './app/pages/export-match/export-match.comp
     selector: 'app-root',
     standalone: true,
     providers: [ MessageService, ConfirmationService],
-    imports: [RouterModule, ExportMatchComponent],
+    imports: [RouterModule, ],
     template: `<router-outlet></router-outlet>`
 })
 export class AppComponent {}

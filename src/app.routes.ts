@@ -16,7 +16,7 @@ import { CalendrierComponent } from './app/pages/saisons/calendrier/calendrier.c
 import { UsersComponent } from './app/pages/users/users.component';
 import { LiguesComponent } from './app/pages/ligues/ligues.component';
 /* import { CalendarComponent } from './app/pages/calendar/calendar.component'; */
-
+import { AuthGuard } from './app/auth.guard';
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
     {
@@ -26,18 +26,18 @@ export const appRoutes: Routes = [
            // { path: '', component: Dashboard },
             //{ path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             //{ path: 'documentation', component: Documentation },
-            { path: '', component: AccueilComponent },
-            { path: 'accueil', component: AccueilComponent },
-            { path: 'saisons', component: SaisonsComponent },
-            { path: 'villes', component: VillesComponent },
-            { path: 'stades', component: StadesComponent },
-            { path: 'equipes', component: EquipesComponent },
-             {path: 'matchs/:id', component: MatchsComponent},
-             {path: 'utilisateurs', component: UsersComponent},
-             {path: 'ligues', component:LiguesComponent},
+            { path: '', component: AccueilComponent,canActivate: [AuthGuard] },
+            { path: 'accueil', component: AccueilComponent,canActivate: [AuthGuard] },
+            { path: 'saisons', component: SaisonsComponent, canActivate: [AuthGuard] },
+            { path: 'villes', component: VillesComponent,canActivate: [AuthGuard] },
+            { path: 'stades', component: StadesComponent, canActivate: [AuthGuard] },
+            { path: 'equipes', component: EquipesComponent, canActivate: [AuthGuard] },
+             {path: 'matchs/:id', component: MatchsComponent, canActivate: [AuthGuard] },
+             {path: 'utilisateurs', component: UsersComponent, canActivate: [AuthGuard] },
+             {path: 'ligues', component:LiguesComponent, canActivate: [AuthGuard] },
 
-            {path: 'ajout-saison', component: FormulaireSaisonComponent},
-            {path: 'calendrier/:id', component: CalendrierComponent},
+            {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
+            {path: 'calendrier/:id', component: CalendrierComponent, canActivate: [AuthGuard] },
           /*    {path: 'calendar', component:CalendarComponent}, */
 
 

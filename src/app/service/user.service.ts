@@ -21,11 +21,11 @@ export class UserService {
     return this.http.post<User>(this.apiUrl, user);
   }
 
-  update(id: number, user: Partial<User>): Observable<User> {
+  update(id?: string, user?: Partial<User>): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}${id}/`, user);
   }
 
-  delete(id: number): Observable<void> {
+  delete(id?: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}${id}/`);
   }
 }

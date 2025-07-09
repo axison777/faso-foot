@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 export interface Saison {
-  id: number;
+  id?: string;
   nom: string;
 }
 
@@ -21,14 +21,14 @@ export class SaisonService {
   }
 
   create(saison: Partial<any>): Observable<any> {
-    return this.http.post<any>(this.apiUrl, saison);
+    return this.http.post<any>(environment.apiUrl+'/matchdays/generate', saison);
   }
 
-  update(id: number, saison: Partial<any>): Observable<any> {
+  update(id?: string, saison?: Partial<any>): Observable<any> {
     return this.http.put<Saison>(`${this.apiUrl}${id}/`, saison);
   }
 
-  delete(id: number): Observable<void> {
+  delete(id?: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}${id}/`);
   }
 }

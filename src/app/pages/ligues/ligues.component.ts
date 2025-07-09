@@ -14,6 +14,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { League } from '../../models/league.model';
 import { FileUploadModule, FileUpload } from 'primeng/fileupload';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-ligues',
@@ -30,7 +31,8 @@ import { FileUploadModule, FileUpload } from 'primeng/fileupload';
     ToastModule,
     SelectModule,
     ReactiveFormsModule,
-    FileUploadModule
+    FileUploadModule,
+    InputNumberModule
   ]
 })
 export class LiguesComponent implements OnInit {
@@ -45,7 +47,7 @@ export class LiguesComponent implements OnInit {
   showForm: boolean = false;
 
   isEditing: boolean = false;
-  editingLeagueId?: number | null = null;
+  editingLeagueId?: string | null = null;
   currentLogo: string | null = null;
   selectedFile: File | null = null;
 
@@ -150,10 +152,12 @@ export class LiguesComponent implements OnInit {
     formData.append('name', this.leagueForm.get('name')?.value);
     formData.append('teams_count', this.leagueForm.get('teams_count')?.value);
 
-    if (this.selectedFile) {
+    if (this.selectedFile ) {
       formData.append('logo', this.selectedFile);
-    } else if (this.isEditing && this.currentLogo) {
-      formData.append('existingLogo', this.currentLogo);
+    }
+    if (this.isEditing && this.selectedFile) {
+      formData.append('_method', 'PUT');
+
     }
 
     const request$ = this.isEditing && this.editingLeagueId
@@ -184,20 +188,20 @@ export class LiguesComponent implements OnInit {
   editLeague(league: League): void {
     this.isEditing = true;
     this.editingLeagueId = league.id;
-    this.currentLogo = league.logo ?? null; // adapte selon ton backend
+    this.currentLogo = league.logo ?? null;
 
     this.leagueForm.patchValue({
       name: league.name,
 
       teams_count: league.teams_count,
-      logo: league.logo ? league.logo : '' // forcer validité
+      logo: league.logo ? league.logo : ''
     });
 
     this.selectedFile = null;
     this.showForm = true;
   }
 
-  deleteLeague(id: number): void {
+  deleteLeague(id?: string): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer ce ligue ?',
       accept: () => {

@@ -1,5 +1,5 @@
 export interface MatchDay {
-  id?: number;
+  id?: string;
   start_date?: Date;
   end_date?: Date;
   number?: number;

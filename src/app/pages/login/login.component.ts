@@ -37,7 +37,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   error = '';
   success = '';
   showPassword = false;
-  defaultCredentials: any[] = [];
+  defaultCredentials: any[] = [{ email: 'admin@fasoleague.com', password: 'P@ssword123' }];
 
   constructor(
     private fb: FormBuilder,

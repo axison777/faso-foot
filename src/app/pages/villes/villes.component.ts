@@ -37,7 +37,7 @@ export class VillesComponent implements OnInit {
 
   showForm: boolean = false;
   isEditing: boolean = false;
-  editingCityId?: number;
+  editingCityId?: string;
   cityForm!: FormGroup;
 
   //information de la ville
@@ -140,7 +140,7 @@ export class VillesComponent implements OnInit {
     this.showForm = true;
   }
 
-  deleteCity(id: number): void {
+  deleteCity(id: string): void {
     this.confirmationService.confirm({
       message: 'Etes-vous sur de vouloir supprimer cette ville ?',
       header: 'Confirmation de suppression',

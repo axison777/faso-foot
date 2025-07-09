@@ -71,14 +71,15 @@
       pInputText
       type="text"
       [formControl]="searchControl"
-      placeholder="Nom, code ou ville"
+      placeholder="Nom ou abréviation "
       class="w-full"
     />
   </div>
 
   <!-- Grille des cartes -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <div *ngFor="let team of filteredTeams(); let i = index; trackBy: trackByTeamId"
+    <ng-container *ngIf="searchControl.value">
+            <div *ngFor="let team of filteredTeams(); let i = index; trackBy: trackByTeamId"
          class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2"
          [ngClass]="{ 'ring-2 ring-primary-500': teamSelectionControls[i].value }">
 
@@ -93,17 +94,26 @@
       <div class="text-sm font-semibold">{{ team.abbreviation }}</div>
       <div class="text-xs text-gray-500 text-center">{{ team.name }}</div>
     </div>
+    </ng-container>
+
   </div>
 
   <!-- Équipes sélectionnées -->
   <div *ngIf="selectedTeamObjects.length" class="mt-4">
     <label class="font-bold block mb-2">Équipes sélectionnées ({{ selectedTeamObjects.length }})</label>
     <div class="flex flex-wrap gap-2">
-      <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-        <img [src]="team.logo" alt="Logo" class="w-5 h-5 object-contain" />
-        <span class="text-sm">{{ team.abbreviation }}</span>
-        <button pButton icon="pi pi-times" class="p-button-rounded p-button-sm p-button-text"
-                (click)="uncheckTeam(team.id)" type="button"></button>
+
+
+            <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+         <img [src]="team.logo" alt="Logo" class="w-10 object-contain" />
+                <span class="text-md font-bold">{{ team.abbreviation }}</span>
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-rounded p-button-md p-button-text p-button-danger"
+          (click)="uncheckTeam(team.id)"
+          type="button"
+        ></button>
       </div>
     </div>
   </div>

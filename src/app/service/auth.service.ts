@@ -2,14 +2,17 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, computed, effect, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { User } from '../models/user.model';
-
+import { environment } from '../../environments/environment';
 interface LoginResponse {
-  user: User;
-  token: string;
+    data: {
+        user: User;
+        access_token: string;
+    };
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  apiUrl=environment.apiUrl + '/auth/';
   private _user = signal<User | null>(null);
   readonly user = computed(() => this._user());
   readonly isAuthenticated = computed(() => this._user() !== null);
@@ -36,11 +39,12 @@ export class AuthService {
   }
 
   login(credentials: { email: string; password: string }): Observable<LoginResponse> {
-    this._user.set({email: credentials.email, first_name: 'Ahmed', last_name: 'Koné', id: 0, role: 'Admin'}); // Temporary user object
-    return this.http.post<LoginResponse>('/api/login', credentials).pipe(
+    /* this._user.set({email: credentials.email, first_name: 'Ahmed', last_name: 'Koné', id: 0, role: 'Admin'}); // Temporary user object */
+    return this.http.post<LoginResponse>(this.apiUrl+'login', credentials).pipe(
       tap(response => {
-        /* this._user.set(response.user); */
-        localStorage.setItem('token', response.token);
+        this._user.set(response?.data?.user);
+        localStorage.setItem('token', response?.data?.access_token);
+        console.log(this.token)
       })
     );
   }

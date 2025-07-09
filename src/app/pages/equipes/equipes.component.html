@@ -12,7 +12,8 @@
   </div>
 
 
-  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier l\'équipe' : 'Ajouter une nouvelle équipe'"
+  <p-dialog
+[draggable]="false" [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier l\'équipe' : 'Ajouter une nouvelle équipe'"
  [modal]="true" [closable]="false">
     <ng-template #content>
 <form [formGroup]="teamForm" (ngSubmit)="saveTeam()" class="flex flex-col gap-6">
@@ -103,20 +104,36 @@
   <!-- ✅ Champ Fichier Logo -->
 <div>
   <label for="logo" class="block font-bold mb-2">Logo de l'équipe</label>
-  <input
-    type="file"
-    id="logo"
-    (change)="onLogoSelected($event)"
+    <!-- Affichage image actuelle (édition) -->
+  <div *ngIf="isEditing && currentLogo" class="mb-2">
+    <p class="text-gray-600 text-sm mb-1">Logo actuel :</p>
+    <img [src]="currentLogo" alt="Logo actuel" class="w-24 h-24 object-cover rounded shadow" />
+  </div>
+  <p-fileupload
+    #fileUploader
+    name="logo"
+    [customUpload]="true"
+    [auto]="false"
     accept="image/*"
-    class="w-full border rounded p-2"
-  />
+    maxFileSize="1000000"
+    chooseLabel="Choisir un fichier"
+    chooseIcon="pi pi-upload"
+    (onSelect)="onFileSelect($event)"
+    [showUploadButton]="false"
+    [showCancelButton]="false"
+    [mode]="'advanced'"
+
+  >
+     <ng-template #empty>
+        <div>Glisser le fichier ici</div>
+    </ng-template>
+  </p-fileupload>
+
+  <small class="text-red-500" *ngIf="teamForm.get('logo')?.invalid && teamForm.get('logo')?.touched">
+    Le logo est requis.
+  </small>
   <small class="text-gray-500">Formats acceptés : JPG, PNG, etc.</small>
 
-  <!-- ✅ Aperçu -->
-  <div *ngIf="logoPreview" class="mt-2">
-    <label class="block text-sm text-gray-700 mb-1">Aperçu :</label>
-    <img [src]="logoPreview" alt="Aperçu logo" class="h-16 object-contain border rounded" />
-  </div>
 </div>
 </form>
     </ng-template>
@@ -143,6 +160,7 @@
   </p-dialog>
 
   <p-dialog
+[draggable]="false"
   header="Détails de l'équipe"
   styleClass="custom-green-header"
   [(visible)]="showDetails"
@@ -151,6 +169,7 @@
   [closable]="true"
   [contentStyle]="{ 'padding': '1.5rem', 'background-color': '#ffffff' }"
   [baseZIndex]="10000"
+
 >
   <div *ngIf="selectedTeam" class="team-details-container">
     <!-- Titre principal comme sur le stade -->
@@ -158,8 +177,8 @@
       {{ selectedTeam.name }}
     </h2>
 
-    <div class="team-logo-container" *ngIf="selectedTeam.logo_url">
-      <img [src]="selectedTeam.logo_url" alt="Logo de l'équipe" class="team-logo" />
+    <div class="team-logo-container" *ngIf="selectedTeam.logo">
+      <img [src]="selectedTeam.logo" alt="Logo de l'équipe" class="team-logo" />
     </div>
 
     <div class="team-info">
