@@ -52,7 +52,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: ['', Validators.required]
     });
 
-     if (this.authService.isAuthenticated()) this.router.navigate(['/']);
+     /* if (this.authService.isAuthenticated()) this.router.navigate(['/']); */
   }
 
   ngOnDestroy(): void {

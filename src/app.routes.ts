@@ -20,6 +20,7 @@ import { AuthGuard } from './app/auth.guard';
 import { ExportMatchComponent } from './app/pages/export-match/export-match.component';
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
+    {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
     {
         path: '',
         component: AppLayout,
@@ -39,16 +40,13 @@ export const appRoutes: Routes = [
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
             {path: 'calendrier/:id', component: CalendrierComponent, canActivate: [AuthGuard] },
-
           /*    {path: 'calendar', component:CalendarComponent}, */
 
 
         ]
     },
-    {path: 'export-pdf', component: ExportMatchComponent, canActivate: [AuthGuard] },
 
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
-    { path: '**', redirectTo: '/notfound' },
-
+    { path: '**', redirectTo: '/notfound' }
 ];
