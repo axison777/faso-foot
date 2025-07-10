@@ -203,25 +203,15 @@ export class StadesComponent implements OnInit {
     );
   }
 
-   //Afficher et faire disparaitre les details de la ville
-  showDialog(stade: any) {
-    this.stadeDetails = {
-<<<<<<< HEAD
-      name: stade.name,
-      abbreviation: stade.abbreviation,
-      city: stade.city,
-      max_matches_per_day: stade.max_matches_per_day,
-
-=======
-      name: city.name,
-      location: city.location,
-        city: city.city?.name || 'Non spécifiée',
-        max_matches_per_day: city.max_matches_per_day || 'Non spécifié',
-        type_of_field: city.type_of_field || 'Non spécifié'
->>>>>>> 121ab169b8208889cbd97c837ea79971bad66eb8
-    };
-    this.displayDialog = true;
-  }
-
+   showDialog(stade: any) {
+  this.stadeDetails = {
+    name: stade.name,
+    location: stade.location,
+    city: stade.city?.name || 'Non spécifiée',
+    max_matches_per_day: stade.max_matches_per_day || 'Non spécifié',
+    type_of_field: stade.type_of_field || 'Non spécifié'
+  };
+  this.displayDialog = true;
+}
 
 }
