@@ -10,5 +10,7 @@ export interface Team {
   city_id?: string;
   city?: City;
   logo_url?: string;
+  manager_first_name?: string;
+  manager_last_name?: string;
 
 }

@@ -74,29 +74,48 @@
       placeholder="Nom ou abréviation "
       class="w-full"
     />
+
   </div>
 
   <!-- Grille des cartes -->
+<!-- ✅ Case à cocher pour tout sélectionner -->
+<div class="flex items-center mb-4">
+  <p-checkbox
+    binary="true"
+     [formControl]="selectAllTeamsControl"
+    (onChange)="toggleAllSelections()"
+    inputId="select-all"
+    class="mr-2"
+  ></p-checkbox>
+  <label for="select-all" class="text-sm font-medium">Tout sélectionner</label>
+</div>
+
+<!-- ✅ Conteneur scrollable -->
+<div class="border rounded-md p-4 bg-gray-50 max-h-[270px] overflow-y-auto">
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <ng-container *ngIf="searchControl.value">
-            <div *ngFor="let team of filteredTeams(); let i = index; trackBy: trackByTeamId"
-         class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2"
-         [ngClass]="{ 'ring-2 ring-primary-500': teamSelectionControls[i].value }">
+    <ng-container>
+      <div
+        *ngFor="let team of filteredTeams(); let i = index; trackBy: trackByTeamId"
+        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
+        [ngClass]="{ 'ring-2 ring-primary-500': teamSelectionControls[i].value }"
+      >
+        <p-checkbox
+          binary="true"
+          [formControl]="teamSelectionControls[i]"
+          class="absolute top-2 left-2"
+          [id]="'team-' + team.id"
+          (onChange)="updateGlobalSelection()"
+        ></p-checkbox>
 
-      <p-checkbox
-        binary="true"
-        [formControl]="teamSelectionControls[i]"
-        class="absolute top-2 left-2"
-        [id]="'team-' + team.id"
-      />
-
-      <img [src]="team.logo" alt="Logo" class="w-12 h-12 object-contain" />
-      <div class="text-sm font-semibold">{{ team.abbreviation }}</div>
-      <div class="text-xs text-gray-500 text-center">{{ team.name }}</div>
-    </div>
+        <img [src]="team.logo" alt="Logo" class="w-12 h-12 object-contain" />
+        <div class="text-sm font-semibold">{{ team.abbreviation }}</div>
+        <div class="text-xs text-gray-500 text-center">{{ team.name }}</div>
+      </div>
     </ng-container>
-
   </div>
+</div>
+
+
 
   <!-- Équipes sélectionnées -->
   <div *ngIf="selectedTeamObjects.length" class="mt-4">
@@ -270,6 +289,7 @@
     <p-select
       [options]="cityList"
       optionLabel="name"
+      optionValue="id"
       formControlName="id"
       placeholder="Ville"
       class="w-full"
@@ -280,7 +300,7 @@
   <div class="w-full md:w-1/4">
     <label class="font-bold block mb-1">Nombre minimum de matchs</label>
     <p-inputnumber
-      formControlName="count"
+      formControlName="min"
 
       class="w-full"
     ></p-inputnumber>
@@ -329,7 +349,7 @@
     <div>
       <label class="block font-bold mb-1">Équipe 1</label>
       <p-select
-        formControlName="team1"
+        formControlName="team_one_id"
         [options]="teams"
         optionLabel="name"
         optionValue="id"
@@ -340,7 +360,7 @@
     <div>
       <label class="block font-bold mb-1">Équipe 2</label>
       <p-select
-        formControlName="team2"
+        formControlName="team_two_id"
         [options]="teams"
         optionLabel="name"
         optionValue="id"
@@ -366,7 +386,7 @@
     <div>
       <label class="block font-bold mb-1">Stade aller</label>
       <p-select
-        formControlName="first_leg_stadium"
+        formControlName="first_leg_stadium_id"
         [options]="stadiums"
         optionLabel="name"
         optionValue="id"
@@ -392,7 +412,7 @@
     <div>
       <label class="block font-bold mb-1">Stade du match retour</label>
       <p-select
-        formControlName="second_leg_stadium"
+        formControlName="second_leg_stadium_id"
         [options]="stadiums"
         optionLabel="name"
         optionValue="id"

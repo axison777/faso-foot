@@ -1,3 +1,4 @@
+
 <div class="page-wrapper">
 
   <div class="bg-green-top">
@@ -14,10 +15,20 @@
   <div class="bg-white-band"></div>
 
   <div class="page-content">
-    <div class="main-card">
+    <div class="main-card min-h-[100px]">
+
 
       <!-- TON CONTENU -->
-      <div class="flex justify-center gap-4 mb-6">
+      <div class="flex justify-center gap-4 mb-6 position-relative ">
+        <!-- app.component.html -->
+<!-- Spinner fullscreen -->
+<div *ngIf="loading" class="custom-spinner-overlay">
+  <div class="custom-spinner"></div>
+</div>
+
+
+
+
         <button
           *ngFor="let phase of phases; let i = index"
           pButton
@@ -64,7 +75,7 @@
           <span>
             {{ match.team1 }} <span class="font-normal text-[9px]">VS</span> {{ match.team2 }}
           </span>
-          <span class="text-gray-600 text-[11px]">
+          <span class="text-gray-600 text-[11px] text-right">
           {{ match.stadium }}
         </span>
         </div>
@@ -78,9 +89,19 @@
 </div>
 
     </div>
-      <div class="flex justify-center gap-4 mt-6">
-          <button class="btn-pdf" >Exporter en format PDF</button>
+      <div class="flex justify-center gap-4 mt-6" *ngIf="!loading">
+          <button [disabled]="exportingPdf" (click)="exportPdf()" routerLinkActive="router-link-active"  class="btn-pdf" >
+
+        <i *ngIf="exportingPdf" class="pi pi-spin pi-spinner"></i>
+
+            Exporter en format PDF</button>
           <button class="btn-excel" (click)="exportAsExcel(phases[selectedPhaseIndex])">Exporter en format Excel</button>
         </div>
   </div>
 </div>
+
+<app-export-match
+  [phase]="phases[selectedPhaseIndex]"
+  #calendarExport
+  style="position: absolute; left: -9999px; top: -9999px;"
+></app-export-match>

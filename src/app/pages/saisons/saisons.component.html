@@ -36,16 +36,16 @@
       <thead>
         <tr>
           <th>Saison</th>
-          <th>Ligue</th>
+     <!--      <th>Ligue</th> -->
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let saison of filteredSaisons">
           <td class="saison-nom">
-            Saison {{ saison?.start_date | date: 'yyyy' }} {{ saison?.end_date | date: 'yyyy' }}
+             {{getParsedDate(saison?.start_date) | date: 'yyyy' }} - {{ getParsedDate(saison?.end_date) | date: 'yyyy' }}
           </td>
-          <td class="saison-nom">{{ saison?.league?.name }}</td>
+        <!--   <td class="saison-nom">{{ saison?.league?.name }}</td> -->
           <td class="actions">
             <div class="btn-group">
              <!--  <button class="btn btn-danger" *ngIf="!saison?.calendar_generated"
@@ -71,7 +71,7 @@
   </div>
 
   <!-- No results -->
-  <div *ngIf="!loading && filteredSaisons.length === 0" class="no-results">
+  <div *ngIf="!loading && searchTerm && filteredSaisons.length === 0" class="no-results">
     <div class="icon">🔍</div>
     <p>Aucune saison trouvée pour "{{ searchTerm }}"</p>
   </div>

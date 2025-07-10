@@ -60,11 +60,13 @@ export class EquipesComponent implements OnInit {
   ) {
     this.teamForm = this.fb.group({
       name: ['', Validators.required],
-      abbreviation: ['', Validators.required],
+      abbreviation: [''],
       phone: ['', [Validators.required, Validators.pattern(/^\+?\d{8,14}$/)]],
       email: ['', [Validators.required, Validators.email]],
       city_id: ['', Validators.required],
-      logo: ['']
+      logo: [''],
+      manager_first_name: ['', Validators.required],
+      manager_last_name: ['', Validators.required]
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
 import { TabViewModule } from 'primeng/tabview';
@@ -6,6 +6,10 @@ import { ButtonModule } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { Router, RouterModule } from '@angular/router';
+import { SaisonService } from '../../../service/saison.service';
+import { ExportMatchComponent } from "../../export-match/export-match.component";
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 
 interface Match {
@@ -32,21 +36,16 @@ interface Phase {
 @Component({
   selector: 'app-calendrier',
   standalone: true,
-  imports: [CommonModule, CarouselModule, TabViewModule,TabsModule, ButtonModule],
+  imports: [CommonModule, CarouselModule, TabViewModule, TabsModule, ButtonModule, RouterModule, ExportMatchComponent, ProgressSpinnerModule],
   templateUrl: './calendrier.component.html',
   styleUrls: ['./calendrier.component.scss']
 })
 export class CalendrierComponent implements OnInit {
-    ngOnInit(): void {
-        this.phases.forEach(phase => {
-    phase.matchdays.forEach(day => {
-      day.groupedMatchesByDate = this.groupMatchesByDate(day.matches);
-    });
-  });
-    }
-    selectedPhaseIndex = 0;
+    seasonId: string = '';
+    loading: boolean=false
+    @ViewChild('calendarExport') calendarExport!: ExportMatchComponent;
 
-phases: Phase[] = [
+/*     phases: Phase[] = [
   {
     name: 'Phase Aller',
     start: '2025-08-12',
@@ -105,7 +104,7 @@ phases: Phase[] = [
     end: '2026-03-30',
     matchdays: [
       {
-        label: '1ère Journée',
+        label: '6e Journée',
         matches: [
           { team1: 'SALITAS', team2: 'AS SONABEL', stadium: 'Stade municipal Ouaga', date: '2026-01-10', time: '15:30' },
           { team1: 'MAJESTIC', team2: 'RCK', stadium: 'Stade du 4 août Ouaga', date: '2026-01-10', time: '18:00' },
@@ -114,7 +113,7 @@ phases: Phase[] = [
         ]
       },
       {
-        label: '2e Journée',
+        label: '7e Journée',
         matches: [
           { team1: 'RCK', team2: 'SALITAS', stadium: 'Stade municipal Ouaga', date: '2026-01-17', time: '15:30' },
           { team1: 'KOZAF', team2: 'AS SONABEL', stadium: 'Stade du 4 août Ouaga', date: '2026-01-18', time: '16:00' },
@@ -123,7 +122,7 @@ phases: Phase[] = [
         ]
       },
       {
-        label: '3e Journée',
+        label: '8e Journée',
         matches: [
           { team1: 'EFO', team2: 'AS SONABEL', stadium: 'Stade municipal Ouaga', date: '2026-01-24', time: '15:30' },
           { team1: 'USO', team2: 'RCK', stadium: 'Stade du 4 août Ouaga', date: '2026-01-25', time: '16:00' },
@@ -132,7 +131,7 @@ phases: Phase[] = [
         ]
       },
       {
-        label: '4e Journée',
+        label: '9e Journée',
         matches: [
           { team1: 'AS SONABEL', team2: 'USFA', stadium: 'Stade municipal Ouaga', date: '2026-02-01', time: '15:30' },
           { team1: 'KOZAF', team2: 'SALITAS', stadium: 'Stade Wobi Bobo', date: '2026-02-01', time: '17:30' },
@@ -141,7 +140,7 @@ phases: Phase[] = [
         ]
       },
       {
-        label: '5e Journée',
+        label: '10e Journée',
         matches: [
           { team1: 'AS SONABEL', team2: 'KOZAF', stadium: 'Stade municipal Ouaga', date: '2026-02-08', time: '15:30' },
           { team1: 'SALITAS', team2: 'USO', stadium: 'Stade Wobi Bobo', date: '2026-02-08', time: '18:30' },
@@ -151,7 +150,42 @@ phases: Phase[] = [
       }
     ]
   }
-];
+]; */
+    phases: Phase[] = []
+    selectedPhaseIndex = 0;
+    exportingPdf: boolean = false;
+
+    constructor(private router: Router, private saisonService: SaisonService) {}
+    ngOnInit(): void {
+    // Initialize the selected season ID from the URL
+    const url = this.router.url;
+    const urlParts = url.split('/');
+    this.seasonId = urlParts[urlParts.length - 1];
+    this.loading = true;
+    this.saisonService.get(this.seasonId).subscribe({
+
+      next: (res: any) => {
+        let calendar= res?.data?.calendar;
+        this.phases.push(calendar?.first_leg)
+        this.phases.push(calendar?.second_led);
+        /* this.phases = res?.data?.calendar || []; */
+        this.phases.forEach(phase => {
+        phase.matchdays.forEach(day => {
+      day.groupedMatchesByDate = this.groupMatchesByDate(day.matches);
+    });
+  });
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
+    });
+
+
+    }
+
+
+
 
 
     formatDate(dateStr: string): string {
@@ -161,8 +195,10 @@ phases: Phase[] = [
     groupMatchesByDate(matches: Match[]): any[] {
   const grouped: { [date: string]: Match[] } = {};
 
-  for (const match of matches) {
-    const dateKey = new Date(match.date).toISOString().split('T')[0]; // ex: "2025-08-12"
+  for (const match of matches as any) {
+    const [day, month, year] = match?.match_date?.split("/").map(Number);
+    let formattedDate = new Date(year, month - 1, day);
+    const dateKey = new Date(formattedDate).toISOString().split('T')[0]; // ex: "2025-08-12"
     if (!grouped[dateKey]) {
       grouped[dateKey] = [];
     }
@@ -183,13 +219,15 @@ exportAsExcel(phase: Phase) {
   const rows: any[] = [];
 
   phase.matchdays.forEach((day, index) => {
-    day.matches.forEach(match => {
+    day.matches.forEach((match:any) => {
+        let [day, month, year] = match?.match_date?.split("/").map(Number);
+    let formattedDate = new Date(year, month - 1, day);
       rows.push({
         'Journée': day.label,
         'Équipe 1': match.team1,
         'Équipe 2': match.team2,
         'Stade': match.stadium,
-        'Date': new Date(match.date).toLocaleDateString(),
+        'Date': new Date(formattedDate).toLocaleDateString(),
         'Heure': match.time
       });
     });
@@ -210,4 +248,13 @@ exportAsExcel(phase: Phase) {
   FileSaver.saveAs(new Blob([excelBuffer], { type: 'application/octet-stream' }), filename);
 }
 
+exportPdf() {
+  this.exportingPdf = true;
+  setTimeout(() => {
+    this.calendarExport.generatePDF();
+    this.exportingPdf = false;
+  }, 2000);
+
+
+}
 }

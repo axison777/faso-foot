@@ -17,8 +17,10 @@ import { UsersComponent } from './app/pages/users/users.component';
 import { LiguesComponent } from './app/pages/ligues/ligues.component';
 /* import { CalendarComponent } from './app/pages/calendar/calendar.component'; */
 import { AuthGuard } from './app/auth.guard';
+import { ExportMatchComponent } from './app/pages/export-match/export-match.component';
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
+    {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
     {
         path: '',
         component: AppLayout,

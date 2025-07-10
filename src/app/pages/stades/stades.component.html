@@ -34,7 +34,7 @@
   </div>
 
     <div>
-    <label for="name" class="block font-bold mb-2">Abréviation du stade <span class="text-red-500">*</span></label>
+    <label for="name" class="block font-bold mb-2">Abréviation du stade </label>
     <input
       pInputText
       type="text"
@@ -67,6 +67,34 @@
       La ville est requise.
     </small>
   </div>
+    <div>
+        <label for="max_matches_per_day" class="block font-bold mb-2">Matchs maximum par jour <span class="text-red-500">*</span></label>
+        <p-inputnumber
+        id="max_matches_per_day"
+        formControlName="max_matches_per_day"
+        placeholder="Entrez le nombre de matchs maximum par jour"
+        class="w-full"
+        ></p-inputnumber>
+        <small class="text-red-500" *ngIf="stadiumForm.get('max_matches_per_day')?.invalid && stadiumForm.get('max_matches_per_day')?.touched">
+        Le nombre de matchs maximum par jour est requis.
+        </small>
+    </div>
+    <div>
+      <label for="type" class="block font-bold mb-2">Type de stade <span class="text-red-500">*</span></label>
+      <p-select
+        id="type"
+        formControlName="type"
+        [options]="stadiumTypes"
+        optionLabel="name"
+        optionValue="value"
+        placeholder="Sélectionnez le type de stade"
+        class="w-full"
+        appendTo="body"
+      ></p-select>
+      <small class="text-red-500" *ngIf="stadiumForm.get('type')?.invalid && stadiumForm.get('type')?.touched">
+        Le type de stade est requis.
+      </small>
+    </div>
 </form>
 
     </ng-template>
@@ -81,6 +109,8 @@
           (click)="toggleForm()"
         />
         <p-button
+        [disabled]="stadiumForm.invalid"
+        [loading]="loading"
         [raised]="true"
         (click)="saveStadium()"
           [label]="isEditing ? 'Modifier' : 'Enregistrer'"
@@ -114,6 +144,7 @@
     <p> Abbreviation: {{ stadeDetails.abbreviation }}</p>
     <p> Ville: {{ stadeDetails.city }}</p>
     <p>Match maximun par jour: {{ stadeDetails.max_matches_per_day }}</p>
+    <p>Type: {{ stadeDetails.type }}</p>
 
   </p-dialog>
 
@@ -149,3 +180,4 @@
     <p>Aucun stade trouvé pour "{{ searchTerm }}"</p>
   </div>
 </div>
+

@@ -1,223 +1,38 @@
-<body>
-
-    <div class="div1">
-        <div class="div1_1">
-            <img src="assets/images/Ligue1.png"> 
-            <div style="height: 70px;padding-top: 28px; ">LIGUE 1</div>
-            
-        </div>
-        <div class="div1_2">Calendrier des matchs</div>
-        <div class="div1_3">Saisons 2025-2026</div>
+<div #calendarRef>
+<body *ngIf="phase">
+  <div class="div1">
+    <div class="div1_1">
+      <img src="assets/images/Ligue1.png" />
+      <div style="height: 70px; padding-top: 28px">LIGUE 1</div>
     </div>
+    <div class="div1_2">Calendrier des matchs</div>
+    <div class="div1_3">Saison {{ phase.start | date: 'yyyy' }} - {{ phase.end | date: 'yyyy' }}</div>
+  </div>
 
-    <div class="container">
+  <div class="container">
+    <div class="card" *ngFor="let day of phase?.matchdays">
+      <div class="card_title">{{ day.label }}</div>
 
-
-        <div class="card">
-            <div class="card_title">Journee1</div>
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-
-
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-            
+      <div class="card_infos page-break-avoid" *ngFor="let match of day.matches">
+        <div class="card_infos_head">
+          <p>{{ match.match_date }}</p>
+          <span>{{ match.time }}</span>
         </div>
 
-
-
-        <div class="card">
-            <div class="card_title">Journee1</div>
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>07/07/2025</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL <span style="font-size: 11px; color: green;">VS</span> SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-
-
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
+        <div class="card_infos_details">
+          <p>
+            {{ match.team1 }}
+            <span style="font-size: 11px; color: green">VS</span>
+            {{ match.team2 }}
+          </p>
+          <span class="text-right">{{ match.stadium }}</span>
         </div>
 
-
-        <div class="card">
-            <div class="card_title">Journee1</div>
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-
-
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-        </div>
-
-        
-
-
-        <div class="card">
-            <div class="card_title">Journee1</div>
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-
-
-            <div class="card_infos">
-                
-                <div class="card_infos_head">
-                    <p>Vendredi</p>
-                    <span>15H30</span>
-                </div>
-
-                <div class="card_infos_details">
-                    <p>AS SONABEL VS SALITAS </p>
-                    <span>Stade municipal ouaga</span>
-                </div>
-
-                <div class="card_infos_separateur"></div>
-            </div>
-        </div>
-
-
-
+        <div class="card_infos_separateur"></div>
+      </div>
     </div>
+  </div>
 </body>
+
+</div>
 

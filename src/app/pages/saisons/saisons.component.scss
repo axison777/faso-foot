@@ -263,7 +263,8 @@
 
       &:last-child {
         border-top-right-radius: 12px;
-        text-align: center;
+        text-align: end;
+         padding-right: 32px;
 
       }
     }
@@ -297,8 +298,9 @@
         }
 
         &.actions {
-          text-align: center;
+          text-align: end;
           white-space: nowrap;
+           padding-right: 1rem;
 
         }
       }
@@ -309,7 +311,8 @@
 .btn-group {
   display: flex;
   gap: 8px;
-  justify-content: center;
+  justify-content: end;
+   padding-right: 1rem;
   flex-wrap: wrap;
 
   .btn {
