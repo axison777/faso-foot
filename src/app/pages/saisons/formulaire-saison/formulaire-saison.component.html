@@ -107,8 +107,31 @@
           (onChange)="updateGlobalSelection()"
         ></p-checkbox>
 
-        <img [src]="team.logo" alt="Logo" class="w-12 h-12 object-contain" />
-        <div class="text-sm font-semibold">{{ team.abbreviation }}</div>
+         <!-- ✅ Image ou fallback -->
+        <img
+          *ngIf="team.logo; else noLogo"
+          [src]="team.logo"
+          alt="Logo"
+          class="w-12 h-12 object-contain"
+        />
+        <ng-template #noLogo>
+          <!-- Icône ou texte par défaut -->
+          <div class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-sm">
+            N/A
+          </div>
+        </ng-template>
+
+        <!-- ✅ Abréviation avec style conditionnel -->
+        <div
+          [ngClass]="{
+            'text-base font-bold': !team.logo,
+            'text-sm font-semibold': team.logo
+          }"
+        >
+          {{ team.abbreviation }}
+        </div>
+
+        <!-- ✅ Nom de l’équipe -->
         <div class="text-xs text-gray-500 text-center">{{ team.name }}</div>
       </div>
     </ng-container>

@@ -189,7 +189,4 @@ export class VillesComponent implements OnInit {
     };
     this.displayDialog = true;
   }
-
-
-
 }

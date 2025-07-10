@@ -78,15 +78,8 @@
 
 </div>
 
-
-
-
-
-
-
-    <p-dialog
+<p-dialog
 [draggable]="false" [(visible)]="displayDialog" [style]="{ width: '1000px' }" header="Créer une saison" [modal]="true">
-
         <ng-template #content><form [formGroup]="seasonForm">
         <div class="flex flex-col gap-5">
             <!-- Champs principaux -->
@@ -105,7 +98,6 @@
     <!-- <p-panel header="Contraintes de calendrier" [collapsed]="true" [toggleable]="true" class="mt-2"> -->
 
         <div class="grid grid-cols-2 gap-4">
-
 
                 <div>
                     <label class="font-bold block mb-1">Matchs maxsss/mois</label>
@@ -149,7 +141,6 @@
                 </div>
                 </div>
 
-
                 <div class="mt-5">
                 <div class="flex justify-between items-center mb-1">
                     <label class="font-bold">Répartition par saisons</label>
@@ -182,10 +173,8 @@
             type="button">
         </button>
         </div>
-
     </p-card>
     </div>
-
                 </div>
   <!--   </p-panel> -->
         </div></form>
