@@ -64,7 +64,7 @@ export class LiguesComponent implements OnInit {
     this.leagueForm = this.fb.group({
       name: ['', Validators.required],
       teams_count: ['', Validators.required],
-      logo: ['', Validators.required] // utilisé pour validation, pas envoyé directement
+      logo: ['']
     });
   }
 
@@ -148,6 +148,8 @@ export class LiguesComponent implements OnInit {
       return;
     }
 
+    this.loading = true;
+
     const formData = new FormData();
     formData.append('name', this.leagueForm.get('name')?.value);
     formData.append('teams_count', this.leagueForm.get('teams_count')?.value);
@@ -155,7 +157,7 @@ export class LiguesComponent implements OnInit {
     if (this.selectedFile ) {
       formData.append('logo', this.selectedFile);
     }
-    if (this.isEditing && this.selectedFile) {
+    if (this.isEditing ) {
       formData.append('_method', 'PUT');
 
     }
@@ -168,6 +170,7 @@ export class LiguesComponent implements OnInit {
       next: () => {
         this.loadLeagues();
         this.toggleForm();
+        this.loading = false;
         this.messageService.add({
           severity: 'success',
           summary: this.isEditing ? 'Ligue modifiée' : 'Ligue créée',
@@ -176,6 +179,7 @@ export class LiguesComponent implements OnInit {
         });
       },
       error: () => {
+        this.loading = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',

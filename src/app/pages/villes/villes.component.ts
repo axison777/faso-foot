@@ -96,12 +96,13 @@ export class VillesComponent implements OnInit {
       this.cityForm.markAllAsTouched();
       return;
     }
-
+    this.loading = true;
     const cityData: City = this.cityForm.value;
 
     const onSuccess = () => {
       this.loadCitys();
       this.toggleForm();
+      this.loading = false;
       this.messageService.add({
         severity: 'success',
         summary: this.isEditing ? 'Ville modifiée' : 'Ville créée',
@@ -111,6 +112,7 @@ export class VillesComponent implements OnInit {
     };
 
     const onError = () => {
+      this.loading = false;
       this.messageService.add({
         severity: 'error',
         summary: 'Erreur',
@@ -146,8 +148,10 @@ export class VillesComponent implements OnInit {
       header: 'Confirmation de suppression',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
+        this.loading = true;
         this.villeService.delete(id).subscribe({
           next: () => {
+            this.loading = false;
             this.loadCitys();
             this.messageService.add({
               severity: 'success',
@@ -156,6 +160,7 @@ export class VillesComponent implements OnInit {
             });
           },
           error: () => {
+            this.loading = false;
             this.messageService.add({
               severity: 'error',
               summary: 'Erreur',

@@ -127,7 +127,7 @@
             class="w-full"
           />
           <small class="text-red-500" *ngIf="teamForm.get('manager_first_name')?.invalid && teamForm.get('manager_first_name')?.touched">
-            Ce champ est requis
+            Le prénom est requis.
           </small>
         </div>
 
@@ -143,7 +143,7 @@
             class="w-full"
           />
           <small class="text-red-500" *ngIf="teamForm.get('manager_last_name')?.invalid && teamForm.get('manager_last_name')?.touched">
-            Ce champ est requis
+            Le nom est requis.
           </small>
         </div>
       </div>
@@ -159,10 +159,10 @@
             formControlName="phone"
             placeholder="Ex: 70000000"
             class="w-full"
-          
+
           />
           <small class="text-red-500" *ngIf="teamForm.get('phone')?.invalid && teamForm.get('phone')?.touched">
-            Requis et valide.
+            Le téléphone est requis.
           </small>
         </div>
 
@@ -177,9 +177,12 @@
             placeholder="ex: responsable@email.com"
             class="w-full"
           />
-          <small class="text-red-500" *ngIf="teamForm.get('email')?.invalid && teamForm.get('email')?.touched">
-            Requis et valide.
+          <small class="text-red-500" *ngIf="teamForm.get('email')?.hasError('required') && teamForm.get('email')?.touched">
+            L'email est requis.
           </small>
+            <small class="text-red-500" *ngIf="teamForm.get('email')?.hasError('email') && teamForm.get('email')?.touched">
+                Email invalide.
+            </small>
         </div>
       </div>
         <!-- Poste du responsable -->

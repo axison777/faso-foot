@@ -60,6 +60,7 @@
           (click)="toggleForm()"
         />
         <p-button
+        [loading]="loading"
           (click)="saveCity()"
           [label]="isEditing ? 'Modifier' : 'Enregistrer'"
           icon="pi pi-check"

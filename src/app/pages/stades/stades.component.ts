@@ -55,9 +55,8 @@ export class StadesComponent implements OnInit {
   };
 
   stadiumTypes=[
-    { name: 'Stade', value: 'stadium' },
-    { name: 'Terrain', value: 'field' },
-    { name: 'Complexe Sportif', value: 'sports_complex' }
+    { name: 'En gazon naturel', value: 'natural_grass' },
+    { name: 'En gazon synthétique', value: 'artificial_grass' },
   ]
   constructor(
     private stadeService: StadeService,
@@ -71,7 +70,6 @@ export class StadesComponent implements OnInit {
           name: ['', Validators.required],
           abbreviation: [''],
           city_id: ['', Validators.required],
-          max_matches_per_day: ['',],
           type_of_field: ['', Validators.required]
         });
   }
@@ -121,12 +119,13 @@ export class StadesComponent implements OnInit {
   }
 
   saveStadium(): void {
-    this.loading = true;
+
     if (this.stadiumForm.valid) {
+        this.loading = true;
       let stadiumPayload: any = {
         name: this.stadiumForm.get('name')?.value,
         city_id: this.stadiumForm.get('city_id')?.value,
-        max_matches_per_day: this.stadiumForm.get('max_matches_per_day')?.value,
+       /*  max_matches_per_day: this.stadiumForm.get('max_matches_per_day')?.value, */
         type_of_field: this.stadiumForm.get('type_of_field')?.value
       };
 
@@ -173,7 +172,7 @@ export class StadesComponent implements OnInit {
     this.stadiumForm.get('name')?.setValue(stadium.name);
     this.stadiumForm.get('city_id')?.patchValue(stadium.city_id);
     this.stadiumForm.get('abbreviation')?.setValue(stadium.abbreviation);
-    this.stadiumForm.get('max_matches_per_day')?.setValue(stadium.max_matches_per_day);
+/*     this.stadiumForm.get('max_matches_per_day')?.setValue(stadium.max_matches_per_day); */
     this.stadiumForm.get('type_of_field')?.setValue(stadium.type_of_field);
     this.isEditing = true;
     this.editingStadiumId = stadium.id;
@@ -209,7 +208,7 @@ export class StadesComponent implements OnInit {
       name: city.name,
       location: city.location,
         city: city.city?.name || 'Non spécifiée',
-        max_matches_per_day: city.max_matches_per_day || 'Non spécifié',
+/*         max_matches_per_day: city.max_matches_per_day || 'Non spécifié', */
         type_of_field: city.type_of_field || 'Non spécifié'
     };
     this.displayDialog = true;
