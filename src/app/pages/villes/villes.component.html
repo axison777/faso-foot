@@ -85,10 +85,9 @@
     Chargement des villes...
   </div>
 
-
   <!-- Detail de la ville -->
   <p-dialog
-[draggable]="false" [modal]="true" header="Détails de la Ville" [(visible)]="displayDialog" [style]="{ width: '500px' }" [styleClass]="'custom-dialog'">
+    [draggable]="false" [modal]="true" header="Détails de la Ville" [(visible)]="displayDialog" [style]="{ width: '500px' }" [styleClass]="'custom-dialog'">
     <h3>{{ cityDetails.name }}</h3>
     <p>Localisation: {{ cityDetails.location }}</p>
   </p-dialog>

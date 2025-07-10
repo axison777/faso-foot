@@ -184,10 +184,13 @@ export class StadesComponent implements OnInit {
   }
 
    //Afficher et faire disparaitre les details de la ville
-  showDialog(city: any) {
+  showDialog(stade: any) {
     this.stadeDetails = {
-      name: city.name,
-      location: city.location
+      name: stade.name,
+      abbreviation: stade.abbreviation,
+      city: stade.city,
+      max_matches_per_day: stade.max_matches_per_day,
+
     };
     this.displayDialog = true;
   }
