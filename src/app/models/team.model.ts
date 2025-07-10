@@ -12,5 +12,6 @@ export interface Team {
   logo_url?: string;
   manager_first_name?: string;
   manager_last_name?: string;
+  manager_role?: string;
 
 }

@@ -80,10 +80,10 @@
         </small>
     </div>
     <div>
-      <label for="type" class="block font-bold mb-2">Type de stade <span class="text-red-500">*</span></label>
+      <label for="type_of_field" class="block font-bold mb-2">Type de stade <span class="text-red-500">*</span></label>
       <p-select
-        id="type"
-        formControlName="type"
+        id="type_of_field"
+        formControlName="type_of_field"
         [options]="stadiumTypes"
         optionLabel="name"
         optionValue="value"
@@ -91,7 +91,7 @@
         class="w-full"
         appendTo="body"
       ></p-select>
-      <small class="text-red-500" *ngIf="stadiumForm.get('type')?.invalid && stadiumForm.get('type')?.touched">
+      <small class="text-red-500" *ngIf="stadiumForm.get('type_of_field')?.invalid && stadiumForm.get('type_of_field')?.touched">
         Le type de stade est requis.
       </small>
     </div>
@@ -144,7 +144,7 @@
     <p> Abbreviation: {{ stadeDetails.abbreviation }}</p>
     <p> Ville: {{ stadeDetails.city }}</p>
     <p>Match maximun par jour: {{ stadeDetails.max_matches_per_day }}</p>
-    <p>Type: {{ stadeDetails.type }}</p>
+    <p>Type: {{ stadeDetails.type_of_field }}</p>
 
   </p-dialog>
 

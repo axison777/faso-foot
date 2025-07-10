@@ -61,12 +61,13 @@ export class EquipesComponent implements OnInit {
     this.teamForm = this.fb.group({
       name: ['', Validators.required],
       abbreviation: [''],
-      phone: ['', [Validators.required, Validators.pattern(/^\+?\d{8,14}$/)]],
+      phone: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       city_id: ['', Validators.required],
       logo: [''],
       manager_first_name: ['', Validators.required],
-      manager_last_name: ['', Validators.required]
+      manager_last_name: ['', Validators.required],
+      manager_role: ['', Validators.required]
     });
   }
 
@@ -132,6 +133,9 @@ export class EquipesComponent implements OnInit {
       formData.append('phone', this.teamForm.get('phone')?.value);
       formData.append('email', this.teamForm.get('email')?.value);
       formData.append('city_id', this.teamForm.get('city_id')?.value);
+      formData.append('manager_first_name', this.teamForm.get('manager_first_name')?.value);
+      formData.append('manager_last_name', this.teamForm.get('manager_last_name')?.value);
+      formData.append('manager_role', this.teamForm.get('manager_role')?.value);
 
     if (this.selectedFile ) {
       formData.append('logo', this.selectedFile);
@@ -166,6 +170,8 @@ export class EquipesComponent implements OnInit {
         this.equipeService.create(formData).subscribe({ next: onSuccess, error: onError });
       }
     }
+    else
+    this.teamForm.markAllAsTouched();
   }
 
   viewTeamDetails(team: Team): void {
@@ -179,6 +185,9 @@ export class EquipesComponent implements OnInit {
     this.teamForm.get('phone')?.setValue(team.phone);
     this.teamForm.get('email')?.setValue(team.email);
     this.teamForm.get('city_id')?.patchValue(team.city_id);
+    this.teamForm.get('manager_first_name')?.setValue(team.manager_first_name);
+    this.teamForm.get('manager_last_name')?.setValue(team.manager_last_name);
+    this.teamForm.get('manager_role')?.setValue(team.manager_role);
     this.currentLogo = team.logo ?? null;
     this.teamForm.get('logo')?.patchValue(team.logo ? team.logo : '');
     this.isEditing = true;
