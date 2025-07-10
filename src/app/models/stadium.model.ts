@@ -7,6 +7,6 @@ export interface Stadium {
   name?: string;
   abbreviation?: string;
   max_matches_per_day?: number;
-  type?: string;
+  type_of_field?: string;
 
 }

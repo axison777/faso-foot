@@ -127,7 +127,7 @@
             class="w-full"
           />
           <small class="text-red-500" *ngIf="teamForm.get('manager_first_name')?.invalid && teamForm.get('manager_first_name')?.touched">
-            Requis.
+            Ce champ est requis
           </small>
         </div>
 
@@ -143,7 +143,7 @@
             class="w-full"
           />
           <small class="text-red-500" *ngIf="teamForm.get('manager_last_name')?.invalid && teamForm.get('manager_last_name')?.touched">
-            Requis.
+            Ce champ est requis
           </small>
         </div>
       </div>
@@ -159,7 +159,7 @@
             formControlName="phone"
             placeholder="Ex: 70000000"
             class="w-full"
-            (keypress)="allowOnlyNumbers($event)"
+          
           />
           <small class="text-red-500" *ngIf="teamForm.get('phone')?.invalid && teamForm.get('phone')?.touched">
             Requis et valide.
@@ -182,6 +182,18 @@
           </small>
         </div>
       </div>
+        <!-- Poste du responsable -->
+        <div class="w-full">
+          <label for="role" class="block font-bold mb-2">Poste </label>
+          <input
+            pInputText
+            type="text"
+            id="manager_role"
+            formControlName="manager_role"
+            placeholder="Poste"
+            class="w-full"
+          />
+        </div>
 
     </form>
   </ng-template>
