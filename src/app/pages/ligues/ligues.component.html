@@ -34,15 +34,15 @@
 
 
     <div>
-    <label for="teams_count" class="block font-bold mb-2">Nombre d'équipes <span class="text-red-500">*</span></label>
+    <label for="team_count" class="block font-bold mb-2">Nombre d'équipes <span class="text-red-500">*</span></label>
     <p-inputnumber
       type="text"
-      id="teams_count"
-      formControlName="teams_count"
+      id="team_count"
+      formControlName="team_count"
       placeholder="Entrez le nombre d'équipes de la ligue"
       class="w-full"
     />
-    <small class="text-red-500" *ngIf="leagueForm.get('teams_count')?.invalid && leagueForm.get('teams_count')?.touched">
+    <small class="text-red-500" *ngIf="leagueForm.get('team_count')?.invalid && leagueForm.get('team_count')?.touched">
       Le nombre de joueurs  est requis.
     </small>
   </div>

@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <div class="p-6">
   <p-card styleClass="px-10 pt-5">
     <p-stepper [value]="1" class="form-stepper" >
@@ -11,54 +12,73 @@
       <hr>
       <p-step-panels >
         <!-- Step 1 -->
-        <p-step-panel [value]="1" >
-          <ng-template #content let-activateCallback="activateCallback">
-            <form [formGroup]="step1Form" class="flex flex-col gap-6">
-                <div class="flex flex-col md:flex-row gap-4 w-full items-end">
-  <!-- Ligue -->
-  <div class="w-full md:w-1/3">
-    <label class="font-bold block mb-1">Ligue</label>
-    <p-select
-      formControlName="league_id"
-      [options]="leagues"
-      optionLabel="name"
-      optionValue="id"
-      placeholder="Sélectionner une ligue"
-      class="w-full"
-    />
-  </div>
+<p-step-panel [value]="1">
+  <ng-template #content let-activateCallback="activateCallback">
+    <form [formGroup]="step1Form" class="flex flex-col gap-6">
+      <div class="flex flex-col md:flex-row gap-4 w-full items-end">
 
-  <!-- Date de début -->
-  <div class="w-full md:w-1/3">
-    <label class="font-bold block mb-1">Date de début</label>
-    <p-datepicker
-      formControlName="start_date"
-      showIcon
-      dateFormat="dd/mm/yy"
-      class="w-full"
-      [style]="{ 'width': '100%' }"
-    />
-  </div>
+        <!-- Ligue -->
+        <div class="w-full md:w-1/3">
+          <label class="font-bold block mb-1">Ligue</label>
+          <p-select
+            formControlName="league_id"
+            [options]="leagues"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Sélectionner une ligue"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="step1Form.get('league_id')?.hasError('required') && step1Form.get('league_id')?.touched">
+            La ligue est requise.
+          </small>
+        </div>
 
-  <!-- Date de fin -->
-  <div class="w-full md:w-1/3">
-    <label class="font-bold block mb-1">Date de fin</label>
-    <p-datepicker
-    [style]="{ 'width': '100%' }"
-      formControlName="end_date"
-      showIcon
-      dateFormat="dd/mm/yy"
-      class="w-full"
-    />
-  </div>
-</div>
+        <!-- Date de début -->
+        <div class="w-full md:w-1/3">
+          <label class="font-bold block mb-1">Date de début</label>
+          <p-datepicker
+            formControlName="start_date"
+            showIcon
+            dateFormat="dd/mm/yy"
+            class="w-full"
+            [style]="{ 'width': '100%' }"
+          />
+          <small class="text-red-500" *ngIf="step1Form.get('start_date')?.hasError('required') && step1Form.get('start_date')?.touched">
+            La date de début est requise.
+          </small>
+        </div>
 
-            </form>
-            <div class="flex justify-end pt-6">
-              <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="activateCallback(2)" />
-            </div>
-          </ng-template>
-        </p-step-panel>
+        <!-- Date de fin -->
+        <div class="w-full md:w-1/3">
+          <label class="font-bold block mb-1">Date de fin</label>
+          <p-datepicker
+            formControlName="end_date"
+            showIcon
+            dateFormat="dd/mm/yy"
+            class="w-full"
+            [style]="{ 'width': '100%' }"
+          />
+          <small class="text-red-500" *ngIf="step1Form.get('end_date')?.hasError('required') && step1Form.get('end_date')?.touched">
+            La date de fin est requise.
+          </small>
+        </div>
+
+      </div>
+    </form>
+
+    <div class="flex justify-end pt-6">
+      <p-button
+ 
+        label="Suivant"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        size="large"
+        (onClick)="activateCallback(2)"
+      />
+    </div>
+  </ng-template>
+</p-step-panel>
+
 
         <!-- Step 2 -->
         <p-step-panel [value]="2">
@@ -137,6 +157,17 @@
     </ng-container>
   </div>
 </div>
+  <span class="text-red-500"
+    *ngIf="!selectedTeamObjects.length && step1Form.get('league_id')?.touched  ">
+    Veuillez sélectionner les équipes.
+  </span>
+
+  <!-- Checker si le nombre dequpes choisies correspond au nombre dequipes de la ligue -->
+  <span class="text-red-500"
+    *ngIf="selectedTeamObjects.length && step1Form.get('league_id')?.touched && getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.team_count != selectedTeamObjects.length">
+    Le nombre d'équipes sélectionnées {{ selectedTeamObjects.length }} ne correspond pas au nombre d'équipes de la ligue {{ getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.team_count }}.
+  </span>
+
 
 
 
@@ -147,13 +178,13 @@
 
 
             <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-         <img [src]="team.logo" alt="Logo" class="w-10 object-contain" />
+         <img *ngIf="team.logo" [src]="team.logo" alt="Logo" class="w-10 object-contain" />
                 <span class="text-md font-bold">{{ team.abbreviation }}</span>
         <button
           pButton
           icon="pi pi-times"
           class="p-button-rounded p-button-md p-button-text p-button-danger"
-          (click)="uncheckTeam(team.id)"
+          (click)="uncheckTeam(team?.id!)"
           type="button"
         ></button>
       </div>
@@ -164,7 +195,7 @@
 
             <div class="form-nav pt-6">
               <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" size="large" (onClick)="activateCallback(1)" />
-              <p-button  label="Suivant" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="activateCallback(3)" />
+              <p-button   label="Suivant" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="activateCallback(3)" />
             </div>
           </ng-template>
         </p-step-panel>
@@ -181,13 +212,17 @@
       optionLabel="name"
       optionValue="id"
       [maxSelectedLabels]="0"
-      sea
+      selectedItemsLabel="{0} stade(s) sélectionné(s)"
       formControlName="selected_stadiums"
     (onChange)="change()"
       placeholder="Choisir les stades"
       class="w-full"
     />
   </div>
+    <span class="text-red-500"
+        *ngIf="!selectedStadiumObjects.length  ">
+        Veuillez sélectionner les stades.
+      </span>
 
   <!-- Stades sélectionnés (chips personnalisés) -->
   <div *ngIf="selectedStadiumObjects.length" class="mt-4">
@@ -210,7 +245,7 @@
 
             <div class="form-nav pt-6">
               <p-button size="large" label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />
-              <p-button size="large" label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(4)" />
+              <p-button  size="large" label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(4)" />
             </div>
           </ng-template>
         </p-step-panel>
@@ -220,29 +255,62 @@
           <ng-template #content let-activateCallback="activateCallback">
             <form [formGroup]="step4Form" class="flex flex-col gap-6">
 <!--               <p-panel header="Contraintes de calendrier" toggleable [collapsed]="false"> -->
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="font-bold block mb-1">Heure de début des matchs</label>
-                    <p-datepicker formControlName="match_start_time" class="w-full" [style]="{ 'width': '100%' }"  [timeOnly]="true" />
-                  </div>
-                  <div>
-                    <label class="font-bold block mb-1">Intervalle minimum entre deux matchs (en heures)</label>
-                    <p-inputNumber formControlName="min_hours_between_team_matches" class="w-full" />
-                  </div>
-                  <div>
-                    <label class="font-bold block mb-1">Intervalle minimum entre deux phases (en jours)</label>
-                    <p-inputNumber formControlName="min_days_between_phases" class="w-full" />
-                  </div>
+<div class="grid grid-cols-2 gap-4">
+  <!-- Heure de début des matchs -->
+  <div>
+    <label class="font-bold block mb-1">Heure de début des matchs</label>
+    <p-datepicker
+      formControlName="match_start_time"
+      class="w-full"
+      [style]="{ 'width': '100%' }"
+      [timeOnly]="true"
+    />
+    <small class="text-red-500"
+      *ngIf="step4Form.get('match_start_time')?.hasError('required') && step4Form.get('match_start_time')?.touched">
+      L'heure de début est requise.
+    </small>
+  </div>
 
-                  <div class="col-span-2">
-                    <label class="font-bold block mb-1">Jours de match autorisés</label>
-                    <p-multiSelect formControlName="allowed_match_days" [options]="allowedDaysOptions"   optionLabel="label"
-                    optionValue="value" display="chip"  class="w-full"
-                    selectedItemsLabel="{0} jour(s) autorisés" [maxSelectedLabels]='8'
-                    />
-                  </div>
+  <!-- Intervalle entre deux matchs -->
+  <div>
+    <label class="font-bold block mb-1">Intervalle minimum entre deux matchs (en heures)</label>
+    <p-inputNumber formControlName="min_hours_between_team_matches" class="w-full" />
+    <small class="text-red-500"
+      *ngIf="step4Form.get('min_hours_between_team_matches')?.hasError('required') && step4Form.get('min_hours_between_team_matches')?.touched">
+      L’intervalle est requis.
+    </small>
+  </div>
 
-                </div>
+  <!-- Intervalle entre deux phases -->
+  <div>
+    <label class="font-bold block mb-1">Intervalle minimum entre deux phases (en jours)</label>
+    <p-inputNumber formControlName="min_days_between_phases" class="w-full" />
+    <small class="text-red-500"
+      *ngIf="step4Form.get('min_days_between_phases')?.hasError('required') && step4Form.get('min_days_between_phases')?.touched">
+      L’intervalle est requis.
+    </small>
+  </div>
+
+  <!-- Jours autorisés -->
+  <div class="col-span-2">
+    <label class="font-bold block mb-1">Jours de match autorisés</label>
+    <p-multiSelect
+      formControlName="allowed_match_days"
+      [options]="allowedDaysOptions"
+      optionLabel="label"
+      optionValue="value"
+      display="chip"
+      class="w-full"
+      selectedItemsLabel="{0} jour(s) autorisés"
+      [maxSelectedLabels]="8"
+    />
+    <small class="text-red-500"
+      *ngIf="step4Form.get('allowed_match_days')?.hasError('required') && step4Form.get('allowed_match_days')?.touched">
+      Veuillez sélectionner au moins un jour.
+    </small>
+  </div>
+</div>
+
 <p-card styleClass="w-full shadow-sm rounded-md border border-gray-200 p-1">
 
   <div class="flex flex-col md:flex-col justify-between items-start md:items-center mb-4 gap-3">
@@ -292,8 +360,8 @@
 </div>
 
 </p-card>
-
-                             <p-card styleClass="w-full shadow-sm rounded-md border border-gray-200 p-1">
+<!--
+                             <p-card styleClass="cities-group w-full shadow-sm rounded-md border border-gray-200 p-1 ">
                 <div class="flex flex-col justify-between items-center mb-1">
                     <label class="font-bold mb-2">Répartition des matchs par ville</label>
                     <p-button styleClass="mt-2" [raised]="true" severity="warn" label="Ajouter une ville" icon="pi pi-plus"  (click)="addCity()"   />
@@ -306,7 +374,7 @@
 >
   <div class="flex justify-center p-4 gap-4 flex-wrap ml-8">
     <div class="flex flex-col md:flex-row items-end justify-center gap-4 w-full">
-  <!-- Sélecteur de ville -->
+
   <div class="w-full md:w-1/4">
     <label class="font-bold block mb-1">Ville</label>
     <p-select
@@ -319,7 +387,7 @@
     ></p-select>
   </div>
 
-  <!-- Nombre de matchs -->
+
   <div class="w-full md:w-1/4">
     <label class="font-bold block mb-1">Nombre minimum de matchs</label>
     <p-inputnumber
@@ -329,7 +397,7 @@
     ></p-inputnumber>
   </div>
 
-  <!-- Bouton de suppression -->
+
   <div class="w-full md:w-auto flex justify-center md:justify-start">
     <button
       pButton
@@ -346,14 +414,14 @@
 
     </div>
 
-                </p-card>
+                </p-card> -->
 <!--               </p-panel> -->
 
 
             </form>
             <div class="form-nav pt-6">
               <p-button size="large" label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(3)" />
-              <p-button size="large" label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(5)" />
+              <p-button  size="large" label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(5)" />
             </div>
           </ng-template>
         </p-step-panel>
@@ -365,101 +433,125 @@
 
               <div formArrayName="derbies" class="flex flex-col gap-4">
                   <p-button label="Ajouter un derby" icon="pi pi-plus" (click)="addDerby()" severity="warn" class="self-end" />
-                <p-card *ngFor="let derby of derbies.controls; let i = index" [formGroupName]="i" class="p-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-lg">
-  <!-- Équipes -->
-  <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <label class="block font-bold mb-1">Équipe 1</label>
-      <p-select
-        formControlName="team_one_id"
-        [options]="teams"
-        optionLabel="name"
-        optionValue="id"
-        placeholder="Sélectionnez l'équipe 1"
-        class="w-full"
+<p-card *ngFor="let derby of derbies.controls; let i = index" [formGroupName]="i" class="p-4">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-lg">
+
+    <!-- Équipes -->
+    <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block font-bold mb-1">Équipe 1</label>
+        <p-select
+          formControlName="team_one_id"
+          [options]="teams"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Sélectionnez l'équipe 1"
+          class="w-full"
+        />
+        <small class="text-red-500"
+          *ngIf="derby.get('team_one_id')?.hasError('required') && derby.get('team_one_id')?.touched">
+          L'équipe 1 est requise.
+        </small>
+      </div>
+      <div>
+        <label class="block font-bold mb-1">Équipe 2</label>
+        <p-select
+          formControlName="team_two_id"
+          [options]="teams"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Sélectionnez l'équipe 2"
+          class="w-full"
+        />
+        <small class="text-red-500"
+          *ngIf="derby.get('team_two_id')?.hasError('required') && derby.get('team_two_id')?.touched">
+          L'équipe 2 est requise.
+        </small>
+      </div>
+    </div>
+
+    <!-- Aller -->
+    <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block font-bold mb-1">Date aller</label>
+        <p-datepicker
+          [style]="{ 'width': '100%' }"
+          formControlName="first_leg_date"
+          placeholder="Choisir la date du match aller"
+          showIcon
+          class="w-full"
+          dateFormat="dd/mm/yy"
+        />
+        <small class="text-red-500"
+          *ngIf="derby.get('first_leg_date')?.hasError('required') && derby.get('first_leg_date')?.touched">
+          La date aller est requise.
+        </small>
+      </div>
+      <div>
+        <label class="block font-bold mb-1">Stade aller</label>
+        <p-select
+          formControlName="first_leg_stadium_id"
+          [options]="stadiums"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Sélectionnez le stade du match aller"
+          class="w-full"
+        />
+        <small class="text-red-500"
+          *ngIf="derby.get('first_leg_stadium_id')?.hasError('required') && derby.get('first_leg_stadium_id')?.touched">
+          Le stade aller est requis.
+        </small>
+      </div>
+    </div>
+
+    <!-- Retour -->
+    <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block font-bold mb-1">Date retour</label>
+        <p-datepicker
+          [style]="{ 'width': '100%' }"
+          formControlName="second_leg_date"
+          placeholder="Choisir la date du match retour"
+          showIcon
+          class="w-full"
+          dateFormat="dd/mm/yy"
+        />
+        <small class="text-red-500"
+          *ngIf="derby.get('second_leg_date')?.hasError('required') && derby.get('second_leg_date')?.touched">
+          La date retour est requise.
+        </small>
+      </div>
+      <div>
+        <label class="block font-bold mb-1">Stade du match retour</label>
+        <p-select
+          formControlName="second_leg_stadium_id"
+          [options]="stadiums"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Sélectionnez le stade du match retour"
+          class="w-full"
+        />
+        <small class="text-red-500"
+          *ngIf="derby.get('second_leg_stadium_id')?.hasError('required') && derby.get('second_leg_stadium_id')?.touched">
+          Le stade retour est requis.
+        </small>
+      </div>
+    </div>
+
+    <!-- Supprimer -->
+    <div class="col-span-1 md:col-span-3 text-right mt-2">
+      <p-button
+        icon="pi pi-trash"
+        severity="danger"
+        [raised]="true"
+        (click)="removeDerby(i)"
+        label="Supprimer le derby"
       />
     </div>
-    <div>
-      <label class="block font-bold mb-1">Équipe 2</label>
-      <p-select
-        formControlName="team_two_id"
-        [options]="teams"
-        optionLabel="name"
-        optionValue="id"
-        placeholder="Sélectionnez l'équipe 2"
-        class="w-full"
-      />
-    </div>
+
   </div>
+</p-card>
 
-  <!-- Aller : Date + Stade -->
-  <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <label class="block font-bold mb-1">Date aller</label>
-      <p-datepicker
-         [style]="{ 'width': '100%' }"
-        formControlName="first_leg_date"
-        placeholder="Choisir la date du match  aller"
-        showIcon
-        class="w-full"
-        dateFormat="dd/mm/yy"
-      />
-    </div>
-    <div>
-      <label class="block font-bold mb-1">Stade aller</label>
-      <p-select
-        formControlName="first_leg_stadium_id"
-        [options]="stadiums"
-        optionLabel="name"
-        optionValue="id"
-        placeholder="Sélectionnez le stade du match aller"
-        class="w-full"
-      />
-    </div>
-  </div>
-
-  <!-- Retour : Date + Stade -->
-  <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <label class="block font-bold mb-1">Date retour</label>
-      <p-datepicker
-         [style]="{ 'width': '100%' }"
-        formControlName="second_leg_date"
-        placeholder="Choisir la date du match retour"
-        showIcon
-        class="w-full"
-        dateFormat="dd/mm/yy"
-      />
-    </div>
-    <div>
-      <label class="block font-bold mb-1">Stade du match retour</label>
-      <p-select
-        formControlName="second_leg_stadium_id"
-        [options]="stadiums"
-        optionLabel="name"
-        optionValue="id"
-        placeholder="Sélectionnez le stade du match retour"
-        class="w-full"
-      />
-    </div>
-  </div>
-
-  <!-- Bouton supprimer -->
-  <div class="col-span-1 md:col-span-3 text-right mt-2">
-    <p-button
-      icon="pi pi-trash"
-      severity="danger"
-
-      [raised]="true"
-      (click)="removeDerby(i)"
-      label="Supprimer le derby"
-    />
-  </div>
-</div>
-
-
-                </p-card>
               </div>
 
             </form>

@@ -24,6 +24,8 @@ import { EquipeService } from '../../../service/equipe.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
+import { League } from '../../../models/league.model';
+import { Team } from '../../../models/team.model';
 
 @Component({
   selector: 'app-formulaire-saison',
@@ -55,15 +57,15 @@ export class FormulaireSaisonComponent implements OnInit {
   step4Form!: FormGroup;
   step5Form!: FormGroup;
 
-  leagues = [
-    { id: 'league-1', name: 'Ligue 1' },
-    { id: 'league-2', name: 'Ligue 2' }
+  leagues:League[] = [
+/*     { id: 'league-1', name: 'Ligue 1' },
+    { id: 'league-2', name: 'Ligue 2' } */
   ];
 
-  teams = [
-    { id: 'team-1', name: 'Team A', abbreviation:"TA",logo:"" },
+  teams:Team[] = [
+   /*  { id: 'team-1', name: 'Team A', abbreviation:"TA",logo:"" },
     { id: 'team-2', name: 'Team B', abbreviation:"TB",logo:"" },
-    { id: 'team-3', name: 'Team C', abbreviation:"TC",logo:"" }
+    { id: 'team-3', name: 'Team C', abbreviation:"TC",logo:"" } */
   ];
 
   stadiums = [
@@ -157,7 +159,7 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
       min_hours_between_team_matches: [48, Validators.required],
       min_days_between_phases: [30, Validators.required],
       skip_dates: this.fb.array([]),
-      cities: this.fb.array([])
+      //cities: this.fb.array([])
     });
 
     this.step5Form = this.fb.group({
@@ -212,7 +214,7 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
 
     if (
       this.step1Form.valid &&
-      this.step2Form.valid &&
+      this.selectedTeamObjects.length==this.getLeagueFromLeagueId(this.step1Form.get('league_id')?.value)?.team_count &&
       this.step3Form.valid &&
       this.step4Form.valid &&
       this.step5Form.valid
@@ -257,13 +259,23 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
         }
       });
     } else {
-      console.warn('Formulaire invalide');
-        const formData = {
+
+      this.step1Form.markAllAsTouched();
+      this.step2Form.markAllAsTouched();
+      this.step3Form.markAllAsTouched();
+      this.step4Form.markAllAsTouched();
+      this.step5Form.markAllAsTouched();
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: `Veuillez remplir le formulaire correctement.`,
+            life: 5000
+        });
+
+/*         const formData = {
         ...this.step1Form.value,
         teams_ids: this.selectedTeamIds,
         stadiums_ids: this.step3Form.value.selected_stadiums,
-        /* ...this.step4Form.value, */
-        // step4Form values
         match_start_time: formatDate(this.step4Form.value.match_start_time, 'HH:mm', 'fr-FR')  ,
         allowed_match_days: this.step4Form.value.allowed_match_days,
         min_hours_between_team_matches: this.step4Form.value.min_hours_between_team_matches,
@@ -271,8 +283,8 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
         cities: this.step4Form.value.cities,
         skip_dates: skipDatesValues,
         derbies:this.step5Form.value.derbies
-      };
-      console.log('Formulaire soumis :', formData);
+      }; */
+/*       console.log('Formulaire soumis :', formData);
       this.saisonService.create(formData).subscribe({
         next: (response) => {
 
@@ -297,7 +309,7 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
             life: 5000
           });
         }
-      });
+      }); */
 
     }
   }
@@ -306,8 +318,8 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
 filteredTeams(): any[] {
   const term = this.searchControl.value?.toLowerCase() || '';
   return this.teams.filter(team =>
-    team.name.toLowerCase().includes(term) ||
-    team.abbreviation.toLowerCase().includes(term)
+    team.name?.toLowerCase().includes(term) ||
+    team.abbreviation?.toLowerCase().includes(term)
   );
 }
 
@@ -364,7 +376,7 @@ updateTeamControls() {
 selectedTeamIds: string[] = [];
 
 get selectedTeamObjects() {
-  return this.teams.filter(team => this.selectedTeamIds.includes(team.id));
+  return this.teams.filter(team => this.selectedTeamIds.includes(team?.id!));
 }
 
 uncheckTeam(teamId: string) {
@@ -497,6 +509,9 @@ updateGlobalSelection() {
   this.selectAllTeamsControl.setValue(allChecked, { emitEvent: false }); // pour éviter la boucle infinie
 }
 
+getLeagueFromLeagueId(leagueId: string): League | undefined {
+  return this.leagues.find(league => league.id === leagueId);
+}
 
 
 }
