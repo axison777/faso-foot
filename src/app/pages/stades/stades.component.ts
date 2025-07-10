@@ -50,9 +50,15 @@ export class StadesComponent implements OnInit {
   stadeDetails: any = {
     name: '',
     city: '',
-    max_matches_per_day:''
+    max_matches_per_day:'',
+    type: ''
   };
 
+  stadiumTypes=[
+    { name: 'Stade', value: 'stadium' },
+    { name: 'Terrain', value: 'field' },
+    { name: 'Complexe Sportif', value: 'sports_complex' }
+  ]
   constructor(
     private stadeService: StadeService,
     private villeService: VilleService,
@@ -63,8 +69,10 @@ export class StadesComponent implements OnInit {
   ) {
      this.stadiumForm = this.fb.group({
           name: ['', Validators.required],
-          abbreviation: ['', Validators.required],
-          city_id: ['', Validators.required]
+          abbreviation: [''],
+          city_id: ['', Validators.required],
+          max_matches_per_day: ['',],
+          type: ['', Validators.required]
         });
   }
 
@@ -113,16 +121,23 @@ export class StadesComponent implements OnInit {
   }
 
   saveStadium(): void {
+    this.loading = true;
     if (this.stadiumForm.valid) {
-      const stadiumPayload = {
+      let stadiumPayload: any = {
         name: this.stadiumForm.get('name')?.value,
-        abbreviation: this.stadiumForm.get('abbreviation')?.value,
-        city_id: this.stadiumForm.get('city_id')?.value
+        city_id: this.stadiumForm.get('city_id')?.value,
+        max_matches_per_day: this.stadiumForm.get('max_matches_per_day')?.value,
+        type: this.stadiumForm.get('type')?.value
       };
+
+      if (this.stadiumForm.get('abbreviation')?.value) {
+        stadiumPayload['abbreviation'] = this.stadiumForm.get('abbreviation')?.value;
+      }
 
 
 
       const onSuccess = () => {
+        this.loading = false;
         this.loadStadiums();
         this.toggleForm();
         this.messageService.add({
@@ -133,7 +148,9 @@ export class StadesComponent implements OnInit {
         });
       };
 
+
       const onError = () => {
+        this.loading = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
@@ -155,6 +172,9 @@ export class StadesComponent implements OnInit {
   editStadium(stadium: Stadium): void {
     this.stadiumForm.get('name')?.setValue(stadium.name);
     this.stadiumForm.get('city_id')?.patchValue(stadium.city_id);
+    this.stadiumForm.get('abbreviation')?.setValue(stadium.abbreviation);
+    this.stadiumForm.get('max_matches_per_day')?.setValue(stadium.max_matches_per_day);
+    this.stadiumForm.get('type')?.setValue(stadium.type);
     this.isEditing = true;
     this.editingStadiumId = stadium.id;
     this.showForm = true;
@@ -187,7 +207,10 @@ export class StadesComponent implements OnInit {
   showDialog(city: any) {
     this.stadeDetails = {
       name: city.name,
-      location: city.location
+      location: city.location,
+        city: city.city?.name || 'Non spécifiée',
+        max_matches_per_day: city.max_matches_per_day || 'Non spécifié',
+        type: city.type || 'Non spécifié'
     };
     this.displayDialog = true;
   }

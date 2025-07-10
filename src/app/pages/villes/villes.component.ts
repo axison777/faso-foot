@@ -52,7 +52,7 @@ export class VillesComponent implements OnInit {
   ) {
     this.cityForm = this.fb.group({
       name: ['', Validators.required],
-      location: ['', Validators.required]
+/*       location: ['', Validators.required] */
     });
   }
 

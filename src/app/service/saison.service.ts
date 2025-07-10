@@ -16,6 +16,11 @@ export class SaisonService {
 
   constructor(private http: HttpClient) {}
 
+
+  get(id?: string): Observable<Saison> {
+    return this.http.get<Saison>(environment.apiUrl+'/calendar/'+id);
+  }
+
   getAll(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl+'all');
   }

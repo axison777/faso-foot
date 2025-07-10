@@ -181,7 +181,7 @@ export class AppTopbar {
 
   logout(): void {
     // log out logic (à adapter)
-    console.log('Déconnexion...');
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 

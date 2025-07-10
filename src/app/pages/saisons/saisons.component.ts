@@ -172,22 +172,8 @@ searchTerm: string = '';
   }
 
     ngOnInit(): void {
-          this.loading = true;
-        this.saisonService.getAll().subscribe( {
 
-          next: (res:any) => {
-            this.saisons = res?.data?.seasons;
-
-          },
-          error: (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Erreur lors du chargement des saisons',
-            })
-          }
-
-        })
+        this.loadSeasons();
         this.villeService.getAll().subscribe( {
           next: (res:any) => {
             this.villes = res?.data?.cities;
@@ -214,8 +200,28 @@ searchTerm: string = '';
         })
 
 
-        this.loading = false;
 
+    }
+
+    loadSeasons() {
+        this.loading = true;
+        this.saisonService.getAll().subscribe( {
+
+          next: (res:any) => {
+            this.saisons = res?.data?.seasons;
+            this.loading = false;
+
+          },
+          error: (error) => {
+            this.loading = false;
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Erreur lors du chargement des saisons',
+            })
+          }
+
+        })
     }
 
   createSaison() {

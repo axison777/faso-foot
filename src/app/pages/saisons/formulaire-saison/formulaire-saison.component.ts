@@ -42,7 +42,6 @@ import { Router } from '@angular/router';
     MultiSelectModule,
     ListboxModule,
     StepperModule,
-    Checkbox,
     PanelModule,
     CardModule,
     InputTextModule,
@@ -121,6 +120,8 @@ teamControls: FormArray<FormControl<boolean>> = new FormArray<FormControl<boolea
 
 selectedStadiumObjects: any[] = [];
 skipDateControl!: FormControl ;
+selectAllTeamsControl = new FormControl(false); // ✅ reactive form
+
 
   constructor(private fb: FormBuilder,private saisonService: SaisonService,
     private ligueService:LigueService,
@@ -307,7 +308,7 @@ filteredTeams(): any[] {
   return this.teams.filter(team =>
     team.name.toLowerCase().includes(term) ||
     team.abbreviation.toLowerCase().includes(term)
-  ).slice(0, 8);
+  );
 }
 
 toggleTeamSelection(teamId: string): void {
@@ -483,6 +484,18 @@ addCity() {
             }
         });
     }
+
+// Appelé quand on clique sur la case "tout sélectionner"
+toggleAllSelections() {
+  const value = this.selectAllTeamsControl.value;
+  this.teamSelectionControls.forEach(control => control.setValue(value));
+}
+
+// Appelé quand une case individuelle change
+updateGlobalSelection() {
+  const allChecked = this.teamSelectionControls.every(c => c.value === true);
+  this.selectAllTeamsControl.setValue(allChecked, { emitEvent: false }); // pour éviter la boucle infinie
+}
 
 
 
