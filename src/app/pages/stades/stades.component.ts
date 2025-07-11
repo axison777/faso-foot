@@ -122,12 +122,16 @@ export class StadesComponent implements OnInit {
 
     if (this.stadiumForm.valid) {
         this.loading = true;
-      let stadiumPayload: any = {
-        name: this.stadiumForm.get('name')?.value,
-        city_id: this.stadiumForm.get('city_id')?.value,
-       /*  max_matches_per_day: this.stadiumForm.get('max_matches_per_day')?.value, */
-        type_of_field: this.stadiumForm.get('type_of_field')?.value
-      };
+      let stadiumPayload: any = {}
+      if (this.stadiumForm.get('name')?.value) {
+        stadiumPayload['name'] = this.stadiumForm.get('name')?.value;
+      }
+      if (this.stadiumForm.get('city_id')?.value) {
+        stadiumPayload['city_id'] = this.stadiumForm.get('city_id')?.value;
+      }
+      if (this.stadiumForm.get('type_of_field')?.value) {
+        stadiumPayload['type_of_field'] = this.stadiumForm.get('type_of_field')?.value;
+      }
 
       if (this.stadiumForm.get('abbreviation')?.value) {
         stadiumPayload['abbreviation'] = this.stadiumForm.get('abbreviation')?.value;

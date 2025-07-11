@@ -151,8 +151,10 @@ export class LiguesComponent implements OnInit {
     this.loading = true;
 
     const formData = new FormData();
-    formData.append('name', this.leagueForm.get('name')?.value);
-    formData.append('team_count', this.leagueForm.get('team_count')?.value);
+    if(this.leagueForm.get('name')?.value)
+        formData.append('name', this.leagueForm.get('name')?.value);
+    if(this.leagueForm.get('team_count')?.value)
+        formData.append('team_count', this.leagueForm.get('team_count')?.value);
 
     if (this.selectedFile ) {
       formData.append('logo', this.selectedFile);
