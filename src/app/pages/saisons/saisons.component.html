@@ -36,14 +36,13 @@
       <thead>
         <tr>
           <th>Saison</th>
-     <!--      <th>Ligue</th> -->
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let saison of filteredSaisons">
           <td class="saison-nom">
-             {{getParsedDate(saison?.start_date) | date: 'yyyy' }} - {{ getParsedDate(saison?.end_date) | date: 'yyyy' }}
+             {{ saison?.league?.name ?  saison?.league?.name  : '' }} {{getParsedDate(saison?.start_date) | date: 'yyyy' }} - {{ getParsedDate(saison?.end_date) | date: 'yyyy' }}
           </td>
         <!--   <td class="saison-nom">{{ saison?.league?.name }}</td> -->
           <td class="actions">
@@ -60,8 +59,8 @@
               </button> -->
               <button class="btn btn-info"
                 (click)="voirCalendrier(saison)">
-                <i class="me-2 my-1 pi pi-eye"></i>
-                <span>Voir</span>
+                <i class=" pi pi-eye"></i>
+               <!--  <span>Voir</span> -->
               </button>
                  <button class="btn btn-danger" (click)="deleteSeason(saison.id!)"><i class="pi pi-trash"></i></button>
             </div>
