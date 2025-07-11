@@ -133,13 +133,14 @@
       <thead>
         <tr>
           <th>Nom de la ligue</th>
-
+            <th>Nombre d'équipes</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let league of filteredLeagues">
           <td class="ligue-nom">{{ league.name }}</td>
+            <td class="ligue-team-count">{{ league.team_count }}</td>
 
           <td class="actions">
             <div class="btn-group">
