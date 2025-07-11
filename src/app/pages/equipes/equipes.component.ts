@@ -128,14 +128,22 @@ export class EquipesComponent implements OnInit {
   saveTeam(): void {
     if (this.teamForm.valid) {
       const formData = new FormData();
-      formData.append('name', this.teamForm.get('name')?.value);
-      formData.append('abbreviation', this.teamForm.get('abbreviation')?.value);
-      formData.append('phone', this.teamForm.get('phone')?.value);
+      if(this.teamForm.get('name')?.value)
+        formData.append('name', this.teamForm.get('name')?.value);
+      if(this.teamForm.get('abbreviation')?.value)
+        formData.append('abbreviation', this.teamForm.get('abbreviation')?.value);
+      if(this.teamForm.get('phone')?.value)
+        formData.append('phone', this.teamForm.get('phone')?.value);
+      if(this.teamForm.get('email')?.value)
       formData.append('email', this.teamForm.get('email')?.value);
-      formData.append('city_id', this.teamForm.get('city_id')?.value);
-      formData.append('manager_first_name', this.teamForm.get('manager_first_name')?.value);
+      if( this.teamForm.get('city_id')?.value)
+        formData.append('city_id', this.teamForm.get('city_id')?.value);
+      if(this.teamForm.get('manager_first_name')?.value)
+        formData.append('manager_first_name', this.teamForm.get('manager_first_name')?.value);
+        if (this.teamForm.get('manager_last_name')?.value)
       formData.append('manager_last_name', this.teamForm.get('manager_last_name')?.value);
-      formData.append('manager_role', this.teamForm.get('manager_role')?.value);
+      if(this.teamForm.get('manager_role')?.value)
+        formData.append('manager_role', this.teamForm.get('manager_role')?.value);
 
     if (this.selectedFile ) {
       formData.append('logo', this.selectedFile);
