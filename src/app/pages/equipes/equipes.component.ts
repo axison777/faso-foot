@@ -140,7 +140,7 @@ export class EquipesComponent implements OnInit {
     if (this.selectedFile ) {
       formData.append('logo', this.selectedFile);
     }
-    if (this.isEditing && this.selectedFile) {
+    if (this.isEditing) {
       formData.append('_method', 'PUT');
 
     }
