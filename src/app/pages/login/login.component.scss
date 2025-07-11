@@ -122,10 +122,9 @@
   flex: 1;
   align-items: center;
   justify-content: center;
-  background: url("../../../assets/images/Back_site_fbf.png") no-repeat center center;
+  background: linear-gradient(#0f6e32, #01501e89), url("../../../assets/images/e.png") no-repeat center center ;
   padding: 2rem;
   user-select: none;
-
   @media (min-width: 768px) {
     width: 50%;
   }

@@ -1,6 +1,6 @@
 // fichier: saison-form.component.ts
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule, FormControl, AbstractControl } from '@angular/forms';
 import { CommonModule, formatDate } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -142,7 +142,7 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
     this.step1Form = this.fb.group({
       league_id: [null, Validators.required],
       start_date: [null, Validators.required],
-      end_date: [null, Validators.required],
+     /*  end_date: [null, Validators.required], */
     });
 
     this.step2Form = this.fb.group({
@@ -172,6 +172,10 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
     this.updateTeamControls();
   });
   this.updateTeamControls();
+
+    this.step1Form.get('start_date')?.valueChanges.subscribe(() => this.validerContraintesDates());
+  this.skipDateControl?.valueChanges.subscribe(() => this.validerContraintesDates());
+  this.derbies.valueChanges.subscribe(() => this.validerContraintesDates());
   }
 
 
@@ -230,9 +234,15 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
         min_hours_between_team_matches: this.step4Form.value.min_hours_between_team_matches,
         min_days_between_phases: this.step4Form.value.min_days_between_phases,
         cities: this.step4Form.value.cities,
-        skip_dates: skipDatesValues,
-        derbies:this.step5Form.value.derbies
+/*         skip_dates: skipDatesValues,
+        derbies:this.step5Form.value.derbies */
       };
+      if (skipDatesValues.length > 0) {
+        formData['skip_dates'] = skipDatesValues;
+      }
+      if (this.step5Form.value.derbies.length > 0) {
+        formData['derbies'] = this.step5Form.value.derbies;
+      }
 
 
       this.saisonService.create(formData).subscribe({
@@ -398,16 +408,17 @@ trackByTeamId(index: number, team: any): string {
 
 // Suppression d'un stade via la croix
 removeStadium(stadiumId: string): void {
-  const current = this.step3Form.get('selectedStadiums')?.value || [];
+  const current = this.step3Form.get('selected_stadiums')?.value || [];
   this.step3Form.patchValue({
-    selectedStadiums: current.filter((id: string) => id !== stadiumId)
+    selected_stadiums: current.filter((id: string) => id !== stadiumId)
   });
+    this.change();
 }
 
 change(){
-    console.log(this.step3Form.get('selected_stadiums')?.value);
     const selectedIds = this.step3Form.get('selected_stadiums')?.value || [];
     this.selectedStadiumObjects =  this.stadiums.filter(s => selectedIds.includes(s.id));
+
 
 }
 
@@ -512,6 +523,42 @@ updateGlobalSelection() {
 getLeagueFromLeagueId(leagueId: string): League | undefined {
   return this.leagues.find(league => league.id === leagueId);
 }
+
+validerContraintesDates() {
+  const dateDebutSaison = new Date(this.step1Form.get('start_date')?.value);
+
+
+  const dateReposCtrl = this.skipDateControl;
+  const dateRepos = dateReposCtrl?.value ? new Date(dateReposCtrl.value) : null;
+  if (dateRepos && dateRepos <= dateDebutSaison) {
+    dateReposCtrl?.setErrors({ tropTot: true });
+  } else {
+    dateReposCtrl?.setErrors(null);
+  }
+
+
+  this.derbies.controls.forEach((derbyGroup: AbstractControl) => {
+    const firstLegCtrl = derbyGroup.get('first_leg_date');
+    const secondLegCtrl = derbyGroup.get('second_leg_date');
+
+    const firstLegDate = firstLegCtrl?.value ? new Date(firstLegCtrl.value) : null;
+    const secondLegDate = secondLegCtrl?.value ? new Date(secondLegCtrl.value) : null;
+
+    if (firstLegDate && firstLegDate <= dateDebutSaison) {
+      firstLegCtrl?.setErrors({ tropTot: true });
+    } else {
+      firstLegCtrl?.setErrors(null);
+    }
+
+    // b. retour > aller
+    if (firstLegDate && secondLegDate && secondLegDate <= firstLegDate) {
+      secondLegCtrl?.setErrors({ avantAller: true });
+    } else {
+      secondLegCtrl?.setErrors(null);
+    }
+  });
+}
+
 
 
 }
