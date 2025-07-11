@@ -398,4 +398,33 @@ getParsedDate(rawDate:string): Date {
   return new Date(year, month, day);
 }
 
+deleteSeason(id: string) {  // delete saison
+  this.confirmationService.confirm({
+    message: 'Voulez-vous vraiment supprimer cette saison ?',
+    header: 'Confirmation',
+    icon: 'pi pi-exclamation-triangle',
+    accept: () => {
+      this.saisonService.delete(id).subscribe({
+        next: (res: any) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Saison supprimée.',
+            life: 5000
+          });
+          this.rechargerSaisons();
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Une erreur est survenue.',
+            life: 5000
+          });
+        }
+      });
+    }
+  });
+}
+
 }
