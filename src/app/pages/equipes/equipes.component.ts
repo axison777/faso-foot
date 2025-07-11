@@ -59,15 +59,15 @@ export class EquipesComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.teamForm = this.fb.group({
-      name: ['', Validators.required],
+      name: [''],
       abbreviation: [''],
-      phone: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
+      phone: ['', ],
+      email: ['', [ Validators.email]],
       city_id: ['', Validators.required],
       logo: [''],
-      manager_first_name: ['', Validators.required],
-      manager_last_name: ['', Validators.required],
-      manager_role: ['', Validators.required]
+      manager_first_name: [''],
+      manager_last_name: [''],
+      manager_role: ['']
     });
   }
 
