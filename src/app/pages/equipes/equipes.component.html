@@ -245,9 +245,12 @@
 
     <div class="team-info">
       <p><strong>Abréviation :</strong> {{ selectedTeam.abbreviation || '-' }}</p>
-      <p><strong>Email :</strong> {{ selectedTeam.email || '-' }}</p>
-      <p><strong>Téléphone :</strong> {{ selectedTeam.phone || '-' }}</p>
       <p><strong>Ville :</strong> {{ getCityNameById(selectedTeam.city_id) || '-' }}</p>
+        <p><strong>Email du responsable :</strong> {{ selectedTeam.email || '-' }}</p>
+      <p><strong>Téléphone du responsable :</strong> {{ selectedTeam.phone || '-' }}</p>
+        <p><strong>Prénom du responsable :</strong> {{ selectedTeam.manager_first_name || '-' }}</p>
+        <p><strong>Nom du responsable :</strong> {{ selectedTeam.manager_last_name || '-' }}</p>
+        <p><strong>Poste du responsable :</strong> {{ selectedTeam.manager_role || '-' }}</p>
     </div>
   </div>
 </p-dialog>
