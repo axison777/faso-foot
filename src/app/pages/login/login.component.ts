@@ -74,7 +74,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     const credentials = this.loginForm.value;
-    console.log(credentials);
 
     this.authService.login(credentials)
       .pipe(takeUntil(this.destroy$))

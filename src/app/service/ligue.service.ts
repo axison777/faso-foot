@@ -12,12 +12,12 @@ export interface Ligue {
   providedIn: 'root'
 })
 export class LigueService {
-    apiUrl=environment.apiUrl+'/leagues/'
+    apiUrl=environment.apiUrl+'/leagues'
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl+'all');
+    return this.http.get<any[]>(this.apiUrl+'/all');
   }
 
   create(ligue: Partial<any>): Observable<any> {
@@ -25,10 +25,10 @@ export class LigueService {
   }
 
   update(id?: string, ligue?: Partial<any>): Observable<any> {
-    return this.http.post<Ligue>(`${this.apiUrl}${id}/`, ligue);
+    return this.http.post<Ligue>(`${this.apiUrl}/${id}`, ligue);
   }
 
   delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

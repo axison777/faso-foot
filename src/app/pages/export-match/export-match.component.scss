@@ -1,4 +1,4 @@
-body {
+.dody {
     font-family: Arial, sans-serif;
     width: 210mm;
 
@@ -115,7 +115,7 @@ body {
 
 /* Responsive */
 @media print {
-    body {
+    .dody {
         box-shadow: none;
         border: none;
         margin: 0;

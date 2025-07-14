@@ -1,16 +1,18 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
 import { TabViewModule } from 'primeng/tabview';
 import { ButtonModule } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
+import { saveAs} from 'file-saver';
 import { Router, RouterModule } from '@angular/router';
 import { SaisonService } from '../../../service/saison.service';
 import { ExportMatchComponent } from "../../export-match/export-match.component";
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-
+import jsPDF from 'jspdf';
+    import html2canvas from 'html2canvas'; // or domToImage from 'dom-to-image';
+import { PdfGeneratorService } from '../../../service/pdf-generator.service';
 
 interface Match {
   team1: string;
@@ -36,14 +38,14 @@ interface Phase {
 @Component({
   selector: 'app-calendrier',
   standalone: true,
-  imports: [CommonModule, CarouselModule, TabViewModule, TabsModule, ButtonModule, RouterModule, ExportMatchComponent, ProgressSpinnerModule],
+  imports: [CommonModule, CarouselModule, TabViewModule, TabsModule, ButtonModule, RouterModule, ProgressSpinnerModule],
   templateUrl: './calendrier.component.html',
   styleUrls: ['./calendrier.component.scss']
 })
 export class CalendrierComponent implements OnInit {
     seasonId: string = '';
     loading: boolean=false
-    @ViewChild('calendarExport') calendarExport!: ExportMatchComponent;
+  /*   @ViewChild('calendarExport') componentToExportRef!: ElementRef; */
 
 /*     phases: Phase[] = [
   {
@@ -155,7 +157,7 @@ export class CalendrierComponent implements OnInit {
     selectedPhaseIndex = 0;
     exportingPdf: boolean = false;
 
-    constructor(private router: Router, private saisonService: SaisonService) {}
+    constructor(private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService) {}
     ngOnInit(): void {
     // Initialize the selected season ID from the URL
     const url = this.router.url;
@@ -245,16 +247,60 @@ exportAsExcel(phase: Phase) {
   });
 
   const filename = `${phase.name.replace(/\s+/g, '_')}_calendrier.xlsx`;
-  FileSaver.saveAs(new Blob([excelBuffer], { type: 'application/octet-stream' }), filename);
+  saveAs(new Blob([excelBuffer], { type: 'application/octet-stream' }), filename);
 }
 
-exportPdf() {
-  this.exportingPdf = true;
-  setTimeout(() => {
-    this.calendarExport.generatePDF();
-    this.exportingPdf = false;
-  }, 2000);
+async exportPdf() {
+/*   this.exportingPdf = true;
+        const element = this.componentToExportRef.nativeElement;
+          // Use html2canvas to convert the HTML element to a canvas
+        const canvas = await html2canvas(element);
+
+        // Or, if using dom-to-image:
+        // const dataUrl = await domToImage.toPng(element);
+        // const img = new Image();
+        // img.src = dataUrl;
+        // document.body.appendChild(img); // For debugging, optional
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' for portrait, 'mm' for units, 'a4' for size
+        const imgWidth = 210; // A4 width in mm
+        const pageHeight = 297; // A4 height in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+          heightLeft -= pageHeight;
+        }
+
+        pdf.save('exported-component.pdf');
+        this.exportingPdf = false;
+ */
 
 
 }
+
+
+  exportCalendarToPdf(): void {
+      this.loading = true;
+      setTimeout(() => {
+        this.pdfGeneratorService.generateCalendarPdf(this.phases[this.selectedPhaseIndex], 'calendrier.pdf')
+        .then(() => {
+          this.loading = false;
+      });
+      }, 0);
+
+
+
+    }
+
+
+
 }

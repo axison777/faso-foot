@@ -13,12 +13,12 @@ export interface Stade {
   providedIn: 'root'
 })
 export class StadeService {
-    apiUrl=environment.apiUrl+'/stadiums/'
+    apiUrl=environment.apiUrl+'/stadiums'
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Stade[]> {
-    return this.http.get<Stade[]>(this.apiUrl+'all');
+    return this.http.get<Stade[]>(this.apiUrl+'/all');
   }
 
   create(stade: Partial<Stade>): Observable<Stade> {
@@ -26,10 +26,10 @@ export class StadeService {
   }
 
   update(id?: string, stade?: Partial<Stade>): Observable<Stade> {
-    return this.http.put<Stade>(`${this.apiUrl}${id}/`, stade);
+    return this.http.put<Stade>(`${this.apiUrl}/${id}`, stade);
   }
 
   delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
