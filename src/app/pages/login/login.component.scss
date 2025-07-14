@@ -3,7 +3,6 @@
   flex-direction: column;
   min-height: 100vh;
   background-color: #1f2937;
-
 }
 
 .login-section {
@@ -16,7 +15,6 @@
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-
   @media (min-width: 768px) {
     flex-direction: row;
   }
@@ -33,7 +31,6 @@
   padding: 2rem 1rem;
   text-align: center;
   color: white;
-
   @media (min-width: 768px) {
     width: 50%;
     padding: 0;
@@ -44,74 +41,61 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 90%;
+  max-width: 95%;
 }
 
 .logo-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 15px; /* Réduit de 20px à 15px */
   margin-bottom: 1rem;
   user-select: none;
 }
 
-.logo-image-fbf {
-  width: 96px;
-  height: auto;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-
-  @media (min-width: 768px) {
-    width: 320px;
-  }
-}
-
-.logo-image-lfp {
-  width: 96px;
-  height: auto;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-
-  @media (min-width: 768px) {
-    width: 220px;
-  }
-}
-
 .logo-title {
-  font-size: 1rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: white;
-
+  font-size: 1.5rem; /* Augmenté de 1rem à 1.5rem */
+  font-weight: 500; /* Augmenté de 400 à 500 */
+  line-height: 1.4; /* Réduit à 1.4 pour plus de compacité */
+  color: #fef3c7;
+  text-align: center;
+  margin-top: 1rem;
   @media (min-width: 768px) {
-    font-size: 1.25rem;
+    font-size: 1.8rem; /* Augmenté à 1.8rem */
+    font-weight: 600; /* Augmenté pour desktop */
   }
 }
 
+/* Styles harmonisés pour les textes sous les logos */
 .app-title {
-  font-size: 3rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #fbbf24;
-  margin: 0.25rem 0;
+  margin-top: 0.75rem;
   user-select: none;
-
-/*   @media (min-width: 768px) {
-    font-size: 6rem;
-  } */
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  @media (min-width: 768px) {
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
 }
 
 .app-description {
-  display: none;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.6;
-  color: #fef3c7;
-  max-width: 90%;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-top: 0.75rem;
   user-select: none;
-
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
   @media (min-width: 768px) {
-    display: block;
-    font-size: 2rem;
+    font-size: 1rem;
+    margin-top: 1rem;
   }
 }
 
@@ -122,13 +106,12 @@
   flex: 1;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(#0f6e32, #01501e89), url("../../../assets/images/e.png") no-repeat center center ;
+  background: linear-gradient(#0f6e32, #01501e89), url("../../../assets/images/e.png") no-repeat center center;
   padding: 2rem;
   user-select: none;
   @media (min-width: 768px) {
     width: 50%;
   }
-
   @media (prefers-color-scheme: light) {
     background-color: #1f2937;
   }
@@ -144,7 +127,6 @@
   margin-bottom: 1rem;
   font-weight: 700;
   color: #16a34a;
-
   @media (prefers-color-scheme: light) {
     color: #4ade80;
   }
@@ -155,24 +137,20 @@
   border-radius: 0.375rem;
   font-size: 0.875rem;
   margin-bottom: 1rem;
-
   &.alert-error {
     background-color: #fef2f2;
     border: 1px solid #fecaca;
     color: #991b1b;
-
     @media (prefers-color-scheme: light) {
       background-color: rgba(127, 29, 29, 0.2);
       border-color: #991b1b;
       color: #fca5a5;
     }
   }
-
   &.alert-success {
     background-color: #f0fdf4;
     border: 1px solid #bbf7d0;
     color: #166534;
-
     @media (prefers-color-scheme: light) {
       background-color: rgba(21, 128, 61, 0.2);
       border-color: #166534;
@@ -213,7 +191,6 @@ form {
   color: #6b7280;
   font-size: 1.25rem;
   z-index: 1;
-
   @media (prefers-color-scheme: light) {
     color: #9ca3af;
   }
@@ -230,22 +207,18 @@ form {
   border-bottom: 2px solid #16a34a;
   outline: none;
   transition: all 0.3s ease;
-
   &:focus {
     background-color: #f0fdf4;
     border-bottom-color: #16a34a;
     box-shadow: 0 2px 0 0 #16a34a;
   }
-
   &::placeholder {
     color: #9ca3af;
   }
-
   @media (prefers-color-scheme: light) {
     color: #e5e7eb;
     background-color: #374151;
     border-bottom-color: #22c55e;
-
     &:focus {
       background-color: #4b5563;
       border-bottom-color: #22c55e;
@@ -262,14 +235,11 @@ form {
   z-index: 10;
   font-size: 1.125rem;
   transition: color 0.3s ease;
-
   &:hover {
     color: #16a34a;
   }
-
   @media (prefers-color-scheme: light) {
     color: #9ca3af;
-
     &:hover {
       color: #22c55e;
     }
@@ -281,7 +251,6 @@ form {
   font-size: 0.75rem;
   color: #6b7280;
   font-style: italic;
-
   @media (prefers-color-scheme: light) {
     color: #9ca3af;
   }
@@ -296,7 +265,6 @@ form {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-
   p {
     margin: 0;
     padding: 0.125rem 0;
@@ -315,15 +283,12 @@ form {
   text-decoration: none;
   padding: 0.625rem 0.75rem;
   transition: all 0.3s ease;
-
   &:hover {
     text-decoration: underline;
     color: #166534;
   }
-
   @media (prefers-color-scheme: light) {
     color: #4ade80;
-
     &:hover {
       color: #22c55e;
     }
@@ -345,22 +310,18 @@ form {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 1rem;
-
   &:hover:not(:disabled) {
     background-color: #15803d;
     transform: scale(1.02);
   }
-
   &:focus {
     outline: none;
     box-shadow: 0 0 0 2px #22c55e, 0 0 0 4px rgba(34, 197, 94, 0.2);
   }
-
   &:disabled {
     background-color: #9ca3af;
     cursor: not-allowed;
     transform: none;
-
     &:hover {
       transform: none;
     }
@@ -393,33 +354,26 @@ form {
   .login-container {
     padding: 0.625rem;
   }
-
   .login-section {
     border-radius: 0;
   }
-
   .logo-side {
     padding: 1.5rem 1rem;
   }
-
   .form-side {
     padding: 1.5rem;
   }
-
   .form-container {
     max-width: 100%;
   }
-
   .form-title {
     font-size: 1.5rem;
     text-align: center;
   }
-
   .form-input {
     font-size: 1rem;
     padding: 0.75rem 2rem 0.75rem 2rem;
   }
-
   .demo-credentials {
     font-size: 0.6875rem;
   }
@@ -429,16 +383,13 @@ form {
   .logo-side {
     padding: 1rem;
   }
-
   .form-side {
     padding: 1rem;
   }
-
   .login-button {
     padding: 0.75rem;
     font-size: 0.9375rem;
   }
-
   .demo-list {
     font-size: 0.625rem;
   }
@@ -460,4 +411,51 @@ form {
 .password-toggle:focus-visible {
   outline: 2px solid #22c55e;
   outline-offset: 2px;
+}
+
+/* Nouvelles classes pour les logos */
+.logo-wrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem; /* Réduit de 1.5rem à 1rem */
+  width: 100%;
+}
+
+.logo-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 45%;
+}
+
+.logo-image {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+  @media (min-width: 768px) {
+    height: 120px;
+  }
+}
+
+/* Styles spécifiques pour chaque logo */
+.logo-image[alt="Logo FBF"] {
+  transform: scale(1.1);
+}
+
+.logo-image[alt="Logo LFP"] {
+  transform: scale(1);
+}
+
+.logo-divider {
+  width: 2px;
+  height: 60px;
+  background-color: #ffffff80;
+  margin-top: 10px; /* Réduit de 20px à 10px */
+  @media (min-width: 768px) {
+    height: 80px;
+    margin-top: 15px; /* Réduit de 20px à 15px */
+  }
 }

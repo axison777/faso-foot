@@ -10,16 +10,19 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="layout-sidebar" [class.sidebar-visible]="isSidebarVisible">
       <div class="sidebar-logo">
-        <div class="flex gap-5">
-             <img src="assets/images/Logo-FBF.png" alt="Logo CBF" class="logo-image" />
-              <img src="assets/images/lfp.png" alt="Logo CBF" class="logo-image" />
+        <div class="logo-container">
+          <div class="logo-item">
+            <img src="assets/images/Logo-FBF.png" alt="Logo FBF" class="logo-image" />
+          </div>
+          <div class="logo-divider"></div>
+          <div class="logo-item">
+            <img src="assets/images/lfp.png" alt="Logo LFP" class="logo-image" />
+          </div>
         </div>
-
         <span class="logo-text">Fédération Burkinabè<br/>de Football</span>
       </div>
       <app-menu></app-menu>
     </div>
-
     <!-- Overlay pour mobile -->
     <div
       class="layout-mask"
@@ -76,22 +79,56 @@ import { CommonModule } from '@angular/common';
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Container pour les logos avec séparateur */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
       margin-bottom: 1rem;
+      width: 100%;
+    }
+
+    .logo-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
     }
 
     .logo-image {
       width: auto;
-      height:   90px;
-      margin-bottom: 0.5rem;
+      height: 60px; /* Réduit de 90px à 60px */
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      transition: transform 0.3s ease;
+    }
+
+    .logo-image:hover {
+      transform: scale(1.05);
+    }
+
+    /* Trait séparateur vertical */
+    .logo-divider {
+      width: 1px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.3);
+      flex-shrink: 0;
     }
 
     .logo-text {
       font-weight: 600;
-      font-size: 1.2rem;
+      font-size: 1rem; /* Réduit de 1.2rem à 1rem */
       text-align: center;
-      line-height: 1.2;
-      letter-spacing: 0.5px;
+      line-height: 1.3;
+      letter-spacing: 0.3px;
       user-select: none;
+      color: rgba(255, 255, 255, 0.95);
     }
 
     /* Overlay pour mobile */
@@ -213,6 +250,41 @@ import { CommonModule } from '@angular/common';
     .layout-submenu-enter-active {
       overflow: hidden;
       transition: max-height 1s ease-in-out;
+    }
+
+    /* Responsive pour mobile */
+    @media (max-width: 991px) {
+      .logo-image {
+        height: 50px; /* Plus petit sur mobile */
+      }
+      
+      .logo-divider {
+        height: 35px;
+      }
+      
+      .logo-text {
+        font-size: 0.9rem;
+      }
+      
+      .logo-container {
+        gap: 0.5rem;
+      }
+    }
+
+    /* Très petits écrans */
+    @media (max-width: 480px) {
+      .logo-image {
+        height: 45px;
+      }
+      
+      .logo-divider {
+        height: 30px;
+      }
+      
+      .logo-text {
+        font-size: 0.85rem;
+        line-height: 1.2;
+      }
     }
   `]
 })
