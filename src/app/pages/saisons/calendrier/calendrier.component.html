@@ -8,7 +8,7 @@
         <span>LIGUE 1</span>
         </div>
     <div class="layout-header-line2">Calendrier des matchs</div>
-    <div class="layout-header-line3">Saison {{ phases[selectedPhaseIndex].start | date: 'yyyy' }} - {{ phases[selectedPhaseIndex].end | date: 'yyyy' }}</div>
+    <div class="layout-header-line3">Saison {{ phases[selectedPhaseIndex]?.start | date: 'yyyy' }} - {{ phases[selectedPhaseIndex]?.end | date: 'yyyy' }}</div>
   </div>
   </div>
 
@@ -38,7 +38,7 @@
           (click)="selectedPhaseIndex = i"
         >
           <!-- {{ phase.name }} ({{ phase.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }}) -->
-            {{ phase.name }} ({{ phase.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }})
+            {{ phase.name }} ({{ phase?.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }})
         </button>
       </div>
 
@@ -90,7 +90,7 @@
 
     </div>
       <div class="flex justify-center gap-4 mt-6" *ngIf="!loading">
-          <button [disabled]="exportingPdf" (click)="exportPdf()" routerLinkActive="router-link-active"  class="btn-pdf" >
+          <button [disabled]="exportingPdf" (click)="exportCalendarToPdf()" routerLinkActive="router-link-active"  class="btn-pdf" >
 
         <i *ngIf="exportingPdf" class="pi pi-spin pi-spinner"></i>
 
@@ -100,8 +100,8 @@
   </div>
 </div>
 
-<app-export-match
+<!-- <app-export-match
   [phase]="phases[selectedPhaseIndex]"
   #calendarExport
   style="position: absolute; left: -9999px; top: -9999px;"
-></app-export-match>
+></app-export-match> -->

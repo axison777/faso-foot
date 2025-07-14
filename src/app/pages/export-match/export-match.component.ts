@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import html2pdf from 'html2pdf.js';
-
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 
 @Component({
@@ -81,22 +82,36 @@ export class ExportMatchComponent {
 
 
 
-generatePDF() {
+/* async   generatePDF() {
   const element = this.calendarRef.nativeElement;
-  const opt = {
-    margin: 0,
-    filename: 'calendrier.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
+ const canvas = await html2canvas(element, {
+    scale: 2, // réduit la taille finale du PDF
+    useCORS: true,
+  });
 
-  html2pdf()
-    .set(opt)
-    .from(element)
-    .save()
+  const imgData = canvas.toDataURL('image/png');
+  const pdf = new jsPDF('p', 'mm', 'a4');
 
-}
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const pageWidth = pdf.internal.pageSize.getWidth();
 
+  const imgProps = pdf.getImageProperties(imgData);
+  let  imgHeight = (imgProps.height * pageWidth) / imgProps.width;
+
+  let position = 0;
+
+  // ajout de la première page
+  pdf.addImage(imgData, 'PNG', 0, position, pageWidth, imgHeight);
+
+  // ajout des pages suivantes si nécessaire
+  while (imgHeight > pageHeight) {
+    position -= pageHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, 'PNG', 0, position, pageWidth, imgHeight);
+    imgHeight -= pageHeight;
+  }
+
+  pdf.save('sa');
+} */
 
 }

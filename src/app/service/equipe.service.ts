@@ -12,12 +12,12 @@ export interface Equipe {
   providedIn: 'root'
 })
 export class EquipeService {
-    apiUrl=environment.apiUrl+'/teams/'
+    apiUrl=environment.apiUrl+'/teams'
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl+'all');
+    return this.http.get<any[]>(this.apiUrl+'/all');
   }
 
   create(equipe: Partial<any>): Observable<any> {
@@ -25,10 +25,10 @@ export class EquipeService {
   }
 
   update(id?: string, equipe?: Partial<any>): Observable<any> {
-    return this.http.post<Equipe>(`${this.apiUrl}${id}/`, equipe);
+    return this.http.post<Equipe>(`${this.apiUrl}/${id}`, equipe);
   }
 
   delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

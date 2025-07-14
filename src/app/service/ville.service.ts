@@ -12,12 +12,12 @@ export interface Ville {
   providedIn: 'root'
 })
 export class VilleService {
-    apiUrl=environment.apiUrl+'/cities/'
+    apiUrl=environment.apiUrl+'/cities'
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl+'all');
+    return this.http.get<any[]>(this.apiUrl+'/all');
   }
 
   create(ville: Partial<any>): Observable<any> {
@@ -25,10 +25,10 @@ export class VilleService {
   }
 
   update(id: string, ville: Partial<any>): Observable<any> {
-    return this.http.put<Ville>(`${this.apiUrl}${id}/`, ville);
+    return this.http.put<Ville>(`${this.apiUrl}/${id}`, ville);
   }
 
   delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

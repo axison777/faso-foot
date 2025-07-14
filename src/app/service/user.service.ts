@@ -9,7 +9,7 @@ import { User } from '../models/user.model';
   providedIn: 'root'
 })
 export class UserService {
-    apiUrl=environment.apiUrl+'/stadiums/'
+    apiUrl=environment.apiUrl+'/stadiums'
 
   constructor(private http: HttpClient) {}
 
@@ -22,10 +22,10 @@ export class UserService {
   }
 
   update(id?: string, user?: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}${id}/`, user);
+    return this.http.put<User>(`${this.apiUrl}/${id}`, user);
   }
 
   delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

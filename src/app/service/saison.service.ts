@@ -12,7 +12,7 @@ export interface Saison {
   providedIn: 'root'
 })
 export class SaisonService {
-    apiUrl=environment.apiUrl+'/seasons/'
+    apiUrl=environment.apiUrl+'/seasons'
 
   constructor(private http: HttpClient) {}
 
@@ -22,18 +22,18 @@ export class SaisonService {
   }
 
   getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl+'all');
+    return this.http.get<any[]>(this.apiUrl+'/all');
   }
 
   create(saison: Partial<any>): Observable<any> {
-    return this.http.post<any>(this.apiUrl+'generate-calendar', saison);
+    return this.http.post<any>(this.apiUrl+'/generate-calendar', saison);
   }
 
   update(id?: string, saison?: Partial<any>): Observable<any> {
-    return this.http.put<Saison>(`${this.apiUrl}${id}/`, saison);
+    return this.http.put<Saison>(`${this.apiUrl}/${id}`, saison);
   }
 
   delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

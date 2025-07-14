@@ -168,7 +168,6 @@ export class MatchsComponent implements OnInit{
     this.matchService.getBySeasonId(this.saisonId).subscribe( {
         next: (res:any) => {
           matches = res?.data?.season?.matches;
-          console.log(matches);
           this.phases = this.transformMatchesToPhases(matches);
         }
 
