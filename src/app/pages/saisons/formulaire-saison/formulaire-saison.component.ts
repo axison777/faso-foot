@@ -218,7 +218,7 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
 
     if (
       this.step1Form.valid &&
-      this.selectedTeamObjects.length==this.getLeagueFromLeagueId(this.step1Form.get('league_id')?.value)?.team_count &&
+      this.selectedTeamObjects.length==this.getLeagueFromLeagueId(this.step1Form.get('league_id')?.value)?.teams_count &&
       this.step3Form.valid &&
       this.step4Form.valid &&
       this.step5Form.valid

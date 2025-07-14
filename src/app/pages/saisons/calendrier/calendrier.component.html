@@ -8,7 +8,7 @@
         <span>LIGUE 1</span>
         </div>
     <div class="layout-header-line2">Calendrier des matchs</div>
-    <div class="layout-header-line3">Saison {{ phases[selectedPhaseIndex]?.start | date: 'yyyy' }} - {{ phases[selectedPhaseIndex]?.end | date: 'yyyy' }}</div>
+    <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ phases[selectedPhaseIndex].start | date: 'yyyy' }} - {{ phases[selectedPhaseIndex].end | date: 'yyyy' }}</div>
   </div>
   </div>
 

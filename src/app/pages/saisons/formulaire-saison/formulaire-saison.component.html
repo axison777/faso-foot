@@ -164,8 +164,8 @@
 
   <!-- Checker si le nombre dequpes choisies correspond au nombre dequipes de la ligue -->
   <span class="text-red-500"
-    *ngIf="selectedTeamObjects.length && step1Form.get('league_id')?.touched && getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.team_count != selectedTeamObjects.length">
-    Le nombre d'équipes sélectionnées ({{ selectedTeamObjects.length }}) ne correspond pas au nombre d'équipes de la ligue ({{ getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.team_count }}).
+    *ngIf="selectedTeamObjects.length && step1Form.get('league_id')?.touched && getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count != selectedTeamObjects.length">
+    Le nombre d'équipes sélectionnées ({{ selectedTeamObjects.length }}) ne correspond pas au nombre d'équipes de la ligue ({{ getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count }}).
   </span>
 
 
@@ -195,7 +195,7 @@
 
             <div class="form-nav pt-6">
               <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" size="large" (onClick)="activateCallback(1)" />
-              <p-button [disabled]="selectedTeamObjects.length != getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.team_count"  label="Suivant" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="activateCallback(3)" />
+              <p-button [disabled]="selectedTeamObjects.length != getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count"  label="Suivant" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="activateCallback(3)" />
             </div>
           </ng-template>
         </p-step-panel>

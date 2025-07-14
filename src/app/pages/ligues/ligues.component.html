@@ -34,15 +34,15 @@
 
 
     <div>
-    <label for="team_count" class="block font-bold mb-2">Nombre d'équipes <span class="text-red-500">*</span></label>
+    <label for="teams_count" class="block font-bold mb-2">Nombre d'équipes <span class="text-red-500">*</span></label>
     <p-inputnumber
       type="text"
-      id="team_count"
-      formControlName="team_count"
+      id="teams_count"
+      formControlName="teams_count"
       placeholder="Entrez le nombre d'équipes de la ligue"
       class="w-full"
     />
-    <small class="text-red-500" *ngIf="leagueForm.get('team_count')?.invalid && leagueForm.get('team_count')?.touched">
+    <small class="text-red-500" *ngIf="leagueForm.get('teams_count')?.invalid && leagueForm.get('teams_count')?.touched">
       Le nombre de joueurs  est requis.
     </small>
   </div>
@@ -140,7 +140,7 @@
       <tbody>
         <tr *ngFor="let league of filteredLeagues">
           <td class="ligue-nom">{{ league.name }}</td>
-            <td class="ligue-team-count">{{ league.team_count }}</td>
+            <td class="ligue-team-count">{{ league.teams_count }}</td>
 
           <td class="actions">
             <div class="btn-group">
