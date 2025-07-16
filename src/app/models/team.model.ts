@@ -13,5 +13,6 @@ export interface Team {
   manager_first_name?: string;
   manager_last_name?: string;
   manager_role?: string;
+  league_id?: string;
 
 }

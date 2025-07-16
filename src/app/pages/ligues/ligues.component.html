@@ -12,7 +12,7 @@
   </div>
 
 
-  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le ligue' : 'Ajouter un nouveau ligue'" [modal]="true" [closable]="false">
+  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier la ligue' : 'Ajouter un nouveau ligue'" [modal]="true" [closable]="false">
     <ng-template #content>
 <form [formGroup]="leagueForm" (ngSubmit)="saveLeague()" class="flex flex-col gap-6">
 
