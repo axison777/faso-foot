@@ -26,6 +26,8 @@ import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { League } from '../../../models/league.model';
 import { Team } from '../../../models/team.model';
+import { Group } from '../../../models/group.model';
+import { TabsModule } from 'primeng/tabs';
 
 @Component({
   selector: 'app-formulaire-saison',
@@ -47,12 +49,13 @@ import { Team } from '../../../models/team.model';
     PanelModule,
     CardModule,
     InputTextModule,
-    ToastModule
+    ToastModule,
+    TabsModule
   ]
 })
 export class FormulaireSaisonComponent implements OnInit {
   step1Form!: FormGroup;
-  step2Form!: FormGroup;
+  step2Form!: FormArray;
   step3Form!: FormGroup;
   step4Form!: FormGroup;
   step5Form!: FormGroup;
@@ -123,7 +126,14 @@ teamControls: FormArray<FormControl<boolean>> = new FormArray<FormControl<boolea
 selectedStadiumObjects: any[] = [];
 skipDateControl!: FormControl ;
 selectAllTeamsControl = new FormControl(false); // ✅ reactive form
+groups:Group[]=[];
 
+///////////
+selectedTeamIdsByGroup: string[][] = [];
+searchControls: FormControl[] = [];
+selectAllControls: FormControl[] = [];
+teamControlsByGroup: FormArray[] = [];
+activeTabIndex: any=0;
 
   constructor(private fb: FormBuilder,private saisonService: SaisonService,
     private ligueService:LigueService,
@@ -143,11 +153,14 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
       league_id: [null, Validators.required],
       start_date: [null, Validators.required],
      /*  end_date: [null, Validators.required], */
+     /* group_id: [null, Validators.required] */
     });
 
-    this.step2Form = this.fb.group({
+    /* this.step2Form = this.fb.group({
       selected_teams: [[], Validators.required]
-    });
+    }); */
+
+    this.step2Form = this.fb.array<FormGroup>([]);
 
     this.step3Form = this.fb.group({
       selected_stadiums: [[], Validators.required]
@@ -169,9 +182,9 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
     this.skipDateControl= new FormControl(null)
 
     this.searchControl.valueChanges.subscribe(() => {
-    this.updateTeamControls();
+    //this.updateTeamControls();
   });
-  this.updateTeamControls();
+  //this.updateTeamControls();
 
     this.step1Form.get('start_date')?.valueChanges.subscribe(() => this.validerContraintesDates());
   this.skipDateControl?.valueChanges.subscribe(() => this.validerContraintesDates());
@@ -215,17 +228,23 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
     this.skipDates.controls.forEach((control) => {
       skipDatesValues.push(control.value?.date);
     });
+    // team count for all groups
+    let selectedTeamCount=0;
+    this.selectedTeamIdsByGroup.forEach((teamIds) => {
+      selectedTeamCount += teamIds.length;
+    });
 
     if (
       this.step1Form.valid &&
-      this.selectedTeamObjects.length==this.getLeagueFromLeagueId(this.step1Form.get('league_id')?.value)?.teams_count &&
+      selectedTeamCount==this.getLeagueFromLeagueId(this.step1Form.get('league_id')?.value)?.teams_count &&
       this.step3Form.valid &&
       this.step4Form.valid &&
       this.step5Form.valid
     ) {
       const formData = {
         ...this.step1Form.value,
-        teams_ids: this.selectedTeamIds,
+        // teams ids for each group on this format [{"group_id":1,"teams_ids":[1,2,3]}]
+        teams_ids: this.selectedTeamIdsByGroup.map((teamIds, groupIndex) => ({ group_id: this.groups[groupIndex].id, teams_ids: teamIds })),
         stadiums_ids: this.step3Form.value.selected_stadiums,
         /* ...this.step4Form.value, */
         // step4Form values
@@ -325,13 +344,13 @@ selectAllTeamsControl = new FormControl(false); // ✅ reactive form
   }
 
 
-filteredTeams(): any[] {
+/* filteredTeams(): any[] {
   const term = this.searchControl.value?.toLowerCase() || '';
   return this.teams.filter(team =>
     team.name?.toLowerCase().includes(term) ||
     team.abbreviation?.toLowerCase().includes(term)
   );
-}
+} */
 
 toggleTeamSelection(teamId: string): void {
   const index = this.selectedTeamIds.indexOf(teamId);
@@ -366,7 +385,7 @@ get teamSelectionControls(): FormControl[] {
   return this.teamControls.controls as FormControl[];
 }
 
-updateTeamControls() {
+/* updateTeamControls() {
   const filtered = this.filteredTeams();
   this.teamControls.clear();
   for (let team of filtered) {
@@ -382,14 +401,14 @@ updateTeamControls() {
     });
   }
 }
-
+ */
 selectedTeamIds: string[] = [];
 
-get selectedTeamObjects() {
+/* get selectedTeamObjects() {
   return this.teams.filter(team => this.selectedTeamIds.includes(team?.id!));
-}
+} */
 
-uncheckTeam(teamId: string) {
+/* uncheckTeam(teamId: string) {
   const filtered = this.filteredTeams();
   const index = filtered.findIndex(t => t.id === teamId);
   if (index !== -1) {
@@ -399,7 +418,7 @@ uncheckTeam(teamId: string) {
     this.selectedTeamIds = this.selectedTeamIds.filter(id => id !== teamId);
   }
   console.log(this.selectedTeamIds);
-}
+} */
 
 trackByTeamId(index: number, team: any): string {
   return team.id;
@@ -500,7 +519,10 @@ addCity() {
         this.equipeService.getAll().subscribe({
             next: (res: any) => {
                 this.teams = res?.data?.teams || [];
-                this.updateTeamControls();
+                //this.updateTeamControls();
+                if (this.groups.length && this.step2Form.length === this.groups.length) {
+                    this.groups.forEach((group, index) => this.updateTeamControls(index));
+                    }
             },
             error: (err) => {
                 console.error('Erreur lors du chargement des équipes', err);
@@ -509,16 +531,16 @@ addCity() {
     }
 
 // Appelé quand on clique sur la case "tout sélectionner"
-toggleAllSelections() {
+/* toggleAllSelections() {
   const value = this.selectAllTeamsControl.value;
   this.teamSelectionControls.forEach(control => control.setValue(value));
-}
+} */
 
 // Appelé quand une case individuelle change
-updateGlobalSelection() {
+/* updateGlobalSelection() {
   const allChecked = this.teamSelectionControls.every(c => c.value === true);
   this.selectAllTeamsControl.setValue(allChecked, { emitEvent: false }); // pour éviter la boucle infinie
-}
+} */
 
 getLeagueFromLeagueId(leagueId: string): League | undefined {
   return this.leagues.find(league => league.id === leagueId);
@@ -557,6 +579,132 @@ validerContraintesDates() {
       secondLegCtrl?.setErrors(null);
     }
   });
+}
+
+onLeagueChange(event: any) {
+    //groups=this.leagues.find(league => league.id === event.value)?.groups;
+    this.groups=[
+    {
+      id: '1',
+      name: 'Poule A',
+      teams: []
+    },
+    {
+      id: '2',
+      name: 'Poule B',
+      teams: []
+    }
+  ];
+
+/*     if(this.groups.length<2)
+        this.step1Form.get('group_id')?.setValue(this.groups[0].id);
+
+    this.step2Form=this.fb.array([]);
+    this.groups.forEach(group => {
+        this.step2Form.push(this.fb.group({
+            selected_teams: [[], Validators.required]
+        }));
+    }) */
+
+this.step2Form.clear();
+this.selectedTeamIdsByGroup = [];
+this.searchControls = [];
+this.selectAllControls = [];
+this.teamControlsByGroup = [];
+
+this.groups.forEach((group, index) => {
+  this.step2Form.push(this.fb.group({
+    selected_teams: [[], Validators.required]
+  }));
+  this.selectedTeamIdsByGroup.push([]);
+  this.searchControls.push(new FormControl(''));
+  this.selectAllControls.push(new FormControl(false));
+  this.teamControlsByGroup.push(new FormArray<FormControl<boolean>>([]));
+});
+
+////////////
+  const selectedLeagueId = event.value;
+  const league = this.leagues.find(l => l.id === selectedLeagueId);
+
+  // Charger les groupes
+  //this.groups = league?.groups || []; // ou depuis API
+
+  // Réinitialiser le FormArray
+  this.step2Form.clear();
+  this.teamControlsByGroup = [];
+  this.selectedTeamIdsByGroup = [];
+  this.selectAllControls = [];
+  this.searchControls = [];
+
+  this.groups.forEach((group, index) => {
+    this.step2Form.push(this.fb.group({
+      selected_teams: [[], Validators.required]
+    }));
+    this.selectedTeamIdsByGroup.push([]);
+    this.teamControlsByGroup.push(new FormArray<FormControl<boolean>>([]));
+    this.searchControls.push(new FormControl(''));
+    this.selectAllControls.push(new FormControl(false));
+
+    // 🔁 Abonnement au search
+    this.searchControls[index].valueChanges.subscribe(() => {
+      this.updateTeamControls(index);
+    });
+  });
+
+  // Charger les équipes et mettre à jour les cases
+  this.loadTeams();
+
+}
+
+///////////////////
+filteredTeams(groupIndex: number): any[] {
+  const term = this.searchControls[groupIndex].value?.toLowerCase() || '';
+  return this.teams.filter(team =>
+    team.name?.toLowerCase().includes(term) ||
+    team.abbreviation?.toLowerCase().includes(term)
+  );
+}
+
+updateTeamControls(groupIndex: number) {
+  const filtered = this.filteredTeams(groupIndex);
+  const formArray = this.teamControlsByGroup[groupIndex];
+  const selectedIds = this.selectedTeamIdsByGroup[groupIndex];
+
+  formArray.clear();
+
+  for (let team of filtered) {
+    const control = new FormControl<boolean>(selectedIds.includes(team.id), { nonNullable: true });
+    formArray.push(control);
+    control.valueChanges.subscribe(checked => {
+      if (checked && !selectedIds.includes(team.id)) {
+        selectedIds.push(team.id);
+      } else if (!checked) {
+        const idx = selectedIds.indexOf(team.id);
+        if (idx !== -1) selectedIds.splice(idx, 1);
+      }
+      this.step2Form.at(groupIndex).get('selected_teams')?.setValue([...selectedIds]);
+      this.updateGlobalSelection(groupIndex);
+    });
+  }
+}
+
+toggleAllSelections(groupIndex: number) {
+  const value = this.selectAllControls[groupIndex].value;
+  this.teamControlsByGroup[groupIndex].controls.forEach(c => c.setValue(value));
+}
+
+updateGlobalSelection(groupIndex: number) {
+  const controls = this.teamControlsByGroup[groupIndex].controls;
+  const allChecked = controls.every(c => c.value === true);
+  this.selectAllControls[groupIndex].setValue(allChecked, { emitEvent: false });
+}
+
+getStep2FormGroup(groupIndex: number): FormGroup {
+  return this.step2Form.at(groupIndex) as FormGroup;
+}
+
+getTeamControlsByGroup(groupIndex: number, controlIndex: number): FormControl<boolean> {
+  return this.teamControlsByGroup[groupIndex].at(controlIndex) as FormControl<boolean>;
 }
 
 

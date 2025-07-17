@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LigueService } from '../../service/ligue.service';
 import { Ville, VilleService } from '../../service/ville.service';
 import { DialogModule } from 'primeng/dialog';
@@ -15,6 +15,9 @@ import { SelectModule } from 'primeng/select';
 import { League } from '../../models/league.model';
 import { FileUploadModule, FileUpload } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { Team } from '../../models/team.model';
+import { EquipeService } from '../../service/equipe.service';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-ligues',
@@ -32,7 +35,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
     SelectModule,
     ReactiveFormsModule,
     FileUploadModule,
-    InputNumberModule
+    InputNumberModule,
+    CheckboxModule
   ]
 })
 export class LiguesComponent implements OnInit {
@@ -52,6 +56,16 @@ export class LiguesComponent implements OnInit {
   selectedFile: File | null = null;
 
   leagueForm!: FormGroup;
+  teamsForm!: FormGroup;
+  teamControls: FormArray<FormControl<boolean>> = new FormArray<FormControl<boolean>>([]);
+  selectedTeamIds: string[] = [];
+  selectAllTeamsControl = new FormControl(false);
+  teams:Team[] = [
+  ];
+  teamSearchControl = new FormControl('');
+  teamSearchTeam: string = '';
+  isEditingTeams: boolean = false;
+
 
   constructor(
     private ligueService: LigueService,
@@ -59,17 +73,23 @@ export class LiguesComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private equipeService: EquipeService
   ) {
     this.leagueForm = this.fb.group({
       name: ['', Validators.required],
       teams_count: ['', Validators.required],
       logo: ['']
     });
+
+    this.teamsForm = this.fb.group({
+      selected_teams: [[], Validators.required]
+    });
   }
 
   ngOnInit(): void {
      this.loadLeagues();
+     this.loadTeams();
 /*     this.leagues = [
   {
     id: 1,
@@ -206,6 +226,124 @@ export class LiguesComponent implements OnInit {
     this.selectedFile = null;
     this.showForm = true;
   }
+
+  editLeagueTeams(league: League): void {
+    this.selectedTeamIds=["1085dc99-2e15-485e-906d-cacbfbf9dc7a"]
+    this.isEditingTeams = true;
+    this.selectedLeague = league;
+    this.updateTeamControls();
+  }
+
+  saveLeagueTeams(): void {
+
+    if( this.selectedTeamObjects.length==this.selectedLeague?.teams_count){
+        let  teams_ids= this.selectedTeamIds
+    }
+  }
+
+  filteredTeams(): any[] {
+  const term = this.teamSearchControl.value?.toLowerCase() || '';
+  return this.teams.filter(team =>
+    team.name?.toLowerCase().includes(term) ||
+    team.abbreviation?.toLowerCase().includes(term)
+  );
+}
+
+toggleTeamSelection(teamId: string): void {
+  const index = this.selectedTeamIds.indexOf(teamId);
+  if (index === -1) {
+    this.selectedTeamIds.push(teamId);
+  } else {
+    this.selectedTeamIds = this.selectedTeamIds.filter(id => id !== teamId);
+;
+  }
+  this.updateSelectedTeamsControl();
+}
+
+isTeamSelected(teamId: string): boolean {
+  return this.selectedTeamIds.includes(teamId);
+}
+
+removeTeam(teamId: string): void {
+  this.selectedTeamIds = this.selectedTeamIds.filter(id => id !== teamId);
+  this.updateSelectedTeamsControl();
+  console.log(this.selectedTeamIds);
+}
+
+updateSelectedTeamsControl(): void {
+  this.teamsForm.get('selected_teams')?.setValue([...this.selectedTeamIds]);
+}
+
+updateSearchTeam(event: Event): void {
+  this.teamSearchTeam = (event.target as HTMLInputElement).value;
+}
+
+get teamSelectionControls(): FormControl[] {
+  return this.teamControls.controls as FormControl[];
+}
+
+updateTeamControls() {
+  const filtered = this.filteredTeams();
+  this.teamControls.clear();
+  for (let team of filtered) {
+    const control = new FormControl<boolean>(this.selectedTeamIds.includes(team.id), { nonNullable: true });
+
+    this.teamControls.push(control);
+    control.valueChanges.subscribe(checked => {
+      if (checked && !this.selectedTeamIds.includes(team.id)) {
+        this.selectedTeamIds.push(team.id);
+      } else if (!checked) {
+        this.selectedTeamIds = this.selectedTeamIds.filter(id => id !== team.id);
+      }
+    });
+  }
+}
+
+
+
+get selectedTeamObjects() {
+  return this.teams.filter(team => this.selectedTeamIds.includes(team?.id!));
+}
+
+uncheckTeam(teamId: string) {
+  const filtered = this.filteredTeams();
+  const index = filtered.findIndex(t => t.id === teamId);
+  if (index !== -1) {
+    this.teamSelectionControls[index].setValue(false);
+  } else {
+    // Forcément masqué → désélectionner manuellement
+    this.selectedTeamIds = this.selectedTeamIds.filter(id => id !== teamId);
+  }
+  console.log(this.selectedTeamIds);
+}
+
+trackByTeamId(index: number, team: any): string {
+  return team.id;
+}
+
+    loadTeams(): void {
+        this.equipeService.getAll().subscribe({
+            next: (res: any) => {
+                this.teams = res?.data?.teams || [];
+                this.updateTeamControls();
+            },
+            error: (err) => {
+                console.error('Erreur lors du chargement des équipes', err);
+            }
+        });
+    }
+
+// Appelé quand on clique sur la case "tout sélectionner"
+toggleAllSelections() {
+  const value = this.selectAllTeamsControl.value;
+  this.teamSelectionControls.forEach(control => control.setValue(value));
+}
+
+// Appelé quand une case individuelle change
+updateGlobalSelection() {
+  const allChecked = this.teamSelectionControls.every(c => c.value === true);
+  this.selectAllTeamsControl.setValue(allChecked, { emitEvent: false }); // pour éviter la boucle infinie
+}
 
   deleteLeague(id?: string): void {
     this.confirmationService.confirm({

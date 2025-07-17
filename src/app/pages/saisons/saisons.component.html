@@ -187,3 +187,21 @@
 
     </p-dialog>
 
+ <!-- choix poul -->
+ <p-dialog header="Aller au calendrier" [(visible)]="displayGroupChoiceDialog" [style]="{width: '500px'}" [draggable]="false" [resizable]="false" [modal]="true">
+    <p-select
+        [options]="groupChoices"
+        optionLabel="name"
+        optionValue="id"
+        [formControl]="selectedGroupId"
+        placeholder="Sélectionnez la poule"
+        class="w-full"
+        appendTo="body"
+    ></p-select>
+
+    <ng-template #footer>
+        <p-button [raised]="true" severity="secondary" label="Annuler" icon="pi pi-times" text (click)="displayGroupChoiceDialog = false"  />
+        <p-button [raised]="true" label="OK" icon="pi pi-check"  [disabled]="selectedGroupId.invalid" />
+    </ng-template>
+
+</p-dialog>

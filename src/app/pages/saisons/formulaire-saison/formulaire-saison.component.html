@@ -15,7 +15,7 @@
 <p-step-panel  [value]="1">
   <ng-template #content let-activateCallback="activateCallback">
     <form [formGroup]="step1Form" class="flex flex-col gap-6">
-      <div class="flex flex-col md:flex-row gap-4 w-full items-end">
+      <div class="flex flex-col md:flex-row gap-4 w-full items-start">
 
         <!-- Ligue -->
         <div class="w-full md:w-1/2">
@@ -27,6 +27,7 @@
             optionValue="id"
             placeholder="Sélectionner une ligue"
             class="w-full"
+            (onChange)="onLeagueChange($event)"
           />
           <small class="text-red-500" *ngIf="step1Form.get('league_id')?.hasError('required') && step1Form.get('league_id')?.touched">
             La ligue est requise.
@@ -64,6 +65,31 @@
         </div> -->
 
       </div>
+
+      <div class="flex flex-col md:flex-row gap-4 w-full items-start">
+
+        <!-- Poule -->
+<!--         <div *ngIf="groups.length>1" class="w-full md:w-1/2">
+          <label class="font-bold block mb-1">Poule<span class="text-red-500"> *</span></label>
+          <p-select
+            formControlName="group_id"
+            [options]="groups"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Sélectionner une poule"
+            class="w-full"
+            emptyMessage="Veuillez d'abord choisir une ligue"
+          />
+          <small class="text-red-500" *ngIf="step1Form.get('group_id')?.hasError('required') && step1Form.get('group_id')?.touched">
+            La poule est requise.
+          </small>
+        </div> -->
+
+
+
+
+
+      </div>
     </form>
 
     <div class="flex justify-end pt-6">
@@ -83,51 +109,40 @@
         <!-- Step 2 -->
         <p-step-panel [value]="2">
           <ng-template #content let-activateCallback="activateCallback">
-<form [formGroup]="step2Form" class="flex flex-col gap-6">
-  <!-- Barre de recherche -->
-  <div>
-    <label class="font-bold block mb-1">Rechercher une équipe</label>
-    <input
-      pInputText
-      type="text"
-      [formControl]="searchControl"
-      placeholder="Nom ou abréviation "
-      class="w-full"
-    />
+<p-tabs [(value)]="activeTabIndex">
+  <p-tablist>
+    <p-tab *ngFor="let group of groups; let i = index" [value]="i">{{ group.name }}</p-tab>
+  </p-tablist>
 
-  </div>
+  <p-tabpanels>
+    <p-tabpanel *ngFor="let group of groups; let i = index" [value]="i">
+      <form [formGroup]="getStep2FormGroup(i)" class="flex flex-col gap-6">
+        <!-- Recherche -->
+        <input pInputText placeholder="Recherche..." [formControl]="searchControls[i]" class="w-full mb-2" (input)="updateTeamControls(i)" />
 
-  <!-- Grille des cartes -->
-<!-- ✅ Case à cocher pour tout sélectionner -->
-<div class="flex items-center mb-4">
-  <p-checkbox
-    binary="true"
-     [formControl]="selectAllTeamsControl"
-    (onChange)="toggleAllSelections()"
-    inputId="select-all"
-    class="mr-2"
-  ></p-checkbox>
-  <label for="select-all" class="text-sm font-medium">Tout sélectionner</label>
-</div>
+        <!-- Tout sélectionner -->
+        <p-checkbox binary="true" [formControl]="selectAllControls[i]" (onChange)="toggleAllSelections(i)" label="Tout sélectionner"></p-checkbox>
 
-<!-- ✅ Conteneur scrollable -->
-<div class="border rounded-md p-4 bg-gray-50 max-h-[270px] overflow-y-auto">
+
+        <!-- Liste équipes -->
+        <div class="border rounded-md p-4 bg-gray-50 max-h-[270px] overflow-y-auto">
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <ng-container>
+    <ng-container *ngIf="teamControlsByGroup[i]">
       <div
-        *ngFor="let team of filteredTeams(); let i = index; trackBy: trackByTeamId"
+        *ngFor="let team of filteredTeams(i); let j = index; trackBy: trackByTeamId"
         class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
-        [ngClass]="{ 'ring-2 ring-primary-500': teamSelectionControls[i].value }"
+        [ngClass]="{ 'ring-2 ring-primary-500': teamControlsByGroup[i].controls[j].value }"
       >
+        <!-- Checkbox individuelle -->
         <p-checkbox
           binary="true"
-          [formControl]="teamSelectionControls[i]"
+          [formControl]="getTeamControlsByGroup(i, j)"
           class="absolute top-2 left-2"
           [id]="'team-' + team.id"
-          (onChange)="updateGlobalSelection()"
+          (onChange)="updateGlobalSelection(i)"
         ></p-checkbox>
 
-         <!-- ✅ Image ou fallback -->
+        <!-- ✅ Image ou fallback -->
         <img
           *ngIf="team.logo; else noLogo"
           [src]="team.logo"
@@ -135,13 +150,12 @@
           class="w-12 h-12 object-contain"
         />
         <ng-template #noLogo>
-          <!-- Icône ou texte par défaut -->
           <div class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-sm">
             N/A
           </div>
         </ng-template>
 
-        <!-- ✅ Abréviation avec style conditionnel -->
+        <!-- Abréviation avec style -->
         <div
           [ngClass]="{
             'text-base font-bold': !team.logo,
@@ -151,51 +165,28 @@
           {{ team.abbreviation }}
         </div>
 
-        <!-- ✅ Nom de l’équipe -->
+        <!-- Nom -->
         <div class="text-xs text-gray-500 text-center">{{ team.name }}</div>
       </div>
     </ng-container>
   </div>
 </div>
-  <span class="text-red-500"
-    *ngIf="!selectedTeamObjects.length && step1Form.get('league_id')?.touched  ">
-    Veuillez sélectionner les équipes.
-  </span>
-
-  <!-- Checker si le nombre dequpes choisies correspond au nombre dequipes de la ligue -->
-  <span class="text-red-500"
-    *ngIf="selectedTeamObjects.length && step1Form.get('league_id')?.touched && getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count != selectedTeamObjects.length">
-    Le nombre d'équipes sélectionnées ({{ selectedTeamObjects.length }}) ne correspond pas au nombre d'équipes de la ligue ({{ getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count }}).
-  </span>
 
 
+        <!-- Rappel du nombre d’équipes -->
+        <div class="text-sm text-gray-500">
+          Sélectionnées : {{ selectedTeamIdsByGroup[i].length }} / {{ getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count }}
+        </div>
+      </form>
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>
 
-
-  <!-- Équipes sélectionnées -->
-  <div *ngIf="selectedTeamObjects.length" class="mt-4">
-    <label class="font-bold block mb-2">Équipes sélectionnées ({{ selectedTeamObjects.length }})</label>
-    <div class="flex flex-wrap gap-2">
-
-
-            <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-         <img *ngIf="team.logo" [src]="team.logo" alt="Logo" class="w-10 object-contain" />
-                <span class="text-md font-bold">{{ team.abbreviation }}</span>
-        <button
-          pButton
-          icon="pi pi-times"
-          class="p-button-rounded p-button-md p-button-text p-button-danger"
-          (click)="uncheckTeam(team?.id!)"
-          type="button"
-        ></button>
-      </div>
-    </div>
-  </div>
-</form>
 
 
             <div class="form-nav pt-6">
               <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" size="large" (onClick)="activateCallback(1)" />
-              <p-button [disabled]="selectedTeamObjects.length != getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count"  label="Suivant" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="activateCallback(3)" />
+              <p-button  label="Suivant" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="activateCallback(3)" />
             </div>
           </ng-template>
         </p-step-panel>
@@ -578,3 +569,4 @@
     </p-stepper>
   </p-card>
 </div>
+

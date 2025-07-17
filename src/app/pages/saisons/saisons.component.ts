@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -25,11 +25,10 @@ import { SaisonService } from '../../service/saison.service';
 import { VilleService } from '../../service/ville.service';
 import { LigueService } from '../../service/ligue.service';
 import { Season } from '../../models/season.model';
+import { League } from '../../models/league.model';
+import { Group } from '../../models/group.model';
 
-interface League {
-  id?: string;
-  name: string;
-}
+
 
 interface Constraints{
     max_matches_per_week: number;
@@ -130,6 +129,10 @@ selectedSaisonToGenerate!: Saison;
 
 ////
 searchTerm: string = '';
+
+selectedGroupId: FormControl = new FormControl('', [Validators.required]);
+displayGroupChoiceDialog = false;
+groupChoices?: Group[] = [];
 
   constructor(private messageService: MessageService, private confirmationService: ConfirmationService, private router: Router,
     private villeService: VilleService,private fb: FormBuilder, private saisonService:SaisonService,
@@ -323,7 +326,16 @@ rechargerSaisons() {
 
 
   voirCalendrier(saison: Saison) {
+    if(saison?.league?.group_count==1)
     this.router.navigate(['/calendrier', saison.id]);
+    else{
+        this.displayGroupChoiceDialog=true
+        this.groupChoices=saison?.league?.groups
+    }
+  }
+
+  voirCalendrierPoule(){
+    this.router.navigate(['/calendrier', this.selectedGroupId]);
   }
 
   ///

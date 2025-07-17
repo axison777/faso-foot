@@ -146,6 +146,7 @@
             <div class="btn-group">
               <p-button severity="warn" icon="pi pi-pencil"  (click)="editLeague(league)"/>
               <button class="btn btn-danger" (click)="deleteLeague(league.id!)"><i class="pi pi-trash"></i></button>
+              <p-button severity="primary" icon="pi pi-users"  (click)="editLeagueTeams(league)"/>
             </div>
           </td>
         </tr>
@@ -159,3 +160,120 @@
     <p>Aucun ligue trouvé pour "{{ searchTerm }}"</p>
   </div>
 </div>
+
+ <p-dialog [header]="selectedLeague? 'Equipes: '+selectedLeague.name :''" [(visible)]="isEditingTeams" [style]="{width: '1000px', height: '900px'}" [draggable]="false" [resizable]="false" [modal]="true">
+    <form [formGroup]="teamsForm" class="flex flex-col gap-6 px-4">
+  <!-- Barre de recherche -->
+  <div>
+    <label class="font-bold block mb-1">Rechercher une équipe</label>
+    <input
+      pInputText
+      type="text"
+      [formControl]="teamSearchControl"
+      placeholder="Nom ou abréviation "
+      class="w-full"
+    />
+
+  </div>
+
+  <!-- Grille des cartes -->
+<!-- ✅ Case à cocher pour tout sélectionner -->
+<div class="flex items-center mb-4">
+  <p-checkbox
+    binary="true"
+     [formControl]="selectAllTeamsControl"
+    (onChange)="toggleAllSelections()"
+    inputId="select-all"
+    class="mr-2"
+  ></p-checkbox>
+  <label for="select-all" class="text-sm font-medium">Tout sélectionner</label>
+</div>
+
+<!-- ✅ Conteneur scrollable -->
+<div class="border rounded-md p-4 bg-gray-50 max-h-[150px] overflow-y-auto">
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <ng-container>
+      <div
+        *ngFor="let team of filteredTeams(); let i = index; trackBy: trackByTeamId"
+        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
+        [ngClass]="{ 'ring-2 ring-primary-500': teamSelectionControls[i].value }"
+      >
+        <p-checkbox
+          binary="true"
+          [formControl]="teamSelectionControls[i]"
+          class="absolute top-2 left-2"
+          [id]="'team-' + team.id"
+          (onChange)="updateGlobalSelection()"
+        ></p-checkbox>
+
+         <!-- ✅ Image ou fallback -->
+        <img
+          *ngIf="team.logo; else noLogo"
+          [src]="team.logo"
+          alt="Logo"
+          class="w-12 h-12 object-contain"
+        />
+        <ng-template #noLogo>
+          <!-- Icône ou texte par défaut -->
+          <div class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-sm">
+            N/A
+          </div>
+        </ng-template>
+
+        <!-- ✅ Abréviation avec style conditionnel -->
+        <div
+          [ngClass]="{
+            'text-base font-bold': !team.logo,
+            'text-sm font-semibold': team.logo
+          }"
+        >
+          {{ team.abbreviation }}
+        </div>
+
+        <!-- ✅ Nom de l’équipe -->
+        <div class="text-xs text-gray-500 text-center">{{ team.name }}</div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+  <span class="text-red-500"
+    *ngIf="!selectedTeamObjects.length && teamsForm.get('league_id')?.touched  ">
+    Veuillez sélectionner les équipes.
+  </span>
+
+  <!-- Checker si le nombre dequpes choisies correspond au nombre dequipes de la ligue -->
+  <span class="text-red-500"
+    *ngIf="selectedTeamObjects.length  && selectedLeague?.teams_count != selectedTeamObjects.length">
+    Le nombre d'équipes sélectionnées ({{ selectedTeamObjects.length }}) ne correspond pas au nombre d'équipes de la ligue ({{ selectedLeague.teams_count }}).
+  </span>
+
+
+
+
+  <!-- Équipes sélectionnées -->
+  <div *ngIf="selectedTeamObjects.length" class="mt-4">
+    <label class="font-bold block mb-2">Équipes sélectionnées ({{ selectedTeamObjects.length }})</label>
+    <div class="flex flex-wrap gap-2">
+
+
+            <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+         <img *ngIf="team.logo" [src]="team.logo" alt="Logo" class="w-10 object-contain" />
+                <span class="text-md font-bold">{{ team.abbreviation }}</span>
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-rounded p-button-md p-button-text p-button-danger"
+          (click)="uncheckTeam(team?.id!)"
+          type="button"
+        ></button>
+      </div>
+    </div>
+  </div>
+</form>
+
+    <ng-template #footer>
+        <p-button [raised]="true" severity="secondary" label="Annuler" icon="pi pi-times" text (click)="isEditingTeams = false"  />
+        <p-button [raised]="true" label="OK" icon="pi pi-check"  [disabled]="teamsForm.invalid" (click)="saveLeagueTeams()"/>
+    </ng-template>
+
+</p-dialog>
