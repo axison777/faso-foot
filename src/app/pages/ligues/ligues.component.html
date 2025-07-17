@@ -11,83 +11,91 @@
     </button>
   </div>
 
-
-  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier la ligue' : 'Ajouter un nouveau ligue'" [modal]="true" [closable]="false">
+  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier la ligue' : 'Ajouter une nouvelle ligue'" [modal]="true" [closable]="false">
     <ng-template #content>
-<form [formGroup]="leagueForm" (ngSubmit)="saveLeague()" class="flex flex-col gap-6">
+      <form [formGroup]="leagueForm" (ngSubmit)="saveLeague()" class="flex flex-col gap-6">
+        
+        <!-- Nom de la ligue -->
+        <div>
+          <label for="name" class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
+          <input
+            pInputText
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Entrez le nom de la ligue"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="leagueForm.get('name')?.invalid && leagueForm.get('name')?.touched">
+            Le nom est requis.
+          </small>
+        </div>
 
+        <!-- Nombre d'équipes -->
+        <div>
+          <label for="teams_count" class="block font-bold mb-2">Nombre d'équipes <span class="text-red-500">*</span></label>
+          <p-inputnumber
+            id="teams_count"
+            formControlName="teams_count"
+            placeholder="Entrez le nombre d'équipes de la ligue"
+            class="w-full"
+            [min]="1"
+            [max]="50"
+          />
+          <small class="text-red-500" *ngIf="leagueForm.get('teams_count')?.invalid && leagueForm.get('teams_count')?.touched">
+            Le nombre d'équipes est requis.
+          </small>
+        </div>
 
-    <div>
-    <label for="name" class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
-    <input
-      pInputText
-      type="text"
-      id="name"
-      formControlName="name"
-      placeholder="Entrez le nom de la ligue"
-      class="w-full"
-    />
-    <small class="text-red-500" *ngIf="leagueForm.get('name')?.invalid && leagueForm.get('name')?.touched">
-      Le nom  est requis.
-    </small>
-  </div>
+        <!-- Nombre de groupes -->
+        <div>
+          <label for="group_count" class="block font-bold mb-2">Poules <span class="text-red-500">*</span></label>
+          <p-dropdown
+            id="group_count"
+            formControlName="group_count"
+            [options]="groupOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Sélectionnez le nombre de groupes"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="leagueForm.get('group_count')?.invalid && leagueForm.get('group_count')?.touched">
+            Le nombre de groupes est requis.
+          </small>
+        </div>
 
-
-    <div>
-    <label for="teams_count" class="block font-bold mb-2">Nombre d'équipes <span class="text-red-500">*</span></label>
-    <p-inputnumber
-      type="text"
-      id="teams_count"
-      formControlName="teams_count"
-      placeholder="Entrez le nombre d'équipes de la ligue"
-      class="w-full"
-    />
-    <small class="text-red-500" *ngIf="leagueForm.get('teams_count')?.invalid && leagueForm.get('teams_count')?.touched">
-      Le nombre de joueurs  est requis.
-    </small>
-  </div>
-
- <div>
-  <label for="logo" class="block font-bold mb-2">Logo <span class="text-red-500">*</span></label>
-
-  <!-- Affichage image actuelle (édition) -->
-  <div *ngIf="isEditing && currentLogo" class="mb-2">
-    <p class="text-gray-600 text-sm mb-1">Logo actuel :</p>
-    <img [src]="currentLogo" alt="Logo actuel" class="w-24 h-24 object-cover rounded shadow" />
-  </div>
-
-  <!-- Upload image -->
-  <p-fileupload
-    #fileUploader
-    name="logo"
-    [customUpload]="true"
-    [auto]="false"
-    accept="image/*"
-    maxFileSize="1000000"
-    chooseLabel="Choisir un fichier"
-    chooseIcon="pi pi-upload"
-    (onSelect)="onFileSelect($event)"
-    [showUploadButton]="false"
-    [showCancelButton]="false"
-    [mode]="'advanced'"
-
-  >
-     <ng-template #empty>
-        <div>Glisser le fichier ici</div>
-    </ng-template>
-  </p-fileupload>
-
-  <small class="text-red-500" *ngIf="leagueForm.get('logo')?.invalid && leagueForm.get('logo')?.touched">
-    Le logo est requis.
-  </small>
-</div>
-
-
-
-
-
-</form>
-
+        <!-- Logo -->
+        <div>
+          <label for="logo" class="block font-bold mb-2">Logo <span class="text-red-500">*</span></label>
+          <!-- Affichage image actuelle (édition) -->
+          <div *ngIf="isEditing && currentLogo" class="mb-2">
+            <p class="text-gray-600 text-sm mb-1">Logo actuel :</p>
+            <img [src]="currentLogo" alt="Logo actuel" class="w-24 h-24 object-cover rounded shadow" />
+          </div>
+          <!-- Upload image -->
+          <p-fileupload
+            #fileUploader
+            name="logo"
+            [customUpload]="true"
+            [auto]="false"
+            accept="image/*"
+            maxFileSize="1000000"
+            chooseLabel="Choisir un fichier"
+            chooseIcon="pi pi-upload"
+            (onSelect)="onFileSelect($event)"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            [mode]="'advanced'"
+          >
+            <ng-template #empty>
+              <div>Glisser le fichier ici</div>
+            </ng-template>
+          </p-fileupload>
+          <small class="text-red-500" *ngIf="leagueForm.get('logo')?.invalid && leagueForm.get('logo')?.touched">
+            Le logo est requis.
+          </small>
+        </div>
+      </form>
     </ng-template>
 
     <ng-template #footer>
@@ -100,8 +108,8 @@
           (click)="toggleForm()"
         />
         <p-button
-        [loading]="loading"
-        [raised]="true"
+          [loading]="loading"
+          [raised]="true"
           [label]="isEditing ? 'Modifier' : 'Enregistrer'"
           icon="pi pi-check"
           type="submit"
@@ -133,19 +141,22 @@
       <thead>
         <tr>
           <th>Nom de la ligue</th>
-            <th>Nombre d'équipes</th>
+          <th>Nombre d'équipes</th>
+          <th>Poules</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let league of filteredLeagues">
           <td class="ligue-nom">{{ league.name }}</td>
-            <td class="ligue-team-count">{{ league.teams_count }}</td>
-
+          <td class="ligue-team-count">{{ league.teams_count }}</td>
+          <td class="ligue-group-count">{{ league.group_count || 1 }}</td>
           <td class="actions">
             <div class="btn-group">
-              <p-button severity="warn" icon="pi pi-pencil"  (click)="editLeague(league)"/>
-              <button class="btn btn-danger" (click)="deleteLeague(league.id!)"><i class="pi pi-trash"></i></button>
+              <p-button severity="warn" icon="pi pi-pencil" (click)="editLeague(league)"/>
+              <button class="btn btn-danger" (click)="deleteLeague(league.id!)">
+                <i class="pi pi-trash"></i>
+              </button>
             </div>
           </td>
         </tr>
@@ -156,6 +167,7 @@
   <!-- No results -->
   <div *ngIf="!loading && filteredLeagues.length === 0 && searchTerm && leagues.length > 0" class="no-results">
     <div class="icon">🔍</div>
-    <p>Aucun ligue trouvé pour "{{ searchTerm }}"</p>
+    <p>Aucune ligue trouvée pour "{{ searchTerm }}"</p>
   </div>
 </div>
+
