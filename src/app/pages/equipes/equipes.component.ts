@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EquipeService } from '../../service/equipe.service';
 import { Ville, VilleService } from '../../service/ville.service';
+import { LigueService } from '../../service/ligue.service';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,6 +14,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { Team } from '../../models/team.model';
+import { League } from '../../models/league.model';
 import { FileUploadModule } from 'primeng/fileupload';
 
 @Component({
@@ -31,28 +33,32 @@ import { FileUploadModule } from 'primeng/fileupload';
     SelectModule,
     ReactiveFormsModule,
     FileUploadModule,
+    DropdownModule,
   ]
 })
 export class EquipesComponent implements OnInit {
   teams: Team[] = [];
   villes: Ville[] = [];
-
+  leagues: League[] = [];
   selectedTeam: Team | null = null;
   searchTerm: string = '';
   loading: boolean = false;
   showDetails: boolean = false;
-
   showForm: boolean = false;
+  showLeagueTransferDialog: boolean = false; // Nouveau nom spécifique
   newTeam: any = { name: '', city_id: null };
   isEditing: boolean = false;
   editingTeamId?: string | null = null;
   teamForm!: FormGroup;
+  leagueTransferForm!: FormGroup; // Nouveau nom spécifique
   currentLogo: string | null = null;
   selectedFile: File | null = null;
+  teamToTransfer: Team | null = null; // Nouveau nom spécifique
 
   constructor(
     private equipeService: EquipeService,
     private villeService: VilleService,
+    private ligueService: LigueService,
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
@@ -61,26 +67,106 @@ export class EquipesComponent implements OnInit {
     this.teamForm = this.fb.group({
       name: [''],
       abbreviation: [''],
-      phone: ['', ],
-      email: ['', [ Validators.email]],
+      phone: [''],
+      email: ['', [Validators.email]],
       city_id: ['', Validators.required],
       logo: [''],
       manager_first_name: [''],
       manager_last_name: [''],
       manager_role: ['']
     });
+
+    // Formulaire spécifique pour le transfert de ligue
+    this.leagueTransferForm = this.fb.group({
+      league_id: ['', Validators.required]
+    });
   }
 
   ngOnInit(): void {
     this.loadTeams();
     this.loadVilles();
+    this.loadLeagues();
   }
+
+  loadLeagues(): void {
+    this.ligueService.getAll().subscribe({
+      next: (res: any) => {
+        this.leagues = res?.data.leagues || [];
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des ligues',
+        });
+      }
+    });
+  }
+
+  // Méthode pour ouvrir le dialog de transfert de ligue
+  openLeagueTransferDialog(team: Team): void {
+    this.teamToTransfer = team;
+    this.leagueTransferForm.reset();
+    this.showLeagueTransferDialog = true;
+  }
+
+  // Méthode pour fermer le dialog de transfert de ligue
+  closeLeagueTransferDialog(): void {
+    this.showLeagueTransferDialog = false;
+    this.teamToTransfer = null;
+    this.leagueTransferForm.reset();
+  }
+
+  // Méthode spécifique pour changer la ligue (utilise setLeague du service)
+  setLeague(): void {
+    if (this.leagueTransferForm.valid && this.teamToTransfer?.id) {
+      const selectedLeagueId = this.leagueTransferForm.get('league_id')?.value;
+      const selectedLeague = this.leagues.find(l => l.id === selectedLeagueId);
+      
+      this.equipeService.setLeague(this.teamToTransfer.id, selectedLeagueId).subscribe({
+        next: () => {
+          this.loadTeams(); // Recharger la liste des équipes
+          this.closeLeagueTransferDialog();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Transfert réussi',
+            detail: `${this.teamToTransfer?.name} a été transférée vers "${selectedLeague?.name}"`,
+            life: 4000
+          });
+        },
+        error: (error) => {
+          console.error('Erreur lors du transfert:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Erreur lors du transfert de l\'équipe vers la nouvelle ligue',
+          });
+        }
+      });
+    } else {
+      this.leagueTransferForm.markAllAsTouched();
+    }
+  }
+
+  getLeagueNameById(leagueId: string | undefined): string {
+    if (!leagueId) return 'Aucune ligue';
+    const league = this.leagues.find(l => l.id === leagueId);
+    return league ? league.name || 'Ligue sans nom' : 'Ligue inconnue';
+  }
+
+  // Méthode pour obtenir les ligues disponibles (exclure la ligue actuelle)
+  getAvailableLeagues(): League[] {
+    if (!this.teamToTransfer?.league_id) return this.leagues;
+    return this.leagues.filter(league => league.id !== this.teamToTransfer?.league_id);
+  }
+
+  // ... Reste du code existant (pas de changements) ...
 
   onFileSelect(event: any): void {
     const file = event.files?.[0];
     if (file) {
       this.selectedFile = file;
-      this.teamForm.get('logo')?.setValue(file.name); // activer validation
+      this.teamForm.get('logo')?.setValue(file.name);
     }
   }
 
@@ -135,23 +221,23 @@ export class EquipesComponent implements OnInit {
       if(this.teamForm.get('phone')?.value)
         formData.append('phone', this.teamForm.get('phone')?.value);
       if(this.teamForm.get('email')?.value)
-      formData.append('email', this.teamForm.get('email')?.value);
-      if( this.teamForm.get('city_id')?.value)
+        formData.append('email', this.teamForm.get('email')?.value);
+      if(this.teamForm.get('city_id')?.value)
         formData.append('city_id', this.teamForm.get('city_id')?.value);
       if(this.teamForm.get('manager_first_name')?.value)
         formData.append('manager_first_name', this.teamForm.get('manager_first_name')?.value);
-        if (this.teamForm.get('manager_last_name')?.value)
-      formData.append('manager_last_name', this.teamForm.get('manager_last_name')?.value);
+      if(this.teamForm.get('manager_last_name')?.value)
+        formData.append('manager_last_name', this.teamForm.get('manager_last_name')?.value);
       if(this.teamForm.get('manager_role')?.value)
         formData.append('manager_role', this.teamForm.get('manager_role')?.value);
 
-    if (this.selectedFile ) {
-      formData.append('logo', this.selectedFile);
-    }
-    if (this.isEditing) {
-      formData.append('_method', 'PUT');
+      if (this.selectedFile) {
+        formData.append('logo', this.selectedFile);
+      }
 
-    }
+      if (this.isEditing) {
+        formData.append('_method', 'PUT');
+      }
 
       const onSuccess = () => {
         this.loadTeams();
@@ -177,9 +263,9 @@ export class EquipesComponent implements OnInit {
       } else {
         this.equipeService.create(formData).subscribe({ next: onSuccess, error: onError });
       }
+    } else {
+      this.teamForm.markAllAsTouched();
     }
-    else
-    this.teamForm.markAllAsTouched();
   }
 
   viewTeamDetails(team: Team): void {
@@ -218,12 +304,13 @@ export class EquipesComponent implements OnInit {
       }
     });
   }
+
   allowOnlyNumbers(event: KeyboardEvent): void {
-  const charCode = event.charCode;
-  if (charCode < 48 || charCode > 57) {
-    event.preventDefault();
+    const charCode = event.charCode;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
   }
-}
 
   get filteredTeams(): Team[] {
     if (!this.searchTerm) return this.teams;
@@ -232,9 +319,8 @@ export class EquipesComponent implements OnInit {
     );
   }
 
-  /** 🔍 Méthode ajoutée pour afficher le nom de la ville */
   getCityNameById(cityId: string | undefined): string {
     const ville = this.villes.find(v => v.id === cityId);
-    return ville ? ville?.name : 'Ville inconnue';
+    return ville ? ville?.name || 'Ville sans nom' : 'Ville inconnue';
   }
 }

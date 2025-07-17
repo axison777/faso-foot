@@ -30,6 +30,7 @@ import { CheckboxModule } from 'primeng/checkbox';
     DialogModule,
     ButtonModule,
     InputTextModule,
+    DropdownModule, // Ajouté pour le dropdown
     ConfirmDialogModule,
     ToastModule,
     SelectModule,
@@ -45,17 +46,20 @@ export class LiguesComponent implements OnInit {
   leagues: League[] = [];
   villes: Ville[] = [];
   selectedLeague!: League;
-
   searchTerm: string = '';
   loading: boolean = false;
   showForm: boolean = false;
-
   isEditing: boolean = false;
   editingLeagueId?: string | null = null;
   currentLogo: string | null = null;
   selectedFile: File | null = null;
-
   leagueForm!: FormGroup;
+
+  // Options pour le dropdown des groupes
+  groupOptions = [
+    { label: '1 ', value: 1 },
+    { label: '2 ', value: 2 }
+  ];
   teamsForm!: FormGroup;
   teamControls: FormArray<FormControl<boolean>> = new FormArray<FormControl<boolean>>([]);
   selectedTeamIds: string[] = [];
@@ -79,6 +83,7 @@ export class LiguesComponent implements OnInit {
     this.leagueForm = this.fb.group({
       name: ['', Validators.required],
       teams_count: ['', Validators.required],
+      group_count: [1, Validators.required], // Ajouté avec valeur par défaut 1
       logo: ['']
     });
 
@@ -146,7 +151,12 @@ export class LiguesComponent implements OnInit {
   }
 
   resetForm(): void {
-    this.leagueForm.reset();
+    this.leagueForm.reset({
+      name: '',
+      teams_count: '',
+      group_count: 1, // Valeur par défaut
+      logo: ''
+    });
     this.fileUploader?.clear();
     this.isEditing = false;
     this.editingLeagueId = null;
@@ -158,30 +168,30 @@ export class LiguesComponent implements OnInit {
     const file = event.files?.[0];
     if (file) {
       this.selectedFile = file;
-      this.leagueForm.get('logo')?.setValue(file.name); // activer validation
+      this.leagueForm.get('logo')?.setValue(file.name);
     }
   }
 
   saveLeague(): void {
-    if ((this.leagueForm.invalid && !this.isEditing) || (this.leagueForm.get('name')?.invalid && this.isEditing) ) {
+    if ((this.leagueForm.invalid && !this.isEditing) || (this.leagueForm.get('name')?.invalid && this.isEditing)) {
       this.leagueForm.markAllAsTouched();
       return;
     }
 
     this.loading = true;
-
     const formData = new FormData();
-    if(this.leagueForm.get('name')?.value)
-        formData.append('name', this.leagueForm.get('name')?.value);
-    if(this.leagueForm.get('teams_count')?.value)
-        formData.append('teams_count', this.leagueForm.get('teams_count')?.value);
 
-    if (this.selectedFile ) {
+    if (this.leagueForm.get('name')?.value)
+      formData.append('name', this.leagueForm.get('name')?.value);
+    if (this.leagueForm.get('teams_count')?.value)
+      formData.append('teams_count', this.leagueForm.get('teams_count')?.value);
+    if (this.leagueForm.get('group_count')?.value)
+      formData.append('group_count', this.leagueForm.get('group_count')?.value);
+    if (this.selectedFile) {
       formData.append('logo', this.selectedFile);
     }
-    if (this.isEditing ) {
+    if (this.isEditing) {
       formData.append('_method', 'PUT');
-
     }
 
     const request$ = this.isEditing && this.editingLeagueId
@@ -205,7 +215,7 @@ export class LiguesComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: `Erreur lors de la ${this.isEditing ? 'modification' : 'création'} du ligue`,
+          detail: `Erreur lors de la ${this.isEditing ? 'modification' : 'création'} de la ligue`,
         });
       }
     });
@@ -215,14 +225,12 @@ export class LiguesComponent implements OnInit {
     this.isEditing = true;
     this.editingLeagueId = league.id;
     this.currentLogo = league.logo ?? null;
-
     this.leagueForm.patchValue({
       name: league.name,
-
       teams_count: league.teams_count,
+      group_count: league.group_count || 1, // Valeur par défaut si non définie
       logo: league.logo ? league.logo : ''
     });
-
     this.selectedFile = null;
     this.showForm = true;
   }
@@ -347,14 +355,14 @@ updateGlobalSelection() {
 
   deleteLeague(id?: string): void {
     this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment supprimer ce ligue ?',
+      message: 'Voulez-vous vraiment supprimer cette ligue ?',
       accept: () => {
         this.ligueService.delete(id).subscribe(() => {
           this.loadLeagues();
           this.messageService.add({
             severity: 'success',
             summary: 'Suppression réussie',
-            detail: 'Le ligue a été supprimé.'
+            detail: 'La ligue a été supprimée.'
           });
         });
       }

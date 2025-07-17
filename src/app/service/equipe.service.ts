@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+
 export interface Equipe {
   id?: string;
   name: string;
@@ -12,12 +13,12 @@ export interface Equipe {
   providedIn: 'root'
 })
 export class EquipeService {
-    apiUrl=environment.apiUrl+'/teams'
+  apiUrl = environment.apiUrl + '/teams';
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl+'/all');
+    return this.http.get<any[]>(this.apiUrl + '/all');
   }
 
   create(equipe: Partial<any>): Observable<any> {
@@ -30,5 +31,14 @@ export class EquipeService {
 
   delete(id?: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  // Nouvelle méthode pour changer la ligue d'une équipe
+  setLeague(teamId: string, leagueId: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('league_id', leagueId);
+    formData.append('_method', 'PUT');
+    
+    return this.http.post(`${this.apiUrl}/${teamId}`, formData);
   }
 }

@@ -567,3 +567,61 @@
   color: white !important;
 }
 
+.btn-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  
+  .btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 36px;
+
+    &.btn-info {
+      background-color: rgb(50,145,87);
+      color: #ffffff;
+      &:hover {
+        background-color: rgb(40,125,77);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(50,145,87, 0.3);
+      }
+    }
+
+    &.btn-warning {
+      background-color: #f59e0b;
+      color: #ffffff;
+      &:hover {
+        background-color: #d97706;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+      }
+    }
+
+    &.btn-danger {
+      background-color: #dc2626;
+      color: #ffffff;
+      &:hover {
+        background-color: #b91c1c;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+      }
+    }
+
+    // NOUVEAU: Style pour le bouton de transfert de ligue
+    &.btn-primary {
+      background-color: #475569; /* Violet/Purple - couleur distincte */
+      color: #ffffff;
+      &:hover {
+        background-color: #334155;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+      }
+    }
+  }
+}
