@@ -78,7 +78,7 @@ export class EquipesComponent implements OnInit {
 
     // Formulaire spécifique pour le transfert de ligue
     this.leagueTransferForm = this.fb.group({
-      league_id: ['', Validators.required]
+      league_id: [this.selectedTeam?.league?.id, Validators.required]
     });
   }
 
@@ -122,7 +122,7 @@ export class EquipesComponent implements OnInit {
     if (this.leagueTransferForm.valid && this.teamToTransfer?.id) {
       const selectedLeagueId = this.leagueTransferForm.get('league_id')?.value;
       const selectedLeague = this.leagues.find(l => l.id === selectedLeagueId);
-      
+
       this.equipeService.setLeague(this.teamToTransfer.id, selectedLeagueId).subscribe({
         next: () => {
           this.loadTeams(); // Recharger la liste des équipes

@@ -234,7 +234,7 @@ const styles = `
       </div>
       <div class="div1_2">Calendrier des matchs</div>
       <div class="div1_3">
-        Saison ${new Date(phase.start).getFullYear()} - ${new Date(phase.end).getFullYear()}
+        Saison ${new Date(phase.start).getFullYear()} - ${new Date(phase.end).getFullYear()} (${phase?.name})
       </div>
     </div>
 

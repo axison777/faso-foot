@@ -78,114 +78,6 @@
 
 </div>
 
-<p-dialog
-[draggable]="false" [(visible)]="displayDialog" [style]="{ width: '1000px' }" header="Créer une saison" [modal]="true">
-        <ng-template #content><form [formGroup]="seasonForm">
-        <div class="flex flex-col gap-5">
-            <!-- Champs principaux -->
-            <div class="grid grid-cols-2 gap-4">
-          <!--   <div>
-                <label class="font-bold mb-1 block">Nom</label>
-                <input pInputText formControlName="nom" class="w-full" />
-            </div> -->
-            <div>
-                <label class="font-bold mb-1 block">Ligue</label>
-                <p-select [options]="ligues" optionLabel="name" formControlName="ligue" class="w-full" placeholder="Sélectionner une ligue" />
-            </div>
-            </div>
-
-            <!-- Contraintes Dépliables -->
-    <!-- <p-panel header="Contraintes de calendrier" [collapsed]="true" [toggleable]="true" class="mt-2"> -->
-
-        <div class="grid grid-cols-2 gap-4">
-
-                <div>
-                    <label class="font-bold block mb-1">Matchs maxsss/mois</label>
-                    <p-inputnumber formControlName="max_matches_per_month" class="w-full" />
-                </div>
-                <div>
-                    <label class="font-bold block mb-1">Jours min entre matchs</label>
-                    <p-inputNumber formControlName="min_days_between_matches" class="w-full" />
-                </div>
-                <div>
-                    <label class="font-bold block mb-1">Déplacements max/mois</label>
-                    <p-inputnumber formControlName="max_travels_per_month" class="w-full" />
-                </div>
-                <div>
-                    <label class="font-bold block mb-1">Distance max (km)</label>
-                    <p-inputnumber formControlName="max_distance_km" class="w-full" />
-                </div>
-                <div>
-                    <label class="font-bold block mb-1">Matchs max/jour</label>
-                    <p-inputnumber formControlName="max_matches_per_day" class="w-full" />
-                </div>
-                <div class="col-span-2">
-                    <label class="font-bold block mb-1">Jours autorisés</label>
-                    <p-multiselect
-                    formControlName="allowed_days"
-                    [options]="jours"
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Sélectionner les jours"
-                    display="chip"
-                    class="w-full"
-                    />
-                </div>
-                <div class="flex items-center gap-2 col-span-1">
-                    <p-checkbox formControlName="geo_grouping" binary="true" inputId="geo" />
-                    <label for="geo">Regrouper géographiquement</label>
-                </div>
-                <div class="flex items-center gap-2 col-span-1">
-                    <p-checkbox formControlName="must_play_in_home_stadium" binary="true" inputId="home" />
-                    <label for="home">Jouer à domicile obligatoirement</label>
-                </div>
-                </div>
-
-                <div class="mt-5">
-                <div class="flex justify-between items-center mb-1">
-                    <label class="font-bold">Répartition par saisons</label>
-                    <p-button label="Ajouter une ville" icon="pi pi-plus" (click)="addVille()" size="small" text />
-                </div>
-                <div formArrayName="cities" class="flex flex-col gap-3">
-    <p-card
-        *ngFor="let city of cities.controls; let i = index"
-        [formGroupName]="i"
-        class="w-full p-3">
-
-        <div class="grid grid-cols-5 gap-3 items-center w-full">
-        <p-select
-            [options]="villes"
-            optionLabel="name"
-            formControlName="id"
-            placeholder="Ville"
-            class="w-full col-span-2"
-        />
-        <p-inputnumber
-            formControlName="count"
-            placeholder="Nb"
-            class="w-full col-span-2"
-        />
-        <button
-            pButton
-            icon="pi pi-trash"
-            (click)="removeVille(i)"
-            class="p-button-rounded p-button-text p-button-danger w-full col-span-1"
-            type="button">
-        </button>
-        </div>
-    </p-card>
-    </div>
-                </div>
-  <!--   </p-panel> -->
-        </div></form>
-        </ng-template>
-
-        <ng-template #footer>
-        <p-button label="Annuler" icon="pi pi-times" text (click)="displayDialog = false"  />
-        <p-button label="Créer" icon="pi pi-check" (click)="submitSaison()" [disabled]="seasonForm.invalid" />
-        </ng-template>
-
-    </p-dialog>
 
  <!-- choix poul -->
  <p-dialog header="Aller au calendrier" [(visible)]="displayGroupChoiceDialog" [style]="{width: '500px'}" [draggable]="false" [resizable]="false" [modal]="true">
@@ -201,7 +93,7 @@
 
     <ng-template #footer>
         <p-button [raised]="true" severity="secondary" label="Annuler" icon="pi pi-times" text (click)="displayGroupChoiceDialog = false"  />
-        <p-button [raised]="true" label="OK" icon="pi pi-check"  [disabled]="selectedGroupId.invalid" />
+        <p-button [raised]="true" label="OK" icon="pi pi-check" (click)="goToGroupCalendar(selectedGroupId.value)"  [disabled]="selectedGroupId.invalid" />
     </ng-template>
 
 </p-dialog>

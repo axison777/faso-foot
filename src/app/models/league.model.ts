@@ -10,8 +10,10 @@ export interface League {
   seasons?: Season[];
   logo?: string;
   /////////////
-  groups?: Group[];
-  group_count?: number;
+  pools?: Group[];
+  pools_count?: number;
+  teams_ids?: string[]
+
 
 }
 

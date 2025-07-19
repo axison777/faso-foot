@@ -53,6 +53,7 @@ interface Saison {
   start_date: Date;
   end_date: Date;
   constraints?: Constraints;
+  pools?: Group[]
 }
 
 
@@ -78,7 +79,6 @@ interface Saison {
     ReactiveFormsModule,
     AccordionModule,
     InputNumberModule,
-    Checkbox,
     CardModule,
     CommonModule
 
@@ -115,11 +115,6 @@ selectedSaisonToGenerate!: Saison;
     { label: 'Dimanche', value: 'Sunday' }
   ];
 
-  ligues = [
-    { id: 1, name: 'Ligue 1' },
-    { id: 2, name: 'Ligue 2' }
-  ];
-
    villes = [
     { id: '1', name: 'Bobo-Dioulasso' },
     { id: '2', name: 'Ouagadougou' },
@@ -133,6 +128,7 @@ searchTerm: string = '';
 selectedGroupId: FormControl = new FormControl('', [Validators.required]);
 displayGroupChoiceDialog = false;
 groupChoices?: Group[] = [];
+    selectedSeasonId: string | undefined;
 
   constructor(private messageService: MessageService, private confirmationService: ConfirmationService, private router: Router,
     private villeService: VilleService,private fb: FormBuilder, private saisonService:SaisonService,
@@ -189,18 +185,7 @@ groupChoices?: Group[] = [];
             })
           }
         })
-        this.ligueService.getAll().subscribe( {
-          next: (res:any) => {
-            this.ligues = res?.data?.leagues;
-          },
-          error: (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Erreur lors du chargement des ligues',
-            })
-          }
-        })
+
 
 
 
@@ -326,11 +311,12 @@ rechargerSaisons() {
 
 
   voirCalendrier(saison: Saison) {
-    if(saison?.league?.group_count==1)
-    this.router.navigate(['/calendrier', saison.id]);
+    if(saison?.pools?.length==1)
+    this.router.navigate(['/calendrier'], { queryParams: { seasonId: saison.id } });
     else{
         this.displayGroupChoiceDialog=true
-        this.groupChoices=saison?.league?.groups
+        this.groupChoices=saison?.pools
+        this.selectedSeasonId=saison.id
     }
   }
 
@@ -439,4 +425,11 @@ deleteSeason(id: string) {  // delete saison
   });
 }
 
+goToGroupCalendar(groupId: string) {
+    this.router.navigate(['/calendrier'], { queryParams: { groupId: groupId, seasonId: this.selectedSeasonId } });
+
 }
+
+
+}
+

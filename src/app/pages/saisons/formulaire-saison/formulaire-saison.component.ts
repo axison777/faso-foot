@@ -56,9 +56,12 @@ import { TabsModule } from 'primeng/tabs';
 export class FormulaireSaisonComponent implements OnInit {
   step1Form!: FormGroup;
   step2Form!: FormArray;
-  step3Form!: FormGroup;
-  step4Form!: FormGroup;
-  step5Form!: FormGroup;
+  step3Form!: FormArray;
+  //step4Form!: FormGroup;
+  step4FormArray!: FormArray<FormGroup>
+  skipDateControls!: FormControl<Date | null>[]
+  //step5Form!: FormGroup;
+  step5FormArray!: FormArray<FormGroup>
 
   leagues:League[] = [
 /*     { id: 'league-1', name: 'Ligue 1' },
@@ -123,7 +126,7 @@ export class FormulaireSaisonComponent implements OnInit {
   searchControl = new FormControl('');
 teamControls: FormArray<FormControl<boolean>> = new FormArray<FormControl<boolean>>([]);
 
-selectedStadiumObjects: any[] = [];
+selectedStadiumObjects: { [group: string]: any[] } = {};
 skipDateControl!: FormControl ;
 selectAllTeamsControl = new FormControl(false); // ✅ reactive form
 groups:Group[]=[];
@@ -162,33 +165,51 @@ activeTabIndex: any=0;
 
     this.step2Form = this.fb.array<FormGroup>([]);
 
-    this.step3Form = this.fb.group({
-      selected_stadiums: [[], Validators.required]
-    });
+    this.step3Form = this.fb.array<FormGroup>([]);
 
-    this.step4Form = this.fb.group({
+    /* this.step4Form = this.fb.group({
       match_start_time: [initialTime, Validators.required],
       allowed_match_days: [[ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], Validators.required],
       min_hours_between_team_matches: [48, Validators.required],
       min_days_between_phases: [30, Validators.required],
       skip_dates: this.fb.array([]),
       //cities: this.fb.array([])
-    });
+    }); */
 
-    this.step5Form = this.fb.group({
+    this.step4FormArray= this.fb.array<FormGroup>([]);
+    this.skipDateControls = [];
+
+    /* this.step5Form = this.fb.group({
       derbies: this.fb.array([])
-    });
+    }); */
+    this.step5FormArray = this.fb.array<FormGroup>([]);
 
-    this.skipDateControl= new FormControl(null)
+    //this.skipDateControl= new FormControl(null)
 
     this.searchControl.valueChanges.subscribe(() => {
     //this.updateTeamControls();
   });
   //this.updateTeamControls();
 
-    this.step1Form.get('start_date')?.valueChanges.subscribe(() => this.validerContraintesDates());
+    this.step1Form.get('start_date')?.valueChanges.subscribe(() => {
+        this.validerContraintesDates()
+        // supprimer toutes les skip_dates
+        for(let i=0;i<this.step4FormArray.length;i++)
+        {   //parcourir toutes les skip_dates et checker si la date est plus petite que la date de début et le supprimer
+            const skipDates = this.getSkipDatesArray(i).controls as FormControl[];
+            for (let j = 0; j < skipDates.length; j++) {
+                const skipDate = skipDates[j];
+
+                if(skipDate.value &&skipDate.value?.date < (this.step1Form.get('start_date')?.value)){
+                    this.getSkipDatesArray(i).removeAt(j, { emitEvent: true });
+                    j--;
+                }
+            }
+
+        }
+    });
   this.skipDateControl?.valueChanges.subscribe(() => this.validerContraintesDates());
-  this.derbies.valueChanges.subscribe(() => this.validerContraintesDates());
+  //this.derbies.valueChanges.subscribe(() => this.validerContraintesDates());
   }
 
 
@@ -199,14 +220,17 @@ activeTabIndex: any=0;
     this.loadCities();
     this.loadTeams();
 
+    this.initStep3Form();
+
+
 
   }
 
-  get derbies(): FormArray {
+/*   get derbies(): FormArray {
     return this.step5Form.get('derbies') as FormArray;
-  }
+  } */
 
-  addDerby(): void {
+ /*  addDerby(): void {
     const derbyGroup = this.fb.group({
       team_one_id: [null, Validators.required],
       team_two_id: [null, Validators.required],
@@ -216,18 +240,21 @@ activeTabIndex: any=0;
       second_leg_stadium_id: [null, Validators.required]
     });
     this.derbies.push(derbyGroup);
-  }
+  } */
 
-  removeDerby(index: number): void {
+ /*  removeDerby(index: number): void {
     this.derbies.removeAt(index);
-  }
+  } */
 
   submitForm(): void {
 
+    let formData2=this.buildSeasonPayload();
+    console.log(formData2);
+
     let skipDatesValues:any[]=[];
-    this.skipDates.controls.forEach((control) => {
+/*     this.skipDates.controls.forEach((control) => {
       skipDatesValues.push(control.value?.date);
-    });
+    }); */
     // team count for all groups
     let selectedTeamCount=0;
     this.selectedTeamIdsByGroup.forEach((teamIds) => {
@@ -236,10 +263,10 @@ activeTabIndex: any=0;
 
     if (
       this.step1Form.valid &&
-      selectedTeamCount==this.getLeagueFromLeagueId(this.step1Form.get('league_id')?.value)?.teams_count &&
-      this.step3Form.valid &&
-      this.step4Form.valid &&
-      this.step5Form.valid
+      this.getTotalSelectedTeamCount() == this.getLeagueFromLeagueId(this.step1Form.get('league_id')?.value)?.teams_count
+      //&& this.step3Form.valid
+      //&& this.step4Form.valid &&
+      //this.step5Form.valid
     ) {
       const formData = {
         ...this.step1Form.value,
@@ -248,23 +275,23 @@ activeTabIndex: any=0;
         stadiums_ids: this.step3Form.value.selected_stadiums,
         /* ...this.step4Form.value, */
         // step4Form values
-        match_start_time: formatDate(this.step4Form.value.match_start_time, 'HH:mm', 'fr-FR')  ,
+/*         match_start_time: formatDate(this.step4Form.value.match_start_time, 'HH:mm', 'fr-FR')  ,
         allowed_match_days: this.step4Form.value.allowed_match_days,
         min_hours_between_team_matches: this.step4Form.value.min_hours_between_team_matches,
         min_days_between_phases: this.step4Form.value.min_days_between_phases,
-        cities: this.step4Form.value.cities,
+        cities: this.step4Form.value.cities, */
 /*         skip_dates: skipDatesValues,
         derbies:this.step5Form.value.derbies */
       };
       if (skipDatesValues.length > 0) {
         formData['skip_dates'] = skipDatesValues;
       }
-      if (this.step5Form.value.derbies.length > 0) {
+      /* if (this.step5Form.value.derbies.length > 0) {
         formData['derbies'] = this.step5Form.value.derbies;
-      }
+      } */
 
 
-      this.saisonService.create(formData).subscribe({
+      this.saisonService.create(formData2).subscribe({
         next: (response) => {
           console.log('Saison créée avec succès :', response);
           this.messageService.add({
@@ -292,8 +319,8 @@ activeTabIndex: any=0;
       this.step1Form.markAllAsTouched();
       this.step2Form.markAllAsTouched();
       this.step3Form.markAllAsTouched();
-      this.step4Form.markAllAsTouched();
-      this.step5Form.markAllAsTouched();
+      //this.step4Form.markAllAsTouched();
+      //this.step5Form.markAllAsTouched();
         this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
@@ -352,38 +379,11 @@ activeTabIndex: any=0;
   );
 } */
 
-toggleTeamSelection(teamId: string): void {
-  const index = this.selectedTeamIds.indexOf(teamId);
-  if (index === -1) {
-    this.selectedTeamIds.push(teamId);
-  } else {
-    this.selectedTeamIds = this.selectedTeamIds.filter(id => id !== teamId);
-;
-  }
-  this.updateSelectedTeamsControl();
-}
 
-isTeamSelected(teamId: string): boolean {
-  return this.selectedTeamIds.includes(teamId);
-}
 
-removeTeam(teamId: string): void {
-  this.selectedTeamIds = this.selectedTeamIds.filter(id => id !== teamId);
-  this.updateSelectedTeamsControl();
-  console.log(this.selectedTeamIds);
-}
 
-updateSelectedTeamsControl(): void {
-  this.step2Form.get('selected_teams')?.setValue([...this.selectedTeamIds]);
-}
 
-updateSearchTeam(event: Event): void {
-  this.searchTeam = (event.target as HTMLInputElement).value;
-}
 
-get teamSelectionControls(): FormControl[] {
-  return this.teamControls.controls as FormControl[];
-}
 
 /* updateTeamControls() {
   const filtered = this.filteredTeams();
@@ -426,7 +426,7 @@ trackByTeamId(index: number, team: any): string {
 
 
 // Suppression d'un stade via la croix
-removeStadium(stadiumId: string): void {
+/* removeStadium(stadiumId: string): void {
   const current = this.step3Form.get('selected_stadiums')?.value || [];
   this.step3Form.patchValue({
     selected_stadiums: current.filter((id: string) => id !== stadiumId)
@@ -439,30 +439,30 @@ change(){
     this.selectedStadiumObjects =  this.stadiums.filter(s => selectedIds.includes(s.id));
 
 
-}
+} */
 
-  get cities(): FormArray {
+/*   get cities(): FormArray {
   return this.step4Form.get('cities') as FormArray;
-}
+} */
 
-removeCity(index: number) {
+/* removeCity(index: number) {
   this.cities.removeAt(index);
-}
+} */
 
-addCity() {
+/* addCity() {
   this.cities.push(
     this.fb.group({
       id: [null, Validators.required],
       min: [null, Validators.required]
     })
   );
-}
+} */
 
- get skipDates(): FormArray {
+/*  get skipDates(): FormArray {
     return this.step4Form.get('skip_dates') as FormArray;
-  }
+  } */
 
-  addSkipDate(): void {
+/*   addSkipDate(): void {
     const date = this.skipDateControl?.value;
     if (date && !this.skipDateExists(date)) {
       this.skipDates.push(
@@ -472,21 +472,22 @@ addCity() {
       );
       this.skipDateControl?.reset();
     }
-  }
+  } */
 
-  removeSkipDate(index: number): void {
+/*   removeSkipDate(index: number): void {
     this.skipDates.removeAt(index);
-  }
+  } */
 
-  private skipDateExists(date: Date): boolean {
+/*  private skipDateExists(date: Date): boolean {
     return this.skipDates.controls.some(
       ctrl => new Date(ctrl.value.date).toDateString() === date.toDateString()
     );
-  }
+  } */
     loadLeagues(): void {
         this.ligueService.getAll().subscribe({
         next: (res: any) => {
             this.leagues = res?.data?.leagues || [];
+
         },
         error: (err) => {
             console.error('Erreur lors du chargement des ligues', err);
@@ -519,6 +520,7 @@ addCity() {
         this.equipeService.getAll().subscribe({
             next: (res: any) => {
                 this.teams = res?.data?.teams || [];
+                 this.teams=this.teams.filter(team=>this.getLeagueFromLeagueId(this.step1Form.get('league_id')?.value)?.teams_ids?.includes(team.id!));
                 //this.updateTeamControls();
                 if (this.groups.length && this.step2Form.length === this.groups.length) {
                     this.groups.forEach((group, index) => this.updateTeamControls(index));
@@ -559,7 +561,7 @@ validerContraintesDates() {
   }
 
 
-  this.derbies.controls.forEach((derbyGroup: AbstractControl) => {
+/*   this.derbies.controls.forEach((derbyGroup: AbstractControl) => {
     const firstLegCtrl = derbyGroup.get('first_leg_date');
     const secondLegCtrl = derbyGroup.get('second_leg_date');
 
@@ -578,23 +580,12 @@ validerContraintesDates() {
     } else {
       secondLegCtrl?.setErrors(null);
     }
-  });
+  }); */
 }
 
 onLeagueChange(event: any) {
     //groups=this.leagues.find(league => league.id === event.value)?.groups;
-    this.groups=[
-    {
-      id: '1',
-      name: 'Poule A',
-      teams: []
-    },
-    {
-      id: '2',
-      name: 'Poule B',
-      teams: []
-    }
-  ];
+     this.groups=this.generateGroups(this.getLeagueFromLeagueId(this.step1Form.get('league_id')?.value)?.pools_count!);
 
 /*     if(this.groups.length<2)
         this.step1Form.get('group_id')?.setValue(this.groups[0].id);
@@ -620,6 +611,10 @@ this.groups.forEach((group, index) => {
   this.searchControls.push(new FormControl(''));
   this.selectAllControls.push(new FormControl(false));
   this.teamControlsByGroup.push(new FormArray<FormControl<boolean>>([]));
+
+  this.initStep3Form();
+  this.initStep4Form();
+  this.initStep5Form();
 });
 
 ////////////
@@ -654,6 +649,7 @@ this.groups.forEach((group, index) => {
   // Charger les équipes et mettre à jour les cases
   this.loadTeams();
 
+
 }
 
 ///////////////////
@@ -662,6 +658,7 @@ filteredTeams(groupIndex: number): any[] {
   return this.teams.filter(team =>
     team.name?.toLowerCase().includes(term) ||
     team.abbreviation?.toLowerCase().includes(term)
+
   );
 }
 
@@ -706,6 +703,294 @@ getStep2FormGroup(groupIndex: number): FormGroup {
 getTeamControlsByGroup(groupIndex: number, controlIndex: number): FormControl<boolean> {
   return this.teamControlsByGroup[groupIndex].at(controlIndex) as FormControl<boolean>;
 }
+
+/////////////////////////////////
+initStep3Form() {
+  this.step3Form = this.fb.array(
+    this.groups.map(() =>
+      this.fb.group({
+        selected_stadiums: [[], Validators.required],
+      })
+    )
+  );
+
+  // init des stades sélectionnés
+  this.groups.forEach(group => {
+    this.selectedStadiumObjects[group.name!] = [];
+  });
+}
+
+
+getStadiumFormGroup(index: number): FormGroup {
+  return this.step3Form.at(index) as FormGroup;
+}
+
+onStadiumChange(index: number) {
+  const formGroup = this.getStadiumFormGroup(index);
+  const selectedIds = formGroup.get('selected_stadiums')?.value || [];
+  this.selectedStadiumObjects[this.groups[index].name!] = this.stadiums.filter(s => selectedIds.includes(s.id));
+  console.log(this.selectedStadiumObjects);
+}
+
+removeStadium(index: number, stadiumId: string): void {
+  const formGroup = this.getStadiumFormGroup(index);
+  const current = formGroup.get('selected_stadiums')?.value || [];
+  formGroup.patchValue({
+    selected_stadiums: current.filter((id: string) => id !== stadiumId),
+  });
+  this.onStadiumChange(index);
+}
+
+/////////////
+
+initStep4Form() {
+           const initialTime = new Date();
+    initialTime.setHours(16); // Set hours
+    initialTime.setMinutes(0); // Set minutes
+    initialTime.setSeconds(0);
+    initialTime.setMilliseconds(0);
+  this.step4FormArray = this.fb.array(
+    this.groups.map(() => this.fb.group({
+      match_start_time: [initialTime, Validators.required],
+      min_hours_between_team_matches: [48, Validators.required],
+      min_days_between_phases: [30, Validators.required],
+      allowed_match_days: [[ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], Validators.required],
+      skip_dates: this.fb.array([]),
+    }))
+  );
+
+  this.skipDateControls = this.groups.map(() => this.fb.control<Date | null>(null));
+}
+
+getStep4FormGroup(index: number): FormGroup {
+  return this.step4FormArray.at(index) as FormGroup;
+}
+
+getSkipDatesArray(index: number): FormArray {
+  return this.getStep4FormGroup(index).get('skip_dates') as FormArray;
+}
+
+getSkipDateControl(index: number): FormControl<Date | null> {
+  return this.skipDateControls[index];
+}
+
+addSkipDate(index: number) {
+  const date = this.getSkipDateControl(index).value;
+  if (date && !this.skipDateExistsByGroup(date, index)) {
+    this.getSkipDatesArray(index).push(this.fb.group({ date: [date] }));
+    this.getSkipDateControl(index).reset();
+  }
+}
+
+removeSkipDate(groupIndex: number, dateIndex: number) {
+  this.getSkipDatesArray(groupIndex).removeAt(dateIndex);
+}
+
+/////////////////////step5
+initStep5Form() {
+  this.step5FormArray = this.fb.array(
+    this.groups.map(() =>
+      this.fb.group({
+        derbies: this.fb.array([]),
+      })
+    )
+  );
+}
+
+// Accesseurs
+getStep5FormGroup(index: number): FormGroup {
+  return this.step5FormArray.at(index) as FormGroup;
+}
+
+getDerbiesArray(index: number): FormArray {
+  return this.getStep5FormGroup(index).get('derbies') as FormArray;
+}
+
+// Ajouter un derby dans une poule
+addDerby(groupIndex: number): void {
+  const derbyGroup = this.fb.group({
+    team_one_id: [null, Validators.required],
+    team_two_id: [null, Validators.required],
+    first_leg_date: [null, Validators.required],
+    first_leg_stadium_id: [null, Validators.required],
+    second_leg_date: [null, Validators.required],
+    second_leg_stadium_id: [null, Validators.required],
+  });
+
+  this.getDerbiesArray(groupIndex).push(derbyGroup);
+}
+
+// Supprimer un derby
+removeDerby(groupIndex: number, derbyIndex: number): void {
+  this.getDerbiesArray(groupIndex).removeAt(derbyIndex);
+}
+
+//////////////
+buildSeasonPayload(): any | null {
+  if (!this.step1Form?.valid) {
+    console.warn('Step1 invalide.');
+    return null;
+  }
+
+  const league_id = this.step1Form.value.league_id;
+  const start_date_raw = this.step1Form.value.start_date;
+  //const start_date_iso = toIsoDateTime(start_date_raw); // ou toIsoDate(start_date_raw) selon backend
+
+  // sécurité
+  //if (!league_id || !start_date_iso) return null;
+
+  // Base date JS pour combiner l'heure des matchs si besoin
+  //const startDateObj = start_date_raw ? new Date(start_date_raw) : null;
+
+  const pools: any[] = this.groups.map((group, i) => {
+    // ---- Step2: Teams (TODO -> fonction util) ----
+    const teams_ids = this.selectedTeamIdsByGroup[i] || [];
+
+    // ---- Step3: Stadiums ----
+    // soit depuis le form:
+    const step3FG = this.getStadiumFormGroup(i);
+    const stadiums_ids_from_form = step3FG?.value?.selected_stadiums ?? [];
+    // soit depuis selectedStadiumObjects[group.name!] si tu préfères :
+    // const stadiums_ids = (this.selectedStadiumObjects[group.name!] ?? []).map((s:any)=>s.id);
+    const stadiums_ids = stadiums_ids_from_form;
+
+    // ---- Step4: Calendar constraints ----
+    const step4FG = this.step4FormArray?.at(i);
+    const match_start_time_raw = step4FG?.value?.match_start_time ?? null;
+    const min_hours_between_team_matches = step4FG?.value?.min_hours_between_team_matches ?? null;
+    const min_days_between_phases = step4FG?.value?.min_days_between_phases ?? null;
+    const allowed_match_days = step4FG?.value?.allowed_match_days ?? [];
+
+    // skip_dates FormArray
+    let skip_dates: string[] = [];
+    if (step4FG) {
+      const skipFA = step4FG.get('skip_dates') as FormArray | null;
+      if (skipFA) {
+        skip_dates = skipFA.controls
+          .map(ctrl => {
+            /* const d = ctrl.value?.date;
+            return toIsoDateTime(d); */ // ou toIsoDate
+            return ctrl.value?.date;
+          })
+          .filter(Boolean) as string[];
+      }
+    }
+
+    // match_start_time conversion
+    // si timeOnly → combine avec start_date
+    const match_start_time_iso = formatDate(match_start_time_raw, 'HH:mm', 'fr-FR');
+
+    // ---- Step5: Derbies ----
+    const step5FG = this.step5FormArray?.at(i);
+    let derbies: any[] = [];
+    if (step5FG) {
+      const derbiesFA = step5FG.get('derbies') as FormArray | null;
+      if (derbiesFA) {
+        derbies = derbiesFA.controls.map(ctrl => {
+          const v = ctrl.value;
+          return {
+            team_one_id: v.team_one_id,
+            team_two_id: v.team_two_id,
+            first_leg_date: (v.first_leg_date) ?? '',
+            first_leg_stadium_id: v.first_leg_stadium_id,
+            second_leg_date: (v.second_leg_date) ?? '',
+            second_leg_stadium_id: v.second_leg_stadium_id,
+          };
+        });
+      }
+    }
+
+    const poolPayload: any = {
+      name: group.name ?? `Poule ${i + 1}`,
+      match_start_time: match_start_time_iso ?? '',
+      min_hours_between_team_matches: Number(min_hours_between_team_matches) || 0,
+      min_days_between_phases: Number(min_days_between_phases) || 0,
+      teams_ids,
+      stadiums_ids,
+      allowed_match_days,
+      skip_dates,
+      derbies,
+    };
+
+    return poolPayload;
+  });
+
+  const payload: any = {
+    league_id,
+    start_date: start_date_raw,
+    pools,
+  };
+
+  return payload;
+}
+
+
+generateGroups(count: number): { name: string }[] {
+  const groups: { name: string }[] = [];
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  for (let i = 0; i < count; i++) {
+    groups.push({
+      name: `Poule ${alphabet[i]}`
+    });
+  }
+
+  return groups;
+}
+
+updateTeamSelection(groupIndex: number, teamIndex: number) {
+  const selectedTeamId = this.filteredTeams(groupIndex)[teamIndex].id;
+
+  // Si la case a été cochée
+  const isSelected = this.teamControlsByGroup[groupIndex].controls[teamIndex].value;
+
+  if (isSelected) {
+    // Parcours de tous les groupes sauf celui en cours
+    this.teamControlsByGroup.forEach((group, gIndex) => {
+      if (gIndex !== groupIndex) {
+        group.controls.forEach((ctrl, tIndex) => {
+          const team = this.filteredTeams(gIndex)[tIndex];
+          if (team.id === selectedTeamId) {
+            ctrl.setValue(false, { emitEvent: true });
+          }
+        });
+        // Mets à jour le "select all" du groupe concerné
+        this.updateGlobalSelection(gIndex);
+      }
+    });
+  }
+
+  // Mets à jour le "select all" du groupe courant
+  this.updateGlobalSelection(groupIndex);
+}
+
+getTotalSelectedTeamCount(): number {
+  let total = 0;
+  this.teamControlsByGroup.forEach(group => {
+    total += group.controls.filter(ctrl => ctrl.value).length;
+  });
+  return total;
+}
+
+
+getStep2FormValid(){
+    let valid=true
+    this.selectedTeamIdsByGroup.forEach(g=>{
+        if(g?.length<1){
+            valid=false
+        }
+    })
+    return valid
+
+}
+
+private skipDateExistsByGroup(date: Date, groupIndex: number): boolean {
+  return this.getSkipDatesArray(groupIndex).controls.some(
+    ctrl => new Date(ctrl.value.date).toDateString() === date.toDateString()
+  );
+}
+
+
 
 
 

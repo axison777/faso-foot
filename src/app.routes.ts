@@ -39,7 +39,7 @@ export const appRoutes: Routes = [
              {path: 'ligues', component:LiguesComponent, canActivate: [AuthGuard] },
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
-            {path: 'calendrier/:id', component: CalendrierComponent, canActivate: [AuthGuard] },
+            {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
           /*    {path: 'calendar', component:CalendarComponent}, */
 
 

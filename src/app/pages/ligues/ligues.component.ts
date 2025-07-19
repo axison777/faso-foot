@@ -83,7 +83,7 @@ export class LiguesComponent implements OnInit {
     this.leagueForm = this.fb.group({
       name: ['', Validators.required],
       teams_count: ['', Validators.required],
-      group_count: [1, Validators.required], // Ajouté avec valeur par défaut 1
+      pools_count: [1, Validators.required], // Ajouté avec valeur par défaut 1
       logo: ['']
     });
 
@@ -154,7 +154,7 @@ export class LiguesComponent implements OnInit {
     this.leagueForm.reset({
       name: '',
       teams_count: '',
-      group_count: 1, // Valeur par défaut
+      pools_count: 1, // Valeur par défaut
       logo: ''
     });
     this.fileUploader?.clear();
@@ -185,8 +185,8 @@ export class LiguesComponent implements OnInit {
       formData.append('name', this.leagueForm.get('name')?.value);
     if (this.leagueForm.get('teams_count')?.value)
       formData.append('teams_count', this.leagueForm.get('teams_count')?.value);
-    if (this.leagueForm.get('group_count')?.value)
-      formData.append('group_count', this.leagueForm.get('group_count')?.value);
+    if (this.leagueForm.get('pools_count')?.value)
+      formData.append('pools_count', this.leagueForm.get('pools_count')?.value);
     if (this.selectedFile) {
       formData.append('logo', this.selectedFile);
     }
@@ -228,7 +228,7 @@ export class LiguesComponent implements OnInit {
     this.leagueForm.patchValue({
       name: league.name,
       teams_count: league.teams_count,
-      group_count: league.group_count || 1, // Valeur par défaut si non définie
+      pools_count: league.pools_count || 1, // Valeur par défaut si non définie
       logo: league.logo ? league.logo : ''
     });
     this.selectedFile = null;
@@ -236,7 +236,8 @@ export class LiguesComponent implements OnInit {
   }
 
   editLeagueTeams(league: League): void {
-    this.selectedTeamIds=["1085dc99-2e15-485e-906d-cacbfbf9dc7a"]
+
+    this.selectedTeamIds = league.teams_ids || [];
     this.isEditingTeams = true;
     this.selectedLeague = league;
     this.updateTeamControls();
@@ -245,7 +246,28 @@ export class LiguesComponent implements OnInit {
   saveLeagueTeams(): void {
 
     if( this.selectedTeamObjects.length==this.selectedLeague?.teams_count){
-        let  teams_ids= this.selectedTeamIds
+        this.ligueService.setTeams(this.selectedLeague.id!,this.selectedLeague.name!, this.selectedTeamIds,).subscribe({
+          next: () => {
+            this.loadLeagues();
+            this.isEditingTeams = false;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Ligue modifiée',
+              detail: this.leagueForm.get('name')?.value,
+              life: 3000
+            });
+          },
+          error: () => {
+            this.loading = false;
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: `Erreur lors de la modification de la ligue`,
+            });
+          }
+
+        })
+
     }
   }
 

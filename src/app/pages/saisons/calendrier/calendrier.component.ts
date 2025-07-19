@@ -6,7 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
 import * as XLSX from 'xlsx';
 import { saveAs} from 'file-saver';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SaisonService } from '../../../service/saison.service';
 import { ExportMatchComponent } from "../../export-match/export-match.component";
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -156,18 +156,52 @@ export class CalendrierComponent implements OnInit {
     phases: Phase[] = []
     selectedPhaseIndex = 0;
     exportingPdf: boolean = false;
+    groupId?: string = '';
+    poolName?: string = '';
+    leagueName?: string = '';
+    leagueLogo?: string = '';
 
-    constructor(private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService) {}
+    constructor(private route: ActivatedRoute, private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService) {}
     ngOnInit(): void {
+        // get seasonId and poolId from params
+    this.route.queryParamMap.subscribe(params => {
+      this.groupId = params.get('groupId') || '';
+      this.seasonId = params.get('seasonId') || '';
+        console.log(this.groupId);
+        this.getCalendar();
+
+    });
+
+
+
+
     // Initialize the selected season ID from the URL
-    const url = this.router.url;
-    const urlParts = url.split('/');
-    this.seasonId = urlParts[urlParts.length - 1];
-    this.loading = true;
+
+
+
+
+
+    }
+
+
+       getSeasonId(){
+        this.loading = true;
+
+    this.route.paramMap.subscribe(params => {
+       this.seasonId= params.get('seasonId') || '';
+
+    });
+
+    }
+
+    getCalendar(){
+          if(!this.groupId)
     this.saisonService.get(this.seasonId).subscribe({
 
       next: (res: any) => {
         let calendar= res?.data?.calendar;
+        this.leagueName=res?.data?.name
+        this.leagueLogo=res?.data?.logo
         this.phases.push(calendar?.first_leg)
         this.phases.push(calendar?.second_led);
         /* this.phases = res?.data?.calendar || []; */
@@ -183,10 +217,30 @@ export class CalendrierComponent implements OnInit {
       },
     });
 
+    else
+        this.saisonService.getByGroupId(this.seasonId, this.groupId).subscribe({
+
+      next: (res: any) => {
+        this.leagueName=res?.data?.name
+        this.leagueLogo=res?.data?.logo
+        this.poolName=res?.data?.pools[0]?.name
+        let calendar= res?.data?.pools[0]?.phases;
+        this.phases.push(calendar?.first_leg)
+        this.phases.push(calendar?.second_led);
+        /* this.phases = res?.data?.calendar || []; */
+        this.phases.forEach(phase => {
+        phase.matchdays.forEach(day => {
+      day.groupedMatchesByDate = this.groupMatchesByDate(day.matches);
+    });
+  });
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
+    });
 
     }
-
-
 
 
 

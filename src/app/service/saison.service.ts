@@ -33,7 +33,12 @@ export class SaisonService {
     return this.http.put<Saison>(`${this.apiUrl}/${id}`, saison);
   }
 
+
   delete(id?: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getByGroupId(seasonId: string, pool_id: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/calendar/${seasonId}/show`, { params: {  pool_id } });
   }
 }

@@ -12,14 +12,14 @@
   </div>
 
 <!-- Dialog pour ajouter/modifier une équipe (code existant) -->
-<p-dialog  
+<p-dialog
   [draggable]="false"
   [(visible)]="showForm"
   [style]="{ width: '700px', height: '1000px' }"
   [header]="isEditing ? 'Modifier l\'équipe' : 'Ajouter une nouvelle équipe'"
   [modal]="true"
   [closable]="false">
-  
+
   <ng-template #content>
     <form [formGroup]="teamForm" (ngSubmit)="saveTeam()" class="flex flex-col gap-6">
       <!-- ✅ Section ÉQUIPE -->
@@ -58,7 +58,7 @@
           </small>
         </div>
       </div>
-        
+
       <!-- Ville -->
       <div class="w-full">
         <label for="ville" class="block font-bold mb-2">Ville <span class="text-red-500">*</span></label>
@@ -76,7 +76,7 @@
           La ville est requise.
         </small>
       </div>
-        
+
       <!-- Logo -->
       <div class="w-full">
         <label for="logo" class="block font-bold mb-2">Logo</label>
@@ -175,7 +175,7 @@
           </small>
         </div>
       </div>
-        
+
       <!-- Poste du responsable -->
       <div class="w-full">
         <label for="role" class="block font-bold mb-2">Poste</label>
@@ -190,7 +190,7 @@
       </div>
     </form>
   </ng-template>
-  
+
   <ng-template #footer>
     <div class="flex justify-end gap-2">
       <p-button
@@ -223,14 +223,14 @@
   [closable]="true"
   [contentStyle]="{ 'padding': '1.5rem', 'background-color': '#ffffff' }"
   [baseZIndex]="10000">
-  
+
   <div *ngIf="teamToTransfer" class="league-transfer-container">
     <div class="team-info-transfer mb-4">
       <h3 style="color: rgb(50,145,87); font-size: 1.2rem; margin-bottom: 0.5rem;">
         {{ teamToTransfer.name }}
       </h3>
       <p class="text-gray-600">
-        <strong>Ligue actuelle :</strong> {{ getLeagueNameById(teamToTransfer.league_id) }}
+        <strong>Ligue actuelle :</strong> {{ getLeagueNameById(teamToTransfer.league?.id) }}
       </p>
     </div>
     <form [formGroup]="leagueTransferForm" class="flex flex-col gap-4">
@@ -238,7 +238,7 @@
         <label for="league_transfer" class="block font-bold mb-2">
           Nouvelle ligue <span class="text-red-500">*</span>
         </label>
-        <p-dropdown
+        <p-select
           id="league_transfer"
           formControlName="league_id"
           [options]="getAvailableLeagues()"
@@ -247,14 +247,14 @@
           placeholder="Sélectionnez une ligue"
           class="w-full"
           appendTo="body"
-        ></p-dropdown>
+        ></p-select>
         <small class="text-red-500" *ngIf="leagueTransferForm.get('league_id')?.invalid && leagueTransferForm.get('league_id')?.touched">
           Veuillez sélectionner une ligue.
         </small>
       </div>
     </form>
   </div>
-  
+
   <ng-template #footer>
     <div class="flex justify-end gap-2">
       <p-button
@@ -266,13 +266,13 @@
       <p-button
         label="OK"
         icon="pi pi-check"
-        severity="success"
+        severity="primary"
         (click)="setLeague()"
       />
     </div>
   </ng-template>
 </p-dialog>
-    
+
 
 
 <!-- Dialog pour les détails (code existant) -->
@@ -286,7 +286,7 @@
   [closable]="true"
   [contentStyle]="{ 'padding': '1.5rem', 'background-color': '#ffffff' }"
   [baseZIndex]="10000">
-  
+
   <div *ngIf="selectedTeam" class="team-details-container">
     <h2 style="margin-bottom: 1rem; color: rgb(50,145,87); font-size: 1.5rem; text-align: center;">
       {{ selectedTeam.name }}
@@ -327,7 +327,7 @@
     <table class="equipes-table">
       <thead>
         <tr>
-          <th>Nom Des Equipe</th>
+          <th>Nom</th>
           <th>Actions</th>
         </tr>
       </thead>

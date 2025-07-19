@@ -3,12 +3,12 @@
 
   <div class="bg-green-top">
       <div class="layout-header">
-    <div class="layout-header-line1 flex justify-center items-end ">
-        <img class="ligue-logo" src="assets/images/Ligue1-Logo2.png" alt="">
-        <span>LIGUE 1</span>
+    <div class="layout-header-line1  justify-center items-end " [ngClass]="leagueLogo ? 'flex' : ''">
+        <img class="ligue-logo" [src]="leagueLogo" alt="">
+        <span>{{ leagueName }}</span>
         </div>
     <div class="layout-header-line2">Calendrier des matchs</div>
-    <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ phases[selectedPhaseIndex].start | date: 'yyyy' }} - {{ phases[selectedPhaseIndex].end | date: 'yyyy' }}</div>
+    <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ phases[selectedPhaseIndex].start | date: 'yyyy' }} - {{ phases[selectedPhaseIndex].end | date: 'yyyy' }} <span *ngIf="poolName">({{poolName}})</span></div>
   </div>
   </div>
 

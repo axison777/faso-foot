@@ -1,4 +1,5 @@
 import { City } from "./city.model";
+import { League } from "./league.model";
 
 export interface Team {
   id?: string;
@@ -14,5 +15,6 @@ export interface Team {
   manager_last_name?: string;
   manager_role?: string;
   league_id?: string;
+  league?: League;
 
 }

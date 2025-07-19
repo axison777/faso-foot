@@ -31,4 +31,8 @@ export class LigueService {
   delete(id?: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  setTeams(ligueId: string,leagueName: string, teamIds: string[]): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${ligueId}`,  {name:leagueName,teams:teamIds});
+  }
 }

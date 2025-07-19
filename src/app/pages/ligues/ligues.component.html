@@ -49,17 +49,17 @@
 
         <!-- Nombre de groupes -->
         <div>
-          <label for="group_count" class="block font-bold mb-2">Poules <span class="text-red-500">*</span></label>
+          <label for="pools_count" class="block font-bold mb-2">Poules <span class="text-red-500">*</span></label>
           <p-dropdown
-            id="group_count"
-            formControlName="group_count"
+            id="pools_count"
+            formControlName="pools_count"
             [options]="groupOptions"
             optionLabel="label"
             optionValue="value"
             placeholder="Sélectionnez le nombre de groupes"
             class="w-full"
           />
-          <small class="text-red-500" *ngIf="leagueForm.get('group_count')?.invalid && leagueForm.get('group_count')?.touched">
+          <small class="text-red-500" *ngIf="leagueForm.get('pools_count')?.invalid && leagueForm.get('pools_count')?.touched">
             Le nombre de groupes est requis.
           </small>
         </div>
@@ -150,7 +150,7 @@
         <tr *ngFor="let league of filteredLeagues">
           <td class="ligue-nom">{{ league.name }}</td>
           <td class="ligue-team-count">{{ league.teams_count }}</td>
-          <td class="ligue-group-count">{{ league.group_count || 1 }}</td>
+          <td class="ligue-group-count">{{ league.pools_count  }}</td>
           <td class="actions">
             <div class="btn-group">
               <p-button severity="warn" icon="pi pi-pencil" (click)="editLeague(league)"/>
@@ -284,7 +284,7 @@
 
     <ng-template #footer>
         <p-button [raised]="true" severity="secondary" label="Annuler" icon="pi pi-times" text (click)="isEditingTeams = false"  />
-        <p-button [raised]="true" label="OK" icon="pi pi-check"  [disabled]="teamsForm.invalid" (click)="saveLeagueTeams()"/>
+        <p-button [raised]="true" label="OK" icon="pi pi-check"  [disabled]="selectedLeague.teams_count != selectedTeamObjects.length" (click)="saveLeagueTeams()"/>
     </ng-template>
 
 </p-dialog>

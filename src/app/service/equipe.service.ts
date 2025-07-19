@@ -35,10 +35,8 @@ export class EquipeService {
 
   // Nouvelle méthode pour changer la ligue d'une équipe
   setLeague(teamId: string, leagueId: string): Observable<any> {
-    const formData = new FormData();
-    formData.append('league_id', leagueId);
-    formData.append('_method', 'PUT');
-    
-    return this.http.post(`${this.apiUrl}/${teamId}`, formData);
+
+
+    return this.http.post(`${this.apiUrl}/${teamId}/attach-league`, {league_id:leagueId});
   }
 }
