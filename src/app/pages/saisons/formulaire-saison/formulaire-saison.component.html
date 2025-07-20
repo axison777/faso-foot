@@ -187,6 +187,25 @@
         <small class="text-red-500" *ngIf="getTotalSelectedTeamCount() != getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count">
           Le nombre total d'équipes selectionnées ({{ getTotalSelectedTeamCount() }}) est différent du nombre d'équipes de la ligue ({{ getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count }}).
         </small>
+        <!-- Équipes sélectionnées -->
+
+          <div  class="mt-4">
+    <!-- <label class="font-bold block mb-2">Équipes sélectionnées ({{ selectedTeamObjects.length }})</label> -->
+    <div class="flex flex-wrap gap-2">
+
+            <div *ngFor="let team of selectedTeamObjects[this.groups[i].name!]" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+         <img *ngIf="team.logo" [src]="team.logo" alt="Logo" class="w-10 object-contain" />
+                <span class="text-md font-bold">{{ team.abbreviation }}</span>
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-rounded p-button-md p-button-text p-button-danger"
+          (click)="uncheckTeam(i, team?.id!)"
+          type="button"
+        ></button>
+      </div>
+    </div>
+  </div>
 
 
 
@@ -201,7 +220,7 @@
 
             <div class="form-nav pt-6">
               <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" size="large" (onClick)="activateCallback(1)" />
-              <p-button  label="Suivant" [disabled]="!getStep2FormValid()" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="activateCallback(3)" />
+              <p-button  label="Suivant" [disabled]="!getStep2FormValid() || getTotalSelectedTeamCount() != getLeagueFromLeagueId(step1Form.get('league_id')?.value)?.teams_count" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="activateCallback(3)" />
             </div>
           </ng-template>
         </p-step-panel>

@@ -142,6 +142,7 @@ activeTabIndex: any=0;
 loading=true;
 submitloading=false;
 pendingRequests: number=0;
+totalSelectedTeamCount: number = 0;
 
   constructor(private fb: FormBuilder,private saisonService: SaisonService,
     private ligueService:LigueService,
@@ -698,6 +699,8 @@ updateTeamControls(groupIndex: number) {
         if (idx !== -1) selectedIds.splice(idx, 1);
       }
       this.step2Form.at(groupIndex).get('selected_teams')?.setValue([...selectedIds]);
+      this.selectedTeamIdsByGroup[groupIndex] = [...selectedIds];
+      this.selectedTeamObjects[this.groups[groupIndex].name!]=this.teams.filter(team => selectedIds.includes(team?.id!));
       this.updateGlobalSelection(groupIndex);
     });
 
@@ -708,6 +711,32 @@ updateTeamControls(groupIndex: number) {
 toggleAllSelections(groupIndex: number) {
   const value = this.selectAllControls[groupIndex].value;
   this.teamControlsByGroup[groupIndex].controls.forEach(c => c.setValue(value));
+      this.teamControlsByGroup.forEach((group, gIndex) => {
+      if (gIndex !== groupIndex && value) {
+        this.selectedTeamIdsByGroup[gIndex] = [];
+        group.controls.forEach((ctrl, tIndex) => {
+          const team = this.filteredTeams(gIndex)[tIndex];
+
+            ctrl.setValue(false, { emitEvent: true });
+
+        });
+        // Mets à jour le "select all" du groupe concerné
+        this.updateGlobalSelection(gIndex);
+      }
+    })
+
+    if(value){
+        this.selectedTeamIdsByGroup[groupIndex]=this.teams.map(team => team.id!);
+        this.selectedTeamObjects[this.groups[groupIndex].name!]=this.teams
+    }
+
+    else{
+        this.selectedTeamIdsByGroup[groupIndex]=[];
+         this.selectedTeamObjects[this.groups[groupIndex].name!]=[];
+    }
+
+
+
 
 }
 
@@ -715,6 +744,8 @@ updateGlobalSelection(groupIndex: number) {
   const controls = this.teamControlsByGroup[groupIndex].controls;
   const allChecked = controls.every(c => c.value === true);
   this.selectAllControls[groupIndex].setValue(allChecked, { emitEvent: false });
+  this.totalSelectedTeamCount = this.getTotalSelectedTeamCount();
+
 
 }
 
@@ -988,6 +1019,7 @@ updateTeamSelection(groupIndex: number, teamIndex: number) {
   this.updateGlobalSelection(groupIndex);
 }
 
+
 getTotalSelectedTeamCount(): number {
   let total = 0;
   this.teamControlsByGroup.forEach(group => {
@@ -995,6 +1027,26 @@ getTotalSelectedTeamCount(): number {
   });
   return total;
 }
+
+uncheckTeam(groupIndex: number, teamId: string) {
+  // Teams filtered for this pool
+  const filtered = this.filteredTeams(groupIndex);
+
+  const index = filtered.findIndex(t => t.id === teamId);
+
+  if (index !== -1) {
+    // Uncheck the team in the FormArray for this pool
+    const teamControls = this.teamControlsByGroup[groupIndex].controls;
+    teamControls[index].setValue(false);
+  } else {
+    // If the team is hidden (filtered out), we must remove it manually
+    this.selectedTeamIdsByGroup[groupIndex] = this.selectedTeamIdsByGroup[groupIndex].filter(id => id !== teamId);
+  }
+
+
+}
+
+
 
 
 getStep2FormValid(){
