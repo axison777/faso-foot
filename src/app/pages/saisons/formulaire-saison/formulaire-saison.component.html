@@ -471,6 +471,7 @@
                   <label class="block font-bold mb-1">Stade aller<span class="text-red-500">*</span></label>
                   <p-select
                     formControlName="first_leg_stadium_id"
+                    [filter]="true" filterBy="name"
                     [options]="selectedStadiumObjects[groups[i].name!]"
                     optionLabel="name"
                     optionValue="id"
@@ -507,6 +508,7 @@
                   <label class="block font-bold mb-1">Stade retour<span class="text-red-500">*</span></label>
                   <p-select
                     formControlName="second_leg_stadium_id"
+                    [filter]="true" filterBy="name"
                     [options]="selectedStadiumObjects[this.groups[i].name!]"
                     optionLabel="name"
                     optionValue="id"
