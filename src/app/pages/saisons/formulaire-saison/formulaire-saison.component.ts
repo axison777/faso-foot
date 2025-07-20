@@ -16,9 +16,9 @@ import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { SaisonService } from '../../../service/saison.service';
-import { skip } from 'rxjs';
+import { map, Observable, skip } from 'rxjs';
 import { LigueService } from '../../../service/ligue.service';
-import { StadeService } from '../../../service/stade.service';
+import { Stade, StadeService } from '../../../service/stade.service';
 import { Ville, VilleService } from '../../../service/ville.service';
 import { EquipeService } from '../../../service/equipe.service';
 import { ToastModule } from 'primeng/toast';
@@ -126,7 +126,9 @@ export class FormulaireSaisonComponent implements OnInit {
   searchControl = new FormControl('');
 teamControls: FormArray<FormControl<boolean>> = new FormArray<FormControl<boolean>>([]);
 
+selectedTeamObjects: { [group: string]: any[] } = {};
 selectedStadiumObjects: { [group: string]: any[] } = {};
+
 skipDateControl!: FormControl ;
 selectAllTeamsControl = new FormControl(false); // ✅ reactive form
 groups:Group[]=[];
@@ -137,6 +139,9 @@ searchControls: FormControl[] = [];
 selectAllControls: FormControl[] = [];
 teamControlsByGroup: FormArray[] = [];
 activeTabIndex: any=0;
+loading=true;
+submitloading=false;
+pendingRequests: number=0;
 
   constructor(private fb: FormBuilder,private saisonService: SaisonService,
     private ligueService:LigueService,
@@ -215,6 +220,7 @@ activeTabIndex: any=0;
 
 
   ngOnInit(): void {
+    this.pendingRequests = 4;
     this.loadLeagues();
     this.loadStadiums();
     this.loadCities();
@@ -247,7 +253,7 @@ activeTabIndex: any=0;
   } */
 
   submitForm(): void {
-
+    this.submitloading=true
     let formData2=this.buildSeasonPayload();
     console.log(formData2);
 
@@ -293,7 +299,7 @@ activeTabIndex: any=0;
 
       this.saisonService.create(formData2).subscribe({
         next: (response) => {
-          console.log('Saison créée avec succès :', response);
+          this.submitloading=false
           this.messageService.add({
             severity: 'success',
             summary: 'Succès',
@@ -305,7 +311,7 @@ activeTabIndex: any=0;
           }, 1500);
         },
         error: (error) => {
-          console.error('Erreur lors de la création de la saison :', error);
+          this.submitloading=false
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
@@ -491,7 +497,10 @@ change(){
         },
         error: (err) => {
             console.error('Erreur lors du chargement des ligues', err);
-        }
+        },
+        complete: () => {
+        this.decrementPendingRequests();
+      }
         });
     }
 
@@ -502,7 +511,10 @@ change(){
             },
             error: (err) => {
                 console.error('Erreur lors du chargement des stades', err);
-            }
+            },
+            complete: () => {
+        this.decrementPendingRequests();
+      }
         });
     }
     loadCities(): void {
@@ -512,7 +524,10 @@ change(){
             },
             error: (err) => {
                 console.error('Erreur lors du chargement des villes', err);
-            }
+            },
+            complete: () => {
+        this.decrementPendingRequests();
+      }
         });
     }
 
@@ -528,7 +543,10 @@ change(){
             },
             error: (err) => {
                 console.error('Erreur lors du chargement des équipes', err);
-            }
+            },
+            complete: () => {
+        this.decrementPendingRequests();
+      }
         });
     }
 
@@ -682,18 +700,22 @@ updateTeamControls(groupIndex: number) {
       this.step2Form.at(groupIndex).get('selected_teams')?.setValue([...selectedIds]);
       this.updateGlobalSelection(groupIndex);
     });
-  }
+
+
+}
 }
 
 toggleAllSelections(groupIndex: number) {
   const value = this.selectAllControls[groupIndex].value;
   this.teamControlsByGroup[groupIndex].controls.forEach(c => c.setValue(value));
+
 }
 
 updateGlobalSelection(groupIndex: number) {
   const controls = this.teamControlsByGroup[groupIndex].controls;
   const allChecked = controls.every(c => c.value === true);
   this.selectAllControls[groupIndex].setValue(allChecked, { emitEvent: false });
+
 }
 
 getStep2FormGroup(groupIndex: number): FormGroup {
@@ -729,7 +751,6 @@ onStadiumChange(index: number) {
   const formGroup = this.getStadiumFormGroup(index);
   const selectedIds = formGroup.get('selected_stadiums')?.value || [];
   this.selectedStadiumObjects[this.groups[index].name!] = this.stadiums.filter(s => selectedIds.includes(s.id));
-  console.log(this.selectedStadiumObjects);
 }
 
 removeStadium(index: number, stadiumId: string): void {
@@ -961,6 +982,9 @@ updateTeamSelection(groupIndex: number, teamIndex: number) {
   }
 
   // Mets à jour le "select all" du groupe courant
+  const selectedIds = this.selectedTeamIdsByGroup[groupIndex];
+    this.selectedTeamObjects[this.groups[groupIndex].name!]=this.teams.filter(team => selectedIds.includes(team?.id!));
+    console.log(this.selectedTeamObjects);
   this.updateGlobalSelection(groupIndex);
 }
 
@@ -984,11 +1008,90 @@ getStep2FormValid(){
 
 }
 
+getStep4FormValid(){
+    // check all step4forgoups from step4FormArray
+    let valid=true
+    this.step4FormArray?.controls.forEach(g=>{
+        if(!g.valid){
+            valid=false
+        }
+    })
+    return valid
+
+}
+
+getStep5FormValid(){
+    // check all step5forgoups from step5FormArray
+    let valid=true
+    this.step5FormArray?.controls.forEach(g=>{
+        if(!g.valid){
+            valid=false
+    console.log(g)
+
+        }
+    })
+    return valid
+
+}
+
 private skipDateExistsByGroup(date: Date, groupIndex: number): boolean {
   return this.getSkipDatesArray(groupIndex).controls.some(
     ctrl => new Date(ctrl.value.date).toDateString() === date.toDateString()
   );
 }
+
+
+validateDerbiesDates(): void {
+  if (!this.step5FormArray) return;
+
+  this.step5FormArray.controls.forEach((poolGroup: AbstractControl, poolIndex: number) => {
+    const derbiesFA = poolGroup.get('derbies') as FormArray;
+    if (!derbiesFA) return;
+
+    derbiesFA.controls.forEach((derbyGroup: AbstractControl) => {
+      const firstLegCtrl = derbyGroup.get('first_leg_date');
+      const secondLegCtrl = derbyGroup.get('second_leg_date');
+
+      const firstLegDate = firstLegCtrl?.value ? new Date(firstLegCtrl.value) : null;
+      const secondLegDate = secondLegCtrl?.value ? new Date(secondLegCtrl.value) : null;
+
+      // Start date of season from Step1
+      const seasonStartDateRaw = this.step1Form?.get('start_date')?.value;
+      const seasonStartDate = seasonStartDateRaw ? new Date(seasonStartDateRaw) : null;
+
+      // a) first leg after season start
+      if (firstLegDate && seasonStartDate && firstLegDate <= seasonStartDate) {
+        firstLegCtrl?.setErrors({ tooEarly: true });
+      } else {
+        // Remove only this custom error
+        if (firstLegCtrl?.hasError('tooEarly')) {
+          const currentErrors = { ...firstLegCtrl.errors };
+          delete currentErrors['tooEarly'];
+          firstLegCtrl.setErrors(Object.keys(currentErrors).length ? currentErrors : null);
+        }
+      }
+
+      // b) second leg > first leg
+      if (firstLegDate && secondLegDate && secondLegDate <= firstLegDate) {
+        secondLegCtrl?.setErrors({ beforeFirstLeg: true });
+      } else {
+        // Remove only this custom error
+        if (secondLegCtrl?.hasError('beforeFirstLeg')) {
+          const currentErrors = { ...secondLegCtrl.errors };
+          delete currentErrors['beforeFirstLeg'];
+          secondLegCtrl.setErrors(Object.keys(currentErrors).length ? currentErrors : null);
+        }
+      }
+    });
+  });
+}
+
+ private decrementPendingRequests(): void {
+    this.pendingRequests--;
+    if (this.pendingRequests === 0) {
+      this.loading = false;
+    }
+  }
 
 
 

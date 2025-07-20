@@ -160,7 +160,8 @@ export class CalendrierComponent implements OnInit {
     poolName?: string = '';
     leagueName?: string = '';
     leagueLogo?: string = '';
-
+    startDate?: string = '';
+    endDate?: string = '';
     constructor(private route: ActivatedRoute, private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService) {}
     ngOnInit(): void {
         // get seasonId and poolId from params
@@ -200,8 +201,11 @@ export class CalendrierComponent implements OnInit {
 
       next: (res: any) => {
         let calendar= res?.data?.calendar;
+
         this.leagueName=res?.data?.name
         this.leagueLogo=res?.data?.logo
+        this.startDate=res?.data?.start_date
+        this.endDate=res?.data?.end_date
         this.phases.push(calendar?.first_leg)
         this.phases.push(calendar?.second_led);
         /* this.phases = res?.data?.calendar || []; */
@@ -223,6 +227,8 @@ export class CalendrierComponent implements OnInit {
       next: (res: any) => {
         this.leagueName=res?.data?.name
         this.leagueLogo=res?.data?.logo
+        this.startDate=res?.data?.start_date
+        this.endDate=res?.data?.end_date
         this.poolName=res?.data?.pools[0]?.name
         let calendar= res?.data?.pools[0]?.phases;
         this.phases.push(calendar?.first_leg)
@@ -345,7 +351,7 @@ async exportPdf() {
   exportCalendarToPdf(): void {
       this.loading = true;
       setTimeout(() => {
-        this.pdfGeneratorService.generateCalendarPdf(this.phases[this.selectedPhaseIndex], 'calendrier.pdf')
+        this.pdfGeneratorService.generateCalendarPdf(this.phases[this.selectedPhaseIndex],this.leagueName!,this.leagueLogo!,this.startDate!,this.endDate!, this.poolName, 'calendrier.pdf')
         .then(() => {
           this.loading = false;
       });

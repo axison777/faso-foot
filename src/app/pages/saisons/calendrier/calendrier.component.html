@@ -8,7 +8,7 @@
         <span>{{ leagueName }}</span>
         </div>
     <div class="layout-header-line2">Calendrier des matchs</div>
-    <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ phases[selectedPhaseIndex].start | date: 'yyyy' }} - {{ phases[selectedPhaseIndex].end | date: 'yyyy' }} <span *ngIf="poolName">({{poolName}})</span></div>
+    <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ startDate | date: 'yyyy' }} - {{ endDate | date: 'yyyy' }} <span *ngIf="poolName">({{poolName}})</span></div>
   </div>
   </div>
 

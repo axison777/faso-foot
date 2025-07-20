@@ -210,7 +210,7 @@ export class StadesComponent implements OnInit {
   this.stadeDetails = {
     name: stade.name,
     location: stade.location,
-    city: stade.city?.name || 'Non spécifiée',
+    city: this.villes.find(ville => ville.id === stade.city_id)?.name || 'Non spécifiée',
     max_matches_per_day: stade.max_matches_per_day || 'Non spécifié',
     type_of_field: stade.type_of_field || 'Non spécifié'
   };

@@ -14,7 +14,7 @@ export class PdfGeneratorService {
    * @param phase L'objet de phase contenant les données du calendrier.
    * @param filename Le nom du fichier PDF à sauvegarder (par défaut 'calendrier_ligue1.pdf').
    */
-  async generateCalendarPdf(phase: any, filename: string = 'calendrier_ligue1.pdf'): Promise<void> {
+  async generateCalendarPdf(phase: any, leagueName?: string, leagueLogo?: string, startDate?: string, endDate?: string, poolName?: string, filename: string = 'calendrier_ligue1.pdf'): Promise<void> {
     if (!phase) {
       console.error('Les données de phase sont manquantes pour la génération du PDF.');
       return;
@@ -230,11 +230,11 @@ const styles = `
   <div class="export-body">
     <div class="div1">
       <div class="div1_1">
-        <div style="height: 70px; padding-top: 28px">LIGUE 1</div>
+        <div style="height: 70px; padding-top: 28px">${leagueName}</div>
       </div>
       <div class="div1_2">Calendrier des matchs</div>
       <div class="div1_3">
-        Saison ${new Date(phase.start).getFullYear()} - ${new Date(phase.end).getFullYear()} (${phase?.name})
+        Saison ${new Date(phase.start).getFullYear()} - ${new Date(phase.end).getFullYear()} (${phase?.name}) ${poolName ? `(${poolName})` : ''}
       </div>
     </div>
 

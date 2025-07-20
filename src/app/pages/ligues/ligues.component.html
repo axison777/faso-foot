@@ -284,7 +284,7 @@
 
     <ng-template #footer>
         <p-button [raised]="true" severity="secondary" label="Annuler" icon="pi pi-times" text (click)="isEditingTeams = false"  />
-        <p-button [raised]="true" label="OK" icon="pi pi-check"  [disabled]="selectedLeague.teams_count != selectedTeamObjects.length" (click)="saveLeagueTeams()"/>
+        <p-button [loading]="loading" [raised]="true" label="OK" icon="pi pi-check"  [disabled]="selectedLeague.teams_count != selectedTeamObjects.length" (click)="saveLeagueTeams()"/>
     </ng-template>
 
 </p-dialog>

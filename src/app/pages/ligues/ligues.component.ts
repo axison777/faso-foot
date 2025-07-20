@@ -244,10 +244,12 @@ export class LiguesComponent implements OnInit {
   }
 
   saveLeagueTeams(): void {
-
+    this.loading = true;
     if( this.selectedTeamObjects.length==this.selectedLeague?.teams_count){
         this.ligueService.setTeams(this.selectedLeague.id!,this.selectedLeague.name!, this.selectedTeamIds,).subscribe({
+
           next: () => {
+            this.loading = false;
             this.loadLeagues();
             this.isEditingTeams = false;
             this.messageService.add({
