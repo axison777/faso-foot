@@ -237,7 +237,7 @@ export class LiguesComponent implements OnInit {
 
   editLeagueTeams(league: League): void {
 
-    this.selectedTeamIds = league.teams_ids || [];
+    this.selectedTeamIds = Array.from(league.teams_ids || []);
     this.isEditingTeams = true;
     this.selectedLeague = league;
     this.updateTeamControls();
@@ -349,7 +349,7 @@ uncheckTeam(teamId: string) {
   console.log(this.selectedTeamIds);
 }
 
-trackByTeamId(index: number, team: any): string {
+trackByTeamId( team: any): string {
   return team.id;
 }
 
@@ -398,5 +398,18 @@ updateGlobalSelection() {
     return this.leagues.filter(league =>
       league?.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
+  }
+
+  closeTeamsForm(){
+    this.isEditingTeams = false
+    this.selectedTeamIds = [];
+    this.teamControls.reset();
+    this.teamsForm.reset();
+    this.teamSelectionControls.forEach(ctrl => ctrl.setValue(false));
+    this.updateGlobalSelection();
+    this.updateTeamControls();
+    this.updateSelectedTeamsControl();
+
+
   }
 }

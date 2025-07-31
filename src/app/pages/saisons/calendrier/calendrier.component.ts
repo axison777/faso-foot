@@ -13,6 +13,17 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import jsPDF from 'jspdf';
     import html2canvas from 'html2canvas'; // or domToImage from 'dom-to-image';
 import { PdfGeneratorService } from '../../../service/pdf-generator.service';
+import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
+import { AbstractControl, FormControl, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { DatePickerModule } from 'primeng/datepicker';
+import { StadeService } from '../../../service/stade.service';
+import { Stadium } from '../../../models/stadium.model';
+import { Checkbox } from "primeng/checkbox";
+import { MatchService } from '../../../service/match.service';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 
 interface Match {
   team1: string;
@@ -26,6 +37,8 @@ interface Matchday {
   groupedMatchesByDate?: any[];
   label: string;
   matches: Match[];
+  start_date?: string;
+  end_date?: string;
 }
 
 interface Phase {
@@ -38,7 +51,7 @@ interface Phase {
 @Component({
   selector: 'app-calendrier',
   standalone: true,
-  imports: [CommonModule, CarouselModule, TabViewModule, TabsModule, ButtonModule, RouterModule, ProgressSpinnerModule],
+  imports: [CommonModule, CarouselModule, TabViewModule, TabsModule, ButtonModule, RouterModule, ProgressSpinnerModule, DialogModule, SelectModule, ReactiveFormsModule, FormsModule, DatePickerModule, Checkbox, ToastModule, TooltipModule],
   templateUrl: './calendrier.component.html',
   styleUrls: ['./calendrier.component.scss']
 })
@@ -162,7 +175,21 @@ export class CalendrierComponent implements OnInit {
     leagueLogo?: string = '';
     startDate?: string = '';
     endDate?: string = '';
-    constructor(private route: ActivatedRoute, private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService) {}
+
+ displayRescheduleDialog: boolean = false;
+  selectedMatch: any;
+  matchdaysOptions: any[] = [];
+  selectedMatchdayId: any;
+  newMatchDate: Date | null = null;
+  newMatchDateControl = new FormControl(new Date());
+  stadiums: Stadium[] = [];
+  newMatchStadiumControl = new FormControl('',[Validators.required]);
+  isDerbyControl = new FormControl(false,[Validators.required]);
+  rescLoading: boolean=false;
+
+    constructor(private route: ActivatedRoute, private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService, private stadeService:StadeService,
+        private matchService: MatchService, private messageService:MessageService,
+    ) {}
     ngOnInit(): void {
         // get seasonId and poolId from params
     this.route.queryParamMap.subscribe(params => {
@@ -170,6 +197,7 @@ export class CalendrierComponent implements OnInit {
       this.seasonId = params.get('seasonId') || '';
         console.log(this.groupId);
         this.getCalendar();
+        this.loadStadiums();
 
     });
 
@@ -213,7 +241,8 @@ export class CalendrierComponent implements OnInit {
         phase.matchdays.forEach(day => {
       day.groupedMatchesByDate = this.groupMatchesByDate(day.matches);
     });
-  });
+
+  })
         this.loading = false;
       },
       error: () => {
@@ -361,6 +390,96 @@ async exportPdf() {
 
     }
 
+  openRescheduleDialog(match: any,date:string, match_day_id:string, match_day_start:string, match_day_end:string): void {
+    this.newMatchDateControl=new FormControl(new Date(date),[Validators.required,this.dateRangeValidator(new Date(match_day_start),new Date(match_day_end),)]);
+    this.newMatchStadiumControl.patchValue(match.stadium_id)
+    this.isDerbyControl.patchValue(match.is_derby)
+    this.selectedMatchdayId=match_day_id
+    this.selectedMatch = match;
+    // Initialize dialog fields with current match data if needed
+    // For example, if you want to pre-select the current matchday in the dropdown
+    // this.selectedMatchday = match.matchdayId; // Assuming match has a matchdayId
+    // this.newMatchDate = new Date(match.date); // Assuming match.date is a valid date string/object
 
+
+    this.displayRescheduleDialog = true;
+  }
+
+dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null;
+    }
+
+    const inputDate = new Date(control.value);
+
+
+
+    if (inputDate < minDate || inputDate > maxDate) {
+      return { 'dateOutOfRange': { min: minDate.toISOString().split('T')[0], max: maxDate.toISOString().split('T')[0], actual: inputDate.toISOString().split('T')[0] } };
+    }
+    return null;
+  };
+}
+
+    loadStadiums(): void {
+        this.stadeService.getAll().subscribe({
+            next: (res: any) => {
+                this.stadiums = res?.data?.stadiums || [];
+            },
+            error: (err) => {
+                console.error('Erreur lors du chargement des stades', err);
+            },
+
+        });
+    }
+
+    closeRescheduleDialog(): void {
+        this.displayRescheduleDialog = false;
+        this.newMatchDateControl.reset();
+        this.newMatchStadiumControl.reset();
+    }
+
+    submitRescheduleForm(
+
+    ){
+        if (
+            this.newMatchDateControl.hasError('required') ||
+            this.newMatchStadiumControl.hasError('required')
+            )
+            return
+
+        this.rescLoading=true
+        this.matchService.reschedule(
+            this.selectedMatch?.football_match_id,
+            {
+                scheduled_at: this.newMatchDateControl.value,
+                stadium_id: this.newMatchStadiumControl.value,
+                pool_id: this.selectedMatchdayId,
+                is_derbie: this.isDerbyControl.value?1:0
+
+            }
+        ).subscribe({
+            next:(res:any)=>{
+                this.rescLoading=false
+                this.closeRescheduleDialog();
+                this.getCalendar();
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Succès',
+                    detail: 'Match reprogrammé avec succès',
+                })
+            },
+            error: (err) => {
+                this.rescLoading=false
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: "Une erreur s'est produite.",
+                })
+
+            }
+        })
+    }
 
 }

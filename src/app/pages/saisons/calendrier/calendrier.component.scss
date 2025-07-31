@@ -211,3 +211,38 @@
   justify-content: center;
   align-items: center;
 }
+
+/* Add this to your component's SCSS file */
+.match-item {
+  cursor: pointer; /* Indicates it's clickable */
+  transition: background-color 0.2s ease-in-out; /* Smooth transition for hover */
+}
+
+.match-item.hoverable-match:hover {
+  background-color: #f0f0f0; /* Light gray background on hover */
+  border-radius: 2px; /* Slightly rounded corners on hover */
+}
+
+.match-item.hoverable-derby{
+  background-color: #003c3539;
+}
+.match-item.hoverable-derby:hover{
+    background-color: #003c3553;
+  border-radius: 2px; /* Slightly rounded corners on hover */
+}
+
+.match-item.hoverable-rescheduled{
+  background-color: #3c0a0043;
+}
+.match-item.hoverable-rescheduled:hover{
+    background-color: #3c060068;
+  border-radius: 2px; /* Slightly rounded corners on hover */
+}
+
+.match-item.hoverable-rescheduled-derby{
+  background-color: #c9dc8339;
+}
+.match-item.hoverable-rescheduled-derby:hover{
+    background-color: rgba(45, 60, 0, 0.484);
+  border-radius: 2px; /* Slightly rounded corners on hover */
+}

@@ -143,6 +143,7 @@ loading=true;
 submitloading=false;
 pendingRequests: number=0;
 totalSelectedTeamCount: number = 0;
+teamsWithoutLocalStadiums: { [group: string]: any[] } = {};
 
   constructor(private fb: FormBuilder,private saisonService: SaisonService,
     private ligueService:LigueService,
@@ -316,7 +317,7 @@ totalSelectedTeamCount: number = 0;
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
-            detail: `Une erreur est survenue.`,
+            detail: error?.error?.message? error?.error?.message : 'Une erreur est survenue.',
             life: 5000
           });
         }
@@ -745,6 +746,12 @@ updateGlobalSelection(groupIndex: number) {
   const allChecked = controls.every(c => c.value === true);
   this.selectAllControls[groupIndex].setValue(allChecked, { emitEvent: false });
   this.totalSelectedTeamCount = this.getTotalSelectedTeamCount();
+      this.teamsWithoutLocalStadiums[this.groups[groupIndex].name!] = this.selectedTeamObjects[this.groups[groupIndex].name!].filter(team => {
+      const hasLocalStadium = this.selectedStadiumObjects[this.groups[groupIndex].name!].some(
+        stadium => stadium.city_id === team.city_id
+      );
+      return !hasLocalStadium;
+    });
 
 
 }
@@ -1145,6 +1152,10 @@ validateDerbiesDates(): void {
     }
   }
 
+  getCityName(cityId: string): string {
+    const city = this.cityList.find(c => c.id === cityId);
+    return city ? city.name : '';
+  }
 
 
 

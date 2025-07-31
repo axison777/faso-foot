@@ -107,13 +107,45 @@ const styles = `
       font-size: 14px;
     }
 
+    /* --- Start of modified styles for centering scores --- */
     .card_infos_details {
       display: flex;
+      /* Aligns items on a single line */
+      align-items: center;
+      /* Vertically centers items within the flex container */
       justify-content: space-between;
+      /* Distributes space: first item at start, last item at end, even space between others */
       padding: 6px;
       font-size: 13px;
       border-bottom: 1px dashed #c3e0d7;
     }
+
+    .card_infos_details p {
+      /* Targets the "team1 VS team2" paragraph */
+      flex: 1;
+      /* Allows it to grow and shrink, taking up equal space */
+      text-align: left;
+      /* Keeps the team names aligned to the left */
+      margin: 0; /* Remove default paragraph margin */
+    }
+
+    .card_infos_details span:nth-of-type(1) {
+      /* Targets the score "[____] - [____]" span */
+      flex: 1;
+      /* Allows it to grow and shrink, taking up equal space */
+      text-align: center;
+      /* Centers the score horizontally */
+      white-space: nowrap; /* Prevents the score from wrapping to multiple lines */
+    }
+
+    .card_infos_details span:nth-of-type(2) {
+      /* Targets the stadium name span */
+      flex: 1;
+      /* Allows it to grow and shrink, taking up equal space */
+      text-align: right;
+      /* Aligns the stadium name to the right */
+    }
+    /* --- End of modified styles --- */
 
     .card_infos_details:last-child {
       border-bottom: none;
@@ -123,106 +155,38 @@ const styles = `
       text-align: right;
     }
 
-    @media print {
-      .card {
-        page-break-inside: avoid;
-      }
+    /* Print styles (already present, ensuring they are not duplicated unnecessarily) */
+    .card,
+    .card_date_group,
+    .card_infos,
+    .card_infos_details {
+      page-break-inside: avoid;
+      break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      -moz-column-break-inside: avoid;
     }
 
-    .card,
-.card_date_group,
-.card_infos,
-.card_infos_details {
-  page-break-inside: avoid;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  -moz-column-break-inside: avoid;
-}
+    .container {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
 
-.container {
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
+    @media print {
+      .card,
+      .card_date_group,
+      .card_infos,
+      .card_infos_details {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
 
-/* Ajoute aussi ceci pour améliorer le rendu PDF */
-@media print {
-  .card,
-  .card_date_group,
-  .card_infos,
-  .card_infos_details {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .container {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-}
-.card,
-.card_date_group,
-.card_infos,
-.card_infos_details {
-  page-break-inside: avoid;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  -moz-column-break-inside: avoid;
-}
-
-.container {
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-
-/* Ajoute aussi ceci pour améliorer le rendu PDF */
-@media print {
-  .card,
-  .card_date_group,
-  .card_infos,
-  .card_infos_details {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .container {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-}
-.card,
-.card_date_group,
-.card_infos,
-.card_infos_details {
-  page-break-inside: avoid;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  -moz-column-break-inside: avoid;
-}
-
-.container {
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-
-/* Ajoute aussi ceci pour améliorer le rendu PDF */
-@media print {
-  .card,
-  .card_date_group,
-  .card_infos,
-  .card_infos_details {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .container {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-}
-
+      .container {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
   </style>
 `;
-
 
     // 3. Construire le contenu HTML dynamique en utilisant les données `phase`
     const htmlContent = `
@@ -258,6 +222,7 @@ const styles = `
                       <span style="font-size: 11px; color: green">VS</span>
                       ${match.team2}
                     </p>
+                    <span class="boxes"> [____] - [____]</span>
                     <span class="text-right">${match.stadium}</span>
                   </div>
                   <div class="card_infos_separateur"></div>

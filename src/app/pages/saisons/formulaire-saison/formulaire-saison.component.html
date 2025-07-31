@@ -7,7 +7,7 @@
         <p-step [value]="2">Équipes</p-step>
         <p-step [value]="3">Stades</p-step>
         <p-step [value]="4">Contraintes</p-step>
-        <p-step [value]="5">Derbies</p-step>
+        <!-- <p-step [value]="5">Derbies</p-step> -->
       </p-step-list>
       <hr>
       <p-step-panels >
@@ -259,6 +259,14 @@
             Veuillez sélectionner les stades.
           </span>
 
+        <div *ngIf="teamsWithoutLocalStadiums[group.name!].length > 0 && getStadiumFormGroup(i)?.get('selected_stadiums')?.touched">
+      <p class=" font-bold">Si vous souhaitez optimiser la génération du calendrier, veuillez inclure des stades dans les villes des équipes suivantes (optionnel):</p>
+      <p class="text-orange-500" *ngFor="let team of teamsWithoutLocalStadiums[group.name!]">
+        {{ team.abbreviation }} ({{ getCityName(team.city_id) }})
+      </p>
+    </div>
+
+
           <!-- Stades sélectionnés -->
           <div *ngIf="selectedStadiumObjects[group.name!]?.length" class="mt-4">
             <label class="font-bold block mb-2">Stades sélectionnés ({{ selectedStadiumObjects[group.name!].length }})</label>
@@ -289,7 +297,7 @@
 
             <div class="form-nav pt-6">
               <p-button size="large" label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />
-              <p-button [disabled]="!step3Form.valid"  size="large" label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(4)" />
+              <p-button [disabled]="!step3Form.valid "  size="large" label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(4)" />
             </div>
           </ng-template>
         </p-step-panel>
@@ -394,13 +402,14 @@
 
             <div class="form-nav pt-6">
               <p-button size="large" label="Précédent" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(3)" />
-              <p-button [disabled]="!getStep4FormValid()" severity="primary"  size="large" label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(5)" />
+              <!-- <p-button [disabled]="!getStep4FormValid()" severity="primary"  size="large" label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(5)" /> -->
+                    <p-button [loading]="submitloading" [disabled]="!getStep4FormValid()"  size="large" label="Valider" icon="pi pi-check" severity="primary" (click)="submitForm()" />
             </div>
           </ng-template>
         </p-step-panel>
 
         <!-- Step 5 -->
-        <p-step-panel [value]="5">
+        <p-step-panel [value]="5" *ngIf="false">
           <ng-template #content let-activateCallback="activateCallback">
 <p-tabs [(value)]="activeTabIndex">
   <p-tablist *ngIf="groups.length>1">

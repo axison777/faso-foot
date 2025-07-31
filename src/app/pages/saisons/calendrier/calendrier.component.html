@@ -1,103 +1,154 @@
-
+<p-toast></p-toast>
 <div class="page-wrapper">
 
-  <div class="bg-green-top">
-      <div class="layout-header">
-    <div class="layout-header-line1  justify-center items-end " [ngClass]="leagueLogo ? 'flex' : ''">
-        <img class="ligue-logo" [src]="leagueLogo" alt="">
-        <span>{{ leagueName }}</span>
-        </div>
-    <div class="layout-header-line2">Calendrier des matchs</div>
-    <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ startDate | date: 'yyyy' }} - {{ endDate | date: 'yyyy' }} <span *ngIf="poolName">({{poolName}})</span></div>
-  </div>
-  </div>
+ <div class="bg-green-top">
+   <div class="layout-header">
+  <div class="layout-header-line1 justify-center items-end " [ngClass]="leagueLogo ? 'flex' : ''">
+    <img class="ligue-logo" [src]="leagueLogo" alt="">
+    <span>{{ leagueName }}</span>
+    </div>
+  <div class="layout-header-line2">Calendrier des matchs</div>
+  <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ startDate | date: 'yyyy' }} - {{ endDate | date: 'yyyy' }} <span *ngIf="poolName">({{poolName}})</span></div>
+ </div>
+ </div>
 
-  <div class="bg-white-band"></div>
+ <div class="bg-white-band"></div>
 
-  <div class="page-content">
-    <div class="main-card min-h-[100px]">
+ <div class="page-content">
+  <div class="main-card min-h-[100px]">
 
 
 
-      <div class="flex justify-center gap-4 mb-6 position-relative ">
+   <div class="flex justify-center gap-4 mb-6 position-relative ">
 
 
 <div *ngIf="loading" class="custom-spinner-overlay">
-  <div class="custom-spinner"></div>
+ <div class="custom-spinner"></div>
 </div>
 
 
 
 
-        <button
-          *ngFor="let phase of phases; let i = index"
-          pButton
-          style="font-weight: 700; font-size: 20px"
-          [class.active-phase]="selectedPhaseIndex === i"
-          [class.inactive-phase]="selectedPhaseIndex !== i"
-          (click)="selectedPhaseIndex = i"
-        >
-          <!-- {{ phase.name }} ({{ phase.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }}) -->
-            {{ phase.name }} ({{ phase?.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }})
-        </button>
-      </div>
+    <button
+     *ngFor="let phase of phases; let i = index"
+     pButton
+     style="font-weight: 700; font-size: 20px"
+     [class.active-phase]="selectedPhaseIndex === i"
+     [class.inactive-phase]="selectedPhaseIndex !== i"
+     (click)="selectedPhaseIndex = i"
+    >
+           {{ phase.name }} ({{ phase?.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }})
+    </button>
+   </div>
 
 <div *ngIf="phases[selectedPhaseIndex] as phase">
-  <p-carousel
-    [value]="phase.matchdays"
-    [numVisible]="3"
-    [numScroll]="3"
-    [circular]="true"
-    [responsiveOptions]="[
-      { breakpoint: '1024px', numVisible: 2, numScroll: 2 },
-      { breakpoint: '600px', numVisible: 1, numScroll: 1 }
-    ]"
-    class="custom-carousel"
-  >
-    <ng-template pTemplate="item" let-day>
-      <div class="saison bg-white p-2 mx-2 min-h-[300px]">
-        <span class="text-lg font-semibold text-green-700 text-center match-day-title">
-          {{ day.label }}
-        </span>
+ <p-carousel
+  [value]="phase.matchdays"
+  [numVisible]="3"
+  [numScroll]="3"
+  [circular]="true"
+  [responsiveOptions]="[
+   { breakpoint: '1024px', numVisible: 2, numScroll: 2 },
+   { breakpoint: '600px', numVisible: 1, numScroll: 1 }
+  ]"
+  class="custom-carousel"
+ >
+  <ng-template pTemplate="item" let-day>
+   <div class="saison bg-white p-2 mx-2 min-h-[300px]">
+    <span class="text-lg font-semibold text-green-700 text-center match-day-title">
+     {{ day.label }}
+    </span>
 
-        <div class="divide-y divide-gray-200  pb-2 match-day-content">
-          <ng-container *ngFor="let group of day.groupedMatchesByDate">
-               <div class="flex justify-between items-center match-day-header px-2 py-1">
-      <span class="text-green-800 font-semibold text-[12px] capitalize">
-        {{ group.date | date: 'EEEE d MMMM y' }}
-      </span>
-      <span class="text-green-800 font-semibold text-[12px]">
-        {{ group.matches[0].time }}
-      </span>
+    <div class="divide-y divide-gray-200 pb-2 match-day-content">
+     <ng-container *ngFor="let group of day.groupedMatchesByDate">
+       <div class="flex justify-between items-center match-day-header px-2 py-1">
+   <span class="text-green-800 font-semibold text-[12px] capitalize">
+    {{ group.date | date: 'EEEE d MMMM y' }}
+   </span>
+   <span class="text-green-800 font-semibold text-[12px]">
+    {{ group.matches[0].time }}
+   </span>
+  </div>
+      <div *ngFor="let match of group.matches"
+        class="py-1 match-item"
+        [pTooltip]="(match.isDerby ? 'Derby' : '') +
+             (match.isDerby && match.isRescheduled ? ' ' : '') +
+             (match.isRescheduled ? 'Reprogrammé' : '')"
+        (click)="openRescheduleDialog(match, group.date, day.match_day_id, day.start_date, day.end_date)"
+        [ngClass]="{'hoverable-match': !match.isDerby && !match.isRescheduled,
+        'hoverable-derby': match.isDerby && !match.isRescheduled,
+        'hoverable-rescheduled-derby': match.isDerby && match.isRescheduled,
+        'hoverable-rescheduled': !match.isDerby && match.isRescheduled}">
+<div class="flex justify-between items-center font-semibold text-black text-[13px] px-2">
+     <span>
+      {{ match.team1 }} <span class="font-normal text-[9px]">VS</span> {{ match.team2 }}
+     </span>
+     <span class="text-gray-600 text-[11px] text-right">
+     {{ match.stadium }}
+    </span>
     </div>
-            <div *ngFor="let match of group.matches" class="py-1">
- <div class="flex justify-between items-center font-semibold text-black text-[13px] px-2">
-          <span>
-            {{ match.team1 }} <span class="font-normal text-[9px]">VS</span> {{ match.team2 }}
-          </span>
-          <span class="text-gray-600 text-[11px] text-right">
-          {{ match.stadium }}
-        </span>
-        </div>
 
-            </div>
-          </ng-container>
-        </div>
       </div>
-    </ng-template>
-  </p-carousel>
+     </ng-container>
+    </div>
+   </div>
+  </ng-template>
+ </p-carousel>
 </div>
 
-    </div>
-      <div class="flex justify-center gap-4 mt-6" *ngIf="!loading">
-          <button [disabled]="exportingPdf" (click)="exportCalendarToPdf()" routerLinkActive="router-link-active"  class="btn-pdf" >
-
-        <i *ngIf="exportingPdf" class="pi pi-spin pi-spinner"></i>
-
-            Exporter en format PDF</button>
-          <button class="btn-excel" (click)="exportAsExcel(phases[selectedPhaseIndex])">Exporter en format Excel</button>
-        </div>
   </div>
+   <div class="flex justify-center gap-4 mt-6" *ngIf="!loading">
+     <button [disabled]="exportingPdf" (click)="exportCalendarToPdf()" routerLinkActive="router-link-active" class="btn-pdf" >
+
+    <i *ngIf="exportingPdf" class="pi pi-spin pi-spinner"></i>
+
+      Exporter en format PDF</button>
+     <button class="btn-excel" (click)="exportAsExcel(phases[selectedPhaseIndex])">Exporter en format Excel</button>
+    </div>
+ </div>
+
+  <p-dialog *ngIf="phases[selectedPhaseIndex]" header="Reprogrammer le match" [(visible)]="displayRescheduleDialog" [modal]="true" [style]="{width: '500px'}" [draggable]="false" [resizable]="false">
+    <span class="block text-gray-700 text-md font-bold mb-2 text-center">
+        <span class="text-primary">{{ selectedMatch?.team1 }}</span>
+        vs
+        <span class="text-primary">{{ selectedMatch?.team2 }}</span>
+
+        ({{phases[selectedPhaseIndex].name}})</span>
+
+   <div class="p-field mb-4 w-full" >
+    <label for="matchdaySelect" class="block text-gray-700 text-md font-bold mb-2">Journée:</label>
+    <p-select id="matchdaySelect" [options]="phases[selectedPhaseIndex].matchdays" optionLabel="label" optionValue="match_day_id" [(ngModel)]="selectedMatchdayId" appendTo="body" class="w-full"></p-select>
+   </div>
+
+   <div class="p-field mb-4 w-full" >
+    <label for="matchdaySelect" class="block text-gray-700 text-md font-bold mb-2">Stade:</label>
+    <p-select id="matchdaySelect" [options]="stadiums" optionLabel="name" optionValue="id" [formControl]="newMatchStadiumControl" appendTo="body" class="w-full"></p-select>
+   </div>
+
+   <div class="p-field mb-4 w-full">
+    <label for="datePicker" class="block text-gray-700 text-md font-bold mb-2 w-full" >Date:</label>
+    <p-datepicker id="datePicker" [formControl]="newMatchDateControl" dateFormat="dd/mm/yy" [readonlyInput]="false" appendTo="body" [style]="{width: '100%'}" styleClass="mb-2"></p-datepicker>
+    <small class="text-red-500" *ngIf="newMatchDateControl.hasError('required') && newMatchDateControl.touched">La date est requise.</small>
+
+    <span  *ngIf="newMatchDateControl.errors?.['dateOutOfRange'] && newMatchDateControl.touched" class=" text-orange-500"><i class="pr-2 pi pi-exclamation-triangle " ></i>Cette date ne fait pas partie de la journée sélectionnée ({{ newMatchDateControl.errors?.['dateOutOfRange']?.min | date:'dd/MM/yyyy' }} au {{ newMatchDateControl.errors?.['dateOutOfRange']?.max | date:'dd/MM/yyyy' }}).</span>
+   </div>
+
+   <div class=" mb-4 flex justify-start gap-4">
+    <label for="is_derby" class="block text-gray-700 text-md font-bold mb-2 " >Derby </label>
+    <p-checkbox [binary]="true" id="is_derby" [formControl]="isDerbyControl"/>
+
+
+
+   </div>
+
+
+  <ng-template pTemplate="footer">
+   <p-button [raised]="true" label="Annuler" severity="secondary" (click)="closeRescheduleDialog()"></p-button>
+   <p-button [loading]="rescLoading" [raised]="true" severity="primary" label="Reprogrammer" [disabled]="!newMatchDateControl.dirty && !newMatchStadiumControl.dirty"
+    (click)="submitRescheduleForm()"
+   ></p-button>
+  </ng-template>
+ </p-dialog>
 </div>
 
 <!-- <app-export-match
@@ -105,3 +156,4 @@
   #calendarExport
   style="position: absolute; left: -9999px; top: -9999px;"
 ></app-export-match> -->
+
