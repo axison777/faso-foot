@@ -261,6 +261,7 @@ export class CalendrierComponent implements OnInit {
         this.endDate=res?.data?.end_date
         this.poolName=res?.data?.pools[0]?.name
         let calendar= res?.data?.pools[0]?.phases;
+        this.phases=[]
         this.phases.push(calendar?.first_leg)
         this.phases.push(calendar?.second_led);
         /* this.phases = res?.data?.calendar || []; */
