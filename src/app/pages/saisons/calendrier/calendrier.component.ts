@@ -394,7 +394,7 @@ async exportPdf() {
   openRescheduleDialog(match: any,date:string, match_day_id:string, match_day_start:string, match_day_end:string): void {
     this.newMatchDateControl=new FormControl(new Date(date),[Validators.required,this.dateRangeValidator(new Date(match_day_start),new Date(match_day_end),)]);
     this.newMatchStadiumControl.patchValue(match.stadium_id)
-    this.isDerbyControl.patchValue(match.is_derby)
+    this.isDerbyControl.patchValue(match.is_derby?true:false)
     this.selectedMatchdayId=match_day_id
     this.selectedMatch = match;
     // Initialize dialog fields with current match data if needed

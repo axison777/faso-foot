@@ -144,7 +144,7 @@
 
   <ng-template pTemplate="footer">
    <p-button [raised]="true" label="Annuler" severity="secondary" (click)="closeRescheduleDialog()"></p-button>
-   <p-button [loading]="rescLoading" [raised]="true" severity="primary" label="Reprogrammer" [disabled]="!newMatchDateControl.dirty && !newMatchStadiumControl.dirty"
+   <p-button [loading]="rescLoading" [raised]="true" severity="primary" label="Reprogrammer" [disabled]="!newMatchDateControl.dirty && !newMatchStadiumControl.dirty && !isDerbyControl.dirty"
     (click)="submitRescheduleForm()"
    ></p-button>
   </ng-template>
