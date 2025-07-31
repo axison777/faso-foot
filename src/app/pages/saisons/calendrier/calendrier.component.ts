@@ -457,7 +457,7 @@ dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
                 scheduled_at: this.newMatchDateControl.value,
                 stadium_id: this.newMatchStadiumControl.value,
                 match_day_id: this.selectedMatchdayId,
-                is_derbie: this.isDerbyControl.value?1:0
+                is_derby: this.isDerbyControl.value?1:0
 
             }
         ).subscribe({
