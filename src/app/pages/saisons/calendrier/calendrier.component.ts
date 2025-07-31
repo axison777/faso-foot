@@ -234,6 +234,7 @@ export class CalendrierComponent implements OnInit {
         this.leagueLogo=res?.data?.logo
         this.startDate=res?.data?.start_date
         this.endDate=res?.data?.end_date
+        this.phases=[]
         this.phases.push(calendar?.first_leg)
         this.phases.push(calendar?.second_led);
         /* this.phases = res?.data?.calendar || []; */
