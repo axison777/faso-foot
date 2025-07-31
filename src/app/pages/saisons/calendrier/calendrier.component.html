@@ -71,14 +71,14 @@
   </div>
       <div *ngFor="let match of group.matches"
         class="py-1 match-item"
-        [pTooltip]="(match.isDerby ? 'Derby' : '') +
-             (match.isDerby && match.isRescheduled ? ' ' : '') +
-             (match.isRescheduled ? 'Reprogrammé' : '')"
+        [pTooltip]="(match.is_derby ? 'Derby' : '') +
+             (match.is_derby && match.is_rescheduled ? ' ' : '') +
+             (match.is_rescheduled ? 'Reprogrammé' : '')"
         (click)="openRescheduleDialog(match, group.date, day.match_day_id, day.start_date, day.end_date)"
-        [ngClass]="{'hoverable-match': !match.isDerby && !match.isRescheduled,
-        'hoverable-derby': match.isDerby && !match.isRescheduled,
-        'hoverable-rescheduled-derby': match.isDerby && match.isRescheduled,
-        'hoverable-rescheduled': !match.isDerby && match.isRescheduled}">
+        [ngClass]="{'hoverable-match': !match.is_derby && !match.is_rescheduled,
+        'hoverable-derby': match.is_derby && !match.is_rescheduled,
+        'hoverable-rescheduled-derby': match.is_derby && match.is_rescheduled,
+        'hoverable-rescheduled': !match.is_derby && match.is_rescheduled}">
 <div class="flex justify-between items-center font-semibold text-black text-[13px] px-2">
      <span>
       {{ match.team1 }} <span class="font-normal text-[9px]">VS</span> {{ match.team2 }}
