@@ -789,6 +789,12 @@ onStadiumChange(index: number) {
   const formGroup = this.getStadiumFormGroup(index);
   const selectedIds = formGroup.get('selected_stadiums')?.value || [];
   this.selectedStadiumObjects[this.groups[index].name!] = this.stadiums.filter(s => selectedIds.includes(s.id));
+        this.teamsWithoutLocalStadiums[this.groups[index].name!] = this.selectedTeamObjects[this.groups[index].name!].filter(team => {
+      const hasLocalStadium = this.selectedStadiumObjects[this.groups[index].name!].some(
+        stadium => stadium.city_id === team.city_id
+      );
+      return !hasLocalStadium;
+    });
 }
 
 removeStadium(index: number, stadiumId: string): void {
