@@ -117,7 +117,7 @@
 
    <div class="p-field mb-4 w-full" >
     <label for="matchdaySelect" class="block text-gray-700 text-md font-bold mb-2">Journée:</label>
-    <p-select id="matchdaySelect" [options]="phases[selectedPhaseIndex].matchdays" optionLabel="label" optionValue="match_day_id" [(ngModel)]="selectedMatchdayId" appendTo="body" class="w-full"></p-select>
+    <p-select id="matchdaySelect" [options]="phases[selectedPhaseIndex].matchdays" optionLabel="label" optionValue="match_day_id" [formControl]="newMatchDayControl" appendTo="body" class="w-full"></p-select>
    </div>
 
    <div class="p-field mb-4 w-full" >
@@ -130,7 +130,7 @@
     <p-datepicker id="datePicker" [formControl]="newMatchDateControl" dateFormat="dd/mm/yy" [readonlyInput]="false" appendTo="body" [style]="{width: '100%'}" styleClass="mb-2"></p-datepicker>
     <small class="text-red-500" *ngIf="newMatchDateControl.hasError('required') && newMatchDateControl.touched">La date est requise.</small>
 
-    <span  *ngIf="newMatchDateControl.errors?.['dateOutOfRange'] && newMatchDateControl.touched" class=" text-orange-500"><i class="pr-2 pi pi-exclamation-triangle " ></i>Cette date ne fait pas partie de la journée sélectionnée ({{ newMatchDateControl.errors?.['dateOutOfRange']?.min | date:'dd/MM/yyyy' }} au {{ newMatchDateControl.errors?.['dateOutOfRange']?.max | date:'dd/MM/yyyy' }}).</span>
+    <span  *ngIf="newMatchDateControl.errors?.['dateOutOfRange'] " class=" text-orange-500"><i class="pr-2 pi pi-exclamation-triangle " ></i>Cette date ne fait pas partie de la journée sélectionnée ({{ newMatchDateControl.errors?.['dateOutOfRange']?.min | date:'dd/MM/yyyy' }} au {{ newMatchDateControl.errors?.['dateOutOfRange']?.max | date:'dd/MM/yyyy' }}).</span>
    </div>
 
    <div class=" mb-4 flex justify-start gap-4">

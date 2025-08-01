@@ -39,6 +39,8 @@ interface Matchday {
   matches: Match[];
   start_date?: string;
   end_date?: string;
+  match_day_id?: string;
+
 }
 
 interface Phase {
@@ -179,17 +181,26 @@ export class CalendrierComponent implements OnInit {
  displayRescheduleDialog: boolean = false;
   selectedMatch: any;
   matchdaysOptions: any[] = [];
-  selectedMatchdayId: any;
   newMatchDate: Date | null = null;
   newMatchDateControl = new FormControl(new Date());
   stadiums: Stadium[] = [];
   newMatchStadiumControl = new FormControl('',[Validators.required]);
+  newMatchDayControl = new FormControl('',[Validators.required]);
   isDerbyControl = new FormControl(false,[Validators.required]);
   rescLoading: boolean=false;
+  selectedMatchDay?: Matchday;
 
     constructor(private route: ActivatedRoute, private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService, private stadeService:StadeService,
         private matchService: MatchService, private messageService:MessageService,
-    ) {}
+    ) {
+        this.newMatchDayControl.valueChanges.subscribe((value) => {
+            this.selectedMatchDay=this.phases[this.selectedPhaseIndex].matchdays.find((matchday) =>matchday.match_day_id === value)
+        console.log(this.selectedMatchDay);
+        this.newMatchDateControl.setValidators([Validators.required,this.dateRangeValidator(new Date(this.selectedMatchDay?.start_date!),new Date(this.selectedMatchDay?.end_date!),)]);
+        this.newMatchDateControl.updateValueAndValidity();
+        })
+
+    }
     ngOnInit(): void {
         // get seasonId and poolId from params
     this.route.queryParamMap.subscribe(params => {
@@ -396,7 +407,7 @@ async exportPdf() {
     this.newMatchDateControl=new FormControl(new Date(date),[Validators.required,this.dateRangeValidator(new Date(match_day_start),new Date(match_day_end),)]);
     this.newMatchStadiumControl.patchValue(match.stadium_id)
     this.isDerbyControl.patchValue(match.is_derby?true:false)
-    this.selectedMatchdayId=match_day_id
+    this.newMatchDayControl.patchValue(match_day_id);
     this.selectedMatch = match;
     // Initialize dialog fields with current match data if needed
     // For example, if you want to pre-select the current matchday in the dropdown
@@ -457,7 +468,7 @@ dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
             {
                 scheduled_at: this.newMatchDateControl.value,
                 stadium_id: this.newMatchStadiumControl.value,
-                match_day_id: this.selectedMatchdayId,
+                match_day_id: this.newMatchDayControl.value,
                 is_derby: this.isDerbyControl.value?1:0
 
             }
