@@ -150,7 +150,7 @@
       <td class="w-[130px]  text-left font-semibold pl-1">
         <div class="flex items-center gap-2 w-[130px]" >
           <img [src]="match.team2_logo? match.team2_logo : leagueLogo" [alt]="'Logo ' + match.team2" class="w-6 h-6 object-contain bg-green-900" />
-          <span class="truncate w-[130px]">RAHIMO FC</span>
+          <span class="truncate w-[130px]">{{truncateTeamName(match.team2)}}</span>
         </div>
       </td>
 
