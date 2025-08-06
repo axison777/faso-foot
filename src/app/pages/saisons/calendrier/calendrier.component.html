@@ -10,7 +10,7 @@
     <span>{{ leagueName }}</span>
     </div>
   <div class="layout-header-line2">Calendrier des matchs</div>
-  <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ startDate | date: 'yyyy' }} - {{ endDate | date: 'yyyy' }} </div>
+  <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ startDate | date: 'yyyy' }} - {{ endDate | date: 'yyyy' }} ({{poolName}}) </div>
  </div>
  <div *ngIf="false" class="col-start-3 justify-self-end max-w-[800px] max-h-[120px] bg-white mr-4 mt-4 border rounded-md p-4 overflow-y-auto">
     <div class="flex items-center p-1">
@@ -90,7 +90,7 @@
  <p-carousel
   [value]="phase.matchdays"
   [numVisible]="2"
-  [numScroll]="3"
+  [numScroll]="2"
   [circular]="true"
   [responsiveOptions]="[
    { breakpoint: '1024px', numVisible: 2, numScroll: 2 },
