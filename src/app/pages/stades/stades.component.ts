@@ -185,6 +185,7 @@ export class StadesComponent implements OnInit {
 
   deleteStadium(id?: string): void {
     this.confirmationService.confirm({
+        icon: 'pi pi-exclamation-triangle',
       message: 'Voulez-vous vraiment supprimer ce stade ?',
       accept: () => {
         this.stadeService.delete(id).subscribe(() => {
@@ -215,6 +216,10 @@ export class StadesComponent implements OnInit {
     type_of_field: stade.type_of_field || 'Non spécifié'
   };
   this.displayDialog = true;
+}
+
+  getOriginalIndex(obj: any): number {
+  return this.stadiums.indexOf(obj) + 1;
 }
 
 }

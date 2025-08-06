@@ -1,3 +1,4 @@
+import { filter } from 'rxjs';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
@@ -21,11 +22,16 @@ import { StadeService } from '../../../service/stade.service';
 import { Stadium } from '../../../models/stadium.model';
 import { Checkbox } from "primeng/checkbox";
 import { MatchService } from '../../../service/match.service';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { EquipeService } from '../../../service/equipe.service';
+import { Team } from '../../../models/team.model';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MatchDayService } from '../../../service/match-day.service';
 
 interface Match {
+  number: number;
   team1: string;
   team2: string;
   stadium: string;
@@ -53,11 +59,12 @@ interface Phase {
 @Component({
   selector: 'app-calendrier',
   standalone: true,
-  imports: [CommonModule, CarouselModule, TabViewModule, TabsModule, ButtonModule, RouterModule, ProgressSpinnerModule, DialogModule, SelectModule, ReactiveFormsModule, FormsModule, DatePickerModule, Checkbox, ToastModule, TooltipModule],
+  imports: [CommonModule, CarouselModule, TabViewModule, TabsModule, ButtonModule, RouterModule, ProgressSpinnerModule, DialogModule, SelectModule, ReactiveFormsModule, FormsModule, DatePickerModule, Checkbox, ToastModule, TooltipModule, ConfirmDialogModule],
   templateUrl: './calendrier.component.html',
   styleUrls: ['./calendrier.component.scss']
 })
 export class CalendrierComponent implements OnInit {
+
     seasonId: string = '';
     loading: boolean=false
   /*   @ViewChild('calendarExport') componentToExportRef!: ElementRef; */
@@ -179,6 +186,13 @@ export class CalendrierComponent implements OnInit {
     endDate?: string = '';
 
  displayRescheduleDialog: boolean = false;
+ displayFormSelectDialog: boolean = false;
+ displayMatchDayRescheduleDialog: boolean = false;
+ displayMatchDayReplaceDialog: boolean = false;
+ formSelectChoices=[
+  {name:'Remplacer la journée',value:'replace'},
+  {name:'Modifier la période de la journée',value:'reschedule'},
+ ]
   selectedMatch: any;
   matchdaysOptions: any[] = [];
   newMatchDate: Date | null = null;
@@ -187,11 +201,24 @@ export class CalendrierComponent implements OnInit {
   newMatchStadiumControl = new FormControl('',[Validators.required]);
   newMatchDayControl = new FormControl('',[Validators.required]);
   isDerbyControl = new FormControl(false,[Validators.required]);
-  rescLoading: boolean=false;
+  formLoading: boolean=false;
   selectedMatchDay?: Matchday;
+  newMatchTimeControl=new FormControl(new Date(),[Validators.required]);
+  newTeam1Control = new FormControl('',[Validators.required]);
+  newTeam2Control = new FormControl('',[Validators.required]);
+  teams:Team[]=[];
+  matchDayToReplaceControl = new FormControl('',[Validators.required]);
+  matchDayStartControl = new FormControl(new Date(),[Validators.required]);
+  matchDayEndControl = new FormControl(new Date(),[Validators.required]);
+  formSelectControl = new FormControl('',[Validators.required]);
+
+  swappableMatchDays:Matchday[]=[]
+
+
 
     constructor(private route: ActivatedRoute, private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService, private stadeService:StadeService,
-        private matchService: MatchService, private messageService:MessageService,
+        private matchService: MatchService, private messageService:MessageService, private equipeService:EquipeService,
+        private confirmationService: ConfirmationService, private matchDayService:MatchDayService
     ) {
         this.newMatchDayControl.valueChanges.subscribe((value) => {
             this.selectedMatchDay=this.phases[this.selectedPhaseIndex].matchdays.find((matchday) =>matchday.match_day_id === value)
@@ -207,8 +234,10 @@ export class CalendrierComponent implements OnInit {
       this.groupId = params.get('groupId') || '';
       this.seasonId = params.get('seasonId') || '';
         console.log(this.groupId);
+
         this.getCalendar();
         this.loadStadiums();
+        this.loadTeams();
 
     });
 
@@ -249,12 +278,16 @@ export class CalendrierComponent implements OnInit {
         this.phases.push(calendar?.first_leg)
         this.phases.push(calendar?.second_led);
         /* this.phases = res?.data?.calendar || []; */
+        let numeroMatch = 1;
+        console.log('ddddd')
         this.phases.forEach(phase => {
         phase.matchdays.forEach(day => {
-      day.groupedMatchesByDate = this.groupMatchesByDate(day.matches);
-    });
-
-  })
+            day.matches.forEach(match => {
+            match.number = numeroMatch++;
+            });
+            day.groupedMatchesByDate = this.groupMatchesByDate(day.matches);
+        });
+        });
         this.loading = false;
       },
       error: () => {
@@ -276,11 +309,15 @@ export class CalendrierComponent implements OnInit {
         this.phases.push(calendar?.first_leg)
         this.phases.push(calendar?.second_led);
         /* this.phases = res?.data?.calendar || []; */
+        let numeroMatch = 1;
         this.phases.forEach(phase => {
         phase.matchdays.forEach(day => {
-      day.groupedMatchesByDate = this.groupMatchesByDate(day.matches);
-    });
-  });
+            day.matches.forEach(match => {
+            match.number = numeroMatch++;
+            });
+            day.groupedMatchesByDate = this.groupMatchesByDate(day.matches);
+        });
+        });
         this.loading = false;
       },
       error: () => {
@@ -408,7 +445,16 @@ async exportPdf() {
     this.newMatchStadiumControl.patchValue(match.stadium_id)
     this.isDerbyControl.patchValue(match.is_derby?true:false)
     this.newMatchDayControl.patchValue(match_day_id);
+    let timeDateObject= new Date()
+    const [hours, minutes] = match.time.split(':').map(Number);
+    timeDateObject.setHours(hours);
+    timeDateObject.setMinutes(minutes);
+    timeDateObject.setSeconds(0);
+    timeDateObject.setMilliseconds(0);
+    this.newMatchTimeControl.patchValue(timeDateObject);
     this.selectedMatch = match;
+    this.newTeam1Control.patchValue(match.team1_id);
+    this.newTeam2Control.patchValue(match.team2_id);
     // Initialize dialog fields with current match data if needed
     // For example, if you want to pre-select the current matchday in the dropdown
     // this.selectedMatchday = match.matchdayId; // Assuming match has a matchdayId
@@ -451,6 +497,11 @@ dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
         this.displayRescheduleDialog = false;
         this.newMatchDateControl.reset();
         this.newMatchStadiumControl.reset();
+        this.newMatchDayControl.reset();
+        this.isDerbyControl.reset();
+        this.newMatchTimeControl.reset();
+        this.newTeam1Control.reset();
+        this.newTeam2Control.reset();
     }
 
     submitRescheduleForm(
@@ -458,23 +509,29 @@ dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
     ){
         if (
             this.newMatchDateControl.hasError('required') ||
-            this.newMatchStadiumControl.hasError('required')
+            this.newMatchStadiumControl.hasError('required') ||
+            this.newMatchDayControl.hasError('required') ||
+            this.newMatchTimeControl.hasError('required') ||
+            this.newTeam1Control.hasError('required') ||
+            this.newTeam2Control.hasError('required')
             )
             return
 
-        this.rescLoading=true
+        this.formLoading=true
         this.matchService.reschedule(
             this.selectedMatch?.football_match_id,
             {
                 scheduled_at: this.newMatchDateControl.value,
                 stadium_id: this.newMatchStadiumControl.value,
                 match_day_id: this.newMatchDayControl.value,
-                is_derby: this.isDerbyControl.value?1:0
+                is_derby: this.isDerbyControl.value?1:0,
+                team_one_id: this.newTeam1Control.value,
+                team_two_id: this.newTeam2Control.value
 
             }
         ).subscribe({
             next:(res:any)=>{
-                this.rescLoading=false
+                this.formLoading=false
                 this.closeRescheduleDialog();
                 this.getCalendar();
                 this.messageService.add({
@@ -484,7 +541,7 @@ dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
                 })
             },
             error: (err) => {
-                this.rescLoading=false
+                this.formLoading=false
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Erreur',
@@ -494,5 +551,139 @@ dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
             }
         })
     }
+
+      loadTeams(): void {
+    this.loading = true;
+    this.equipeService.getAll().subscribe({
+      next: (res: any) => {
+        this.teams = res?.data.teams || [];
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des équipes',
+        });
+      }
+    });
+  }
+
+    get filteredTeams(): Team[] {
+    return this.teams.filter(team =>
+      true
+    );
+  }
+
+  truncateStadiumName(stadiumName: string): string {
+    if (stadiumName.length > 33) {
+      return stadiumName.substring(0, 33) + '...';
+    }
+    return stadiumName;
+  }
+
+  truncateTeamName(stadiumName: string): string {
+    if (stadiumName.length > 10) {
+      return stadiumName.substring(0, 8) + '..';
+    }
+    return stadiumName;
+  }
+
+  openFormSelectDialog(matchDay:Matchday): void {
+    this.selectedMatchDay=matchDay
+    //this.displayFormSelectDialog = true;
+    this.displayMatchDayReplaceDialog = true;
+  }
+  closeFormSelectDialog(): void {
+    this.displayFormSelectDialog = false;
+    this.formSelectControl.reset();
+  }
+
+  submitFormSelect(){
+    this.displayFormSelectDialog = false;
+    if (this.formSelectControl.value === 'replace')
+      this.displayMatchDayReplaceDialog = true;
+    else
+      this.displayMatchDayRescheduleDialog = true;
+
+  }
+
+  closeMatchDayReplaceDialog() {
+    this.displayMatchDayReplaceDialog = false;
+    this.matchDayToReplaceControl.reset();
+}
+submitMatchDayReplaceForm() {
+    this.formLoading=true
+    this.matchDayService.replace({
+        matchday1_id: this.selectedMatchDay?.match_day_id,
+        matchday2_id: this.matchDayToReplaceControl.value
+    }).subscribe({
+      next: (res: any) => {
+        this.teams = res?.data.teams || [];
+        this.formLoading=false
+        this.matchDayToReplaceControl.reset();
+        this.displayMatchDayReplaceDialog = false;
+        this.getCalendar();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Succès',
+          detail: 'Journée remplacée avec succès',
+        })
+      },
+      error: () => {
+        this.formLoading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: "Une erreur s'est produite.",
+        });
+      }
+    });
+}
+
+  closeMatchDayRescheduleDialog() {
+    this.displayMatchDayRescheduleDialog = false;
+    this.matchDayStartControl.reset();
+    this.matchDayEndControl.reset();
+}
+submitMatchDayRescheduleForm() {
+throw new Error('Method not implemented.');
+}
+
+loadSwappableMatches(){
+this.matchDayService.getSwappableMatchDays(this.selectedMatchDay!.match_day_id!).subscribe({
+  next: (res: any) => {
+    this.swappableMatchDays= res?.swappable_matchdays || [];
+    this.loading = false;
+  },
+  error: () => {
+    this.loading = false;
+    this.displayMatchDayReplaceDialog = false;
+    this.matchDayToReplaceControl.reset();
+    this.getCalendar();
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Erreur lors du chargement des journées remplaçables',
+    });
+  }
+})
+}
+
+get allMatchDays(){
+    let matchDays:Matchday[]=[]
+    this.phases.forEach(phase => {
+        phase.matchdays.forEach(day => {
+            matchDays.push(day)
+        });
+    })
+    return matchDays
+}
+
+onGroupChange(event: any) {
+  this.groupId = event.value;
+  this.getCalendar();
+}
 
 }

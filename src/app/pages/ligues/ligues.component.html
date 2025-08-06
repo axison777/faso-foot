@@ -39,8 +39,7 @@
             formControlName="teams_count"
             placeholder="Entrez le nombre d'équipes de la ligue"
             class="w-full"
-            [min]="1"
-            [max]="50"
+
           />
           <small class="text-red-500" *ngIf="leagueForm.get('teams_count')?.invalid && leagueForm.get('teams_count')?.touched">
             Le nombre d'équipes est requis.
@@ -50,13 +49,12 @@
         <!-- Nombre de groupes -->
         <div>
           <label for="pools_count" class="block font-bold mb-2">Poules <span class="text-red-500">*</span></label>
-          <p-dropdown
+          <p-inputnumber
             id="pools_count"
             formControlName="pools_count"
-            [options]="groupOptions"
             optionLabel="label"
             optionValue="value"
-            placeholder="Sélectionnez le nombre de groupes"
+            placeholder="Entrez le nombre de poules de la ligue"
             class="w-full"
           />
           <small class="text-red-500" *ngIf="leagueForm.get('pools_count')?.invalid && leagueForm.get('pools_count')?.touched">
@@ -140,6 +138,7 @@
     <table class="ligues-table">
       <thead>
         <tr>
+          <th>#</th>
           <th>Nom de la ligue</th>
           <th>Nombre d'équipes</th>
           <th>Poules</th>
@@ -148,6 +147,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let league of filteredLeagues">
+          <td>{{getOriginalIndex(league)}}</td>
           <td class="ligue-nom">{{ league.name }}</td>
           <td class="ligue-team-count">{{ league.teams_count }}</td>
           <td class="ligue-group-count">{{ league.pools_count  }}</td>

@@ -224,10 +224,17 @@
       background:rgb(50,145,87); /* Vert clair - comme topbar */
       color: whitesmoke; /* Texte foncé pour contraste */
 
-      &:first-child {
+        &:first-child {
         border-top-left-radius: 12px;
-        width: 70%;
+        width: 5%;
+
+
       }
+      /* child 2 */
+      &:nth-child(2) {
+          width: 65%;
+      }
+
 
       &:last-child {
         border-top-right-radius: 12px;
@@ -464,7 +471,7 @@
   }
 
   .villes-table {
-    thead th:first-child {
+    thead th:nth-child(2) {
       width: 65%;
     }
 

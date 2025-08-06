@@ -153,13 +153,15 @@
     <table class="stades-table">
       <thead>
         <tr>
+            <th>#</th>
           <th>Nom du Stade</th>
 
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let stadium of filteredStadiums">
+        <tr *ngFor="let stadium of filteredStadiums ">
+          <td>{{getOriginalIndex(stadium)}}</td>
           <td class="stade-nom">{{ stadium.name }}</td>
 
           <td class="actions">

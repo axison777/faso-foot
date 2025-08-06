@@ -164,6 +164,7 @@ export class UsersComponent implements OnInit {
 
   deleteUser(id?: string): void {
     this.confirmationService.confirm({
+        icon: 'pi pi-exclamation-triangle',
       message: 'Voulez-vous vraiment supprimer ce user ?',
       accept: () => {
         this.userService.delete(id).subscribe(() => {

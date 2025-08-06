@@ -224,9 +224,15 @@
       background:rgb(50,145,87); /* Vert clair - comme topbar */
       color: whitesmoke; /* Texte foncé pour contraste */
 
-      &:first-child {
+              &:first-child {
         border-top-left-radius: 12px;
-        width: 70%;
+        width: 5%;
+
+
+      }
+      /* child 2 */
+      &:nth-child(2) {
+          width: 65%;
       }
 
       &:last-child {
@@ -260,7 +266,7 @@
           font-weight: 600;
           color: #1e293b; /* Vert principal */
           font-size: 1.05rem;
-          width: 70%;
+
         }
 
         &.actions {
@@ -464,9 +470,10 @@
   }
 
   .stades-table {
-    thead th:first-child {
+    thead th:nth-child(2) {
       width: 65%;
     }
+
 
     thead th:last-child {
       width: 35%;

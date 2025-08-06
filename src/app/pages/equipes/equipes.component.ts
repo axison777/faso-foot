@@ -291,6 +291,7 @@ export class EquipesComponent implements OnInit {
 
   deleteTeam(id?: string): void {
     this.confirmationService.confirm({
+        icon: 'pi pi-exclamation-triangle',
       message: 'Voulez-vous vraiment supprimer cette équipe ?',
       accept: () => {
         this.equipeService.delete(id).subscribe(() => {
@@ -315,7 +316,8 @@ export class EquipesComponent implements OnInit {
   get filteredTeams(): Team[] {
     if (!this.searchTerm) return this.teams;
     return this.teams.filter(team =>
-      team?.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
+      team?.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      team?.abbreviation?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 
@@ -323,4 +325,8 @@ export class EquipesComponent implements OnInit {
     const ville = this.villes.find(v => v.id === cityId);
     return ville ? ville?.name || 'Ville sans nom' : 'Ville inconnue';
   }
+
+      getOriginalIndex(obj: any): number {
+  return this.teams.indexOf(obj) + 1;
+}
 }

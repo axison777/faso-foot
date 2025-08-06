@@ -226,8 +226,15 @@
 
       &:first-child {
         border-top-left-radius: 12px;
-        width: 70%;
+        width: 5%;
+
+
       }
+      /* child 2 */
+      &:nth-child(2) {
+          width: 65%;
+      }
+
 
       &:last-child {
         border-top-right-radius: 12px;
@@ -464,7 +471,7 @@
   }
 
   .saisons-table {
-    thead th:first-child {
+    thead th:nth-child(2) {
       width: 65%;
     }
 

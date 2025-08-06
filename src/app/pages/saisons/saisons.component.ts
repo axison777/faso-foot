@@ -430,6 +430,12 @@ goToGroupCalendar(groupId: string) {
 
 }
 
+  getOriginalIndex(obj: any): number {
+  return this.saisons.indexOf(obj) + 1;
+}
+
+
+
 
 }
 

@@ -821,6 +821,7 @@ initStep4Form() {
       min_days_between_phases: [30, Validators.required],
       allowed_match_days: [[ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], Validators.required],
       skip_dates: this.fb.array([]),
+      /* matches_per_matchday: [2, Validators.required], */
     }))
   );
 
@@ -924,6 +925,7 @@ buildSeasonPayload(): any | null {
     const match_start_time_raw = step4FG?.value?.match_start_time ?? null;
     const min_hours_between_team_matches = step4FG?.value?.min_hours_between_team_matches ?? null;
     const min_days_between_phases = step4FG?.value?.min_days_between_phases ?? null;
+    /* const matches_per_matchday = step4FG?.value?.matches_per_matchday ?? null; */
     const allowed_match_days = step4FG?.value?.allowed_match_days ?? [];
 
     // skip_dates FormArray
@@ -970,6 +972,7 @@ buildSeasonPayload(): any | null {
       match_start_time: match_start_time_iso ?? '',
       min_hours_between_team_matches: Number(min_hours_between_team_matches) || 0,
       min_days_between_phases: Number(min_days_between_phases) || 0,
+      /* matches_per_matchday: Number(matches_per_matchday) || 0, */
       teams_ids,
       stadiums_ids,
       allowed_match_days,

@@ -379,6 +379,7 @@ updateGlobalSelection() {
 
   deleteLeague(id?: string): void {
     this.confirmationService.confirm({
+     icon: 'pi pi-exclamation-triangle',
       message: 'Voulez-vous vraiment supprimer cette ligue ?',
       accept: () => {
         this.ligueService.delete(id).subscribe(() => {
@@ -412,4 +413,8 @@ updateGlobalSelection() {
 
 
   }
+
+    getOriginalIndex(obj: any): number {
+  return this.leagues.indexOf(obj) + 1;
+}
 }

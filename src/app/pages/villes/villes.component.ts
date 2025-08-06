@@ -189,4 +189,8 @@ export class VillesComponent implements OnInit {
     };
     this.displayDialog = true;
   }
+
+  getOriginalIndex(obj: any): number {
+  return this.citys.indexOf(obj) + 1; 
+}
 }

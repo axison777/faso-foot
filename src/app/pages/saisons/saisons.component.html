@@ -35,12 +35,14 @@
     <table class="saisons-table">
       <thead>
         <tr>
+            <th>#</th>
           <th>Saison</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let saison of filteredSaisons">
+          <td >{{ getOriginalIndex(saison) }}</td>
           <td class="saison-nom">
              {{ saison?.league?.name ?  saison?.league?.name  : '' }} {{getParsedDate(saison?.start_date) | date: 'yyyy' }} - {{ getParsedDate(saison?.end_date) | date: 'yyyy' }}
           </td>

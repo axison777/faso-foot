@@ -41,4 +41,8 @@ export class SaisonService {
   getByGroupId(seasonId: string, pool_id: string): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/calendar/${seasonId}/show`, { params: {  pool_id } });
   }
+
+  regenerateSecondLeg(seasonId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/calendar/${seasonId}/regenerate-second-leg`);
+  }
 }

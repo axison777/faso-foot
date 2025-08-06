@@ -97,12 +97,14 @@
     <table class="villes-table">
       <thead>
         <tr>
+          <th>#</th>
           <th>Nom de la Ville</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let city of filteredCitys">
+          <td>{{getOriginalIndex(city)}}</td>
           <td class="ville-nom" >{{ city.name }}</td>
           <td class="actions">
             <div class="btn-group">

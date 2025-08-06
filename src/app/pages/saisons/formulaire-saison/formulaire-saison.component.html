@@ -351,6 +351,16 @@
             </small>
           </div>
 
+                    <!-- nb matchs par journee -->
+<!--           <div>
+            <label class="font-bold block mb-1">Nombre de matchs par journée<span class="text-red-500">*</span></label>
+            <p-inputNumber formControlName="matches_per_matchday" class="w-full" />
+            <small class="text-red-500"
+              *ngIf="getStep4FormGroup(i).get('matches_per_matchday')?.hasError('required') && getStep4FormGroup(i).get('matches_per_matchday')?.touched">
+              Le nombre de matchs par journée est requis.
+            </small>
+          </div> -->
+
           <!-- Jours autorisés -->
           <div class="col-span-2">
             <label class="font-bold block mb-1">Jours autorisés<span class="text-red-500">*</span></label>

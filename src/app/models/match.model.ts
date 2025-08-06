@@ -4,7 +4,7 @@ import { Team } from "./team.model";
 
 export interface Match {
   id?: string;
-
+  number?: number;
   team_one_id?: string;
   team_two_id?: string;
   team_one?:Team;
