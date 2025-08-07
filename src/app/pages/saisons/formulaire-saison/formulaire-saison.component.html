@@ -317,33 +317,62 @@
         <!-- Section principale -->
         <div class="grid grid-cols-2 gap-4">
          <div >
-          <label class="font-bold block mb-1">Date de début<span class="text-red-500"> *</span></label>
+          <label class="font-bold block mb-1">Date de début (Phase aller)<span class="text-red-500"> *</span></label>
           <p-datepicker
-            formControlName="start_date"
-            (onSelect)="validateDerbiesDates()"
+            formControlName="first_leg_start"
             showIcon
             dateFormat="dd/mm/yy"
             class="w-full"
             [style]="{ 'width': '100%' }"
           />
-<!--           <small class="text-red-500" *ngIf="step1Form.get('start_date')?.hasError('required') && step1Form.get('start_date')?.touched">
-            La date de début est requise.
-          </small> -->
+           <small class="text-red-500" *ngIf="getStep4FormGroup(i).get('first_leg_start')?.hasError('required') && getStep4FormGroup(i).get('first_leg_start')?.touched">
+            La date de début (Phase aller) est requise.
+          </small>
         </div>
 
          <div >
-          <label class="font-bold block mb-1">Date de fin<span class="text-red-500"> *</span></label>
+          <label class="font-bold block mb-1">Date de fin (Phase aller)<span class="text-red-500"> *</span></label>
           <p-datepicker
-            formControlName="end_date"
+            formControlName="first_leg_end"
 
             showIcon
             dateFormat="dd/mm/yy"
             class="w-full"
             [style]="{ 'width': '100%' }"
           />
-<!--           <small class="text-red-500" *ngIf="step1Form.get('start_date')?.hasError('required') && step1Form.get('start_date')?.touched">
-            La date de fin est requise.
-          </small> -->
+           <small class="text-red-500" *ngIf="getStep4FormGroup(i).get('first_leg_end')?.hasError('required') && getStep4FormGroup(i).get('first_leg_end')?.touched">
+            La date de fin (Phase aller)  est requise.
+          </small>
+        </div>
+
+                 <div >
+          <label class="font-bold block mb-1">Date de début (Phase retour)<span class="text-red-500"> *</span></label>
+          <p-datepicker
+            formControlName="second_leg_start"
+
+            showIcon
+            dateFormat="dd/mm/yy"
+            class="w-full"
+            [style]="{ 'width': '100%' }"
+          />
+           <small class="text-red-500" *ngIf="getStep4FormGroup(i).get('second_leg_start')?.hasError('required') && getStep4FormGroup(i).get('second_leg_start')?.touched">
+            La date de début (Phase retour) est requise.
+          </small>
+        </div>
+
+         <div >
+          <label class="font-bold block mb-1">Date de fin (Phase retour)<span class="text-red-500"> *</span></label>
+          <p-datepicker
+            formControlName="second_leg_end"
+
+            showIcon
+            dateFormat="dd/mm/yy"
+            class="w-full"
+            [style]="{ 'width': '100%' }"
+          />
+           <small class="text-red-500" *ngIf="getStep4FormGroup(i).get('second_leg_end')?.hasError('required') && getStep4FormGroup(i).get('second_leg_end')?.touched">
+            La date de fin (Phase retour)  est requise.
+          </small>
         </div>
           <!-- Heure de début des matchs -->
           <div>

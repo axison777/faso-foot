@@ -523,8 +523,8 @@ dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
   const minutes = this.newMatchTimeControl.value!.getMinutes().toString().padStart(2, '0');
 
   const formattedTime = `${hours}:${minutes}`;
-  console.log(formattedTime);
-        /* this.matchService.reschedule(
+
+         this.matchService.reschedule(
             this.selectedMatch?.football_match_id,
             {
                 scheduled_at: this.newMatchDateControl.value,
@@ -532,7 +532,8 @@ dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
                 match_day_id: this.newMatchDayControl.value,
                 is_derby: this.isDerbyControl.value?1:0,
                 team_one_id: this.newTeam1Control.value,
-                team_two_id: this.newTeam2Control.value
+                team_two_id: this.newTeam2Control.value,
+                match_start_time: formattedTime
 
             }
         ).subscribe({
@@ -555,7 +556,7 @@ dateRangeValidator(minDate: Date, maxDate: Date): ValidatorFn {
                 })
 
             }
-        }) */
+        })
     }
 
       loadTeams(): void {
