@@ -35,7 +35,7 @@
         </div>
 
         <!-- Date de début -->
-        <div class="w-full md:w-1/2">
+<!--         <div class="w-full md:w-1/2">
           <label class="font-bold block mb-1">Date de début<span class="text-red-500"> *</span></label>
           <p-datepicker
             formControlName="start_date"
@@ -48,7 +48,7 @@
           <small class="text-red-500" *ngIf="step1Form.get('start_date')?.hasError('required') && step1Form.get('start_date')?.touched">
             La date de début est requise.
           </small>
-        </div>
+        </div> -->
 
         <!-- Date de fin -->
 <!--         <div class="w-full md:w-1/3">
@@ -119,7 +119,7 @@
     <p-tabpanel *ngFor="let group of groups; let i = index" [value]="i">
       <form [formGroup]="getStep2FormGroup(i)" class="flex flex-col gap-6">
         <!-- Recherche -->
-        <input pInputText placeholder="Recherche..." [formControl]="searchControls[i]" class="w-full mb-2" (input)="updateTeamControls(i)" />
+        <input pInputText placeholder="Recherche..." [formControl]="searchControls[i]" class="w-full mb-2" (change)="updateTeamControls(i)" />
 
         <!-- Tout sélectionner -->
         <div class="flex items-center">
@@ -316,6 +316,35 @@
 
         <!-- Section principale -->
         <div class="grid grid-cols-2 gap-4">
+         <div >
+          <label class="font-bold block mb-1">Date de début<span class="text-red-500"> *</span></label>
+          <p-datepicker
+            formControlName="start_date"
+            (onSelect)="validateDerbiesDates()"
+            showIcon
+            dateFormat="dd/mm/yy"
+            class="w-full"
+            [style]="{ 'width': '100%' }"
+          />
+<!--           <small class="text-red-500" *ngIf="step1Form.get('start_date')?.hasError('required') && step1Form.get('start_date')?.touched">
+            La date de début est requise.
+          </small> -->
+        </div>
+
+         <div >
+          <label class="font-bold block mb-1">Date de fin<span class="text-red-500"> *</span></label>
+          <p-datepicker
+            formControlName="end_date"
+
+            showIcon
+            dateFormat="dd/mm/yy"
+            class="w-full"
+            [style]="{ 'width': '100%' }"
+          />
+<!--           <small class="text-red-500" *ngIf="step1Form.get('start_date')?.hasError('required') && step1Form.get('start_date')?.touched">
+            La date de fin est requise.
+          </small> -->
+        </div>
           <!-- Heure de début des matchs -->
           <div>
             <label class="font-bold block mb-1">Heure de début<span class="text-red-500">*</span></label>

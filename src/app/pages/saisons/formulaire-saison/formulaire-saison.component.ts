@@ -161,7 +161,7 @@ teamsWithoutLocalStadiums: { [group: string]: any[] } = {};
     initialTime.setMilliseconds(0);
     this.step1Form = this.fb.group({
       league_id: [null, Validators.required],
-      start_date: [null, Validators.required],
+      /* start_date: [null, Validators.required], */
      /*  end_date: [null, Validators.required], */
      /* group_id: [null, Validators.required] */
     });
@@ -198,7 +198,7 @@ teamsWithoutLocalStadiums: { [group: string]: any[] } = {};
   });
   //this.updateTeamControls();
 
-    this.step1Form.get('start_date')?.valueChanges.subscribe(() => {
+/*     this.step1Form.get('start_date')?.valueChanges.subscribe(() => {
         this.validerContraintesDates()
         // supprimer toutes les skip_dates
         for(let i=0;i<this.step4FormArray.length;i++)
@@ -214,7 +214,7 @@ teamsWithoutLocalStadiums: { [group: string]: any[] } = {};
             }
 
         }
-    });
+    }); */
   this.skipDateControl?.valueChanges.subscribe(() => this.validerContraintesDates());
   //this.derbies.valueChanges.subscribe(() => this.validerContraintesDates());
   }
@@ -816,6 +816,8 @@ initStep4Form() {
     initialTime.setMilliseconds(0);
   this.step4FormArray = this.fb.array(
     this.groups.map(() => this.fb.group({
+      start_date: [null, Validators.required],
+      end_date: [null, Validators.required],
       match_start_time: [initialTime, Validators.required],
       min_hours_between_team_matches: [48, Validators.required],
       min_days_between_phases: [30, Validators.required],
@@ -922,6 +924,9 @@ buildSeasonPayload(): any | null {
 
     // ---- Step4: Calendar constraints ----
     const step4FG = this.step4FormArray?.at(i);
+    const start_date = step4FG?.value?.start_date ?? null;
+    const end_date = step4FG?.value?.end_date ?? null;
+    //const start_date_iso = toIsoDateTime(start_date); // ou toIsoDate selon backend
     const match_start_time_raw = step4FG?.value?.match_start_time ?? null;
     const min_hours_between_team_matches = step4FG?.value?.min_hours_between_team_matches ?? null;
     const min_days_between_phases = step4FG?.value?.min_days_between_phases ?? null;
@@ -969,6 +974,8 @@ buildSeasonPayload(): any | null {
 
     const poolPayload: any = {
       name: group.name ?? `Poule ${i + 1}`,
+      start_date: start_date,
+      end_date: end_date ,
       match_start_time: match_start_time_iso ?? '',
       min_hours_between_team_matches: Number(min_hours_between_team_matches) || 0,
       min_days_between_phases: Number(min_days_between_phases) || 0,
