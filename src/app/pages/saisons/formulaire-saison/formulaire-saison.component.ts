@@ -161,7 +161,7 @@ teamsWithoutLocalStadiums: { [group: string]: any[] } = {};
     initialTime.setMilliseconds(0);
     this.step1Form = this.fb.group({
       league_id: [null, Validators.required],
-      /* start_date: [null, Validators.required], */
+       start_date: [null, Validators.required],
      /*  end_date: [null, Validators.required], */
      /* group_id: [null, Validators.required] */
     });
@@ -198,7 +198,7 @@ teamsWithoutLocalStadiums: { [group: string]: any[] } = {};
   });
   //this.updateTeamControls();
 
-/*     this.step1Form.get('start_date')?.valueChanges.subscribe(() => {
+     this.step1Form.get('start_date')?.valueChanges.subscribe(() => {
         this.validerContraintesDates()
         // supprimer toutes les skip_dates
         for(let i=0;i<this.step4FormArray.length;i++)
@@ -214,7 +214,7 @@ teamsWithoutLocalStadiums: { [group: string]: any[] } = {};
             }
 
         }
-    }); */
+    });
   this.skipDateControl?.valueChanges.subscribe(() => this.validerContraintesDates());
   //this.derbies.valueChanges.subscribe(() => this.validerContraintesDates());
   }
