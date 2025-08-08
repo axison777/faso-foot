@@ -47,12 +47,6 @@ const styles = `
       color: white;
     }
 
-    .div1_1 img {
-      width: 50px;
-      height: 50px;
-      margin-bottom: 10px;
-    }
-
     .div1_1 div {
       font-size: 22px;
       font-weight: bold;
@@ -84,6 +78,11 @@ const styles = `
       background: #ffffff;
       padding: 10px;
       box-shadow: none;
+      page-break-after: always;
+    }
+
+    .card:last-child {
+      page-break-after: avoid;
     }
 
     .card_title {
@@ -103,93 +102,92 @@ const styles = `
       padding: 6px;
       font-weight: bold;
       display: flex;
-      justify-content: space-between;
+     
       font-size: 14px;
     }
 
-    /* --- Start of modified styles for centering scores --- */
-    .card_infos_details {
+    .card_infos_match {
       display: flex;
-      /* Aligns items on a single line */
-      align-items: center;
-      /* Vertically centers items within the flex container */
-      justify-content: space-between;
-      /* Distributes space: first item at start, last item at end, even space between others */
-      padding: 6px;
-      font-size: 13px;
+      flex-direction: column;
+      padding: 10px;
       border-bottom: 1px dashed #c3e0d7;
     }
 
-    .card_infos_details p {
-      /* Targets the "team1 VS team2" paragraph */
-      flex: 1;
-      /* Allows it to grow and shrink, taking up equal space */
-      text-align: left;
-      /* Keeps the team names aligned to the left */
-      margin: 0; /* Remove default paragraph margin */
+    .match-line1 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
     }
 
-    .card_infos_details span:nth-of-type(1) {
-      /* Targets the score "[____] - [____]" span */
-      flex: 1;
-      /* Allows it to grow and shrink, taking up equal space */
+    .match-number {
+      font-weight: bold;
+      flex: 0 0 50px;
+    }
+
+    .match-teams {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+      justify-content: center;
+    }
+
+    .team-info-left, .team-info-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 40%;
+    }
+
+    .team-info-left {
+      justify-content: flex-end;
+    }
+
+    .team-info-right {
+      justify-content: flex-start;
+    }
+
+    .team-logo {
+      width: 30px;
+      height: 30px;
+    }
+
+    .match-vs {
+      font-size: 16px;
+      font-weight: bold;
+      color: #00463C;
+      padding: 0 20px;
+      white-space: nowrap;
+    }
+
+    .match-line2, .match-line3 {
       text-align: center;
-      /* Centers the score horizontally */
-      white-space: nowrap; /* Prevents the score from wrapping to multiple lines */
+      font-size: 13px;
+      color: #555;
+      margin-top: 5px;
     }
 
-    .card_infos_details span:nth-of-type(2) {
-      /* Targets the stadium name span */
-      flex: 1;
-      /* Allows it to grow and shrink, taking up equal space */
-      text-align: right;
-      /* Aligns the stadium name to the right */
-    }
-    /* --- End of modified styles --- */
-
-    .card_infos_details:last-child {
-      border-bottom: none;
-    }
-
-    .text-right {
-      text-align: right;
-    }
-
-    /* Print styles (already present, ensuring they are not duplicated unnecessarily) */
-    .card,
-    .card_date_group,
-    .card_infos,
-    .card_infos_details {
-      page-break-inside: avoid;
-      break-inside: avoid;
-      -webkit-column-break-inside: avoid;
-      -moz-column-break-inside: avoid;
-    }
-
-    .container {
-      break-inside: avoid;
-      page-break-inside: avoid;
+    .match-line3 {
+      font-weight: bold;
     }
 
     @media print {
-      .card,
-      .card_date_group,
-      .card_infos,
-      .card_infos_details {
+      .card {
         page-break-inside: avoid;
-        break-inside: avoid;
       }
+    }
+      .matchday-wrapper {
+      width: 100%;
+      page-break-after: always;
+    }
 
-      .container {
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
+    .export-body {
+      padding: 0;
+      margin: 0;
     }
   </style>
 `;
-
-    // 3. Construire le contenu HTML dynamique en utilisant les données `phase`
-    const htmlContent = `
+const htmlContent = `
   ${styles}
   <div class="export-body">
     <div class="div1">
@@ -201,43 +199,43 @@ const styles = `
         Saison ${new Date(phase.start).getFullYear()} - ${new Date(phase.end).getFullYear()} (${phase?.name}) ${poolName ? `(${poolName})` : ''}
       </div>
     </div>
-
     <div class="container">
       ${phase.matchdays.map((day: any) => `
         <div class="card">
           <div class="card_title">${day.label}</div>
-
-          ${day.groupedMatchesByDate.map((group: any) => `
-            <div class="card_date_group">
+          <div class="card_date_group">
+            ${day.groupedMatchesByDate.map((group: any) => `
               <div class="card_infos_head" style="margin-top: 1rem;">
-                <p style="margin: 0">${new Date(group.date).toLocaleDateString('fr-FR')}</p>
-                <span style="margin-left: auto">${group.matches[0]?.time || ''}</span>
+                <p >${new Date(group.date).toLocaleDateString('fr-FR')}</p>
               </div>
-
               ${group.matches.map((match: any) => `
-                <div class="card_infos page-break-avoid">
-                  <div class="card_infos_details">
-                    <p>
-                      ${match.team1}
-                      <span style="font-size: 11px; color: green">VS</span>
-                      ${match.team2}
-                    </p>
-                    <span class="boxes"> [____] - [____]</span>
-                    <span class="text-right">${match.stadium}</span>
+                <div class="card_infos_match">
+                  <div class="match-line1">
+                    <div class="match-number">${match.number}</div>
+                    <div class="match-teams">
+                      <div class="team-info-left">
+                        <div>${match.team1}</div>
+                        <img src="${match.team1_logo}" alt="Logo de l'équipe 1" class="team-logo">
+                      </div>
+                      <div class="match-vs">[____] vs [____]</div>
+                      <div class="team-info-right">
+                        <img src="${match.team2_logo}" alt="Logo de l'équipe 2" class="team-logo">
+                        <div>${match.team2}</div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="card_infos_separateur"></div>
+                  <div class="match-line2">${match.stadium}</div>
+                  <div class="match-line3">${match.time}</div>
                 </div>
               `).join('')}
-            </div>
-          `).join('')}
+            `).join('')}
+          </div>
         </div>
       `).join('')}
     </div>
   </div>
 `;
-
-
-    tempDiv.innerHTML = htmlContent;
+/*     tempDiv.innerHTML = htmlContent;
 
     // 4. Ajouter temporairement la div au corps du document pour la capture
     document.body.appendChild(tempDiv);
@@ -281,6 +279,87 @@ const styles = `
     } finally {
       // 7. Supprimer la div temporaire du DOM
       document.body.removeChild(tempDiv);
+    } */
+
+const htmlPages = phase.matchdays.map((day: any, index: number) => `
+  <div class="export-body matchday-wrapper">
+    ${index === 0 ? `
+      <div class="div1">
+        <div class="div1_1">
+          <div style="height: 70px; padding-top: 28px">${leagueName}</div>
+        </div>
+        <div class="div1_2">Calendrier des matchs</div>
+        <div class="div1_3">
+          Saison ${new Date(phase.start).getFullYear()} - ${new Date(phase.end).getFullYear()} (${phase?.name}) ${poolName ? `(${poolName})` : ''}
+        </div>
+      </div>
+    ` : ''}
+    <div class="container">
+      <div class="card">
+        <div class="card_title">${day.label}</div>
+        <div class="card_date_group">
+          ${day.groupedMatchesByDate.map((group: any) => `
+            <div class="card_infos_head" style="margin-top: 1rem;">
+              <p style="margin: 0">${new Date(group.date).toLocaleDateString('fr-FR')}</p>
+            </div>
+            ${group.matches.map((match: any) => `
+              <div class="card_infos_match">
+                <div class="match-line1">
+                  <div class="match-number">${match.number}</div>
+                  <div class="match-teams">
+                    <div class="team-info-left">
+                      <div>${match.team1}</div>
+                    </div>
+                    <div class="match-vs">[____] vs [____]</div>
+                    <div class="team-info-right">
+                      <div>${match.team2}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="match-line2">${match.stadium}</div>
+                <div class="match-line3">${match.time}</div>
+              </div>
+            `).join('')}
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+`);
+
+const pdf = new jspdf('p', 'mm', 'a4');
+
+let isFirstPage = true;
+
+for (const pageHtml of htmlPages) {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = styles + pageHtml;
+  tempDiv.style.width = '794px'; // ~210mm
+
+  document.body.appendChild(tempDiv);
+
+  try {
+    const canvas = await html2canvas(tempDiv, {
+      useCORS: true
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const imgWidth = 210;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    if (!isFirstPage) {
+      pdf.addPage();
     }
+    isFirstPage = false;
+
+    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
+  } finally {
+    document.body.removeChild(tempDiv);
+  }
+}
+
+
+pdf.save(filename);
+
   }
 }

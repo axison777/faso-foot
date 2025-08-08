@@ -818,8 +818,8 @@ initStep4Form() {
     this.groups.map(() => this.fb.group({
       first_leg_start: [null, Validators.required],
       first_leg_end: [null, Validators.required],
-      second_leg_start: [null, Validators.required],
-      second_leg_end: [null, Validators.required],
+      second_leg_start: [null],
+      second_leg_end: [null],
       match_start_time: [initialTime, Validators.required],
       min_hours_between_team_matches: [48, Validators.required],
       //min_days_between_phases: [30, Validators.required],
@@ -980,8 +980,8 @@ buildSeasonPayload(): any | null {
       name: group.name ?? `Poule ${i + 1}`,
       first_leg_start: first_leg_start,
       first_leg_end: first_leg_end,
-      second_leg_start: second_leg_start,
-      second_leg_end: second_leg_end,
+ /*      second_leg_start: second_leg_start,
+      second_leg_end: second_leg_end, */
 
       match_start_time: match_start_time_iso ?? '',
       min_hours_between_team_matches: Number(min_hours_between_team_matches) || 0,

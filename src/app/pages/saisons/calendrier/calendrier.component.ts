@@ -16,7 +16,7 @@ import jsPDF from 'jspdf';
 import { PdfGeneratorService } from '../../../service/pdf-generator.service';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
-import { AbstractControl, FormControl, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { StadeService } from '../../../service/stade.service';
 import { Stadium } from '../../../models/stadium.model';
@@ -29,6 +29,9 @@ import { EquipeService } from '../../../service/equipe.service';
 import { Team } from '../../../models/team.model';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MatchDayService } from '../../../service/match-day.service';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CardModule } from 'primeng/card';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 interface Match {
   number: number;
@@ -59,7 +62,9 @@ interface Phase {
 @Component({
   selector: 'app-calendrier',
   standalone: true,
-  imports: [CommonModule, CarouselModule, TabViewModule, TabsModule, ButtonModule, RouterModule, ProgressSpinnerModule, DialogModule, SelectModule, ReactiveFormsModule, FormsModule, DatePickerModule, Checkbox, ToastModule, TooltipModule, ConfirmDialogModule],
+  imports: [CommonModule, CarouselModule, TabViewModule, TabsModule, ButtonModule, RouterModule, ProgressSpinnerModule, DialogModule, SelectModule, ReactiveFormsModule, FormsModule, DatePickerModule, Checkbox, ToastModule, TooltipModule, ConfirmDialogModule,
+    MultiSelectModule, CardModule, InputNumberModule
+  ],
   templateUrl: './calendrier.component.html',
   styleUrls: ['./calendrier.component.scss']
 })
@@ -213,12 +218,25 @@ export class CalendrierComponent implements OnInit {
   formSelectControl = new FormControl('',[Validators.required]);
 
   swappableMatchDays:Matchday[]=[]
+  displayGenerateDialog: boolean = false;
+  generateForm!: FormGroup
+  skipDateControl = new FormControl<Date | null>(null);
+    allowedDaysOptions = [
+    { label: 'Lundi', value: 'Monday' },
+    { label: 'Mardi', value: 'Tuesday' },
+    { label: 'Mercredi', value: 'Wednesday' },
+    { label: 'Jeudi', value: 'Thursday' },
+    { label: 'Vendredi', value: 'Friday' },
+    { label: 'Samedi', value: 'Saturday' },
+    { label: 'Dimanche', value: 'Sunday' }
+    ];
+
 
 
 
     constructor(private route: ActivatedRoute, private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService, private stadeService:StadeService,
         private matchService: MatchService, private messageService:MessageService, private equipeService:EquipeService,
-        private confirmationService: ConfirmationService, private matchDayService:MatchDayService
+        private confirmationService: ConfirmationService, private matchDayService:MatchDayService, private fb:FormBuilder
     ) {
         this.newMatchDayControl.valueChanges.subscribe((value) => {
             this.selectedMatchDay=this.phases[this.selectedPhaseIndex].matchdays.find((matchday) =>matchday.match_day_id === value)
@@ -226,6 +244,8 @@ export class CalendrierComponent implements OnInit {
         this.newMatchDateControl.setValidators([Validators.required,this.dateRangeValidator(new Date(this.selectedMatchDay?.start_date!),new Date(this.selectedMatchDay?.end_date!),)]);
         this.newMatchDateControl.updateValueAndValidity();
         })
+
+        this.initGenerateForm();
 
     }
     ngOnInit(): void {
@@ -693,4 +713,96 @@ onGroupChange(event: any) {
   this.getCalendar();
 }
 
+initGenerateForm() {
+    const initialTime = new Date();
+    initialTime.setHours(16); // Set hours
+    initialTime.setMinutes(0); // Set minutes
+    initialTime.setSeconds(0);
+    initialTime.setMilliseconds(0);
+  this.generateForm = this.fb.group({
+      second_leg_start: [null, Validators.required],
+      second_leg_end: [null, Validators.required],
+      match_start_time: [initialTime, Validators.required],
+      min_hours_between_team_matches: [48, Validators.required],
+      //min_days_between_phases: [30, Validators.required],
+      allowed_match_days: [[ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], Validators.required],
+      skip_dates: this.fb.array([]),
+
+});
+
+
 }
+
+getSkipDatesArray() {
+  return this.generateForm.get('skip_dates') as FormArray;
+}
+
+
+addSkipDate() {
+  const date = this.skipDateControl.value;
+  if (date && !this.skipDateExistsByGroup(date)) {
+    this.getSkipDatesArray().push(this.fb.group({ date: [date] }));
+    this.skipDateControl.reset();
+  }
+}
+
+private skipDateExistsByGroup(date: Date): boolean {
+  return this.getSkipDatesArray().controls.some(
+    ctrl => new Date(ctrl.value.date).toDateString() === date.toDateString()
+  );
+}
+
+removeSkipDate(index: number) {
+  this.getSkipDatesArray().removeAt(index);
+}
+
+openGenerateDialog() {
+  this.displayGenerateDialog = true;
+}
+
+closeGenerateDialog() {
+  this.displayGenerateDialog = false;
+  this.generateForm.reset();
+  this.getSkipDatesArray().clear();
+}
+
+submitGenerateForm() {
+  if (this.generateForm.invalid) {
+    return;
+  }
+  this.formLoading = true;
+  let payload:any={}
+    payload.season_id = this.seasonId;
+    payload.pool_id = this.groupId;
+    payload.second_leg_start = this.generateForm.value.second_leg_start;
+    payload.second_leg_end = this.generateForm.value.second_leg_end;
+    payload.match_start_time = formatDate(this.generateForm.value.match_start_time, 'HH:mm', 'fr-FR');
+    payload.min_hours_between_team_matches = this.generateForm.value.min_hours_between_team_matches;
+    payload.allowed_match_days = this.generateForm.value.allowed_match_days;
+    payload.skip_dates = this.generateForm.value.skip_dates;
+  console.log(this.generateForm.value);
+  this.saisonService.generate(this.generateForm.value).subscribe({
+
+    next: (res: any) => {
+      this.formLoading = false;
+      this.displayGenerateDialog = false;
+      this.getCalendar();
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Succès',
+        detail: 'Phase retour (ré)géneree avec succès',
+      });
+    },
+    error: () => {
+      this.formLoading = false;
+
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: "Une erreur s'est produite.",
+      });
+    }
+  });
+
+
+}}
