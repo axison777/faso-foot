@@ -763,7 +763,7 @@ openGenerateDialog() {
 
 closeGenerateDialog() {
   this.displayGenerateDialog = false;
-  this.generateForm.reset();
+  this.initGenerateForm();
   this.getSkipDatesArray().clear();
 }
 
