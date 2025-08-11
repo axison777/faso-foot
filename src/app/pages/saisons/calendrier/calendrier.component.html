@@ -80,7 +80,7 @@
     {{ phase.name }} ({{ phase?.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }})
   </button>
 
-  <button   pTooltip="(Ré)Générer la phase retour" tooltipPosition="bottom" (click)="openGenerateDialog()" class="full-height-btn p-button-danger p-button"><i class="pi pi-refresh"></i></button>
+  <button pButton icon="pi pi-refresh" severity="danger" size="large"  pTooltip="(Ré)Générer la phase retour" tooltipPosition="bottom" (click)="openGenerateDialog()"  ></button>
 
 </div>
 

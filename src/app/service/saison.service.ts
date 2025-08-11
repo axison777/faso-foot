@@ -43,6 +43,6 @@ export class SaisonService {
   }
 
   generate(data:any): Observable<any[]> {
-    return this.http.post<any[]>(`${environment.apiUrl}/calendar/generate-second-leg`, data);
+    return this.http.post<any[]>(`${environment.apiUrl}/calendar/return-phase/regenerate`, data);
   }
 }

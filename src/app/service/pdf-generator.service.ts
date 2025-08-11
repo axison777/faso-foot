@@ -102,7 +102,7 @@ const styles = `
       padding: 6px;
       font-weight: bold;
       display: flex;
-     
+
       font-size: 14px;
     }
 
@@ -215,11 +215,11 @@ const htmlContent = `
                     <div class="match-teams">
                       <div class="team-info-left">
                         <div>${match.team1}</div>
-                        <img src="${match.team1_logo}" alt="Logo de l'équipe 1" class="team-logo">
+
                       </div>
                       <div class="match-vs">[____] vs [____]</div>
                       <div class="team-info-right">
-                        <img src="${match.team2_logo}" alt="Logo de l'équipe 2" class="team-logo">
+                       
                         <div>${match.team2}</div>
                       </div>
                     </div>

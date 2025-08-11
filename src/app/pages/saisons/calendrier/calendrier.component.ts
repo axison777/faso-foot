@@ -231,7 +231,7 @@ export class CalendrierComponent implements OnInit {
     { label: 'Dimanche', value: 'Sunday' }
     ];
 
-
+    second_leg_is_enabled:boolean=false
 
 
     constructor(private route: ActivatedRoute, private router: Router, private saisonService: SaisonService, private pdfGeneratorService: PdfGeneratorService, private stadeService:StadeService,
@@ -299,7 +299,7 @@ export class CalendrierComponent implements OnInit {
         this.phases.push(calendar?.second_led);
         /* this.phases = res?.data?.calendar || []; */
         let numeroMatch = 1;
-        console.log('ddddd')
+        this.second_leg_is_enabled = res?.data?.second_leg_is_enabled ;
         this.phases.forEach(phase => {
         phase.matchdays.forEach(day => {
             day.matches.forEach(match => {
@@ -324,6 +324,7 @@ export class CalendrierComponent implements OnInit {
         this.startDate=res?.data?.start_date
         this.endDate=res?.data?.end_date
         this.poolName=res?.data?.pools[0]?.name
+        this.second_leg_is_enabled = res?.data?.pools[0]?.second_leg_is_enabled ;
         let calendar= res?.data?.pools[0]?.phases;
         this.phases=[]
         this.phases.push(calendar?.first_leg)
@@ -774,14 +775,14 @@ submitGenerateForm() {
   let payload:any={}
     payload.season_id = this.seasonId;
     payload.pool_id = this.groupId;
-    payload.second_leg_start = this.generateForm.value.second_leg_start;
-    payload.second_leg_end = this.generateForm.value.second_leg_end;
+    payload.start_date = this.generateForm.value.second_leg_start;
+    payload.end_date = this.generateForm.value.second_leg_end;
     payload.match_start_time = formatDate(this.generateForm.value.match_start_time, 'HH:mm', 'fr-FR');
     payload.min_hours_between_team_matches = this.generateForm.value.min_hours_between_team_matches;
     payload.allowed_match_days = this.generateForm.value.allowed_match_days;
     payload.skip_dates = this.generateForm.value.skip_dates;
   console.log(this.generateForm.value);
-  this.saisonService.generate(this.generateForm.value).subscribe({
+  this.saisonService.generate(payload).subscribe({
 
     next: (res: any) => {
       this.formLoading = false;
