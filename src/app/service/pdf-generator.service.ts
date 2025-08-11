@@ -215,7 +215,7 @@ const htmlContent = `
                     <div class="match-teams">
                       <div class="team-info-left">
                         <div>${match.team1}</div>
-
+      
                       </div>
                       <div class="match-vs">[____] vs [____]</div>
                       <div class="team-info-right">
@@ -333,9 +333,6 @@ let isFirstPage = true;
 
 for (const pageHtml of htmlPages) {
   const tempDiv = document.createElement('div');
-  tempDiv.style.position = 'absolute';
-tempDiv.style.left = '-9999px'; 
-tempDiv.style.top = '0';
   tempDiv.innerHTML = styles + pageHtml;
   tempDiv.style.width = '794px'; // ~210mm
 
