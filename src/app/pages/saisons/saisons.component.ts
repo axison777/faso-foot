@@ -312,7 +312,7 @@ rechargerSaisons() {
 
   voirCalendrier(saison: Saison) {
     if(saison?.pools?.length==1)
-    this.router.navigate(['/calendrier'], { queryParams: { seasonId: saison.id } });
+    this.router.navigate(['/calendrier', saison?.pools[0]?.id]);
     else{
         this.displayGroupChoiceDialog=true
         this.groupChoices=saison?.pools
