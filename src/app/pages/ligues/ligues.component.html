@@ -68,7 +68,7 @@
           <!-- Affichage image actuelle (édition) -->
           <div *ngIf="isEditing && currentLogo" class="mb-2">
             <p class="text-gray-600 text-sm mb-1">Logo actuel :</p>
-            <img [src]="currentLogo" alt="Logo actuel" class="w-24 h-24 object-cover rounded shadow" />
+            <img [src]="currentLogo" alt="Logo actuel" class="w-24 h-24 object-contain rounded shadow" />
           </div>
           <!-- Upload image -->
           <p-fileupload
