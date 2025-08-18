@@ -9,11 +9,7 @@ import * as XLSX from 'xlsx';
 import { saveAs} from 'file-saver';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SaisonService } from '../../../service/saison.service';
-import { ExportMatchComponent } from "../../export-match/export-match.component";
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import jsPDF from 'jspdf';
-    import html2canvas from 'html2canvas'; // or domToImage from 'dom-to-image';
-import { PdfGeneratorService } from '../../../service/pdf-generator.service';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
@@ -32,6 +28,7 @@ import { MatchDayService } from '../../../service/match-day.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { PdfGeneratorService } from '../../../service/pdf-generator.service';
 
 interface Match {
   number: number;

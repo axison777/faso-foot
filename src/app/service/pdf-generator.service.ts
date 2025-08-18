@@ -1,365 +1,588 @@
 import { Injectable } from '@angular/core';
-import jspdf from 'jspdf';
-import html2canvas from 'html2canvas';
+import { PDFDocument, PDFImage, rgb, StandardFonts } from 'pdf-lib';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PdfGeneratorService {
+   private apiUrl = environment.apiUrl;
 
   constructor() { }
 
-  /**
-   * Génère un PDF d'un calendrier de matchs à partir des données de phase.
-   * @param phase L'objet de phase contenant les données du calendrier.
-   * @param filename Le nom du fichier PDF à sauvegarder (par défaut 'calendrier_ligue1.pdf').
-   */
   async generateCalendarPdf(phase: any, leagueName?: string, leagueLogo?: string, startDate?: string, endDate?: string, poolName?: string, filename: string = 'calendrier_ligue1.pdf'): Promise<void> {
-    if (!phase) {
-      console.error('Les données de phase sont manquantes pour la génération du PDF.');
-      return;
+    
+    
+    // Créer un nouveau document PDF
+    const pdfDoc = await PDFDocument.create();
+    
+    // Charger les polices
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+    // Couleurs
+    const primaryColor = rgb(0.243, 0.706, 0.537); // #3EB489
+    const darkColor = rgb(0, 0.275, 0.235); // #00463C
+    const lightGray = rgb(0.9, 0.94, 0.933); // #e6f4ee
+
+    let currentPage = pdfDoc.addPage([595, 842]); // A4
+    let yPosition = 800;
+    let leagueLogoImage: PDFImage | null = null;
+    let teamsLogos: Map<string, PDFImage> = new Map();
+
+    // Charger les logos
+    if (leagueLogo) {
+      leagueLogoImage = await this.embedImage(pdfDoc, leagueLogo);
     }
 
-    // 1. Créer un élément div temporaire en mémoire
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px'; // Le positionner hors de l'écran
-    tempDiv.style.width = '800px'; // Largeur de rendu pour html2canvas (ajustez si besoin)
-    tempDiv.style.background = '#fff'; // Assurer un fond blanc pour le PDF
-    tempDiv.style.padding = '20px'; // Ajouter un padding pour la marge du contenu
+    //Pré-charger tous les logos des équipes 
+    const teamLogos: Map<string, PDFImage> = new Map();
+    await this.preloadTeamLogos(pdfDoc, phase,  teamLogos);
 
-    // 2. Injecter les styles CSS nécessaires
-    // Il est crucial d'inclure les styles qui affectent le layout et l'apparence
-    // pour que html2canvas capture le rendu voulu.
-    // Dans styles :
-const styles = `
-  <style>
-    .export-body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+    // En-tête sur la première page
+    this.drawHeader(currentPage, font, fontBold, primaryColor, darkColor, 
+                   leagueName || 'Championnat', phase, poolName || '', yPosition, leagueLogoImage);
+    yPosition -= 50;
 
-    .div1 {
-      background-color: #3EB489;
-      text-align: center;
-      padding: 20px;
-      color: white;
-    }
-
-    .div1_1 div {
-      font-size: 22px;
-      font-weight: bold;
-    }
-
-    .div1_2 {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 8px;
-      color: #00463C;
-    }
-
-    .div1_3 {
-      font-size: 14px;
-      color: #d2f1e5;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 10px;
-    }
-
-    .card {
-      border: 1px solid #d1e7dd;
-      border-left: 5px solid #00463C;
-      border-radius: 4px;
-      background: #ffffff;
-      padding: 10px;
-      box-shadow: none;
-      page-break-after: always;
-    }
-
-    .card:last-child {
-      page-break-after: avoid;
-    }
-
-    .card_title {
-      background-color: #00463C;
-      color: white;
-      padding: 8px;
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .card_date_group {
-      margin-top: 10px;
-    }
-
-    .card_infos_head {
-      background-color: #e6f4ee;
-      padding: 6px;
-      font-weight: bold;
-      display: flex;
-
-      font-size: 14px;
-    }
-
-    .card_infos_match {
-      display: flex;
-      flex-direction: column;
-      padding: 10px;
-      border-bottom: 1px dashed #c3e0d7;
-    }
-
-    .match-line1 {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-    }
-
-    .match-number {
-      font-weight: bold;
-      flex: 0 0 50px;
-    }
-
-    .match-teams {
-      display: flex;
-      align-items: center;
-      flex-grow: 1;
-      justify-content: center;
-    }
-
-    .team-info-left, .team-info-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 40%;
-    }
-
-    .team-info-left {
-      justify-content: flex-end;
-    }
-
-    .team-info-right {
-      justify-content: flex-start;
-    }
-
-    .team-logo {
-      width: 30px;
-      height: 30px;
-    }
-
-    .match-vs {
-      font-size: 16px;
-      font-weight: bold;
-      color: #00463C;
-      padding: 0 20px;
-      white-space: nowrap;
-    }
-
-    .match-line2, .match-line3 {
-      text-align: center;
-      font-size: 13px;
-      color: #555;
-      margin-top: 5px;
-    }
-
-    .match-line3 {
-      font-weight: bold;
-    }
-
-    @media print {
-      .card {
-        page-break-inside: avoid;
-      }
-    }
-      .matchday-wrapper {
-      width: 100%;
-      page-break-after: always;
-    }
-
-    .export-body {
-      padding: 0;
-      margin: 0;
-    }
-  </style>
-`;
-const htmlContent = `
-  ${styles}
-  <div class="export-body">
-    <div class="div1">
-      <div class="div1_1">
-        <div style="height: 70px; padding-top: 28px">${leagueName}</div>
-      </div>
-      <div class="div1_2">Calendrier des matchs</div>
-      <div class="div1_3">
-        Saison ${new Date(phase.start).getFullYear()} - ${new Date(phase.end).getFullYear()} (${phase?.name}) ${poolName ? `(${poolName})` : ''}
-      </div>
-    </div>
-    <div class="container">
-      ${phase.matchdays.map((day: any) => `
-        <div class="card">
-          <div class="card_title">${day.label}</div>
-          <div class="card_date_group">
-            ${day.groupedMatchesByDate.map((group: any) => `
-              <div class="card_infos_head" style="margin-top: 1rem;">
-                <p >${new Date(group.date).toLocaleDateString('fr-FR')}</p>
-              </div>
-              ${group.matches.map((match: any) => `
-                <div class="card_infos_match">
-                  <div class="match-line1">
-                    <div class="match-number">${match.number}</div>
-                    <div class="match-teams">
-                      <div class="team-info-left">
-                        <div>${match.team1}</div>
-
-                      </div>
-                      <div class="match-vs">[____] vs [____]</div>
-                      <div class="team-info-right">
-                       
-                        <div>${match.team2}</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="match-line2">${match.stadium}</div>
-                  <div class="match-line3">${match.time}</div>
-                </div>
-              `).join('')}
-            `).join('')}
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  </div>
-`;
-/*     tempDiv.innerHTML = htmlContent;
-
-    // 4. Ajouter temporairement la div au corps du document pour la capture
-    document.body.appendChild(tempDiv);
-
-    try {
-      // 5. Utiliser html2canvas pour capturer le contenu de la div temporaire
-      const canvas = await html2canvas(tempDiv, {
-        ///scale: 2, // Augmente la résolution pour une meilleure qualité
-        useCORS: true // Nécessaire si vous avez des images provenant d'une autre origine
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jspdf('p', 'mm', 'a4');
-
-      const imgWidth = 210; // Largeur A4 en mm
-      const pageHeight = 297; // Hauteur A4 en mm
-
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-
-      let position = 0;
-
-      // Ajouter la première page
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= pageHeight;
-
-      // Ajouter des pages supplémentaires si le contenu dépasse une page
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-        heightLeft -= pageHeight;
+    // Parcourir chaque journée
+    for (const day of phase.matchdays) {
+      // Vérifier si on a assez de place pour la journée
+      const estimatedHeight = this.estimateMatchdayHeight(day);
+      //si c'est la première page 
+      if (yPosition - estimatedHeight < 50) {
+        currentPage = pdfDoc.addPage([595, 842]);
+        yPosition = 800;
       }
 
-      // 6. Sauvegarder le PDF
-      pdf.save(filename);
+      yPosition = this.drawMatchday(currentPage, font, fontBold, darkColor, lightGray, 
+                                  day, yPosition, teamLogos);
+      yPosition -= 30; // Espacement entre les journées
+    }
 
-    } catch (error) {
-      console.error('Erreur lors de la génération du PDF:', error);
-      // Ici, vous pourriez déclencher une notification utilisateur
-    } finally {
-      // 7. Supprimer la div temporaire du DOM
-      document.body.removeChild(tempDiv);
-    } */
+    // Sauvegarder le PDF
+    const pdfBytes = await pdfDoc.save();
+    this.downloadPdf(pdfBytes, filename);
+  }
 
-const htmlPages = phase.matchdays.map((day: any, index: number) => `
-  <div class="export-body matchday-wrapper">
-    ${index === 0 ? `
-      <div class="div1">
-        <div class="div1_1">
-          <div style="height: 70px; padding-top: 28px">${leagueName}</div>
-        </div>
-        <div class="div1_2">Calendrier des matchs</div>
-        <div class="div1_3">
-          Saison ${new Date(phase.start).getFullYear()} - ${new Date(phase.end).getFullYear()} (${phase?.name}) ${poolName ? `(${poolName})` : ''}
-        </div>
-      </div>
-    ` : ''}
-    <div class="container">
-      <div class="card">
-        <div class="card_title">${day.label}</div>
-        <div class="card_date_group">
-          ${day.groupedMatchesByDate.map((group: any) => `
-            <div class="card_infos_head" style="margin-top: 1rem;">
-              <p style="margin: 0">${new Date(group.date).toLocaleDateString('fr-FR')}</p>
-            </div>
-            ${group.matches.map((match: any) => `
-              <div class="card_infos_match">
-                <div class="match-line1">
-                  <div class="match-number">${match.number}</div>
-                  <div class="match-teams">
-                    <div class="team-info-left">
-                      <div>${match.team1}</div>
-                    </div>
-                    <div class="match-vs">[____] vs [____]</div>
-                    <div class="team-info-right">
-                      <div>${match.team2}</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="match-line2">${match.stadium}</div>
-                <div class="match-line3">${match.time}</div>
-              </div>
-            `).join('')}
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  </div>
-`);
-
-const pdf = new jspdf('p', 'mm', 'a4');
-
-let isFirstPage = true;
-
-for (const pageHtml of htmlPages) {
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = styles + pageHtml;
-  tempDiv.style.width = '794px'; // ~210mm
-
-  document.body.appendChild(tempDiv);
-
-  try {
-    const canvas = await html2canvas(tempDiv, {
-      useCORS: true
+  private drawHeader(page: any, font: any, fontBold: any, primaryColor: any, 
+                    darkColor: any, leagueName: string, phase: any, 
+                    poolName: string, yPosition: number, leagueLogoImage: PDFImage | null) {
+    
+    // Fond coloré pour l'en-tête
+    page.drawRectangle({
+      x: 0,
+      y: yPosition - 40,
+      width: 595,
+      height: 100,
+      color: primaryColor,
     });
 
-    const imgData = canvas.toDataURL('image/png');
-    const imgWidth = 210;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    if (!isFirstPage) {
-      pdf.addPage();
+    // Logo de la ligue
+    if (leagueLogoImage) {
+      page.drawImage(leagueLogoImage, {
+        x: 10,
+        y: yPosition - 15,
+        width: 50,
+        height: 50,
+      });
     }
-    isFirstPage = false;
 
-    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
-  } finally {
-    document.body.removeChild(tempDiv);
+    // Titre principal
+    page.drawText(leagueName || 'Championnat', {
+      x: 297.5,
+      y: yPosition +1,
+      size: 24,
+      font: fontBold,
+      color: rgb(1, 1, 1),
+      textAlign: 'center' as any
+    });
+
+    // Sous-titre
+    page.drawText('Calendrier des matchs', {
+      x: 297.5,
+      y: yPosition - 20,
+      size: 18,
+      font: fontBold,
+      color: darkColor,
+      textAlign: 'center' as any
+    });
+
+    // Saison
+    const seasonText = `Saison ${new Date(phase.start).getFullYear()} - ${new Date(phase.end).getFullYear()} (${phase?.name}) ${poolName ? `(${poolName})` : ''}`;
+    page.drawText(seasonText, {
+      x: 297.5,
+      y: yPosition - 35,
+      size: 12,
+      font: font,
+      color: rgb(0.82, 0.94, 0.9),
+      textAlign: 'center' as any
+    });
   }
-}
 
+  private drawMatchday(page: any, font: any, fontBold: any, darkColor: any, 
+                      lightGray: any, day: any, yPosition: number, teamLogos: Map<string, PDFImage>): number {
+    
+    let currentY = yPosition;
 
-pdf.save(filename);
+    // Titre de la journée
+    page.drawRectangle({
+      x: 40,
+      y: currentY - 25,
+      width: 515,
+      height: 25,
+      color: darkColor,
+    });
 
+    page.drawText(day.label, {
+      x: 50,
+      y: currentY - 18,
+      size: 14,
+      font: fontBold,
+      color: rgb(1, 1, 1),
+    });
+
+    currentY -= 35;
+
+    // Parcourir les groupes de dates
+    for (const group of day.groupedMatchesByDate) {
+      // En-tête de date
+      page.drawRectangle({
+        x: 50,
+        y: currentY - 20,
+        width: 495,
+        height: 20,
+        color: lightGray,
+      });
+
+      const dateStr = new Date(group.date).toLocaleDateString('fr-FR');
+      page.drawText(dateStr, {
+        x: 60,
+        y: currentY - 15,
+        size: 12,
+        font: fontBold,
+        color: darkColor,
+      });
+
+      currentY -= 30;
+
+      // Matches
+      for (const match of group.matches) {
+        currentY = this.drawMatch(page, font, fontBold, match, currentY, teamLogos);
+      }
+    }
+
+    return currentY;
+  }
+  private drawMatch(page: any, font: any, fontBold: any, match: any, yPosition: number, teamLogos: Map<string, PDFImage>): number {
+    const matchHeight = 70; // Augmenté pour accommoder les logos
+    
+    // Fond du match
+    page.drawRectangle({
+      x: 60,
+      y: yPosition - matchHeight,
+      width: 475,
+      height: matchHeight,
+      color: rgb(1, 1, 1),
+      borderColor: rgb(0.76, 0.88, 0.84),
+      borderWidth: 1,
+    });
+
+    // Numéro du match
+    page.drawText(`Match ${match.number || ''}`, {
+      x: 75,
+      y: yPosition - 20,
+      size: 10,
+      font: fontBold,
+      color: rgb(0, 0, 0),
+    });
+
+    // === ÉQUIPE 1 (côté gauche) ===
+    const team1Logo = teamLogos.get(match.team1_id);
+    const team1StartX = 120;
+    
+    if (team1Logo) {
+      // Logo équipe 1
+      page.drawImage(team1Logo, {
+        x: team1StartX,
+        y: yPosition - 45,
+        width: 25,
+        height: 25,
+      });
+      
+      // Nom équipe 1 (à droite du logo)
+      page.drawText(match.team1, {
+        x: team1StartX + 35,
+        y: yPosition - 32,
+        size: 11,
+        font: font,
+        color: rgb(0, 0, 0),
+      });
+    } else {
+      // Nom équipe 1 sans logo
+      page.drawText(match.team1, {
+        x: team1StartX,
+        y: yPosition - 32,
+        size: 11,
+        font: font,
+        color: rgb(0, 0, 0),
+      });
+    }
+
+    // === "VS" au centre ===
+    page.drawText('VS', {
+      x: 297.5,
+      y: yPosition - 32,
+      size: 14,
+      font: fontBold,
+      color: rgb(0, 0.275, 0.235),
+      textAlign: 'center' as any
+    });
+
+    // Cases pour les scores
+    page.drawText('[___]', {
+      x: 260,
+      y: yPosition - 32,
+      size: 12,
+      font: font,
+      color: rgb(0.5, 0.5, 0.5),
+    });
+    
+    page.drawText('[___]', {
+      x: 320,
+      y: yPosition - 32,
+      size: 12,
+      font: font,
+      color: rgb(0.5, 0.5, 0.5),
+    });
+
+    // === ÉQUIPE 2 (côté droit) ===
+    const team2Logo = teamLogos.get(match.team2_id);
+    const team2StartX = 380;
+    
+    // Nom équipe 2
+    page.drawText(match.team2, {
+      x: team2StartX,
+      y: yPosition - 32,
+      size: 11,
+      font: font,
+      color: rgb(0, 0, 0),
+    });
+    
+    if (team2Logo) {
+      // Logo équipe 2 (à droite du nom)
+      const textWidth = font.widthOfTextAtSize(match.team2, 11);
+      page.drawImage(team2Logo, {
+        x: team2StartX + textWidth + 10,
+        y: yPosition - 45,
+        width: 25,
+        height: 25,
+      });
+    }
+
+    // === INFORMATIONS DU MATCH ===
+    // Stade
+    const stadiumText = match.stadium;
+    const textWidth = font.widthOfTextAtSize(stadiumText, 9);
+    page.drawText(stadiumText, {
+      x: 260 - (textWidth / 10),
+      y: yPosition - 52,
+      size: 9,
+      font: font,
+      color: rgb(0.4, 0.4, 0.4),
+      textAlign: 'left' as any
+    });
+
+    // Date et heure
+    const matchDateTime = `${match.time}`;
+    page.drawText(matchDateTime, {
+      x: 290.5,
+      y: yPosition - 65,
+      size: 10,
+      font: fontBold,
+      color: rgb(0, 0, 0),
+      textAlign: 'left' as any
+    });
+
+    // Indicateurs spéciaux
+    let indicators: string[] = [];
+    if (match.is_derby === 1) indicators.push('DERBY');
+    if (match.is_rescheduled === 1) indicators.push('REPORTÉ');
+    
+    if (indicators.length > 0) {
+      page.drawText(`(${indicators.join(' - ')})`, {
+        x: 480,
+        y: yPosition - 20,
+        size: 8,
+        font: fontBold,
+        color: rgb(0.8, 0.2, 0.2),
+      });
+    }
+
+    return yPosition - matchHeight - 8;
+  }
+
+//   private drawMatch(page: any, font: any, fontBold: any, match: any, yPosition: number): number {
+//     const matchHeight = 60;
+    
+//     // Fond du match
+//     page.drawRectangle({
+//       x: 60,
+//       y: yPosition - matchHeight,
+//       width: 475,
+//       height: matchHeight,
+//       color: rgb(1, 1, 1),
+//       borderColor: rgb(0.76, 0.88, 0.84),
+//       borderWidth: 1,
+//     });
+
+//     // Numéro du match
+//     page.drawText(`${match.number}`, {
+//       x: 75,
+//       y: yPosition - 20,
+//       size: 12,
+//       font: fontBold,
+//       color: rgb(0, 0, 0),
+//     });
+
+//     // Équipes
+//     const team1Text = match.team1;
+//     const team2Text = match.team2;
+    
+//     page.drawText(team1Text, {
+//       x: 150,
+//       y: yPosition - 20,
+//       size: 11,
+//       font: font,
+//       color: rgb(0, 0, 0),
+//     });
+
+//     page.drawText('vs', {
+//       x: 297.5,
+//       y: yPosition - 20,
+//       size: 12,
+//       font: fontBold,
+//       color: rgb(0, 0.275, 0.235),
+//       textAlign: 'center' as any
+//     });
+
+//     page.drawText(team2Text, {
+//       x: 350,
+//       y: yPosition - 20,
+//       size: 11,
+//       font: font,
+//       color: rgb(0, 0, 0),
+//     });
+
+//     // Stade
+//     page.drawText(match.stadium, {
+//       x: 297.5,
+//       y: yPosition - 40,
+//       size: 10,
+//       font: font,
+//       color: rgb(0.33, 0.33, 0.33),
+//       textAlign: 'center' as any
+//     });
+
+//     // Heure
+//     page.drawText(match.time, {
+//       x: 297.5,
+//       y: yPosition - 55,
+//       size: 11,
+//       font: fontBold,
+//       color: rgb(0, 0, 0),
+//       textAlign: 'center' as any
+//     });
+
+//     return yPosition - matchHeight - 5;
+//   }
+
+  private estimateMatchdayHeight(day: any): number {
+    let height = 60; // Titre de la journée
+    
+    for (const group of day.groupedMatchesByDate) {
+      height += 30; // En-tête de date
+      height += group.matches.length * 65; // Chaque match
+    }
+    
+    return height;
+  }
+
+  private downloadPdf(pdfBytes: Uint8Array, filename: string) {
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ============ MÉTHODES POUR GÉRER LES IMAGES ============
+ /**
+   * Pré-charge tous les logos des équipes depuis les données des matchs
+   */
+ private async preloadTeamLogos(pdfDoc: PDFDocument, phase: any, teamLogos: Map<string, PDFImage>): Promise<void> {
+    const logoPromises: Promise<void>[] = [];
+    const processedLogos = new Set<string>(); // Éviter les doublons
+
+    console.log(phase);
+    phase.matchdays.forEach((day: any) => {
+      day.groupedMatchesByDate.forEach((group: any) => {
+        group.matches.forEach((match: any) => {
+          // Logo équipe 1
+          if (match.team1_logo && match.team1_logo !== 'N/A' && !processedLogos.has(match.team1_id)) {
+            processedLogos.add(match.team1_id);
+            logoPromises.push(
+              this.loadTeamLogo(pdfDoc, match.team1_id, match.team1_logo, teamLogos)
+            );
+          }
+
+          // Logo équipe 2
+          if (match.team2_logo && match.team2_logo !== 'N/A' && !processedLogos.has(match.team2_id)) {
+            processedLogos.add(match.team2_id);
+            logoPromises.push(
+              this.loadTeamLogo(pdfDoc, match.team2_id, match.team2_logo, teamLogos)
+            );
+          }
+        });
+      });
+    });
+
+    // Attendre que tous les logos soient chargés
+    await Promise.all(logoPromises);
+    console.log(`${teamLogos.size} logos d'équipes chargés`);
+  }
+
+  /**
+   * Charge un logo d'équipe spécifique
+   */
+  private async loadTeamLogo(pdfDoc: PDFDocument, teamId: string, logoPath: string, teamLogos: Map<string, PDFImage>): Promise<void> {
+    try {
+      const logoImage = await this.embedImage(pdfDoc, logoPath);
+      if (logoImage) {
+        teamLogos.set(teamId, logoImage);
+      }
+    } catch (error) {
+      console.warn(`Impossible de charger le logo pour l'équipe ${teamId}:`, error);
+    }
+  }
+  /**
+   * Charge et intègre une image dans le document PDF
+   */
+  private async embedImage(pdfDoc: PDFDocument, imageUrl: string): Promise<PDFImage | null> {
+    try {
+      // Si c'est une URL, on la fetch
+      
+      if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
+        console.log('Chargement de l\'image depuis une URL:', imageUrl);
+        const relativePath =new URL(imageUrl).pathname.replace('/storage/','');
+
+        // const apiUrl = `http://localhost:8000/image/${relativePath}`;
+        const apiUrl = `${this.apiUrl}/image/${relativePath}`;
+   
+
+        const imageBytes = await fetch(apiUrl).then(response => response.arrayBuffer());
+        const uint8Array = new Uint8Array(imageBytes);
+        
+        // Déterminer le type d'image
+        if (this.isPng(uint8Array)) {
+          return await pdfDoc.embedPng(uint8Array);
+        } else if (this.isJpeg(uint8Array)) {
+          return await pdfDoc.embedJpg(uint8Array);
+        }
+      }
+      // Si c'est une image en base64
+      else if (imageUrl.startsWith('data:image/')) {
+        const base64Data = imageUrl.split(',')[1];
+        const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+        
+        if (imageUrl.includes('png')) {
+          return await pdfDoc.embedPng(imageBytes);
+        } else {
+          return await pdfDoc.embedJpg(imageBytes);
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn(`Impossible de charger l'image: ${imageUrl}`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Extrait toutes les équipes uniques de la phase
+   */
+  private extractAllTeams(phase: any): string[] {
+    const teams = new Set<string>();
+    
+    phase.matchdays.forEach((day: any) => {
+      day.groupedMatchesByDate.forEach((group: any) => {
+        group.matches.forEach((match: any) => {
+          teams.add(match.team1);
+          teams.add(match.team2);
+        });
+      });
+    });
+    
+    return Array.from(teams);
+  }
+
+  /**
+   * Récupère l'URL du logo d'une équipe
+   * À adapter selon votre système de stockage des logos
+   */
+  private async getTeamLogoUrl(teamName: string): Promise<string | null> {
+    // Exemple d'implémentation - à adapter selon vos besoins
+    try {
+      // Option 1: Logos stockés localement
+      return `/assets/logos/teams/${this.sanitizeTeamName(teamName)}.png`;
+      
+      // Option 2: API pour récupérer les logos
+      // const response = await fetch(`/api/teams/${teamName}/logo`);
+      // return response.ok ? response.url : null;
+      
+      // Option 3: Mapping manuel
+      // const logoMapping: { [key: string]: string } = {
+      //   'PSG': '/assets/logos/psg.png',
+      //   'Marseille': '/assets/logos/om.png',
+      //   // ... autres équipes
+      // };
+      // return logoMapping[teamName] || null;
+      
+    } catch (error) {
+      console.warn(`Logo non trouvé pour l'équipe: ${teamName}`);
+      return null;
+    }
+  }
+
+  /**
+   * Nettoie le nom d'équipe pour l'utiliser comme nom de fichier
+   */
+  private sanitizeTeamName(teamName: string): string {
+    return teamName
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_]/g, '');
+  }
+
+  /**
+   * Vérifie si les bytes correspondent à un PNG
+   */
+  private isPng(bytes: Uint8Array): boolean {
+    return bytes.length >= 4 && 
+           bytes[0] === 0x89 && 
+           bytes[1] === 0x50 && 
+           bytes[2] === 0x4E && 
+           bytes[3] === 0x47;
+  }
+
+  /**
+   * Vérifie si les bytes correspondent à un JPEG
+   */
+  private isJpeg(bytes: Uint8Array): boolean {
+    return bytes.length >= 2 && 
+           bytes[0] === 0xFF && 
+           bytes[1] === 0xD8;
   }
 }

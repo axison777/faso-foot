@@ -26,6 +26,7 @@
         "html2pdf.js": "^0.10.3",
         "jspdf": "^3.0.1",
         "ng2-charts": "^4.1.1",
+        "pdf-lib": "^1.17.1",
         "primeclt": "^0.1.5",
         "primeicons": "^7.0.0",
         "primeng": "^19.0.8",
