@@ -34,7 +34,7 @@ export class AppMenu implements OnInit {
                             { label: 'Stades', icon: 'pi pi-fw pi-building', routerLink: ['/stades'] },
                             { label: 'Ligues', icon: 'pi pi-fw pi-shield', routerLink: ['/ligues'] },]
                      },
-                 /*    { label: 'Utilisateurs', icon: 'pi pi-fw pi-id-card', routerLink: ['/utilisateurs'] }, */
+                     { label: 'Utilisateurs', icon: 'pi pi-fw pi-id-card', routerLink: ['/utilisateurs'] }, 
 
 
                 ]
