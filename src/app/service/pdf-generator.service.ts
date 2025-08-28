@@ -11,11 +11,11 @@ export class PdfGeneratorService {
   constructor() { }
 
   async generateCalendarPdf(phase: any, leagueName?: string, leagueLogo?: string, startDate?: string, endDate?: string, poolName?: string, filename: string = 'calendrier_ligue1.pdf'): Promise<void> {
-    
-    
+
+
     // Créer un nouveau document PDF
     const pdfDoc = await PDFDocument.create();
-    
+
     // Charger les polices
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -35,12 +35,12 @@ export class PdfGeneratorService {
       leagueLogoImage = await this.embedImage(pdfDoc, leagueLogo);
     }
 
-    //Pré-charger tous les logos des équipes 
+    //Pré-charger tous les logos des équipes
     const teamLogos: Map<string, PDFImage> = new Map();
     await this.preloadTeamLogos(pdfDoc, phase,  teamLogos);
 
     // En-tête sur la première page
-    this.drawHeader(currentPage, font, fontBold, primaryColor, darkColor, 
+    this.drawHeader(currentPage, font, fontBold, primaryColor, darkColor,
                    leagueName || 'Championnat', phase, poolName || '', yPosition, leagueLogoImage);
     yPosition -= 50;
 
@@ -48,13 +48,13 @@ export class PdfGeneratorService {
     for (const day of phase.matchdays) {
       // Vérifier si on a assez de place pour la journée
       const estimatedHeight = this.estimateMatchdayHeight(day);
-      //si c'est la première page 
+      //si c'est la première page
       if (yPosition - estimatedHeight < 50) {
         currentPage = pdfDoc.addPage([595, 842]);
         yPosition = 800;
       }
 
-      yPosition = this.drawMatchday(currentPage, font, fontBold, darkColor, lightGray, 
+      yPosition = this.drawMatchday(currentPage, font, fontBold, darkColor, lightGray,
                                   day, yPosition, teamLogos);
       yPosition -= 30; // Espacement entre les journées
     }
@@ -64,10 +64,10 @@ export class PdfGeneratorService {
     this.downloadPdf(pdfBytes, filename);
   }
 
-  private drawHeader(page: any, font: any, fontBold: any, primaryColor: any, 
-                    darkColor: any, leagueName: string, phase: any, 
+  private drawHeader(page: any, font: any, fontBold: any, primaryColor: any,
+                    darkColor: any, leagueName: string, phase: any,
                     poolName: string, yPosition: number, leagueLogoImage: PDFImage | null) {
-    
+
     // Fond coloré pour l'en-tête
     page.drawRectangle({
       x: 0,
@@ -119,9 +119,9 @@ export class PdfGeneratorService {
     });
   }
 
-  private drawMatchday(page: any, font: any, fontBold: any, darkColor: any, 
+  private drawMatchday(page: any, font: any, fontBold: any, darkColor: any,
                       lightGray: any, day: any, yPosition: number, teamLogos: Map<string, PDFImage>): number {
-    
+
     let currentY = yPosition;
 
     // Titre de la journée
@@ -175,7 +175,7 @@ export class PdfGeneratorService {
   }
   private drawMatch(page: any, font: any, fontBold: any, match: any, yPosition: number, teamLogos: Map<string, PDFImage>): number {
     const matchHeight = 70; // Augmenté pour accommoder les logos
-    
+
     // Fond du match
     page.drawRectangle({
       x: 60,
@@ -199,7 +199,7 @@ export class PdfGeneratorService {
     // === ÉQUIPE 1 (côté gauche) ===
     const team1Logo = teamLogos.get(match.team1_id);
     const team1StartX = 120;
-    
+
     if (team1Logo) {
       // Logo équipe 1
       page.drawImage(team1Logo, {
@@ -208,7 +208,7 @@ export class PdfGeneratorService {
         width: 25,
         height: 25,
       });
-      
+
       // Nom équipe 1 (à droite du logo)
       page.drawText(match.team1, {
         x: team1StartX + 35,
@@ -246,7 +246,7 @@ export class PdfGeneratorService {
       font: font,
       color: rgb(0.5, 0.5, 0.5),
     });
-    
+
     page.drawText('[___]', {
       x: 320,
       y: yPosition - 32,
@@ -258,7 +258,7 @@ export class PdfGeneratorService {
     // === ÉQUIPE 2 (côté droit) ===
     const team2Logo = teamLogos.get(match.team2_id);
     const team2StartX = 380;
-    
+
     // Nom équipe 2
     page.drawText(match.team2, {
       x: team2StartX,
@@ -267,7 +267,7 @@ export class PdfGeneratorService {
       font: font,
       color: rgb(0, 0, 0),
     });
-    
+
     if (team2Logo) {
       // Logo équipe 2 (à droite du nom)
       const textWidth = font.widthOfTextAtSize(match.team2, 11);
@@ -306,8 +306,8 @@ export class PdfGeneratorService {
     // Indicateurs spéciaux
     let indicators: string[] = [];
     if (match.is_derby === 1) indicators.push('DERBY');
-    if (match.is_rescheduled === 1) indicators.push('REPORTÉ');
-    
+    //if (match.is_rescheduled === 1) indicators.push('REPORTÉ');
+
     if (indicators.length > 0) {
       page.drawText(`(${indicators.join(' - ')})`, {
         x: 480,
@@ -323,7 +323,7 @@ export class PdfGeneratorService {
 
 //   private drawMatch(page: any, font: any, fontBold: any, match: any, yPosition: number): number {
 //     const matchHeight = 60;
-    
+
 //     // Fond du match
 //     page.drawRectangle({
 //       x: 60,
@@ -347,7 +347,7 @@ export class PdfGeneratorService {
 //     // Équipes
 //     const team1Text = match.team1;
 //     const team2Text = match.team2;
-    
+
 //     page.drawText(team1Text, {
 //       x: 150,
 //       y: yPosition - 20,
@@ -398,12 +398,12 @@ export class PdfGeneratorService {
 
   private estimateMatchdayHeight(day: any): number {
     let height = 60; // Titre de la journée
-    
+
     for (const group of day.groupedMatchesByDate) {
       height += 30; // En-tête de date
       height += group.matches.length * 65; // Chaque match
     }
-    
+
     return height;
   }
 
@@ -472,18 +472,18 @@ export class PdfGeneratorService {
   private async embedImage(pdfDoc: PDFDocument, imageUrl: string): Promise<PDFImage | null> {
     try {
       // Si c'est une URL, on la fetch
-      
+
       if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
         console.log('Chargement de l\'image depuis une URL:', imageUrl);
         const relativePath =new URL(imageUrl).pathname.replace('/storage/','');
 
         // const apiUrl = `http://localhost:8000/image/${relativePath}`;
         const apiUrl = `${this.apiUrl}/image/${relativePath}`;
-   
+
 
         const imageBytes = await fetch(apiUrl).then(response => response.arrayBuffer());
         const uint8Array = new Uint8Array(imageBytes);
-        
+
         // Déterminer le type d'image
         if (this.isPng(uint8Array)) {
           return await pdfDoc.embedPng(uint8Array);
@@ -495,14 +495,14 @@ export class PdfGeneratorService {
       else if (imageUrl.startsWith('data:image/')) {
         const base64Data = imageUrl.split(',')[1];
         const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-        
+
         if (imageUrl.includes('png')) {
           return await pdfDoc.embedPng(imageBytes);
         } else {
           return await pdfDoc.embedJpg(imageBytes);
         }
       }
-      
+
       return null;
     } catch (error) {
       console.warn(`Impossible de charger l'image: ${imageUrl}`, error);
@@ -515,7 +515,7 @@ export class PdfGeneratorService {
    */
   private extractAllTeams(phase: any): string[] {
     const teams = new Set<string>();
-    
+
     phase.matchdays.forEach((day: any) => {
       day.groupedMatchesByDate.forEach((group: any) => {
         group.matches.forEach((match: any) => {
@@ -524,7 +524,7 @@ export class PdfGeneratorService {
         });
       });
     });
-    
+
     return Array.from(teams);
   }
 
@@ -537,11 +537,11 @@ export class PdfGeneratorService {
     try {
       // Option 1: Logos stockés localement
       return `/assets/logos/teams/${this.sanitizeTeamName(teamName)}.png`;
-      
+
       // Option 2: API pour récupérer les logos
       // const response = await fetch(`/api/teams/${teamName}/logo`);
       // return response.ok ? response.url : null;
-      
+
       // Option 3: Mapping manuel
       // const logoMapping: { [key: string]: string } = {
       //   'PSG': '/assets/logos/psg.png',
@@ -549,7 +549,7 @@ export class PdfGeneratorService {
       //   // ... autres équipes
       // };
       // return logoMapping[teamName] || null;
-      
+
     } catch (error) {
       console.warn(`Logo non trouvé pour l'équipe: ${teamName}`);
       return null;
@@ -570,10 +570,10 @@ export class PdfGeneratorService {
    * Vérifie si les bytes correspondent à un PNG
    */
   private isPng(bytes: Uint8Array): boolean {
-    return bytes.length >= 4 && 
-           bytes[0] === 0x89 && 
-           bytes[1] === 0x50 && 
-           bytes[2] === 0x4E && 
+    return bytes.length >= 4 &&
+           bytes[0] === 0x89 &&
+           bytes[1] === 0x50 &&
+           bytes[2] === 0x4E &&
            bytes[3] === 0x47;
   }
 
@@ -581,8 +581,8 @@ export class PdfGeneratorService {
    * Vérifie si les bytes correspondent à un JPEG
    */
   private isJpeg(bytes: Uint8Array): boolean {
-    return bytes.length >= 2 && 
-           bytes[0] === 0xFF && 
+    return bytes.length >= 2 &&
+           bytes[0] === 0xFF &&
            bytes[1] === 0xD8;
   }
 }
