@@ -18,6 +18,12 @@ import { LiguesComponent } from './app/pages/ligues/ligues.component';
 /* import { CalendarComponent } from './app/pages/calendar/calendar.component'; */
 import { AuthGuard } from './app/auth.guard';
 import { ExportMatchComponent } from './app/pages/export-match/export-match.component';
+import { CompetitionsComponent } from './app/pages/competitions/competitions.component';
+import { ClubsComponent } from './app/pages/clubs/clubs.component';
+import { PlayersComponent } from './app/pages/players/players.component';
+import { EquipeDetailsComponent } from './app/pages/equipe-details/equipe-details.component';
+import { PlayerDetailsComponent } from './app/pages/player-details/player-details.component';
+import { TeamCategoriesComponent } from './app/pages/team-categories/team-categories.component';
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
     {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
@@ -37,6 +43,12 @@ export const appRoutes: Routes = [
              {path: 'matchs/:id', component: MatchsComponent, canActivate: [AuthGuard] },
              {path: 'utilisateurs', component: UsersComponent, canActivate: [AuthGuard] },
              {path: 'ligues', component:LiguesComponent, canActivate: [AuthGuard] },
+             {path: 'competitions', component:CompetitionsComponent, canActivate: [AuthGuard] },
+             {path: 'clubs', component:ClubsComponent, canActivate: [AuthGuard] },
+             {path: 'joueurs', component:PlayersComponent, canActivate: [AuthGuard] },
+             {path: 'equipe-details/:id', component:EquipeDetailsComponent, canActivate: [AuthGuard] },
+             {path: 'joueur-details/:id', component:PlayerDetailsComponent, canActivate: [AuthGuard] },
+             {path: 'categories-equipe', component:TeamCategoriesComponent, canActivate: [AuthGuard] },
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },

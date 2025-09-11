@@ -16,6 +16,10 @@ import { SelectModule } from 'primeng/select';
 import { Team } from '../../models/team.model';
 import { League } from '../../models/league.model';
 import { FileUploadModule } from 'primeng/fileupload';
+import { TeamCategory } from '../../models/team-category.model';
+import { TeamCategoryService } from '../../service/team-category.service';
+import { ClubService } from '../../service/club.service';
+import { Club } from '../../models/club.model';
 
 @Component({
   selector: 'app-equipes',
@@ -34,6 +38,7 @@ import { FileUploadModule } from 'primeng/fileupload';
     ReactiveFormsModule,
     FileUploadModule,
     DropdownModule,
+    InputTextModule
   ]
 })
 export class EquipesComponent implements OnInit {
@@ -54,6 +59,8 @@ export class EquipesComponent implements OnInit {
   currentLogo: string | null = null;
   selectedFile: File | null = null;
   teamToTransfer: Team | null = null; // Nouveau nom spécifique
+  categories: TeamCategory[] = [];
+  clubs: Club[]=[]
 
   constructor(
     private equipeService: EquipeService,
@@ -62,6 +69,8 @@ export class EquipesComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private tcService: TeamCategoryService,
+    private clubService: ClubService,
     private fb: FormBuilder
   ) {
     this.teamForm = this.fb.group({
@@ -73,7 +82,9 @@ export class EquipesComponent implements OnInit {
       logo: [''],
       manager_first_name: [''],
       manager_last_name: [''],
-      manager_role: ['']
+      manager_role: [''],
+      category_id: [''],
+      club_id: ['']
     });
 
     // Formulaire spécifique pour le transfert de ligue
@@ -86,6 +97,8 @@ export class EquipesComponent implements OnInit {
     this.loadTeams();
     this.loadVilles();
     this.loadLeagues();
+    this.loadCategories();
+    this.loadClubs();
   }
 
   loadLeagues(): void {
@@ -101,6 +114,36 @@ export class EquipesComponent implements OnInit {
         });
       }
     });
+  }
+
+  loadCategories(): void {
+    this.tcService.getAll().subscribe({
+      next: (res: any) => {
+        this.categories = res?.data.team_categories || [];
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des categories',
+        });
+      }
+    });
+  }
+
+  loadClubs(): void {
+    this.clubService.getAll().subscribe({
+        next: (res: any) => {
+            this.clubs=res?.data.clubs || [];
+        },
+        error: () => {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: 'Erreur lors du chargement des clubs',
+            });
+        }
+    })
   }
 
   // Méthode pour ouvrir le dialog de transfert de ligue
@@ -230,6 +273,10 @@ export class EquipesComponent implements OnInit {
         formData.append('manager_last_name', this.teamForm.get('manager_last_name')?.value);
       if(this.teamForm.get('manager_role')?.value)
         formData.append('manager_role', this.teamForm.get('manager_role')?.value);
+        if(this.teamForm.get('category_id')?.value)
+        formData.append('category_id', this.teamForm.get('category_id')?.value);
+        if(this.teamForm.get('club_id')?.value)
+        formData.append('club_id', this.teamForm.get('club_id')?.value);
 
       if (this.selectedFile) {
         formData.append('logo', this.selectedFile);
@@ -242,6 +289,7 @@ export class EquipesComponent implements OnInit {
       const onSuccess = () => {
         this.loadTeams();
         this.toggleForm();
+        this.teamForm.reset();
         this.messageService.add({
           severity: 'success',
           summary: this.isEditing ? 'Équipe modifiée' : 'Équipe créée',
@@ -269,8 +317,9 @@ export class EquipesComponent implements OnInit {
   }
 
   viewTeamDetails(team: Team): void {
-    this.selectedTeam = team;
-    this.showDetails = true;
+    /* this.selectedTeam = team;
+    this.showDetails = true; */
+    this.router.navigate(['/equipe-details', team.id], { state: { team } });
   }
 
   editTeam(team: Team): void {

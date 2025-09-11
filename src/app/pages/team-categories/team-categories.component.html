@@ -1,0 +1,243 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="categories-container">
+  <!-- Header -->
+  <div class="header">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Categories d'équipe</h1>
+    <button class="btn-primary" (click)="toggleForm()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter une categorie
+    </button>
+  </div>
+
+  <!-- Formulaire intégré -->
+  <p-dialog
+[draggable]="false" [(visible)]="showForm" [style]="{ width: '800px' }" [header]="isEditing ? 'Modifier la categorie' : 'Ajouter une nouvelle categorie'" [modal]="true" [closable]="false">
+    <ng-template #content>
+      <form id="categoryForm" [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="flex flex-col gap-6">
+        <!-- Nom -->
+        <div>
+          <label for="name" class="block font-bold mb-2">Nom de la categorie <span class="text-red-500">*</span></label>
+          <input
+            pInputText
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Entrez le nom de la categorie"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched">
+            Le nom est requis.
+          </small>
+        </div>
+
+        <!-- Genre p-select -->
+        <div>
+          <label for="gender" class="block font-bold mb-2">Genre <span class="text-red-500">*</span></label>
+          <p-select
+            [options]="genderOptions"
+            formControlName="gender"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Sélectionnez le genre"
+            appendTo="body"
+            class="w-full"
+          ></p-select>
+          <small class="text-red-500" *ngIf="categoryForm.get('gender')?.invalid && categoryForm.get('gender')?.touched">
+            Le genre est requis.
+          </small>
+        </div>
+
+
+        <!-- Localisation -->
+<!--         <div>
+          <label for="location" class="block font-bold mb-2">Localisation de la categorie <span class="text-red-500">*</span></label>
+          <input
+            pInputText
+            type="text"
+            id="location"
+            formControlName="location"
+            placeholder="Entrez la localisation de la categorie"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="categoryForm.get('location')?.invalid && categoryForm.get('location')?.touched">
+            La localisation est requise.
+          </small>
+        </div> -->
+      </form>
+    </ng-template>
+
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button
+          label="Annuler"
+          icon="pi pi-times"
+          [raised]="true"
+          severity="secondary"
+          (click)="toggleForm()"
+        />
+        <p-button
+        [loading]="loading"
+          (click)="saveCategory()"
+          [label]="isEditing ? 'Modifier' : 'Enregistrer'"
+          icon="pi pi-check"
+          type="submit"
+          form="categoryForm"
+        />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Search -->
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher par nom de categorie..."
+    >
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Chargement des categories...
+  </div>
+
+  <!-- Detail de la categorie -->
+  <p-dialog
+    [draggable]="false" [modal]="true" header="Détails de la Categorie" [(visible)]="displayDialog" [style]="{ width: '500px' }" [styleClass]="'custom-dialog'">
+    <h3>{{ categoryDetails.name }}</h3>
+    <p>Localisation: {{ categoryDetails.location }}</p>
+  </p-dialog>
+  <!-- Table -->
+  <div *ngIf="!loading && filteredCategories.length > 0" class="table-container">
+    <table class="categories-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom de la Categorie</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let category of filteredCategories">
+          <td>{{getOriginalIndex(category)}}</td>
+          <td class="categorie-nom" >{{ category.name }}</td>
+          <td class="actions">
+            <div class="btn-group">
+              <!-- <button class="btn btn-info"><i class="pi pi-eye"></i></button> -->
+              <!--    <p-button severity="primary" icon="pi pi-users"  (click)="showCategoryTeams(category)"></p-button> -->
+              <button class="btn btn-warning" (click)="editCategory(category)"><i class="pi pi-pencil"></i></button>
+           <!--    <button class="btn btn-info" (click)="showDialog(category)"><i class="pi pi-eye"></i></button> -->
+             <!--  <button class="btn btn-danger" (click)="deleteCategory(category.id!)"><i class="pi pi-trash"></i></button> -->
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No results -->
+  <div *ngIf="!loading && filteredCategories.length === 0 && searchTerm && categories.length > 0" class="no-results">
+    <div class="icon">🔍</div>
+    <p>Aucune categorie trouvée pour "{{ searchTerm }}"</p>
+  </div>
+</div>
+
+ <p-dialog [header]="selectedCategory? 'Equipes: '+selectedCategory.name :''" [(visible)]="isEditingTeams" [style]="{width: '1000px', height: '900px'}" [draggable]="false" [resizable]="false" [modal]="true">
+    <div class="flex flex-col gap-6 px-4">
+  <!-- Barre de recherche -->
+   <div *ngIf="teams.length === 0">
+    <label class="font-bold block mb-1">Rechercher une équipe</label>
+    <input
+      pInputText
+      type="text"
+      [formControl]="teamSearchControl"
+      placeholder="Nom ou abréviation "
+      class="w-full"
+    />
+
+  </div>
+
+  <!-- Grille des cartes -->
+<!-- ✅ Case à cocher pour tout sélectionner -->
+<!-- <div class="flex items-center mb-4">
+  <p-checkbox
+    binary="true"
+     [formControl]="selectAllTeamsControl"
+    (onChange)="toggleAllSelections()"
+    inputId="select-all"
+    class="mr-2"
+  ></p-checkbox>
+  <label for="select-all" class="text-sm font-medium">Tout sélectionner</label>
+</div> -->
+
+<!-- ✅ Conteneur scrollable -->
+<div class="border rounded-md p-4 bg-gray-50  overflow-y-auto">
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
+    <ng-container *ngIf="teams.length > 0">
+      <div
+        *ngFor="let club of selectedCategory?.teams; let i = index; "
+        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
+
+      >
+<!--         <p-checkbox
+          binary="true"
+          [formControl]="teamSelectionControls[i]"
+          class="absolute top-2 left-2"
+          [id]="'team-' + team.id"
+          (onChange)="updateGlobalSelection()"
+        ></p-checkbox> -->
+
+         <!-- ✅ Image ou fallback -->
+        <img
+          *ngIf="club.logo; else noLogo"
+          [src]="club.logo"
+          alt="Logo"
+          class=" h-[80px] object-contain"
+        />
+        <ng-template #noLogo>
+          <!-- Icône ou texte par défaut -->
+          <div class="h-[80px] w-[80px] flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-md font-bold">
+            N/A
+          </div>
+        </ng-template>
+
+        <!-- ✅ Abréviation avec style conditionnel -->
+        <div
+          class="text-base font-bold"
+        >
+          {{ club?.name }}
+        </div>
+
+        <!-- ✅ Nom de l’équipe -->
+        <div class="text-base text-gray-500 text-center">{{ club?.player_count }} joueurs</div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="teams.length === 0"><p>Aucune equipe n'appartient à cette categorie</p></ng-container>
+  </div>
+</div>
+<!--   <span class="text-red-500"
+    *ngIf="!selectedTeamObjects.length && teamsForm.get('club_id')?.touched  ">
+    Veuillez sélectionner les équipes.
+  </span>
+ -->
+  <!-- Checker si le nombre dequpes choisies correspond au nombre dequipes de la ligue -->
+ <!--  <span class="text-red-500"
+    *ngIf="selectedTeamObjects.length  && selectedCategory?.teams_count != selectedTeamObjects.length">
+    Le nombre d'équipes sélectionnées ({{ selectedTeamObjects.length }}) ne correspond pas au nombre d'équipes de la ligue ({{ selectedCategory.teams_count }}).
+  </span> -->
+
+
+
+
+</div>
+
+<!--     <ng-template #footer>
+        <p-button [raised]="true" severity="secondary" label="Annuler" icon="pi pi-times" text (click)="closeTeamsForm()"  />
+        <p-button [loading]="loading" [raised]="true" label="OK" icon="pi pi-check"  [disabled]="selectedCategory.teams_count != selectedTeamObjects.length" (click)="saveClubTeams()"/>
+    </ng-template> -->
+
+</p-dialog>

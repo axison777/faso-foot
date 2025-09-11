@@ -104,6 +104,46 @@
         <small class="text-gray-500">Formats : JPG, PNG, etc.</small>
       </div>
 
+        <!-- Catégorie -->
+        <div class="w-full">
+          <label for="category" class="block font-bold mb-2">Catégorie </label>
+          <p-select
+            id="category"
+            formControlName="category_id"
+            [options]="categories"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Sélectionnez une catégorie"
+            class="w-full"
+            appendTo="body"
+            [filter]="true"
+
+          ></p-select>
+          <small class="text-red-500" *ngIf="teamForm.get('category_id')?.invalid && teamForm.get('category_id')?.touched">
+            La catégorie est requise.
+          </small>
+        </div>
+
+        <!-- Club -->
+                 <div class="w-full">
+          <label for="category" class="block font-bold mb-2">Club </label>
+          <p-select
+            id="club"
+            formControlName="club_id"
+            [options]="clubs"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Sélectionnez un club"
+            class="w-full"
+            appendTo="body"
+            [filter]="true"
+          ></p-select>
+          <small class="text-red-500" *ngIf="teamForm.get('club_id')?.invalid && teamForm.get('club_id')?.touched">
+            Le club est requis.
+          </small>
+        </div>
+
+
       <!-- ✅ Section RESPONSABLE -->
       <div>
         <h3 class="text-lg font-bold border-b pb-1 text-green-700">Responsable de l'équipe</h3>
@@ -337,13 +377,18 @@
     <td>{{getOriginalIndex(team)}}</td>
     <td class="equipe-nom">{{ team.name }}</td>
     <td class="actions">
+
       <div class="btn-group">
+
         <button class="btn btn-warning" (click)="editTeam(team)">
           <i class="pi pi-pencil"></i>
         </button>
-        <button class="btn btn-info" (click)="viewTeamDetails(team)">
+         <button class="btn btn-info" (click)="viewTeamDetails(team)">
           <i class="pi pi-eye"></i>
         </button>
+       <!--  <button class="btn btn-info" (click)="viewTeamDetails(team)">
+          <i class="pi pi-eye"></i>
+        </button> -->
         <!-- Bouton modifié pour utiliser la nouvelle méthode -->
        <button class="btn btn-primary" (click)="openLeagueTransferDialog(team)" title="Changer de ligue">
         <i class="pi pi-shield"></i>

@@ -1,0 +1,339 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="ligues-container">
+  <!-- Header -->
+  <div class="header">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Clubs</h1>
+    <button class="btn-primary" (click)="toggleForm()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter un club
+    </button>
+  </div>
+
+  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le club' : 'Ajouter un nouveaux club'" [modal]="true" [closable]="false">
+    <ng-template #content>
+      <form [formGroup]="clubForm" (ngSubmit)="saveClub()" class="flex flex-col gap-6">
+
+        <!-- Nom de la ligue -->
+        <div>
+          <label for="name" class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
+          <input
+            pInputText
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Entrez le nom du club"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="clubForm.get('name')?.invalid && clubForm.get('name')?.touched">
+            Le nom est requis.
+          </small>
+        </div>
+
+                <div>
+          <label for="name" class="block font-bold mb-2">Abbréviation <span class="text-red-500">*</span></label>
+          <input
+            pInputText
+            type="text"
+            id="abbreviation"
+            formControlName="abbreviation"
+            placeholder="Entrez l'abréviation du club"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="clubForm.get('abbreviation')?.invalid && clubForm.get('namabbreviatione')?.touched">
+            L'abréviation est requise.
+          </small>
+        </div>
+
+        <div>
+          <label for="founded_year" class="block font-bold mb-2">Année de création <span class="text-red-500">*</span></label>
+          <p-inputnumber
+            id="founded_year"
+            formControlName="founded_year"
+            placeholder="Entrez l'année de création du club"
+            class="w-full"
+
+          />
+          <small class="text-red-500" *ngIf="clubForm.get('founded_year')?.invalid && clubForm.get('founded_year')?.touched">
+            L'année de création est requise.
+          </small>
+        </div>
+
+        <div>
+          <label for="status" class="block font-bold mb-2">Statut <span class="text-red-500">*</span></label>
+          <p-select
+            id="status"
+            formControlName="status"
+            placeholder="Sélectionnez le statut du club"
+            class="w-full"
+            appendTo="body"
+            [options]="statusOptions"
+            optionLabel="name"
+            optionValue="value"
+
+          />
+          <small class="text-red-500" *ngIf="clubForm.get('status')?.invalid && clubForm.get('status')?.touched">
+            Le statut est requis.
+          </small>
+        </div>
+
+
+
+
+        <!-- Nombre d'équipes -->
+<!--         <div>
+          <label for="teams_count" class="block font-bold mb-2">Nombre d'équipes <span class="text-red-500">*</span></label>
+          <p-inputnumber
+            id="teams_count"
+            formControlName="teams_count"
+            placeholder="Entrez le nombre d'équipes de la ligue"
+            class="w-full"
+
+          />
+          <small class="text-red-500" *ngIf="clubForm.get('teams_count')?.invalid && clubForm.get('teams_count')?.touched">
+            Le nombre d'équipes est requis.
+          </small>
+        </div> -->
+
+        <!-- Nombre de groupes -->
+   <!--      <div>
+          <label for="pools_count" class="block font-bold mb-2">Poules <span class="text-red-500">*</span></label>
+          <p-inputnumber
+            id="pools_count"
+            formControlName="pools_count"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Entrez le nombre de poules de la ligue"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="clubForm.get('pools_count')?.invalid && clubForm.get('pools_count')?.touched">
+            Le nombre de groupes est requis.
+          </small>
+        </div> -->
+
+        <!-- Logo -->
+        <div>
+          <label for="logo" class="block font-bold mb-2">Logo <span class="text-red-500">*</span></label>
+          <!-- Affichage image actuelle (édition) -->
+          <div *ngIf="isEditing && currentLogo" class="mb-2">
+            <p class="text-gray-600 text-sm mb-1">Logo actuel :</p>
+            <img [src]="currentLogo" alt="Logo actuel" class="w-24 h-24 object-contain rounded shadow" />
+          </div>
+          <!-- Upload image -->
+          <p-fileupload
+            #fileUploader
+            name="logo"
+            [customUpload]="true"
+            [auto]="false"
+            accept="image/*"
+            maxFileSize="1000000"
+            chooseLabel="Choisir un fichier"
+            chooseIcon="pi pi-upload"
+            (onSelect)="onFileSelect($event)"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            [mode]="'advanced'"
+          >
+            <ng-template #empty>
+              <div>Glisser le fichier ici</div>
+            </ng-template>
+          </p-fileupload>
+          <small class="text-red-500" *ngIf="clubForm.get('logo')?.invalid && clubForm.get('logo')?.touched">
+            Le logo est requis.
+          </small>
+        </div>
+      </form>
+    </ng-template>
+
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button
+          label="Annuler"
+          icon="pi pi-times"
+          [raised]="true"
+          severity="secondary"
+          (click)="toggleForm()"
+        />
+        <p-button
+          [loading]="loading"
+          [raised]="true"
+          [label]="isEditing ? 'Modifier' : 'Enregistrer'"
+          icon="pi pi-check"
+          type="submit"
+          form="ligueForm"
+          (click)="saveClub()"
+        />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Search -->
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher par nom de club..."
+    >
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Chargement des clubs...
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && filteredClubs.length > 0" class="table-container">
+    <table class="ligues-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom du club</th>
+        <!--   <th>Nombre d'équipes</th> -->
+
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let club of filteredClubs">
+          <td>{{getOriginalIndex(club)}}</td>
+          <td class="ligue-nom">{{ club.name }}</td>
+          <!-- <td class="ligue-team-count">{{ club?.team_count }} </td> -->
+          <td class="actions">
+            <div class="btn-group">
+                 <!--  <p-button severity="primary" icon="pi pi-users"  (click)="showClubTeams(club)"/> -->
+              <p-button severity="warn" icon="pi pi-pencil" (click)="editClub(club)"/>
+             <!--  <button class="btn btn-danger" (click)="deleteClub(club.id!)">
+                <i class="pi pi-trash"></i>
+              </button> -->
+
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No results -->
+  <div *ngIf="!loading && filteredClubs.length === 0 && searchTerm && clubs.length > 0" class="no-results">
+    <div class="icon">🔍</div>
+    <p>Aucune ligue trouvée pour "{{ searchTerm }}"</p>
+  </div>
+</div>
+
+ <p-dialog [header]="selectedClub? 'Equipes: '+selectedClub.name :''" [(visible)]="isEditingTeams" [style]="{width: '1000px', height: '900px'}" [draggable]="false" [resizable]="false" [modal]="true">
+    <form [formGroup]="teamsForm" class="flex flex-col gap-6 px-4">
+  <!-- Barre de recherche -->
+<!--   <div>
+    <label class="font-bold block mb-1">Rechercher une équipe</label>
+    <input
+      pInputText
+      type="text"
+      [formControl]="teamSearchControl"
+      placeholder="Nom ou abréviation "
+      class="w-full"
+    />
+
+  </div> -->
+
+  <!-- Grille des cartes -->
+<!-- ✅ Case à cocher pour tout sélectionner -->
+<!-- <div class="flex items-center mb-4">
+  <p-checkbox
+    binary="true"
+     [formControl]="selectAllTeamsControl"
+    (onChange)="toggleAllSelections()"
+    inputId="select-all"
+    class="mr-2"
+  ></p-checkbox>
+  <label for="select-all" class="text-sm font-medium">Tout sélectionner</label>
+</div> -->
+
+<!-- ✅ Conteneur scrollable -->
+<div class="border rounded-md p-4 bg-gray-50  overflow-y-auto">
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
+    <ng-container *ngIf="teams.length > 0">
+      <div
+        *ngFor="let club of selectedClub?.teams; let i = index; "
+        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
+
+      >
+<!--         <p-checkbox
+          binary="true"
+          [formControl]="teamSelectionControls[i]"
+          class="absolute top-2 left-2"
+          [id]="'team-' + team.id"
+          (onChange)="updateGlobalSelection()"
+        ></p-checkbox> -->
+
+         <!-- ✅ Image ou fallback -->
+        <img
+          *ngIf="club.logo; else noLogo"
+          [src]="club.logo"
+          alt="Logo"
+          class=" h-[80px] object-contain"
+        />
+        <ng-template #noLogo>
+          <!-- Icône ou texte par défaut -->
+          <div class="h-[80px] w-[80px] flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-md font-bold">
+            N/A
+          </div>
+        </ng-template>
+
+        <!-- ✅ Abréviation avec style conditionnel -->
+        <div
+          class="text-base font-bold"
+        >
+          {{ club?.name }}
+        </div>
+
+        <!-- ✅ Nom de l’équipe -->
+        <div class="text-base text-gray-500 text-center">{{ club?.player_count }} joueurs</div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="teams.length === 0"><p>Aucune equipe n'appartient à ce club</p></ng-container>
+  </div>
+</div>
+  <span class="text-red-500"
+    *ngIf="!selectedTeamObjects.length && teamsForm.get('club_id')?.touched  ">
+    Veuillez sélectionner les équipes.
+  </span>
+
+  <!-- Checker si le nombre dequpes choisies correspond au nombre dequipes de la ligue -->
+ <!--  <span class="text-red-500"
+    *ngIf="selectedTeamObjects.length  && selectedClub?.teams_count != selectedTeamObjects.length">
+    Le nombre d'équipes sélectionnées ({{ selectedTeamObjects.length }}) ne correspond pas au nombre d'équipes de la ligue ({{ selectedClub.teams_count }}).
+  </span> -->
+
+
+
+
+  <!-- Équipes sélectionnées -->
+  <div *ngIf="selectedTeamObjects.length" class="mt-4">
+    <label class="font-bold block mb-2">Équipes sélectionnées ({{ selectedTeamObjects.length }})</label>
+    <div class="flex flex-wrap gap-2">
+
+
+            <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+         <img *ngIf="team.logo" [src]="team.logo" alt="Logo" class="w-10 object-contain" />
+                <span class="text-md font-bold">{{ team.abbreviation }}</span>
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-rounded p-button-md p-button-text p-button-danger"
+          (click)="uncheckTeam(team?.id!)"
+          type="button"
+        ></button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!--     <ng-template #footer>
+        <p-button [raised]="true" severity="secondary" label="Annuler" icon="pi pi-times" text (click)="closeTeamsForm()"  />
+        <p-button [loading]="loading" [raised]="true" label="OK" icon="pi pi-check"  [disabled]="selectedClub.teams_count != selectedTeamObjects.length" (click)="saveClubTeams()"/>
+    </ng-template> -->
+
+</p-dialog>

@@ -128,3 +128,44 @@ body {
 .custom-dialog .p-dialog-header-icons:hover {
   color: darkred !important;
 }
+
+.custom-icon {
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+
+  background-color: currentColor;
+  width: 1.45rem;
+  height: 1.45rem;
+  display: inline-block;
+
+
+}
+
+.custom-icon.podium {
+  -webkit-mask-image: url('assets/custom-icons/podium-svgrepo-com(1).svg');
+  mask-image: url('assets/custom-icons/podium-svgrepo-com(1).svg');
+}
+
+.custom-icon.player {
+  -webkit-mask-image: url('assets/custom-icons/soccer-svgrepo-com.svg');
+  mask-image: url('assets/custom-icons/soccer-svgrepo-com.svg');
+
+}
+
+.custom-icon.club {
+  -webkit-mask-image: url('assets/custom-icons/football-club-flag-svgrepo-com.svg');
+  mask-image: url('assets/custom-icons/football-club-flag-svgrepo-com.svg');
+
+}
+
+.custom-icon.category {
+  -webkit-mask-image: url('assets/custom-icons/category-new-each-svgrepo-com.svg');
+  mask-image: url('assets/custom-icons/category-new-each-svgrepo-com.svg');
+
+}
+
+

@@ -39,4 +39,8 @@ export class EquipeService {
 
     return this.http.post(`${this.apiUrl}/${teamId}/attach-league`, {league_id:leagueId});
   }
+
+  getById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
 }

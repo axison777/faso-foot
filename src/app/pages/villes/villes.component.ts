@@ -34,7 +34,6 @@ export class VillesComponent implements OnInit {
   selectedCity!: City;
   searchTerm: string = '';
   loading: boolean = false;
-
   showForm: boolean = false;
   isEditing: boolean = false;
   editingCityId?: string;
@@ -191,6 +190,6 @@ export class VillesComponent implements OnInit {
   }
 
   getOriginalIndex(obj: any): number {
-  return this.citys.indexOf(obj) + 1; 
+  return this.citys.indexOf(obj) + 1;
 }
 }

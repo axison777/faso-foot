@@ -1,0 +1,785 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="team-container">
+  <!-- Header -->
+  <div class="header">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Détails de l'Équipe</h1>
+
+  </div>
+
+  <!-- Carte équipe -->
+ <div class="team-card">
+    <div *ngIf="team && !loading" class="team-info">
+        <ng-container *ngIf="team?.logo; "><img [src]="team.logo" [alt]="team.name" class="logo"></ng-container>
+
+      <div class="team-meta">
+        <h2 >{{ team.name }}</h2>
+        <div class="meta-grid">
+          <div><span class="label">Abr: </span><span class="value">{{ team.abbreviation }}</span></div>
+           <div><span class="label">Téléphone responsable: </span><span class="value">{{ team.phone }} </span></div>
+          <div><span class="label">Ville: </span><span class="value">{{ team.city?.name }}</span></div>
+          <!-- <div><span class="label">Compétition: </span><span class="value">{{ team.league?.name }}</span></div> -->
+           <div><span class="label">Email responsable: </span><span class="value"> {{ team.email }}</span></div>
+          <div><span class="label">Ligue: </span><span class="value">{{ team.league?.name }}</span></div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs équipe -->
+  <p-tabView [(activeIndex)]="activeIndex" class="team-tabs">
+    <!-- TAB JOUEURS -->
+    <p-tabPanel header="Joueurs" leftIcon="custom-icon player">
+      <!-- Search -->
+      <div class="search-container flex align-items-end">
+        <input
+          type="text"
+          class="search-input"
+          [(ngModel)]="searchPlayer"
+          placeholder="Rechercher un joueur (nom, prénom)..."
+        />
+                  <div class="header-actions ml-auto mt-auto">
+      <button class="btn-primary" (click)="showPlayerDialog()">
+        <i class="pi pi-plus-circle mr-2"></i> Ajouter un joueur
+      </button>
+    </div>
+      </div>
+
+
+      <!-- Loading -->
+      <div *ngIf="loadingPlayers" class="loading">Chargement des joueurs...</div>
+
+      <!-- Table -->
+      <div *ngIf="!loading && filteredPlayers.length > 0" class="table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Position</th>
+             <!--  <th>Numéro</th> -->
+              <!-- <th>Contrats</th> -->
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of filteredPlayers; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="cell-strong">{{ p.last_name }}</td>
+              <td>{{ p.first_name }}</td>
+              <td>{{ getActiveContract(p)?.position || '—' }}</td>
+              <!-- <td>{{ getActiveContract(p)?.number || '—' }}</td> -->
+              <!-- <td>
+                 <span class="badge">{{ p.contracts?.length || 0 }}</span>
+              </td> -->
+              <td class="actions">
+                <div class="btn-group">
+                <!-- <button class="btn btn-gray"  (click)="openContractsModal(p)"><i class="pi pi-file"></i></button> -->
+                  <p-button severity="warn" icon="pi pi-pencil" (click)="showPlayerDialog(p)" />
+                  <button class="btn btn-info" (click)="openPlayerDetails(p)"><i class="pi pi-eye"></i></button>
+                  <button class="btn btn-danger" (click)="deleteEntity('joueur', p.id!)"><i class="pi pi-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- No results -->
+      <div *ngIf="!loading && filteredPlayers.length === 0 && searchPlayer && players.length > 0" class="no-results">
+        <div class="icon">🔍</div>
+        <p>Aucun joueur trouvé pour "{{ searchPlayer }}"</p>
+      </div>
+    </p-tabPanel>
+
+    <!-- TAB STAFF -->
+    <p-tabPanel header="Staff" leftIcon="pi pi-briefcase">
+  <!--     <div class="tab-header-actions text-end">
+        <button class="btn-primary" (click)="showStaffDialog()">
+          <i class="pi pi-plus-circle mr-2"></i> Ajouter un membre
+        </button>
+      </div>
+      <br> -->
+<!--       <div class="table-container" *ngIf="team.staff_members?.length">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Rôle</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of team.staff_members; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="cell-strong">{{ m.last_name }}</td>
+              <td>{{ m.first_name }}</td>
+              <td>{{ m.role }}</td>
+              <td class="actions">
+                <div class="btn-group">
+                  <p-button severity="warn" icon="pi pi-pencil" (click)="showStaffDialog(m)" />
+                  <button class="btn btn-danger" (click)="deleteEntity('staff', m.id!)"><i class="pi pi-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!team.staff_members?.length" class="no-results">
+        <p>Pas de staff pour le moment.</p>
+      </div> -->
+    </p-tabPanel>
+
+    <!-- TAB MAILLOTS -->
+    <p-tabPanel header="Maillots" leftIcon="pi pi-palette">
+      <div class="tab-header-actions text-end">
+        <button class="btn-primary" (click)="showKitDialog()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un maillot</button>
+      </div><br>
+        <ng-container  *ngIf="!loadingKits">
+            <div  class="kit-card grid grid-cols-2 gap-4 items-center p-4 border rounded-lg shadow-sm bg-red" *ngFor="let kit of team.kits; let i = index">
+  <div>
+    <h4 class="font-bold text-lg">
+       <span >({{ getKitLabel(kit.type!) }})</span>
+    </h4>
+
+<!--     <div class="colors-row flex items-center gap-2 my-2">
+      <span class="label w-20 text-sm text-gray-600">Maillot</span>
+      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.shirt_color_1" [title]="kit.shirt_color_1"></div>
+      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.shirt_color_2" [title]="kit.shirt_color_2"></div>
+    </div> -->
+
+        <div class="colors-row flex items-center gap-2 my-2">
+      <span class="label w-20 text-sm text-gray-600">Maillot</span>
+      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.primary_color" [title]="kit.primary_color"></div>
+    </div>
+    <div class="colors-row flex items-center gap-2 my-2">
+      <span class="label w-20 text-sm text-gray-600">Short</span>
+      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.secondary_color" [title]="kit.secondary_color"></div>
+    </div>
+
+    <div class="colors-row flex items-center gap-2 my-2 ">
+      <span class="label w-20 text-sm text-gray-600">Chaussettes</span>
+      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.tertiary_color" [title]="kit.tertiary_color"></div>
+    </div>
+  </div>
+
+  <div class="flex justify-center items-center">
+<!--         <svg width="120" height="150" viewBox="0 0 120 150">
+      <defs>
+        <pattern id="stripesShirt{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
+          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.shirt_color_1" />
+          <path d="M-2,2 l4,-4 M0,10 l10,-10 M8,12 l4,-4" [attr.stroke]="kit.shirt_color_2" stroke-width="3"/>
+        </pattern>
+        <pattern id="checksShirt{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
+          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.shirt_color_1" />
+          <rect x="0" y="0" width="5" height="5" [attr.fill]="kit.shirt_color_2" />
+          <rect x="5" y="5" width="5" height="5" [attr.fill]="kit.shirt_color_2" />
+        </pattern>
+
+        <pattern id="stripesShorts{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
+          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.shorts_color_1" />
+          <path d="M-2,2 l4,-4 M0,10 l10,-10 M8,12 l4,-4" [attr.stroke]="kit.shorts_color_2" stroke-width="3"/>
+        </pattern>
+        <pattern id="checksShorts{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
+          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.shorts_color_1" />
+          <rect x="0" y="0" width="5" height="5" [attr.fill]="kit.shorts_color_2" />
+          <rect x="5" y="5" width="5" height="5" [attr.fill]="kit.shorts_color_2" />
+        </pattern>
+      </defs>
+      <g stroke="rgba(0,0,0,0.2)" stroke-width="1">
+        <path d="M30 20 C 30 10, 30 60, 20 75 L 100 75 C 90 60, 90 10, 90 20 L 65 20 C 60 28, 60 28, 55 20 L 30 20 Z"
+              [attr.fill]="kit.shirt_color_2 && kit.shirt_color_2 !== 'transparent' ? 'url(#stripesShirt' + i + ')' : kit.shirt_color_1" />
+
+        <path d="M 30 22 L 8 45 L 20 50 L 30 40 Z" [attr.fill]="kit.shirt_color_2 || kit.shirt_color_1" />
+        <path d="M 90 22 L 112 45 L 100 50 L 90 40 Z" [attr.fill]="kit.shirt_color_2 || kit.shirt_color_1" />
+
+        <path d="M55 20 L 65 20 C 62 25, 58 25, 55 20 Z" [attr.fill]="kit.shirt_color_2 || kit.shirt_color_1" />
+
+        <path d="M28 75 L 92 75 L 85 110 L 60 105 L 35 110 Z"
+              [attr.fill]="kit.shorts_color_2 && kit.shorts_color_2 !== 'transparent' ? 'url(#checksShorts' + i + ')' : kit.shorts_color_1" />
+
+         <ng-container *ngIf="!kit.shorts_color_2 || kit.shorts_color_2 === 'transparent'">
+            <path d="M28 75 L 32 75 L 38 108 L 35 110 Z" [attr.fill]="kit.shorts_color_2" />
+            <path d="M92 75 L 88 75 L 82 108 L 85 110 Z" [attr.fill]="kit.shorts_color_2" />
+        </ng-container>
+
+        <rect x="38" y="112" width="15" height="35" rx="2" [attr.fill]="kit.socks_color" />
+        <rect x="67" y="112" width="15" height="35" rx="2" [attr.fill]="kit.socks_color" />
+
+        <rect x="38" y="112" width="15" height="8" rx="2" [attr.fill]="kit.socks_color" />
+        <rect x="67" y="112" width="15" height="8" rx="2" [attr.fill]="kit.socks_color" />
+      </g>
+    </svg> -->
+    <svg width="120" height="150" viewBox="0 0 120 150">
+      <defs>
+        <pattern id="stripesShirt{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
+          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.primary_color" />
+          <path d="M-2,2 l4,-4 M0,10 l10,-10 M8,12 l4,-4" [attr.stroke]="kit.shirt_color_2" stroke-width="3"/>
+        </pattern>
+        <pattern id="checksShirt{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
+          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.primary_color" />
+          <rect x="0" y="0" width="5" height="5" [attr.fill]="kit.shirt_color_2" />
+          <rect x="5" y="5" width="5" height="5" [attr.fill]="kit.shirt_color_2" />
+        </pattern>
+
+        <pattern id="stripesShorts{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
+          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.secondary_color" />
+          <path d="M-2,2 l4,-4 M0,10 l10,-10 M8,12 l4,-4" [attr.stroke]="kit.shorts_color_2" stroke-width="3"/>
+        </pattern>
+        <pattern id="checksShorts{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
+          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.secondary_color" />
+          <rect x="0" y="0" width="5" height="5" [attr.fill]="kit.shorts_color_2" />
+          <rect x="5" y="5" width="5" height="5" [attr.fill]="kit.shorts_color_2" />
+        </pattern>
+      </defs>
+      <g stroke="rgba(0,0,0,0.2)" stroke-width="1">
+        <path d="M30 20 C 30 10, 30 60, 20 75 L 100 75 C 90 60, 90 10, 90 20 L 65 20 C 60 28, 60 28, 55 20 L 30 20 Z"
+              [attr.fill]="kit.shirt_color_2 && kit.shirt_color_2 !== 'transparent' ? 'url(#stripesShirt' + i + ')' : kit.primary_color" />
+
+        <path d="M 30 22 L 8 45 L 20 50 L 30 40 Z" [attr.fill]="kit.shirt_color_2 || kit.primary_color" />
+        <path d="M 90 22 L 112 45 L 100 50 L 90 40 Z" [attr.fill]="kit.shirt_color_2 || kit.primary_color" />
+
+        <path d="M55 20 L 65 20 C 62 25, 58 25, 55 20 Z" [attr.fill]="kit.shirt_color_2 || kit.primary_color" />
+
+        <path d="M28 75 L 92 75 L 85 110 L 60 105 L 35 110 Z"
+              [attr.fill]="kit.shorts_color_2 && kit.shorts_color_2 !== 'transparent' ? 'url(#checksShorts' + i + ')' : kit.secondary_color" />
+
+       <!--  <ng-container *ngIf="!kit.shorts_color_2 || kit.shorts_color_2 === 'transparent'">
+            <path d="M28 75 L 32 75 L 38 108 L 35 110 Z" [attr.fill]="kit.shorts_color_2" />
+            <path d="M92 75 L 88 75 L 82 108 L 85 110 Z" [attr.fill]="kit.shorts_color_2" />
+        </ng-container> -->
+
+        <rect x="38" y="112" width="15" height="35" rx="2" [attr.fill]="kit.tertiary_color" />
+        <rect x="67" y="112" width="15" height="35" rx="2" [attr.fill]="kit.tertiary_color" />
+
+        <rect x="38" y="112" width="15" height="8" rx="2" [attr.fill]="kit.tertiary_color" />
+        <rect x="67" y="112" width="15" height="8" rx="2" [attr.fill]="kit.tertiary_color" />
+      </g>
+    </svg>
+    <div class="card-actions">
+      <p-button severity="warn" icon="pi pi-pencil" (click)="showKitDialog(kit)" />
+<!--       <button class="btn btn-danger" (click)="deleteEntity('maillot', kit.id!)">
+        <i class="pi pi-trash"></i>
+      </button> -->
+    </div>
+  </div>
+</div>
+        </ng-container>
+      <div  class="cards-grid" *ngIf="team?.kits?.length ; else noKits">
+
+
+      </div>
+
+      <ng-template #noKits>
+        <div class="no-results"><p>Pas de maillots enregistrés.</p></div>
+      </ng-template>
+    </p-tabPanel>
+
+    <!-- TAB TROPHEES -->
+    <p-tabPanel header="Trophées" leftIcon="pi pi-trophy">
+<!--       <div class="tab-header-actions text-end">
+        <button class="btn-primary" (click)="showTrophyDialog()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un trophée</button>
+      </div><br>
+
+      <div class="table-container" *ngIf="team.trophies?.length; else noTrophies">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nom</th>
+              <th>Compétition</th>
+              <th>Année</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of team.trophies; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="cell-strong">{{ t.name }}</td>
+              <td>{{ t.competition_name }}</td>
+              <td>{{ t.year }}</td>
+              <td class="actions">
+                <div class="btn-group">
+                  <p-button severity="warn" icon="pi pi-pencil" (click)="showTrophyDialog(t)" />
+                  <button class="btn btn-danger" (click)="deleteEntity('trophy', t.id)"><i class="pi pi-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noTrophies>
+        <div class="no-results"><p>Pas de trophées pour le moment.</p></div>
+      </ng-template> -->
+    </p-tabPanel>
+
+    <!-- TAB RESPONSABLE -->
+    <p-tabPanel *ngIf="team" header="Responsable" leftIcon="pi pi-user">
+      <div class="responsable-card" >
+        <div  class="title">{{ team.manager_first_name }} {{ team.manager_last_name }}</div>
+        <div class="muted">{{ team.manager_role }}</div>
+        <div class="muted">Contact : {{ team.phone }} • {{ team.email }}</div>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+
+  <!-- ========== DIALOG: CREATE / EDIT PLAYER ========== -->
+    <p-dialog [(visible)]="showPlayerForm" [modal]="true" [draggable]="false" [closable]="false"
+              [style]="{ width: '1000px', height: '1400px' }"  [header]="isEditingPlayer ? 'Modifier le joueur' : 'Ajouter un joueur'">
+      <form [formGroup]="playerForm" class="player-form" (ngSubmit)="savePlayer()">
+        <div class="grid">
+          <div class="col-6">
+            <label>Nom <span class="req">*</span></label>
+            <input pInputText formControlName="last_name" placeholder="Nom" />
+          </div>
+          <div class="col-6">
+            <label>Prénom <span class="req">*</span></label>
+            <input pInputText formControlName="first_name" placeholder="Prénom" />
+          </div>
+
+          <div class="col-6">
+            <label>Date de naissance</label>
+            <p-datepicker [style]="{ width: '100%' }" formControlName="date_of_birth" dateFormat="dd/mm/yy" [showIcon]="true"></p-datepicker>
+          </div>
+
+          <div class="col-6">
+            <label>Lieu de naissance</label>
+            <input pInputText formControlName="birth_place" />
+          </div>
+
+          <div class="col-6">
+            <label>Nationalité</label>
+            <input pInputText formControlName="nationality" />
+          </div>
+
+          <div class="col-6">
+            <label>Téléphone</label>
+            <input pInputText formControlName="phone" />
+          </div>
+
+          <div class="col-6">
+            <label>Email</label>
+            <input pInputText formControlName="email" />
+          </div>
+
+          <div class="col-6">
+            <label>N° Licence</label>
+            <input pInputText formControlName="license_number" />
+          </div>
+
+          <div class="col-6">
+            <label>Photo</label>
+            <!-- <input type="file" (change)="onPhotoSelected($event)" accept="image/*" />
+            <div *ngIf="playerForm.get('photo_url')?.value" class="photo-preview">
+              <img [src]="playerForm.get('photo_url')?.value" alt="photo" />
+            </div> -->
+            <div *ngIf="isEditingPlayer && currentPhoto" class="mb-2">
+            <p class="text-gray-600 text-sm mb-1">Photo actuelle :</p>
+            <img [src]="currentPhoto" alt="Photo actuele" class="w-24 h-24 object-contain rounded shadow" />
+          </div>
+            <p-fileupload
+            #fileUploader
+            name="logo"
+            [customUpload]="true"
+            [auto]="false"
+            accept="image/*"
+            maxFileSize="1000000"
+            chooseLabel="Choisir un fichier"
+            chooseIcon="pi pi-upload"
+            (onSelect)="onFileSelect($event)"
+            (onRemove)="selectedFile = null;"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            [mode]="'advanced'"
+          >
+            <ng-template #empty>
+              <div>Glisser le fichier ici</div>
+            </ng-template>
+          </p-fileupload>
+          </div>
+
+          <div class="col-6">
+            <label>Position préférée</label>
+            <p-select [options]="positionOptions" optionLabel="label" optionValue="value" formControlName="preferred_position" placeholder="Position"></p-select>
+          </div>
+
+          <div class="col-6">
+            <label>Positions secondaires</label>
+            <p-multiSelect [options]="positionOptions" optionLabel="label" optionValue="value" formControlName="secondary_positions" placeholder="Positions secondaires"></p-multiSelect>
+          </div>
+
+          <div class="col-3">
+            <label>Taille (cm)</label>
+            <p-inputNumber formControlName="height" [min]="0"></p-inputNumber>
+          </div>
+
+          <div class="col-3">
+            <label>Poids (kg)</label>
+            <p-inputNumber formControlName="weight" [min]="0"></p-inputNumber>
+          </div>
+
+          <div class="col-3">
+            <label>Groupe sanguin</label>
+            <input pInputText formControlName="blood_type" />
+          </div>
+
+          <div class="col-3">
+            <label>Pied</label>
+            <p-select [options]="footOptions" optionLabel="label" optionValue="value" formControlName="foot_preference" placeholder="Pied"></p-select>
+          </div>
+
+          <div class="col-6">
+            <label>Statut</label>
+            <p-select [options]="statusOptions" optionLabel="label" optionValue="value" formControlName="status" placeholder="Statut"></p-select>
+          </div>
+
+          <div class="col-6">
+            <label>Carrière (début - fin)</label>
+            <div class="career-row">
+              <p-datepicker [style]="{ width: '100%' }" formControlName="career_start" dateFormat="dd/mm/yy" [showIcon]="true"></p-datepicker>
+              <p-datepicker [style]="{ width: '100%' }" formControlName="career_end" dateFormat="dd/mm/yy" [showIcon]="true"></p-datepicker>
+            </div>
+          </div>
+
+          <!-- Emergency contacts -->
+          <div class="col-12 emergency">
+            <label>Contacts d'urgence</label>
+            <div formArrayName="emergency_contact">
+              <div *ngFor="let ec of ecControls; let idx = index" [formGroupName]="idx" class="ec-row">
+                <input pInputText formControlName="name" placeholder="Nom" />
+                <input pInputText formControlName="phone" placeholder="Téléphone" />
+                <input pInputText formControlName="email" placeholder="Email" />
+                <input pInputText formControlName="relationship" placeholder="Relation" />
+                <button class="btn btn-danger small" type="button" (click)="removeEmergencyContact(idx)"><i class="pi pi-trash"></i></button>
+              </div>
+            </div>
+            <div class="ec-actions">
+              <button class="btn btn-info small" type="button" (click)="addEmergencyContact()"><i class="pi pi-plus"></i> Ajouter contact</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-footer">
+          <div class="left">
+            <p-button [raised]="true" severity="secondary" type="button" (click)="closePlayerForm()">Annuler</p-button>
+          </div>
+          <div class="right">
+            <p-button [loading]="loadingForm" [raised]="true" type="submit" (click)="savePlayer()">Enregistrer</p-button>
+          </div>
+        </div>
+      </form>
+    </p-dialog>
+
+  <!-- ========== DIALOG: PLAYER DETAILS (read-only quick view) ========== -->
+    <p-dialog [(visible)]="showPlayerDetails" [modal]="true" [draggable]="false" [style]="{ width: '680px' }" [header]="currentPlayer ? (currentPlayer.first_name + ' ' + currentPlayer.last_name) : 'Détails'" [styleClass]="'player-details-dialog'">
+      <div class="details-grid" *ngIf="currentPlayer">
+        <div class="left-col">
+          <div class="avatar-large" [ngStyle]="{'background-image': currentPlayer.photo_url ? 'url('+currentPlayer.photo_url+')' : 'linear-gradient(135deg,#2ecc71,#118c46)'}">
+            <span *ngIf="!currentPlayer.photo_url">{{ (currentPlayer.first_name?.charAt(0) || '') + (currentPlayer.last_name?.charAt(0) || '') }}</span>
+          </div>
+
+          <div class="summary">
+            <h2>{{ currentPlayer.first_name }} {{ currentPlayer.last_name }}</h2>
+            <p class="muted">{{ currentPlayer.nationality || '—' }} • {{ currentPlayer.birth_place || '—' }}</p>
+
+            <div class="meta-row">
+              <div><strong>Position</strong><div>{{ currentPlayer.preferred_position || getActiveContract(currentPlayer)?.position || '—' }}</div></div>
+              <div><strong>Numéro</strong><div>{{ getActiveContract(currentPlayer)?.number || '—' }}</div></div>
+            </div>
+
+            <div class="meta-row">
+              <div><strong>Taille</strong><div>{{ currentPlayer.height ? currentPlayer.height + ' cm' : '—' }}</div></div>
+              <div><strong>Poids</strong><div>{{ currentPlayer.weight ? currentPlayer.weight + ' kg' : '—' }}</div></div>
+            </div>
+
+            <div class="meta-row">
+              <div><strong>Pied</strong><div>{{getFootLabel(currentPlayer.foot_preference) || '—' }}</div></div>
+              <div><strong>Statut</strong><div>{{ getStatusLabel(currentPlayer.status) || '—' }}</div></div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+
+ <!--      <ng-template #footer>
+        <div class="flex justify-end gap-2">
+          <button class="btn-secondary" type="button" (click)="showPlayerDetails = false">Fermer</button>
+          <button class="btn-primary" type="button" (click)="showPlayerDialog(currentPlayer || undefined)">Modifier</button>
+        </div>
+      </ng-template> -->
+    </p-dialog>
+
+
+  <!-- ========== DIALOG: CONTRACTS BY PLAYER ========== -->
+ <p-dialog [draggable]="false" [(visible)]="showContracts" [modal]="true" [style]="{ width: '900px' }" [closable]="false"
+          [header]="'Contrats — ' + (currentPlayer?.first_name || '') + ' ' + (currentPlayer?.last_name || '')">
+
+  <ng-template #content>
+
+    <!-- Formulaire contrat -->
+    <div *ngIf="showContractForm" class="form-container mt-4">
+  <h3 class="form-title">
+    {{ isEditingContract ? 'Modifier un contrat' : 'Ajouter un contrat' }}
+  </h3>
+
+  <form [formGroup]="contractForm" class="form-grid">
+
+    <!-- Club -->
+    <div class="form-item">
+      <label>Club <span class="req">*</span></label>
+      <p-select formControlName="club_id"
+                [options]="teams"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Sélectionner un club"
+                appendTo="body">
+      </p-select>
+      <small class="error" *ngIf="cf['club_id']?.invalid && cf['club_id']?.touched">Requis</small>
+    </div>
+
+    <!-- Dates -->
+    <div class="form-item">
+      <label>Début <span class="req">*</span></label>
+      <p-calendar formControlName="start_date"
+                  dateFormat="dd/mm/yy"
+                  [showIcon]="true"
+                  appendTo="body"></p-calendar>
+      <small class="error" *ngIf="cf['start_date']?.invalid && cf['start_date']?.touched">Requis</small>
+    </div>
+    <div class="form-item">
+      <label>Fin <span class="req">*</span></label>
+      <p-calendar formControlName="end_date"
+                  dateFormat="dd/mm/yy"
+                  [showIcon]="true"
+                  appendTo="body"></p-calendar>
+      <small class="error" *ngIf="cf['end_date']?.invalid && cf['end_date']?.touched">Requis</small>
+    </div>
+
+    <!-- Salaire -->
+    <div class="form-item">
+      <label>Salaire <span class="req">*</span></label>
+      <p-inputNumber formControlName="salary_amount" mode="currency" currency="XOF" locale="fr-FR"></p-inputNumber>
+      <small class="error" *ngIf="cf['salary_amount']?.invalid && cf['salary_amount']?.touched">Requis</small>
+    </div>
+
+    <!-- Statut -->
+    <div class="form-item">
+      <label>Statut <span class="req">*</span></label>
+      <p-select formControlName="status"
+                [options]="[
+                  {label: 'Actif', value: 'ACTIVE'},
+                  {label: 'Inactif', value: 'INACTIVE'},
+                  {label: 'Suspendu', value: 'SUSPENDED'}
+                ]"
+                placeholder="Sélectionner un statut"
+                appendTo="body">
+      </p-select>
+      <small class="error" *ngIf="cf['status']?.invalid && cf['status']?.touched">Requis</small>
+    </div>
+    <div></div>
+
+    <!-- Clauses -->
+<div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
+  <div class="flex justify-between items-center mb-2">
+    <label class="font-semibold">Clauses</label>
+    <p-button variant="outlined" size="small" (click)="addClause()">
+      <i class="pi pi-plus "></i>
+    </p-button>
+  </div>
+
+  <div formArrayName="clauses">
+    <div *ngFor="let clause of clauses.controls; let i = index" [formGroupName]="i"
+         class="clause-item flex items-center gap-2 mb-2 p-2 border rounded w-full">
+      <input pInputText type="text" formControlName="type" placeholder="Nom" class="input flex-1 w-full" />
+      <input pInputText type="text" formControlName="value" placeholder="Contenu" class="input flex-1 w-full" />
+      <p-button icon="pi pi-times" size="small" variant="outlined" severity="danger" (click)="removeClause(i)">
+
+      </p-button>
+    </div>
+  </div>
+</div>
+
+
+  </form>
+
+  <div class="form-actions mt-4 flex justify-end gap-2">
+    <p-button label="Annuler"  [raised]="true" severity="secondary" (click)="cancelContractForm()" />
+    <p-button [loading]="loading" [raised]="true" (click)="saveContract()" label="Enregistrer"  />
+  </div>
+</div>
+
+
+    <!-- Bouton ajout -->
+    <div class="flex justify-end mt-3">
+      <p-button [disabled]="showContractForm" (click)="newContract()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un contrat</p-button>
+    </div><br>
+
+    <!-- Liste contrats -->
+     <ng-container *ngIf="!showContractForm">
+    <div  class="table-container" *ngIf="currentPlayer?.contracts?.length; else noContracts">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Club</th>
+            <th>Début</th>
+            <th>Fin</th>
+            <th>Salaire</th>
+            <th>Statut</th>
+            <th>Clauses</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of currentPlayer!.contracts!; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td class="cell-strong">{{ c.club?.name || c.club_id || '—' }}</td>
+            <td>{{ c.start_date | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ c.end_date | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ c.salary_amount | number:'1.0-0':'fr-FR' }} F CFA</td>
+            <td>
+              <span [ngClass]="{
+                'status-active': c.status === 'ACTIVE',
+                'status-inactive': c.status === 'INACTIVE',
+                'status-suspended': c.status === 'SUSPENDED'
+              }">
+                {{ c.status }}
+              </span>
+            </td>
+            <td>
+              <ul *ngIf="c.clauses?.length; else noClauses">
+                <li *ngFor="let clause of c.clauses">{{ clause.type }} : {{ clause.value }}</li>
+              </ul>
+              <ng-template #noClauses>—</ng-template>
+            </td>
+            <td class="actions">
+              <div class="btn-group">
+                <p-button severity="warn" icon="pi pi-pencil" (click)="editContract(c)" />
+                <button class="btn btn-danger" (click)="deleteContract(c.id!)"><i class="pi pi-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </ng-container>
+    <ng-template #noContracts>
+      <div class="no-results"><p>Aucun contrat</p></div>
+    </ng-template>
+
+  </ng-template>
+
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <p-button label="Fermer" icon="pi pi-times" [raised]="true" severity="secondary" (click)="showContracts=false" />
+    </div>
+  </ng-template>
+
+</p-dialog>
+
+
+
+  <!-- ========== DIALOG: STAFF FORM ========== -->
+  <p-dialog [draggable]="false" [(visible)]="showStaffForm" [modal]="true" [style]="{ width: '520px' }"
+            [header]="isEditingStaff ? 'Modifier un membre' : 'Ajouter un membre'" [closable]="false">
+    <ng-template #content>
+      <form [formGroup]="staffForm" class="form-grid">
+        <div class="form-item">
+          <label>Prénom <span class="req">*</span></label>
+          <input pInputText formControlName="first_name" placeholder="Prénom" />
+        <!--   <small class="error" *ngIf="sf.first_name?.invalid && sf.first_name?.touched">Requis</small> -->
+        </div>
+        <div class="form-item">
+          <label>Nom <span class="req">*</span></label>
+          <input pInputText formControlName="last_name" placeholder="Nom" />
+        <!--   <small class="error" *ngIf="sf.last_name?.invalid && sf.last_name?.touched">Requis</small> -->
+        </div>
+        <div class="form-item">
+          <label>Rôle <span class="req">*</span></label>
+          <input pInputText formControlName="role" placeholder="Rôle" />
+       <!--    <small class="error" *ngIf="sf.role?.invalid && sf.role?.touched">Requis</small> -->
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button label="Annuler" icon="pi pi-times" [raised]="true" severity="secondary" (click)="closeStaffForm()" />
+        <p-button [loading]="loading" [raised]="true" (click)="saveStaff()" label="Enregistrer" icon="pi pi-check" />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ========== DIALOG: KIT FORM ========== -->
+  <p-dialog [draggable]="false" [(visible)]="showKitForm" [modal]="true" [style]="{ width: '520px' }"
+            [header]="isEditingKit ? 'Modifier un maillot' : 'Ajouter un maillot'" [closable]="false">
+    <ng-template #content>
+      <form [formGroup]="kitForm" class="form-grid">
+<!--         <div class="form-item">
+          <label>Nom <span class="req">*</span></label>
+          <input pInputText formControlName="name" placeholder="Nom du maillot" />
+           <small class="error" *ngIf="kf.name?.invalid && kf.name?.touched">Requis</small>
+        </div> -->
+        <div class="form-item">
+          <label>Type <span class="req">*</span></label>
+          <p-select formControlName="type" [options]="kitTypes" optionLabel="label" optionValue="value" placeholder="Type" appendTo="body"></p-select>
+ <!--          <small class="error" *ngIf="kf.type?.invalid && kf.type?.touched">Requis</small> -->
+        </div>
+        <!-- <div class="form-item"><label>Maillot 1</label><input type="color" formControlName="shirt_color_1" /></div>
+        <div class="form-item"><label>Maillot 2</label><input type="color" formControlName="shirt_color_2" /></div>
+        <div class="form-item"><label>Short 1</label><input type="color" formControlName="shorts_color_1" /></div>
+        <div class="form-item"><label>Short 2</label><input type="color" value="" formControlName="shorts_color_2" /></div>
+        <div class="form-item"><label>Chaussettes</label><input type="color" formControlName="socks_color" /></div> -->
+
+        <div class="form-item"><label>Maillot</label><input type="color" formControlName="primary_color" /></div>
+        <div class="form-item"><label>Short 1</label><input type="color" formControlName="secondary_color" /></div>
+        <div class="form-item"><label>Chaussettes</label><input type="color" formControlName="tertiary_color" /></div>
+      </form>
+    </ng-template>
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button label="Annuler" icon="pi pi-times" [raised]="true" severity="secondary" (click)="closeKitForm()" />
+        <p-button [loading]="loading" [raised]="true" (click)="saveKit()" label="Enregistrer" icon="pi pi-check" />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ========== DIALOG: TROPHY FORM ========== -->
+  <p-dialog [draggable]="false" [(visible)]="showTrophyForm" [modal]="true" [style]="{ width: '520px' }"
+            [header]="isEditingTrophy ? 'Modifier un trophée' : 'Ajouter un trophée'" [closable]="false">
+    <ng-template #content>
+      <form [formGroup]="trophyForm" class="form-grid">
+        <div class="form-item">
+          <label>Nom <span class="req">*</span></label>
+          <input pInputText formControlName="name" placeholder="Nom du trophée" />
+<!--           <small class="error" *ngIf="tf.name?.invalid && tf.name?.touched">Requis</small> -->
+        </div>
+        <div class="form-item">
+          <label>Compétition <span class="req">*</span></label>
+          <input pInputText formControlName="competition_name" placeholder="Compétition" />
+        <!--   <small class="error" *ngIf="tf.competition_name?.invalid && tf.competition_name?.touched">Requis</small> -->
+        </div>
+        <div class="form-item">
+          <label>Année <span class="req">*</span></label>
+          <p-inputNumber formControlName="year" [useGrouping]="false" [min]="1800" [max]="2100"></p-inputNumber>
+        <!--   <small class="error" *ngIf="tf.year?.invalid && tf.year?.touched">Requis</small> -->
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button label="Annuler" icon="pi pi-times" [raised]="true" severity="secondary" (click)="closeTrophyForm()" />
+        <p-button [loading]="loading" [raised]="true" (click)="saveTrophy()" label="Enregistrer" icon="pi pi-check" />
+      </div>
+    </ng-template>
+  </p-dialog>
+

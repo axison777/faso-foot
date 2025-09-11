@@ -257,15 +257,15 @@ import { CommonModule } from '@angular/common';
       .logo-image {
         height: 50px; /* Plus petit sur mobile */
       }
-      
+
       .logo-divider {
         height: 35px;
       }
-      
+
       .logo-text {
         font-size: 0.9rem;
       }
-      
+
       .logo-container {
         gap: 0.5rem;
       }
@@ -276,11 +276,11 @@ import { CommonModule } from '@angular/common';
       .logo-image {
         height: 45px;
       }
-      
+
       .logo-divider {
         height: 30px;
       }
-      
+
       .logo-text {
         font-size: 0.85rem;
         line-height: 1.2;

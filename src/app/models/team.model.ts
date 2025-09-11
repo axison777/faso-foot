@@ -1,7 +1,9 @@
 import { City } from "./city.model";
+import { Club } from "./club.model";
 import { Contract } from "./contract.model";
 import { League } from "./league.model";
 import { Player } from "./player.model";
+import { StaffMember } from "./staff-member.model";
 import { TeamCategory } from "./team-category.model";
 import { TeamKit } from "./team-kit.model";
 import { Trophy } from "./trophy.model";
@@ -21,12 +23,17 @@ export interface Team {
   manager_role?: string;
   league_id?: string;
   league?: League;
-  team_category_id?: string;
-  team_category?: TeamCategory;
+  category_id?: string;
+  category?: TeamCategory;
+  club_id?: string;
+  club?: Club;
+
+  staff_members?: StaffMember[]
 
   kits?: TeamKit[]
   contracts?: Contract[]
   players?: Player
   trophies?: Trophy[]
+  player_count?: number
 
 }

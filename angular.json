@@ -75,8 +75,16 @@
                             "replace": "src/environments/environment.ts",
                             "with": "src/environments/environment.formation.ts"
                             }
-              ]
-            }
+                        ]
+                        },
+                        "v2": {
+                        "fileReplacements": [
+                            {
+                            "replace": "src/environments/environment.ts",
+                            "with": "src/environments/environment.v2.ts"
+                            }
+                        ]
+                        }
                     },
                     "defaultConfiguration": "production"
                 },
@@ -93,6 +101,9 @@
                         },
                         "formation": {
                         "buildTarget": "sakai-ng:build:formation"
+                        },
+                        "v2": {
+                        "buildTarget": "sakai-ng:build:v2"
                         }
 
                     },
