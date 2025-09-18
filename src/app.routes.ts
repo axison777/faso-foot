@@ -24,6 +24,8 @@ import { PlayersComponent } from './app/pages/players/players.component';
 import { EquipeDetailsComponent } from './app/pages/equipe-details/equipe-details.component';
 import { PlayerDetailsComponent } from './app/pages/player-details/player-details.component';
 import { TeamCategoriesComponent } from './app/pages/team-categories/team-categories.component';
+import { CriteresClassementComponent } from './app/pages/criteres-classement/criteres-classement.component';
+
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
     {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
@@ -52,6 +54,8 @@ export const appRoutes: Routes = [
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
+            { path: 'criteres-classement', component: CriteresClassementComponent, canActivate: [AuthGuard] },
+
           /*    {path: 'calendar', component:CalendarComponent}, */
 
 

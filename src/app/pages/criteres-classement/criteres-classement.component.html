@@ -1,0 +1,36 @@
+<div class="form-container">
+  <h3>Critères de classement</h3>
+
+  <div class="form-grid">
+    <div>
+      <label>Ajouter un critère</label>
+      <input type="text" placeholder="Nom" [(ngModel)]="nouveauNom">
+      <input type="text" placeholder="Code" [(ngModel)]="nouveauCode">
+      <button mat-button class="btn btn-info" (click)="ajouterCritere()">Ajouter</button>
+    </div>
+
+    <div>
+      <label>Critères disponibles</label>
+      <div *ngFor="let critere of criteresDisponibles" class="ec-row">
+        <span>{{ critere.nom }} ({{ critere.code }})</span>
+        <div class="ec-actions">
+          <button mat-icon-button color="primary" (click)="modifierCritere(critere)"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button color="warn" (click)="supprimerCritere(critere)"><mat-icon>delete</mat-icon></button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="editingCritere" class="form-container">
+      <h4>Modifier le critère</h4>
+      <input type="text" [(ngModel)]="editingCritere.nom" placeholder="Nom">
+      <input type="text" [(ngModel)]="editingCritere.code" placeholder="Code">
+      <div class="form-actions">
+        <button mat-button class="btn btn-info" (click)="enregistrerModification()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button mat-button class="btn btn-info" (click)="enregistrer()">Enregistrer tous</button>
+  </div>
+</div>

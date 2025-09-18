@@ -36,7 +36,8 @@ export class AppMenu implements OnInit {
                             { label: 'Stades', icon: 'pi pi-fw pi-building', routerLink: ['/stades'] },
                             { label: 'Ligues', icon: 'pi pi-fw pi-shield', routerLink: ['/ligues'] },
                            /*  { label: 'Compétitions', icon: 'custom-icon podium', routerLink: ['/competitions'] }, */
-                        { label: 'Villes', icon: 'pi pi-fw pi-map-marker', routerLink: ['/villes'] },]
+                        { label: 'Villes', icon: 'pi pi-fw pi-map-marker', routerLink: ['/villes'] },
+                        {label:"Critères de classement", icon:'pi pi-fw pi-list', routerLink:['/criteres-classement']},]
                      },
                    /*   { label: 'Utilisateurs', icon: 'pi pi-fw pi-id-card', routerLink: ['/utilisateurs'] }, */
 
