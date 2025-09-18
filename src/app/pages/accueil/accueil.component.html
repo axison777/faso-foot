@@ -1,40 +1,83 @@
 <div class="dashboard-container">
   <h2 class="dashboard-title">Tableau de bord</h2>
 
+  <!-- 🔹 Dropdown saison -->
+  <p-dropdown
+    [options]="saisons"
+    [(ngModel)]="selectedSaison"
+    optionLabel="nom"
+    placeholder="Sélectionner une saison"
+    (onChange)="onSaisonChange()"
+  ></p-dropdown>
+
+  <!-- 🔹 Indicateurs rapides -->
   <div class="cards-grid">
-    <!-- Colonne de gauche -->
-    <div class="card-column">
-      <div class="card-item">
-        <i class="pi pi-users card-icon"></i>
-        <div>
-          <p class="card-title">Équipes inscrites</p>
-          <h3 class="card-value">{{ totalEquipes }}</h3>
-        </div>
-      </div>
-      <div class="card-item">
-        <i class="pi pi-building card-icon"></i>
-        <div>
-          <p class="card-title">Stades enregistrés</p>
-          <h3 class="card-value">{{ totalStades }}</h3>
-        </div>
+    <div class="card-item blue">
+      <i class="pi pi-check-circle card-icon"></i>
+      <div>
+        <p class="card-title">Matchs joués</p>
+        <h3 class="card-value">{{ totalMatchsJoues }}</h3>
       </div>
     </div>
-    <!-- Colonne de droite -->
-    <div class="card-column">
-      <div class="card-item">
-        <i class="pi pi-flag card-icon"></i>
-        <div>
-          <p class="card-title">Ligues disponibles</p>
-          <h3 class="card-value">{{ totalLigues }}</h3>
-        </div>
-      </div>
-      <div class="card-item">
-        <i class="pi pi-calendar card-icon"></i>
-        <div>
-          <p class="card-title">Saisons enregistrées</p>
-          <h3 class="card-value">{{ totalSaisons }}</h3>
-        </div>
+
+    <div class="card-item yellow">
+      <i class="pi pi-calendar-times card-icon"></i>
+      <div>
+        <p class="card-title">Matchs reportés</p>
+        <h3 class="card-value">{{ totalMatchsReportes }}</h3>
       </div>
     </div>
+
+    <div class="card-item red">
+      <i class="pi pi-times-circle card-icon"></i>
+      <div>
+        <p class="card-title">Matchs annulés</p>
+        <h3 class="card-value">{{ totalMatchsAnnuels }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Graphiques côte à côte -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Répartition des matchs</h3>
+      <canvas baseChart
+              [data]="pieChartData"
+              [options]="pieChartOptions"
+              chartType="pie">
+      </canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3>Classement par points</h3>
+      <canvas baseChart
+              [data]="barChartData"
+              [options]="barChartOptions"
+              chartType="bar">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- 🔹 Tableau de classement -->
+  <div class="ranking-card">
+    <h3>Classement des équipes</h3>
+    <table class="ranking-table">
+      <thead>
+        <tr>
+          <th>Équipe</th>
+          <th>Points</th>
+          <th>Victoires</th>
+          <th>Diff. buts</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let equipe of classementEquipes">
+          <td>{{ equipe.nom }}</td>
+          <td>{{ equipe.points }}</td>
+          <td>{{ equipe.victoires }}</td>
+          <td>{{ equipe.differenceButs }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
