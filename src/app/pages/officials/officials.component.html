@@ -1,0 +1,227 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="officials-container">
+    <!-- Header -->
+    <div class="header">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+            rel="stylesheet" />
+        <h1>Gestion des Officiels</h1>
+        <div class="header-actions">
+            <button class="btn btn-info" (click)="toggleForm()"><i class="pi pi-plus-circle mr-2"></i>Ajouter un
+                officiel</button>
+        </div>
+    </div>
+
+
+    <!-- Onglets -->
+    <p-tabView [(activeIndex)]="activeIndex" class="officials-tabs">
+        <!-- TAB ARBITRES -->
+        <p-tabPanel header="Arbitres" leftIcon="pi pi-flag">
+            <!-- Search -->
+            <div class="search-container flex align-items-end">
+                <input type="text" class="search-input" [(ngModel)]="searchTerm"
+                    placeholder="Rechercher un arbitre (nom, prénom, licence)..." />
+                <!-- <div class="header-actions ml-auto mt-auto">
+                    <button class="btn-info" (click)="toggleForm()">
+                        <i class="pi pi-plus-circle mr-2"></i> Ajouter un arbitre
+                    </button>
+                </div> -->
+            </div>
+
+            <!-- Loading -->
+            <div *ngIf="loading" class="loading">Chargement des arbitres...</div>
+
+            <!-- Table -->
+            <div *ngIf="!loading && referees.length > 0" class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>N° Licence</th>
+                            <th>Niveau</th>
+                            <th>Structure</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let o of referees; let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td class="cell-strong">{{ o.last_name }}</td>
+                            <td>{{ o.first_name }}</td>
+                            <td>{{ o.license_number }}</td>
+                            <td>{{ o.level }}</td>
+                            <td>{{ o.structure || '—' }}</td>
+                            <td>
+                                <span class="badge" [ngClass]="{
+                    'status-active': o.status === 'ACTIVE',
+                    'status-suspended': o.status === 'SUSPENDED',
+                    'status-retired': o.status === 'RETIRED'
+                  }">
+                                    {{ o.status }}
+                                </span>
+                            </td>
+                            <td class="actions">
+                                <div class="btn-group">
+                                    <p-button severity="warn" icon="pi pi-pencil" (click)="editOfficial(o)" />
+                                    <button class="btn btn-info" (click)="viewOfficialDetails(o)"><i
+                                            class="pi pi-eye"></i></button>
+                                    <button class="btn btn-danger" (click)="deleteOfficial(o.id!)"><i
+                                            class="pi pi-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- No results -->
+            <div *ngIf="!loading && referees.length === 0 && searchTerm" class="no-results">
+                <div class="icon">🔍</div>
+                <p>Aucun arbitre trouvé pour "{{ searchTerm }}"</p>
+            </div>
+        </p-tabPanel>
+
+        <!-- TAB COMMISSAIRES -->
+        <p-tabPanel header="Commissaires" leftIcon="pi pi-briefcase">
+            <!-- Search -->
+            <div class="search-container flex align-items-end">
+                <input type="text" class="search-input" [(ngModel)]="searchTerm"
+                    placeholder="Rechercher un commissaire (nom, prénom, licence)..." />
+                <!-- <div class="header-actions ml-auto mt-auto">
+                    <button class="btn-info" (click)="toggleForm()">
+                        <i class="pi pi-plus-circle mr-2"></i> Ajouter un commissaire
+                    </button>
+                </div> -->
+            </div>
+
+            <!-- Loading -->
+            <div *ngIf="loading" class="loading">Chargement des commissaires...</div>
+
+            <!-- Table -->
+            <div *ngIf="!loading && commissioners.length > 0" class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>N° Licence</th>
+                            <th>Niveau</th>
+                            <th>Structure</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let o of commissioners; let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td class="cell-strong">{{ o.last_name }}</td>
+                            <td>{{ o.first_name }}</td>
+                            <td>{{ o.license_number }}</td>
+                            <td>{{ o.level }}</td>
+                            <td>{{ o.structure || '—' }}</td>
+                            <td>
+                                <span class="badge" [ngClass]="{
+                    'status-active': o.status === 'ACTIVE',
+                    'status-suspended': o.status === 'SUSPENDED',
+                    'status-retired': o.status === 'RETIRED'
+                    }">
+                                    {{ o.status }}
+                                </span>
+                            </td>
+                            <td class="actions">
+                                <div class="btn-group">
+                                    <p-button severity="warn" icon="pi pi-pencil" (click)="editOfficial(o)" />
+                                    <button class="btn btn-info" (click)="viewOfficialDetails(o)"><i
+                                            class="pi pi-eye"></i></button>
+                                    <button class="btn btn-danger" (click)="deleteOfficial(o.id!)"><i
+                                            class="pi pi-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- No results -->
+            <div *ngIf="!loading && commissioners.length === 0 && searchTerm" class="no-results">
+                <div class="icon">🔍</div>
+                <p>Aucun commissaire trouvé pour "{{ searchTerm }}"</p>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+
+    <!-- ========== DIALOG FORM CREATE / EDIT ========== -->
+    <p-dialog [(visible)]="showForm" [modal]="true" [draggable]="false" [closable]="false" [style]="{ width: '800px' }"
+        [header]="isEditing ? 'Modifier un officiel' : 'Ajouter un officiel'">
+        <form [formGroup]="officialForm" class="form-grid" (ngSubmit)="saveOfficial()">
+            <div class="form-item">
+                <label>Nom <span class="req">*</span></label>
+                <input pInputText formControlName="last_name" placeholder="Nom" />
+            </div>
+
+            <div class="form-item">
+                <label>Prénom <span class="req">*</span></label>
+                <input pInputText formControlName="first_name" placeholder="Prénom" />
+            </div>
+
+            <div class="form-item">
+                <label>Date de naissance</label>
+                <p-datepicker [style]="{ width: '100%' }" formControlName="date_of_birth" dateFormat="dd/mm/yy"
+                    [showIcon]="true"></p-datepicker>
+            </div>
+
+            <div class="form-item">
+                <label>Lieu de naissance</label>
+                <input pInputText formControlName="birth_place" placeholder="Lieu" />
+            </div>
+
+            <div class="form-item">
+                <label>Type <span class="req">*</span></label>
+                <p-dropdown [options]="officialTypes" formControlName="official_type" optionLabel="label"
+                    optionValue="value" placeholder="Type d'officiel"></p-dropdown>
+            </div>
+
+            <div class="form-item">
+                <label>Niveau <span class="req">*</span></label>
+                <p-dropdown [options]="levels" formControlName="level" optionLabel="label" optionValue="value"
+                    placeholder="Niveau"></p-dropdown>
+            </div>
+
+            <div class="form-item">
+                <label>Statut <span class="req">*</span></label>
+                <p-dropdown [options]="statuses" formControlName="status" optionLabel="label" optionValue="value"
+                    placeholder="Statut"></p-dropdown>
+            </div>
+
+            <div class="form-item">
+                <label>Nationalité</label>
+                <input pInputText formControlName="nationality" placeholder="Nationalité" />
+            </div>
+
+            <div class="form-item">
+                <label>N° Licence <span class="req">*</span></label>
+                <input pInputText formControlName="license_number" placeholder="Licence" />
+            </div>
+
+            <div class="form-item">
+                <label>Structure</label>
+                <input pInputText formControlName="structure" placeholder="Structure" />
+            </div>
+
+            <div class="form-item">
+                <label>Expérience (années)</label>
+                <input pInputText formControlName="experience" type="number" />
+            </div>
+
+            <div class="form-footer">
+                <p-button [raised]="true" severity="secondary" type="button" (click)="toggleForm()">Annuler</p-button>
+                <p-button [loading]="loadingForm" [raised]="true" type="submit">Enregistrer</p-button>
+            </div>
+        </form>
+    </p-dialog>
+</div>
