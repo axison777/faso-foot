@@ -18,6 +18,7 @@ import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { Contract } from '../../models/contract.model';
 import { EquipeService } from '../../service/equipe.service';
 import { TextareaModule } from 'primeng/textarea';
+import { Router } from '@angular/router';
 
 // Modèles locaux (adaptés au nouveau schéma fourni)
 export interface EmergencyContact {
@@ -129,7 +130,7 @@ export class PlayersComponent implements OnInit {
   teams?: Team[] = [];
    isEditingContract = false;
   constructor(private fb: FormBuilder, private messageService: MessageService, private confirmationService: ConfirmationService,
-    private playerService: PlayerService, private equipeService: EquipeService
+    private playerService: PlayerService, private equipeService: EquipeService, private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -463,8 +464,9 @@ export class PlayersComponent implements OnInit {
   }
 
   openPlayerDetails(p: Player) {
-    this.currentPlayer = p;
-    this.showPlayerDetails = true;
+    /* this.currentPlayer = p;
+    this.showPlayerDetails = true; */
+    this.router.navigate(['/joueur-details', p.id]);
   }
 
   getPositionLabel(pos: string | undefined): string {

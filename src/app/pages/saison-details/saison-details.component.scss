@@ -1,0 +1,118 @@
+$green: rgb(50,145,87);
+
+.season-container {
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.header {
+  margin-bottom: 20px;
+  h1 { font-size: 2rem; color: $green; margin-bottom: 4px; }
+  p { font-size: 1.3rem; color: #46494e; }
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+  gap: 12px;
+
+.match-card {
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .match-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .team-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .team-logo {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+
+      .placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.8rem;
+      }
+
+      .team-name {
+        font-weight: 600;
+        color: #1e293b;
+      }
+    }
+  }
+
+  .match-meta {
+    font-size: 0.85rem;
+    color: #64748b;
+    text-align: start;
+    margin-top: 15px;
+    margin-bottom: 5px;
+  }
+
+  .match-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: end;
+
+    button {
+      padding: 0.3rem;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+
+
+}
+
+p-table {
+  margin-top: 12px;
+  th { background: $green; color: #fff; text-transform: uppercase; }
+}
+
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.info-section {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

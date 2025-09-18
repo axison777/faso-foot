@@ -14,8 +14,8 @@ export class ClubService {
 
   constructor(private http: HttpClient) {}
 
-  get(id: string): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl + '/' + id);
+  getById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
   getAll(): Observable<any[]> {
@@ -32,6 +32,14 @@ export class ClubService {
 
   delete(id?: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  suspend(id?: string, data?:any): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/suspend`, data);
+  }
+
+  reactivate(id?: string, data?:any): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/reactivate`, data);
   }
 
 

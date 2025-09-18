@@ -1,0 +1,113 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<div class="season-container">
+  <div class="header">
+    <h1>{{ season.name }}</h1>
+    <p> Saison {{season.start_date | date:'yyyy'}} - {{season.end_date | date:'yyyy'}}</p>
+  </div>
+
+  <p-tabView [(activeIndex)]="activeIndex" class="season-tabs">
+
+    <!-- ===== MATCHS ===== -->
+    <p-tabPanel header="Matchs" leftIcon="pi pi-calendar">
+      <div class="filters">
+        <p-select [options]="getPoolsOptions()" [(ngModel)]="selectedPoolId" placeholder="Choisir un pool"></p-select>
+        <p-select [options]="getPhasesOptions()" [(ngModel)]="selectedPhaseKey" placeholder="Choisir une phase"></p-select>
+      </div>
+
+      <p-accordion value="0">
+
+        <p-accordion-panel value="{{i}}" *ngFor="let day of getMatchdays() index as i" >
+            <p-accordion-header>{{day.label}}</p-accordion-header>
+            <p-accordion-content>
+                          <div class="cards-grid">
+       <p-card class="match-card" *ngFor="let match of day.matches">
+  <div class="match-teams">
+    <div class="team-row">
+      <ng-container *ngIf="match.team1_logo; else team1Placeholder">
+        <img [src]="match.team1_logo" alt="{{match.team1}}" class="team-logo">
+      </ng-container>
+      <ng-template #team1Placeholder>
+        <div class="team-logo placeholder" [style.background-color]="getTeamColor(match.team1)">
+          {{ getInitials(match.team1) }}
+        </div>
+      </ng-template>
+      <span class="team-name">{{ match.team1 }}</span>
+    </div>
+
+    <div class="team-row">
+      <ng-container *ngIf="match.team2_logo; else team2Placeholder">
+        <img [src]="match.team2_logo" alt="{{match.team2}}" class="team-logo">
+      </ng-container>
+      <ng-template #team2Placeholder>
+        <div class="team-logo placeholder" [style.background-color]="getTeamColor(match.team2)">
+          {{ getInitials(match.team2) }}
+        </div>
+      </ng-template>
+      <span class="team-name">{{ match.team2 }}</span>
+    </div>
+  </div>
+
+  <div class="match-meta">
+    <div>{{ match.stadium }}</div>
+    <div>{{ match.match_date }} - {{ match.time }}</div>
+  </div>
+
+  <div class="match-actions">
+    <p-button severity="primary" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"></p-button>
+    <p-button severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil" class="p-button-rounded p-button-text"></p-button>
+    <p-button severity="danger"  pTooltip="Valider résultat" icon="pi pi-check" class="p-button-rounded p-button-text"></p-button>
+  </div>
+</p-card>
+
+
+
+          </div>
+            </p-accordion-content>
+        </p-accordion-panel>
+      </p-accordion>
+    </p-tabPanel>
+
+    <!-- ===== CLASSEMENT ===== -->
+    <p-tabPanel header="Classement" leftIcon="pi pi-list">
+      <div class="table-actions">
+        <button pButton type="button" label="Aller au calendrier" class="btn-primary"></button>
+      </div>
+      <p-table [value]="season.rankings">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Position</th>
+            <th>Équipe</th>
+            <th>Points</th>
+            <th>J</th>
+            <th>G</th>
+            <th>N</th>
+            <th>P</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-team>
+          <tr>
+            <td>{{ team.position }}</td>
+            <td>{{ team.team }}</td>
+            <td>{{ team.points }}</td>
+            <td>{{ team.played }}</td>
+            <td>{{ team.won }}</td>
+            <td>{{ team.drawn }}</td>
+            <td>{{ team.lost }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+
+    <!-- ===== INFOS ===== -->
+    <p-tabPanel header="Infos" leftIcon="pi pi-info-circle">
+      <div class="info-section">
+        <p><strong>Nom :</strong> {{ season.name }}</p>
+        <p><strong>Durée :</strong> {{ season.start_date }} → {{ season.end_date }}</p>
+        <button pButton type="button" label="Voir calendrier" class="btn-primary"></button>
+      </div>
+    </p-tabPanel>
+
+  </p-tabView>
+</div>

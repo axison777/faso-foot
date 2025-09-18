@@ -94,7 +94,7 @@ export class ClubsComponent {
 
   ngOnInit(): void {
      this.loadClubs();
-     this.loadTeams();
+     //this.loadTeams();
 /*     this.clubs = [
   {
     id: 1,
@@ -226,16 +226,17 @@ export class ClubsComponent {
 
     //this.selectedTeamIds = Array.from(club.teams_ids || []);
 
-    this.clubService.get(club.id!).subscribe({
+    this.clubService.getById(club.id!).subscribe({
       next: (res: any) => {
-        this.teams = res?.data.club.teams || [];
+        this.selectedClub = res?.data?.club  || null;
+
         this.isEditingTeams = true;
       },
       error: (err) => {
         console.error('Erreur lors du chargement des équipes', err);
       }
     })
-    this.selectedClub = club;
+
     //this.updateTeamControls();
   }
 
@@ -269,9 +270,10 @@ export class ClubsComponent {
     } */
   }
 
-  filteredTeams(): any[] {
+  get filteredTeams(): any[] {
   const term = this.teamSearchControl.value?.toLowerCase() || '';
-  return this.teams.filter(team =>
+  if (!this.selectedClub.teams) return [];
+  return this.selectedClub.teams.filter(team =>
     team.name?.toLowerCase().includes(term) ||
     team.abbreviation?.toLowerCase().includes(term)
   );
@@ -311,7 +313,8 @@ get teamSelectionControls(): FormControl[] {
 }
 
 updateTeamControls() {
-  const filtered = this.filteredTeams();
+  //const filtered = this.filteredTeams();
+    const filtered = this.filteredTeams;
   this.teamControls.clear();
   for (let team of filtered) {
     const control = new FormControl<boolean>(this.selectedTeamIds.includes(team.id), { nonNullable: true });
@@ -330,11 +333,13 @@ updateTeamControls() {
 
 
 get selectedTeamObjects() {
-  return this.teams.filter(team => this.selectedTeamIds.includes(team?.id!));
+ /*  return this.teams.filter(team => this.selectedTeamIds.includes(team?.id!)); */
+ return this.teams
 }
 
 uncheckTeam(teamId: string) {
-  const filtered = this.filteredTeams();
+  //const filtered = this.filteredTeams();
+    const filtered = this.filteredTeams;
   const index = filtered.findIndex(t => t.id === teamId);
   if (index !== -1) {
     this.teamSelectionControls[index].setValue(false);
@@ -430,5 +435,15 @@ updateGlobalSelection() {
         });
       }
     });
+  }
+
+  goToTeamDetails(teamId: string): void {
+    this.router.navigate(['/equipe-details', teamId]);
+  }
+
+  goToClubDetails(id: string): void {
+    /* this.selectedTeam = team;
+    this.showDetails = true; */
+    this.router.navigate(['/club-details', id],);
   }
 }

@@ -4,6 +4,7 @@ import { Contract } from "./contract.model";
 import { League } from "./league.model";
 import { Player } from "./player.model";
 import { StaffMember } from "./staff-member.model";
+import { Suspension } from "./suspension.model";
 import { TeamCategory } from "./team-category.model";
 import { TeamKit } from "./team-kit.model";
 import { Trophy } from "./trophy.model";
@@ -35,5 +36,8 @@ export interface Team {
   players?: Player
   trophies?: Trophy[]
   player_count?: number
+
+  status?:  "ACTIVE" | "INACTIVE" | "SUSPENDED" | "DISSOLVED";
+  suspensions?: Suspension[]
 
 }

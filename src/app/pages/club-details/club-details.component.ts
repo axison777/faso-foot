@@ -27,35 +27,42 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ClubService } from '../../service/club.service';
 import { Club } from '../../models/club.model';
-import { ContractService } from '../../service/contract.service';
+import { Suspension } from '../../models/suspension.model';
 
 @Component({
-  selector: 'app-player-details',
+  selector: 'app-club-details',
   standalone: true,
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule,
-    DialogModule, ButtonModule, InputTextModule, InputNumberModule,
-    CalendarModule, ConfirmDialogModule, ToastModule, TabViewModule, SelectModule,
+    DialogModule, ButtonModule, InputTextModule, InputNumberModule
+    , ConfirmDialogModule, ToastModule, TabViewModule, SelectModule,
     DatePickerModule, MultiSelectModule, FileUploadModule
   ],
-  templateUrl: './player-details.component.html',
-  styleUrls: ['./player-details.component.scss'],
+  templateUrl: './club-details.component.html',
+  styleUrls: ['./club-details.component.scss'],
 
   providers: [MessageService, ConfirmationService]
 })
-export class PlayerDetailsComponent implements OnInit {
+export class ClubDetailsComponent implements OnInit {
 
-    loadingContracts: boolean = false;
+showSuspensionForm: boolean = false;
+isEditingSuspension: boolean = false;
+availableReasons: any[]|undefined;
 
+
+    loadingKits: boolean = false;
+    loadingStaff: boolean = false;
+    loadingTrophies: boolean = false;
+    loadingPlayers: boolean = false;
     loadingForm: boolean = false;
 
   // ---------- DATA ----------
-  player!: Player;
-
+  club: Club={};
+  players: Player[] = [];
   activeIndex = 0; // TabView index
 
   // search
-
+  searchPlayer = '';
   loading = false;
 
   // dialogs & forms
@@ -178,13 +185,13 @@ export class PlayerDetailsComponent implements OnInit {
 
 
   teams?: Team[] = [];
-  clubs?: Club[] = [];
   selectedFile: File | null = null;
   currentPhoto: string | null = null;
 
   teamSearchControl = new FormControl('');
 
-  playerAllDetails: boolean = false
+  suspensionForm!: FormGroup;
+  club_id?: string='';
 
 
 
@@ -198,15 +205,16 @@ export class PlayerDetailsComponent implements OnInit {
     private messageService: MessageService,
     private tkService: TeamKitService,
     private playerService : PlayerService,
-    private router: Router,
-    private contractService: ContractService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
 
     let id=this.route.snapshot.params['id'];
-    this.loadPlayer(id);
-
+    this.club_id=id;
+    this.loadClub(id);
+    this.loadKits();
+    this.loadPlayers();
 
 
     // init data
@@ -242,7 +250,7 @@ export class PlayerDetailsComponent implements OnInit {
 
     this.contractForm = this.fb.group({
     id: [null], // facultatif, utile en édition
-    //player_id: ['', Validators.required],
+    player_id: ['', Validators.required],
     club_id: ['', Validators.required],
     start_date: [null, Validators.required],
     end_date: [null, Validators.required],
@@ -280,13 +288,25 @@ export class PlayerDetailsComponent implements OnInit {
       competition_name: ['', Validators.required],
       year: [new Date().getFullYear(), Validators.required],
     });
+
+       this.suspensionForm = this.fb.group({
+      effective_from: [null],
+      effective_until: [null],
+       reasons: this.fb.array([], Validators.required)
+    });
+
+  }
+    get susf() {
+    return this.suspensionForm.controls as {
+    [key in keyof any]: FormControl;
+  };;
   }
 
-  loadPlayer(id: string) {
+  loadClub(id: string) {
     this.loading = true;
-    this.playerService.show(id).subscribe({
+    this.clubService.getById(id).subscribe({
       next: (res: any) => {
-        this.player = res?.data.player;
+        this.club = res?.data.club;
         this.loading = false;
       },
       error: () => {
@@ -294,13 +314,48 @@ export class PlayerDetailsComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors du chargement du joueur',
+          detail: 'Erreur lors du chargement du club',
         });
       }
     });
   }
 
+  loadKits() {
+    this.loadingKits = true;
+    this.tkService.getAll().subscribe({
+      next: (res: any) => {
+        this.club.kits = res?.data.jerseys || [];
+        this.loadingKits = false;
+      },
+      error: () => {
+        this.loadingKits = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des maillots',
+        });
+      }
+    });
+  }
 
+  loadPlayers() {
+    this.loadingPlayers = true;
+    this.playerService.getAll().subscribe({
+      next: (res: any) => {
+        this.players = res?.data?.players || [];
+        this.loadingPlayers = false;
+
+      },
+      error: () => {
+        this.loadingPlayers = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des joueurs',
+        });
+      }
+    });
+  }
 
   // ---------- GETTERS ----------
   get f() { return this.playerForm.controls as {
@@ -453,7 +508,7 @@ export class PlayerDetailsComponent implements OnInit {
         detail: `${v.first_name} ${v.last_name}`,
         life: 2500
       });
-
+      this.loadPlayers();
       this.showPlayerForm = false;
       this.loadingForm = false;
       this.selectedFile = null;
@@ -491,7 +546,53 @@ export class PlayerDetailsComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
+  deleteEntity(type: 'joueur'|'staff'|'maillot'|'trophy' | 'suspension', id: string) {
+    this.confirm.confirm({
+      icon: 'pi pi-exclamation-triangle',
+      message: 'Voulez-vous vraiment supprimer cet élément ?',
+      accept: () => {
+        switch (type) {
+          case 'joueur': {
+            this.playerService.delete(id).subscribe({
+              next: () => {
+                this.loadPlayers();
+                this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Joueur supprimé.' });
 
+              },
+              error: () => {
+                this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+              }
+            });break;
+          };
+         /*  case 'staff': this.club.staff_members = this.club.staff_members?.filter(m => m.id !== id); break; */
+          case 'maillot': {
+            this.tkService.delete(id).subscribe({
+              next: () => {
+                this.loadKits();
+                this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Maillot supprimé.' });
+              },
+              error: () => {
+                this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+              }
+            });
+          };
+       /*    case 'suspension': {
+            this.suspensionService.delete(id).subscribe({
+              next: () => {
+                this.loadSuspensions();
+                this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Suspension supprimée.' });
+              },
+              error: () => {
+                this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+              }
+            });
+          } */
+          /* case 'trophy': this.club.trophies = this.club.trophies?.filter(t => t.id !== id); break; */
+        }
+
+      }
+    });
+  }
 
   // ---------- CONTRACTS ----------
   openContractsModal(p: Player) {
@@ -508,24 +609,22 @@ export class PlayerDetailsComponent implements OnInit {
     this.showContracts = true;
     this.showContractForm = false;
     this.contractForm.reset();
-    //this.loadTeams();
-
+    this.loadTeams();
 
   }
 
   newContract() {
     this.showContractForm = true;
-    this.loadClubs();
-    this.contractForm.reset();
+    this.contractForm.reset({ id: '', type: '', position: '', number: null, start_date: null, end_date: null });
   }
 
   editContract(c: Contract) {
-    this.loadClubs();
     this.isEditingContract=true
     this.showContractForm = true;
     this.contractForm.patchValue({
-        id:c.id, salary: c.salary_amount, start_date: c.start_date ? new Date(c.start_date) : null, end_date: c.end_date ? new Date(c.end_date) : null,
-       club_id: c.club_id, status: c.status, clauses: c.clauses
+      id: c.id, type: c.type || '', position: c.position || '', number: c.number || null,
+      start_date: c.start_date ? new Date(c.start_date) : null,
+      end_date: c.end_date ? new Date(c.end_date) : null
     });
   }
 
@@ -543,7 +642,7 @@ export class PlayerDetailsComponent implements OnInit {
   const formValue = this.contractForm.value;
 
   const payload: any = {
-    player_id: this.player.id,
+    player_id: formValue.player_id,
     club_id: formValue.club_id,
     start_date: formValue.start_date ? new Date(formValue.start_date).toISOString() : null,
     end_date: formValue.end_date ? new Date(formValue.end_date).toISOString() : null,
@@ -555,38 +654,19 @@ export class PlayerDetailsComponent implements OnInit {
     }))
   };
 
-/*   if (formValue.id) {
+  if (formValue.id) {
     payload['id'] = formValue.id; // si édition
-  } */
+  }
 
-   const request$ = this.isEditingContract && formValue.id
-    ? this.contractService.update(formValue.id, payload)
-    : this.contractService.create(payload);
-
-  request$.subscribe({
-    next: () => {
-      this.messageService.add({
-        severity: 'success',
-        summary: this.isEditingPlayer ? 'Contrat modifié' : 'Contrat ajouté',
-        detail: `${payload.first_name} ${payload.last_name}`,
-        life: 2500
-      });
-
-      this.showContractForm = false;
-      this.loadingForm = false;
-      this.loadPlayer(this.player.id!);
-    },
-    error: () => {
-      this.loadingForm = false;
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Une erreur est survenue',
-        life: 2500
-      });
+/*
+    if (v.id) {
+      this.currentPlayer.contracts = (this.currentPlayer.contracts || []).map(c => c.id === v.id ? payload : c);
+      this.toast.add({ severity: 'success', summary: 'Contrat modifié', detail: `${payload.type}`, life: 2200 });
+    } else {
+      this.currentPlayer.contracts = [payload, ...(this.currentPlayer.contracts || [])];
+      this.toast.add({ severity: 'success', summary: 'Contrat ajouté', detail: `${payload.type}`, life: 2200 });
     }
-  });
-
+    this.showContractForm = false; */
 }
 
 
@@ -635,7 +715,35 @@ export class PlayerDetailsComponent implements OnInit {
   }
   closeKitForm() { this.showKitForm = false; }
 
+  saveKit() {
+    if (this.kitForm.invalid) { this.kitForm.markAllAsTouched(); return; }
+    this.loadingForm = true;
+    const v = this.kitForm.value as TeamKit;
+   /*  v.team_id = this.team.id; */
+    v.club_id = this.club.id;
+    const onSuccess = () => {
+        this.toast.add({ severity: 'success', summary: this.isEditingKit ? 'Maillot modifié' : 'Maillot ajouté', detail: `${v.name}` });
+        this.loadKits();
+        this.loadingForm = false;
+        this.showKitForm = false;
+    }
+    const onError = () => {this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+        this.loadingForm = false;
+    };
+    if (this.isEditingKit && v.id) {
+      this.tkService.update(v.id, v).subscribe({
+        next: onSuccess,
+        error: onError
+      });
 
+    } else {
+        this.tkService.create(v).subscribe({
+          next: onSuccess,
+          error: onError
+        });
+    }
+    this.showKitForm = false;
+  }
 
   // ---------- TROPHIES ----------
   showTrophyDialog(trophy?: any) {
@@ -667,6 +775,7 @@ export class PlayerDetailsComponent implements OnInit {
     return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString().slice(0,10);
   }
 
+  get filteredPlayers(): Player[] { return this.players.filter(p => !this.searchPlayer || p.first_name?.toLowerCase().includes(this.searchPlayer.toLowerCase()) || p.last_name?.toLowerCase().includes(this.searchPlayer.toLowerCase())); }
 
   getKitLabel(value:string){
     return this.kitTypes.find(k=>k.value===value)?.label
@@ -702,17 +811,6 @@ loadTeams() {
     }
   });}
 
-loadClubs() {
-  this.clubService.getAll().subscribe({
-    next: (res: any) => {
-      this.clubs = res?.data?.clubs || [];
-
-    },
-    error: (err) => {
-      console.error('Erreur lors du chargement des clubs', err);
-    }
-  });}
-
     onFileSelect(event: any): void {
     const file = event.files?.[0];
     if (file) {
@@ -733,41 +831,113 @@ loadClubs() {
     return opt ? opt.label : foot;
   }
 
-
+  get filteredTeams(): any[] {
+  const term = this.teamSearchControl.value?.toLowerCase() || '';
+  if (!this.club.teams) return [];
+  return this.club.teams.filter(team =>
+    team.name?.toLowerCase().includes(term) ||
+    team.abbreviation?.toLowerCase().includes(term)
+  );
+}
 goToTeamDetails(teamId: string): void {
     this.router.navigate(['/equipe-details', teamId]);
   }
 
-  showPlayerAllDetails(){
-    this.playerAllDetails = true
-    this.player= {
-  id: "1",
-  first_name: "Lionel",
-  last_name: "Messi",
-  date_of_birth: "1987-06-24T00:00:00.000000Z",
-  birth_place: "Rosario",
-  nationality: "Argentin",
-  phone: "+5491112345678",
-  email: "leo.messi@example.com",
-  photo_url: "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Lionel_Messi.jpg",
-  emergency_contact: [
-    { name: "Antonella Roccuzzo", phone: "+5491112349999", email: "anto@example.com", relationship: "Épouse" },
-    { name: "Jorge Messi", phone: "+549111888888", email: "jorge@example.com", relationship: "Père" }
-  ],
-  height: 170,
-  weight: 7,
-  blood_type: "O+",
-  foot_preference: "LEFT",
-  license_number: "LM10-2025",
-  preferred_position: "GOALKEEPER",
-  secondary_positions: ["DEFENSE"],
-  career_start: "2004-10-16T00:00:00.000000Z",
-  career_end: "2004-10-16T00:00:00.000000Z",
-  status: "ACTIVE",
-
-};
-
+showSuspensionDialog(suspension?: any): void {
+    this.isEditingSuspension = !!suspension;
+    if (suspension) {
+      this.suspensionForm.patchValue({
+        effective_from: suspension.effective_from ? new Date(suspension.effective_from) : null,
+        effective_until: suspension.effective_until ? new Date(suspension.effective_until) : null,
+        reasons: suspension.reasons || []
+      });
+    } else {
+      // Nouvelle suspension : reset form
+      this.suspensionForm.reset({ reasons: [] });
+    }
+    this.showSuspensionForm = true;
   }
+
+  showReactivationDialog(): void {
+    this.isEditingSuspension = false;
+    // Réactivation : seules les raisons sont modifiables
+    this.suspensionForm.reset({ reasons: [] });
+    this.showSuspensionForm = true;
+  }
+
+  closeSuspensionForm(): void {
+    this.showSuspensionForm = false;
+    this.suspensionForm.reset({ reasons: [] });
+  }
+  get reasonsArray(): FormArray<FormControl<string>> {
+  return this.suspensionForm.get('reasons') as FormArray<FormControl<string >>;
+}
+addReason(value: string = '') {
+  this.reasonsArray.push(new FormControl(value, { nonNullable: true, validators: Validators.required }));
+}
+
+removeReason(index: number) {
+  this.reasonsArray.removeAt(index);
+}
+
+
+  saveSuspension(): void {
+    if (this.suspensionForm.invalid) {
+      this.suspensionForm.markAllAsTouched();
+      return;
+    }
+
+    const payload: any = {
+        reasons: this.reasonsArray.value.filter((r:string) => r && r.trim() !== '')
+    };
+
+    // Ajouter les dates uniquement si on suspend
+    if (this.club.status === 'ACTIVE') {
+      payload.effective_from = this.suspensionForm.value.effective_from;
+      payload.effective_until = this.suspensionForm.value.effective_until;
+    }
+
+    this.loading = true;
+
+    if (this.isEditingSuspension) {
+      // Modifier une suspension existante
+    /*   this.clubService.updateSuspension(this.suspensionForm.value).subscribe({
+        next: () => this.onSaveSuccess(),
+        error: (err) => this.onSaveError(err)
+      }); */
+    } else {
+      if (this.club.status === 'SUSPENDED') {
+        // Reactiver le club
+        this.clubService.reactivate(this.club_id, payload).subscribe({
+          next: () => this.onSaveSuccess(),
+          error: (err) => this.onSaveError(err)
+        });
+      }
+      else{
+      this.clubService.suspend(this.club_id, payload).subscribe({
+        next: () => this.onSaveSuccess(),
+        error: (err) => this.onSaveError(err)
+      });}
+    }
+  }
+
+  private onSaveSuccess(): void {
+    this.loading = false;
+    this.showSuspensionForm = false;
+    this.loadClub(this.club_id!); // Recharge le club avec suspensions à jour
+    this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Opération réussie.' });
+  }
+
+  private onSaveError(err: any): void {
+    this.loading = false;
+    console.error(err);
+    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur s\'est produite.' });
+  }
+
+
+
+
+
 
 }
 

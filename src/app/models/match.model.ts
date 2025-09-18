@@ -16,7 +16,7 @@ export interface Match {
   match_day_id?: string;
   match_day?: MatchDay;
 
-  scheduled_at?: Date;
+  scheduled_at?: string;
 
   leg?: string;
 

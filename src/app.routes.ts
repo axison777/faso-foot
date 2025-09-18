@@ -24,6 +24,8 @@ import { PlayersComponent } from './app/pages/players/players.component';
 import { EquipeDetailsComponent } from './app/pages/equipe-details/equipe-details.component';
 import { PlayerDetailsComponent } from './app/pages/player-details/player-details.component';
 import { TeamCategoriesComponent } from './app/pages/team-categories/team-categories.component';
+import { ClubDetailsComponent } from './app/pages/club-details/club-details.component';
+import { SaisonDetailsComponent } from './app/pages/saison-details/saison-details.component';
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
     {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
@@ -49,6 +51,8 @@ export const appRoutes: Routes = [
              {path: 'equipe-details/:id', component:EquipeDetailsComponent, canActivate: [AuthGuard] },
              {path: 'joueur-details/:id', component:PlayerDetailsComponent, canActivate: [AuthGuard] },
              {path: 'categories-equipe', component:TeamCategoriesComponent, canActivate: [AuthGuard] },
+             {path: 'club-details/:id', component:ClubDetailsComponent, canActivate: [AuthGuard] },
+             {path: 'saison-details', component:SaisonDetailsComponent, canActivate: [AuthGuard] },
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },

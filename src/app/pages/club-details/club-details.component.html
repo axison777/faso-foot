@@ -5,24 +5,24 @@
   <!-- Header -->
   <div class="header">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <h1>Détails de l'Équipe</h1>
+    <h1>Détails du club</h1>
 
   </div>
 
   <!-- Carte équipe -->
  <div class="team-card">
-    <div *ngIf="team && !loading" class="team-info">
-        <ng-container *ngIf="team?.logo; "><img [src]="team.logo" [alt]="team.name" class="logo"></ng-container>
+    <div *ngIf="club && !loading" class="team-info">
+        <ng-container *ngIf="club?.logo; "><img [src]="club.logo" [alt]="club.name" class="logo"></ng-container>
 
       <div class="team-meta">
-        <h2 >{{ team.name }}</h2>
+        <h2 >{{ club.name }}</h2>
         <div class="meta-grid">
-          <div><span class="label">Abr: </span><span class="value">{{ team.abbreviation }}</span></div>
-           <div><span class="label">Téléphone responsable: </span><span class="value">{{ team.phone }} </span></div>
-          <div><span class="label">Ville: </span><span class="value">{{ team.city?.name }}</span></div>
-          <!-- <div><span class="label">Compétition: </span><span class="value">{{ team.league?.name }}</span></div> -->
-           <div><span class="label">Email responsable: </span><span class="value"> {{ team.email }}</span></div>
-          <div><span class="label">Ligue: </span><span class="value">{{ team.league?.name }}</span></div>
+          <div><span class="label">Abr: </span><span class="value">{{ club.abbreviation }}</span></div>
+          <!--  <div><span class="label">Téléphone responsable: </span><span class="value">{{ club.phone }} </span></div> -->
+          <div><span class="label">Ville: </span><span class="value">{{ club.city?.name }}</span></div>
+          <!-- <div><span class="label">Compétition: </span><span class="value">{{ club.league?.name }}</span></div> -->
+           <!-- <div><span class="label">Email responsable: </span><span class="value"> {{ club.email }}</span></div>
+          <div><span class="label">Ligue: </span><span class="value">{{ club.league?.name }}</span></div> -->
 
 
         </div>
@@ -82,7 +82,7 @@
                  <button class="btn btn-gray"  (click)="openContractsModal(p)"><i class="pi pi-file"></i></button>
                   <p-button severity="warn" icon="pi pi-pencil" (click)="showPlayerDialog(p)" />
                   <button class="btn btn-info" (click)="openPlayerDetails(p)"><i class="pi pi-eye"></i></button>
-                 <!--  <button class="btn btn-danger" (click)="deleteEntity('joueur', p.id!)"><i class="pi pi-trash"></i></button> -->
+                   <button class="btn btn-danger" (click)="deleteEntity('joueur', p.id!)"><i class="pi pi-trash"></i></button>
 
                 </div>
               </td>
@@ -99,45 +99,7 @@
     </p-tabPanel>
 
     <!-- TAB STAFF -->
-    <p-tabPanel header="Staff" leftIcon="pi pi-briefcase">
-  <!--     <div class="tab-header-actions text-end">
-        <button class="btn-primary" (click)="showStaffDialog()">
-          <i class="pi pi-plus-circle mr-2"></i> Ajouter un membre
-        </button>
-      </div>
-      <br> -->
-<!--       <div class="table-container" *ngIf="team.staff_members?.length">
-        <table class="custom-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Nom</th>
-              <th>Prénom</th>
-              <th>Rôle</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let m of team.staff_members; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td class="cell-strong">{{ m.last_name }}</td>
-              <td>{{ m.first_name }}</td>
-              <td>{{ m.role }}</td>
-              <td class="actions">
-                <div class="btn-group">
-                  <p-button severity="warn" icon="pi pi-pencil" (click)="showStaffDialog(m)" />
-                  <button class="btn btn-danger" (click)="deleteEntity('staff', m.id!)"><i class="pi pi-trash"></i></button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
 
-      <div *ngIf="!team.staff_members?.length" class="no-results">
-        <p>Pas de staff pour le moment.</p>
-      </div> -->
-    </p-tabPanel>
 
     <!-- TAB MAILLOTS -->
     <p-tabPanel header="Maillots" leftIcon="pi pi-palette">
@@ -145,7 +107,7 @@
         <button class="btn-primary" (click)="showKitDialog()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un maillot</button>
       </div><br>
         <ng-container  *ngIf="!loadingKits">
-            <div  class="kit-card grid grid-cols-2 gap-4 items-center p-4 border rounded-lg shadow-sm bg-red" *ngFor="let kit of team.kits; let i = index">
+            <div  class="kit-card grid grid-cols-2 gap-4 items-center p-4 border rounded-lg shadow-sm bg-red" *ngFor="let kit of club.kits; let i = index">
   <div>
     <h4 class="font-bold text-lg">
        <span >({{ getKitLabel(kit.type!) }})</span>
@@ -267,14 +229,14 @@
     </svg>
     <div class="card-actions">
       <p-button severity="warn" icon="pi pi-pencil" (click)="showKitDialog(kit)" />
-<!--       <button class="btn btn-danger" (click)="deleteEntity('maillot', kit.id!)">
+       <button class="btn btn-danger" (click)="deleteEntity('maillot', kit.id!)">
         <i class="pi pi-trash"></i>
-      </button> -->
+      </button>
     </div>
   </div>
 </div>
         </ng-container>
-      <div  class="cards-grid" *ngIf="team?.kits?.length ; else noKits">
+      <div  class="cards-grid" *ngIf="club?.kits?.length ; else noKits">
 
 
       </div>
@@ -285,12 +247,12 @@
     </p-tabPanel>
 
     <!-- TAB TROPHEES -->
-    <p-tabPanel header="Trophées" leftIcon="pi pi-trophy">
+    <p-tabPanel *ngIf="0" header="Trophées" leftIcon="pi pi-trophy">
 <!--       <div class="tab-header-actions text-end">
         <button class="btn-primary" (click)="showTrophyDialog()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un trophée</button>
       </div><br>
 
-      <div class="table-container" *ngIf="team.trophies?.length; else noTrophies">
+      <div class="table-container" *ngIf="club.trophies?.length; else noTrophies">
         <table class="custom-table">
           <thead>
             <tr>
@@ -302,7 +264,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let t of team.trophies; let i = index">
+            <tr *ngFor="let t of club.trophies; let i = index">
               <td>{{ i + 1 }}</td>
               <td class="cell-strong">{{ t.name }}</td>
               <td>{{ t.competition_name }}</td>
@@ -323,33 +285,143 @@
     </p-tabPanel>
 
     <!-- TAB RESPONSABLE -->
-    <p-tabPanel *ngIf="team" header="Responsable" leftIcon="pi pi-user">
+   <!--  <p-tabPanel *ngIf="0" header="Responsable" leftIcon="pi pi-user">
       <div class="responsable-card" >
-        <div  class="title">{{ team.manager_first_name }} {{ team.manager_last_name }}</div>
-        <div class="muted">{{ team.manager_role }}</div>
-        <div class="muted">Contact : {{ team.phone }} • {{ team.email }}</div>
+        <div  class="title">{{ club.manager_first_name }} {{ club.manager_last_name }}</div>
+        <div class="muted">{{ club.manager_role }}</div>
+        <div class="muted">Contact : {{ club.phone }} • {{ club.email }}</div>
       </div>
-    </p-tabPanel>
+    </p-tabPanel> -->
 
-          <!-- TAB SUSPENSIONS -->
+    <!-- TAB EQUIPES -->
+     <p-tabPanel  header="Equipes" leftIcon="pi pi-users">
+            <form  class="flex flex-col gap-6 px-4">
+  <!-- Barre de recherche -->
+   <div>
+    <label class="font-bold block mb-1">Rechercher une équipe</label>
+    <input
+      pInputText
+      type="text"
+      [formControl]="teamSearchControl"
+      placeholder="Nom ou abréviation "
+      class="w-full"
+    />
+
+  </div>
+
+  <!-- Grille des cartes -->
+<!-- ✅ Case à cocher pour tout sélectionner -->
+<!-- <div class="flex items-center mb-4">
+  <p-checkbox
+    binary="true"
+     [formControl]="selectAllTeamsControl"
+    (onChange)="toggleAllSelections()"
+    inputId="select-all"
+    class="mr-2"
+  ></p-checkbox>
+  <label for="select-all" class="text-sm font-medium">Tout sélectionner</label>
+</div> -->
+
+<!-- ✅ Conteneur scrollable -->
+<div class="border rounded-md p-4 bg-gray-50  overflow-y-auto">
+  <div *ngIf="club?.teams" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
+    <ng-container *ngIf=" club?.teams!.length > 0">
+      <div
+        *ngFor="let team of filteredTeams; let i = index; "
+        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white hover:bg-green-50 cursor-pointer transition-shadow "
+        (click)="goToTeamDetails(team.id!)"
+      >
+<!--         <p-checkbox
+          binary="true"
+          [formControl]="teamSelectionControls[i]"
+          class="absolute top-2 left-2"
+          [id]="'team-' + team.id"
+          (onChange)="updateGlobalSelection()"
+        ></p-checkbox> -->
+
+         <!-- ✅ Image ou fallback -->
+        <img
+          *ngIf="team.logo; else noLogo"
+          [src]="team.logo"
+          alt="Logo"
+          class=" h-[80px] object-contain"
+        />
+        <ng-template #noLogo>
+          <!-- Icône ou texte par défaut -->
+          <div class="h-[80px] w-[80px] flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-md font-bold">
+            N/A
+          </div>
+        </ng-template>
+
+        <!-- ✅ Abréviation avec style conditionnel -->
+        <div
+          class="text-base font-bold"
+        >
+          {{ team?.name }}
+        </div>
+
+        <!-- ✅ Nom de l’équipe -->
+        <div *ngIf="team?.player_count" class="text-base text-gray-500 text-center">{{ team?.player_count }} joueurs</div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!club?.teams?.length"><p>Aucune equipe n'appartient à ce club</p></ng-container>
+  </div>
+</div>
+<!--   <span class="text-red-500"
+    *ngIf="!selectedTeamObjects.length && teamsForm.get('club_id')?.touched  ">
+    Veuillez sélectionner les équipes.
+  </span> -->
+
+  <!-- Checker si le nombre dequpes choisies correspond au nombre dequipes de la ligue -->
+ <!--  <span class="text-red-500"
+    *ngIf="selectedTeamObjects.length  && club?.teams_count != selectedTeamObjects.length">
+    Le nombre d'équipes sélectionnées ({{ selectedTeamObjects.length }}) ne correspond pas au nombre d'équipes de la ligue ({{ club.teams_count }}).
+  </span> -->
+
+
+
+
+  <!-- Équipes sélectionnées -->
+<!--   <div *ngIf="selectedTeamObjects.length" class="mt-4">
+    <label class="font-bold block mb-2">Équipes sélectionnées ({{ selectedTeamObjects.length }})</label>
+    <div class="flex flex-wrap gap-2">
+
+
+            <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+         <img *ngIf="team.logo" [src]="team.logo" alt="Logo" class="w-10 object-contain" />
+                <span class="text-md font-bold">{{ team.abbreviation }}</span>
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-rounded p-button-md p-button-text p-button-danger"
+          (click)="uncheckTeam(team?.id!)"
+          type="button"
+        ></button>
+      </div>
+    </div>
+  </div> -->
+</form>
+    </p-tabPanel>
+    <!-- TAB SUSPENSIONS -->
 <p-tabPanel header="Suspensions" leftIcon="pi pi-ban">
 
   <!-- Bouton d'action selon le statut du club -->
-  <div *ngIf="team" class="tab-header-actions text-end mb-3">
-    <ng-container *ngIf="team.status === 'ACTIVE'">
+  <div *ngIf="club" class="tab-header-actions text-end mb-3">
+    <ng-container *ngIf="club.status === 'ACTIVE'">
       <button class="btn-danger" (click)="showSuspensionDialog()">
-        <i class="pi pi-minus-circle mr-2"></i> Suspendre l'équipe
+        <i class="pi pi-minus-circle mr-2"></i> Suspendre le club
       </button>
     </ng-container>
-    <ng-container *ngIf="team.status === 'SUSPENDED'">
+    <ng-container *ngIf="club.status === 'SUSPENDED'">
       <button class="btn-primary" (click)="showReactivationDialog()">
-        <i class="pi pi-check-circle mr-2"></i> Réactiver l'équipe
+        <i class="pi pi-check-circle mr-2"></i> Réactiver le club
       </button>
     </ng-container>
   </div>
 
   <!-- Tableau des suspensions -->
-  <div class="table-container" *ngIf="team.suspensions?.length; else noSuspensions">
+  <div class="table-container" *ngIf="club.suspensions?.length; else noSuspensions">
     <table class="custom-table">
       <thead>
         <tr>
@@ -361,7 +433,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let s of team.suspensions; let i = index">
+        <tr *ngFor="let s of club.suspensions; let i = index">
           <td>{{ i + 1 }}</td>
           <td>{{ s.effective_from | date:'shortDate' }}</td>
           <td>{{ s.effective_until ? (s.effective_until | date:'shortDate') : '-' }}</td>
@@ -382,9 +454,8 @@
     <div class="no-results"><p>Pas de suspensions pour le moment.</p></div>
   </ng-template>
 </p-tabPanel>
+
   </p-tabView>
-
-
 
   <!-- ========== DIALOG: CREATE / EDIT PLAYER ========== -->
     <p-dialog [(visible)]="showPlayerForm" [modal]="true" [draggable]="false" [closable]="false"
@@ -576,7 +647,7 @@
 
 
   <!-- ========== DIALOG: CONTRACTS BY PLAYER ========== -->
- <p-dialog [draggable]="false" [(visible)]="showContracts" [modal]="true" [style]="{ width: '900px' }" [closable]="false"
+ <p-dialog [draggable]="false" [(visible)]="showContracts" [modal]="true" [style]="{ width: '900px, min-height: 600px' }" [closable]="false"
           [header]="'Contrats — ' + (currentPlayer?.first_name || '') + ' ' + (currentPlayer?.last_name || '')">
 
   <ng-template #content>
@@ -590,7 +661,7 @@
   <form [formGroup]="contractForm" class="form-grid">
 
     <!-- Club -->
-    <div class="form-item">
+ <!--    <div class="form-item">
       <label>Club <span class="req">*</span></label>
       <p-select formControlName="club_id"
                 [options]="teams"
@@ -600,23 +671,23 @@
                 appendTo="body">
       </p-select>
       <small class="error" *ngIf="cf['club_id']?.invalid && cf['club_id']?.touched">Requis</small>
-    </div>
+    </div> -->
 
     <!-- Dates -->
     <div class="form-item">
       <label>Début <span class="req">*</span></label>
-      <p-calendar formControlName="start_date"
+      <p-datepicker formControlName="start_date"
                   dateFormat="dd/mm/yy"
                   [showIcon]="true"
-                  appendTo="body"></p-calendar>
+                  appendTo="body"></p-datepicker>
       <small class="error" *ngIf="cf['start_date']?.invalid && cf['start_date']?.touched">Requis</small>
     </div>
     <div class="form-item">
       <label>Fin <span class="req">*</span></label>
-      <p-calendar formControlName="end_date"
+      <p-datepicker formControlName="end_date"
                   dateFormat="dd/mm/yy"
                   [showIcon]="true"
-                  appendTo="body"></p-calendar>
+                  appendTo="body"></p-datepicker>
       <small class="error" *ngIf="cf['end_date']?.invalid && cf['end_date']?.touched">Requis</small>
     </div>
 
@@ -838,15 +909,15 @@
     </ng-template>
   </p-dialog>
 
-    <!-- DIALOG SUSPENSION -->
+  <!-- DIALOG SUSPENSION -->
 <p-dialog [draggable]="false" [(visible)]="showSuspensionForm" [modal]="true" [style]="{ width: '520px' }"
-          [header]="isEditingSuspension ? 'Modifier la suspension' : (team.status === 'ACTIVE' ? 'Suspendre le club' : 'Réactiver le club')"
+          [header]="isEditingSuspension ? 'Modifier la suspension' : (club.status === 'ACTIVE' ? 'Suspendre le club' : 'Réactiver le club')"
           [closable]="false">
   <ng-template #content>
     <form [formGroup]="suspensionForm" class="form-grid">
 
       <!-- Dates uniquement si on suspend -->
-      <ng-container *ngIf="team.status === 'ACTIVE'">
+      <ng-container *ngIf="club.status === 'ACTIVE'">
         <div class="form-item">
           <label>Date de début <span class="req">*</span></label>
           <p-datepicker appendTo="body" formControlName="effective_from" [showIcon]="true" dateFormat="yy-mm-dd"></p-datepicker>
@@ -882,3 +953,4 @@
     </div>
   </ng-template>
 </p-dialog>
+
