@@ -24,7 +24,7 @@ import { PlayersComponent } from './app/pages/players/players.component';
 import { EquipeDetailsComponent } from './app/pages/equipe-details/equipe-details.component';
 import { PlayerDetailsComponent } from './app/pages/player-details/player-details.component';
 import { TeamCategoriesComponent } from './app/pages/team-categories/team-categories.component';
-import { CriteresClassementComponent } from './app/pages/criteres-classement/criteres-classement.component';
+import { RolesComponent } from './app/pages/roles/roles.component';
 
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -54,7 +54,8 @@ export const appRoutes: Routes = [
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
-            { path: 'criteres-classement', component: CriteresClassementComponent, canActivate: [AuthGuard] },
+            { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
+
 
           /*    {path: 'calendar', component:CalendarComponent}, */
 
