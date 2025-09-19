@@ -26,19 +26,20 @@ export class AppMenu implements OnInit {
                 //label: 'Menu principal',
                 items: [
                     { label: 'Accueil', icon: 'pi pi-fw pi-home', routerLink: ['/accueil'] },
-                    { label: 'Saisons', icon: 'pi pi-fw pi-calendar', routerLink: ['/saisons']},
-                    { label: 'Clubs', icon: 'custom-icon club', routerLink: ['/clubs']},
+                    { label: 'Saisons', icon: 'pi pi-fw pi-calendar', routerLink: ['/saisons'] },
+                    { label: 'Clubs', icon: 'custom-icon club', routerLink: ['/clubs'] },
                     { label: 'Equipes', icon: 'pi pi-fw pi-users', routerLink: ['/equipes'] },
-                    { label: 'Joueurs', icon: 'custom-icon player', routerLink: ['/joueurs']},
+                    { label: 'Joueurs', icon: 'custom-icon player', routerLink: ['/joueurs'] },
+                    { label: 'Officiels', icon: 'custom-icon referee', routerLink: ['/officiels'] },
                     { label: 'Paramètres', icon: 'pi pi-fw pi-cog',
                         items: [
-                            {label: "Catégories d'équipe", icon: 'custom-icon category', routerLink: ['/categories-equipe']},
+                            { label: "Catégories d'équipe", icon: 'custom-icon category', routerLink: ['/categories-equipe'] },
                             { label: 'Stades', icon: 'pi pi-fw pi-building', routerLink: ['/stades'] },
                             { label: 'Ligues', icon: 'pi pi-fw pi-shield', routerLink: ['/ligues'] },
-                           /*  { label: 'Compétitions', icon: 'custom-icon podium', routerLink: ['/competitions'] }, */
-                        { label: 'Villes', icon: 'pi pi-fw pi-map-marker', routerLink: ['/villes'] },]
-                     },
-                   /*   { label: 'Utilisateurs', icon: 'pi pi-fw pi-id-card', routerLink: ['/utilisateurs'] }, */
+                            /*  { label: 'Compétitions', icon: 'custom-icon podium', routerLink: ['/competitions'] }, */
+                            { label: 'Villes', icon: 'pi pi-fw pi-map-marker', routerLink: ['/villes'] },]
+                    },
+                    { label: 'Utilisateurs', icon: 'pi pi-fw pi-id-card', routerLink: ['/utilisateurs'] },
 
 
                 ]

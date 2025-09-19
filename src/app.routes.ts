@@ -24,6 +24,8 @@ import { PlayersComponent } from './app/pages/players/players.component';
 import { EquipeDetailsComponent } from './app/pages/equipe-details/equipe-details.component';
 import { PlayerDetailsComponent } from './app/pages/player-details/player-details.component';
 import { TeamCategoriesComponent } from './app/pages/team-categories/team-categories.component';
+import { OfficialsComponent } from './app/pages/officials/officials.component';
+import { OfficialDetailsComponent } from './app/pages/official-details/official-details.component';
 import { ClubDetailsComponent } from './app/pages/club-details/club-details.component';
 import { SaisonDetailsComponent } from './app/pages/saison-details/saison-details.component';
 export const appRoutes: Routes = [
@@ -58,6 +60,8 @@ export const appRoutes: Routes = [
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
           /*    {path: 'calendar', component:CalendarComponent}, */
 
+            {path: 'officiels', component: OfficialsComponent, canActivate: [AuthGuard] },
+            {path: 'officiel-details/:id', component: OfficialDetailsComponent, canActivate: [AuthGuard] },
 
         ]
     },

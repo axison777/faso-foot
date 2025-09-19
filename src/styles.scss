@@ -167,11 +167,12 @@ body {
   mask-image: url('assets/custom-icons/category-new-each-svgrepo-com.svg');
 
 }
+.custom-icon.referee {
+  -webkit-mask-image: url('assets/custom-icons/whistle-1-svgrepo-com.svg');
+  mask-image: url('assets/custom-icons/whistle-1-svgrepo-com.svg');
 
+}
 
-/* Fichier de style global (styles.css/scss) */
-
-/* Styles pour le bouton de gravité "contrast" */
 .p-button.p-button-contrast {
   background-color: #333333 !important; /* Gris foncé */
   color: #ffffff !important;
@@ -188,4 +189,3 @@ body {
 .p-button.p-button-contrast:focus {
   box-shadow: 0 0 0 0.2rem rgba(51, 51, 51, 0.5) !important;
 }
-
