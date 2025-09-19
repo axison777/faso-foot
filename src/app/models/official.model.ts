@@ -35,6 +35,18 @@ export interface OfficialStatistics {
     updatedAt?: Date;
 }
 
+export interface MatchPivot {
+    official_id: string;
+    match_id: string;
+    role: string;
+}
+
+export interface Match {
+    id: string;
+    // ... autres propriétés si besoin
+    pivot: MatchPivot;
+}
+
 export interface Official {
     id?: string;
     first_name: string;
@@ -60,4 +72,7 @@ export interface Official {
 
     createdAt?: Date;
     updatedAt?: Date;
+
+    matches?: Match[];
+
 }

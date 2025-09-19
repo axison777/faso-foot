@@ -61,7 +61,7 @@
   </div>
 
   <div class="match-actions">
-    <p-button [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock" class="p-button-rounded p-button-text"></p-button>
+    <p-button [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock" class="p-button-rounded p-button-text" (click)="matchSettingUp(match)"></p-button>
     <p-button severity="primary" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"
            (click)="openDetails(match)"></p-button>
     <p-button severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil" class="p-button-rounded p-button-text"

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -30,7 +30,7 @@ import { OfficialService } from '../../service/official.service';
     ConfirmDialogModule,
     ToastModule,
     ReactiveFormsModule,
-    DropdownModule,
+    SelectModule,
     TabViewModule,
     DatePickerModule
   ]

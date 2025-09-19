@@ -14,11 +14,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SaisonService } from '../../service/saison.service';
 
 
 interface Match {
+  football_match_id: string;
   team1: string;
   team2: string;
   stadium: string;
@@ -27,15 +28,15 @@ interface Match {
   team1_logo: string;
   team2_logo: string;
   /////////
-/*     "home_score": 0,
-  "away_score": 0,
-  "halftime_home_score": 0,
-  "halftime_away_score": 0,
-  "extra_time_home_score": 0,
-  "extra_time_away_score": 0,
-  "penalty_home_score": 0,
-  "penalty_away_score": 0,
-  "result_type": "REGULAR" */
+  /*     "home_score": 0,
+    "away_score": 0,
+    "halftime_home_score": 0,
+    "halftime_away_score": 0,
+    "extra_time_home_score": 0,
+    "extra_time_away_score": 0,
+    "penalty_home_score": 0,
+    "penalty_away_score": 0,
+    "result_type": "REGULAR" */
 
   home_score?: number;
   away_score?: number;
@@ -167,18 +168,18 @@ export class SaisonDetailsComponent {
   selectedPhaseKey: PhaseKey = 'first_leg';
 
   detailsDialog = false;
-resultDialog = false;
-selectedMatch: any = null;
-resultForm!: FormGroup;
+  resultDialog = false;
+  selectedMatch: any = null;
+  resultForm!: FormGroup;
 
-resultTypes = [
-  { label: 'Temps réglementaire', value: 'REGULAR' },
-  { label: 'Prolongations', value: 'EXTRA_TIME' },
-  { label: 'Pénaltys', value: 'PENALTIES' }
-];
+  resultTypes = [
+    { label: 'Temps réglementaire', value: 'REGULAR' },
+    { label: 'Prolongations', value: 'EXTRA_TIME' },
+    { label: 'Pénaltys', value: 'PENALTIES' }
+  ];
 
-seasonId: string=''
-loading?: boolean=false;
+  seasonId: string = ''
+  loading?: boolean = false;
 
   getPoolsOptions() {
     return this.season?.pools?.map(p => ({ label: p.name, value: p.id }));
@@ -197,47 +198,48 @@ loading?: boolean=false;
   }
 
   getInitials(team: string): string {
-  return team?.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-}
+    return team?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  }
 
-getTeamColor(team: string): string {
-  // Retourne une couleur selon le hash du nom de l'équipe
-  const colors = ['#565b55ff','#595245ff','#333841ff','#604f4fff','#6b6c86ff','#4b5d57ff'];
-  let hash = 0;
-  for(let i=0;i<team?.length;i++){ hash = team.charCodeAt(i) + ((hash << 5) - hash); }
-  return colors[Math.abs(hash) % colors.length];
-}
+  getTeamColor(team: string): string {
+    // Retourne une couleur selon le hash du nom de l'équipe
+    const colors = ['#565b55ff', '#595245ff', '#333841ff', '#604f4fff', '#6b6c86ff', '#4b5d57ff'];
+    let hash = 0;
+    for (let i = 0; i < team?.length; i++) { hash = team.charCodeAt(i) + ((hash << 5) - hash); }
+    return colors[Math.abs(hash) % colors.length];
+  }
 
-constructor(
-  private fb: FormBuilder,
-  private confirmationService: ConfirmationService,
-  private messageService: MessageService,
-  private acRoute: ActivatedRoute,
-  private saisonService: SaisonService
-) {}
-
-
-ngOnInit() {
-  this.resultForm = this.fb.group({
-    home_score: [0],
-    away_score: [0],
-    halftime_home_score: [0],
-    halftime_away_score: [0],
-    extra_time_home_score: [0],
-    extra_time_away_score: [0],
-    penalty_home_score: [0],
-    penalty_away_score: [0],
-    result_type: ['REGULAR']
-  });
-
-  this.seasonId = this.acRoute.snapshot.params['id'];
-
-  this.loadSeason();
+  constructor(
+    private fb: FormBuilder,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService,
+    private acRoute: ActivatedRoute,
+    private saisonService: SaisonService,
+    private router: Router
+  ) { }
 
 
-}
+  ngOnInit() {
+    this.resultForm = this.fb.group({
+      home_score: [0],
+      away_score: [0],
+      halftime_home_score: [0],
+      halftime_away_score: [0],
+      extra_time_home_score: [0],
+      extra_time_away_score: [0],
+      penalty_home_score: [0],
+      penalty_away_score: [0],
+      result_type: ['REGULAR']
+    });
 
-loadSeason(){
+    this.seasonId = this.acRoute.snapshot.params['id'];
+
+    this.loadSeason();
+
+
+  }
+
+  loadSeason() {
     this.saisonService.getAllPools(this.seasonId).subscribe({
 
       next: (res: any) => {
@@ -248,42 +250,65 @@ loadSeason(){
       error: () => {
         this.loading = false;
       },
-    });}
+    });
+  }
 
-openDetails(match: any) {
-  this.selectedMatch = match;
-  this.detailsDialog = true;
-}
+  openDetails(match: any) {
+    this.selectedMatch = match;
+    this.detailsDialog = true;
+  }
 
-openResultDialog(match: any) {
-  this.selectedMatch = match;
-  this.resultForm.patchValue(match);
-  this.resultDialog = true;
-}
+  openResultDialog(match: any) {
+    this.selectedMatch = match;
+    this.resultForm.patchValue(match);
+    this.resultDialog = true;
+  }
 
-saveResult() {
-  Object.assign(this.selectedMatch, this.resultForm.value);
-  this.resultDialog = false;
-  this.messageService.add({ severity: 'success', summary: 'Résultat enregistré' });
-}
+  saveResult() {
+    Object.assign(this.selectedMatch, this.resultForm.value);
+    this.resultDialog = false;
+    this.messageService.add({ severity: 'success', summary: 'Résultat enregistré' });
+  }
 
-confirmValidate(match: any) {
-  this.confirmationService.confirm({
-    message: `Valider le résultat du match ${match.team1} vs ${match.team2} ?`,
-    header: 'Confirmation',
-    accept: () => {
-      match.validated = true;
-      this.messageService.add({ severity: 'success', summary: 'Résultat validé' });
+  confirmValidate(match: any) {
+    this.confirmationService.confirm({
+      message: `Valider le résultat du match ${match.team1} vs ${match.team2} ?`,
+      header: 'Confirmation',
+      accept: () => {
+        match.validated = true;
+        this.messageService.add({ severity: 'success', summary: 'Résultat validé' });
+      }
+    });
+  }
+
+  getWinnerClass(match: any, team: 'team1' | 'team2') {
+    if (!match) return '';
+    if (match.home_score === match.away_score) return ''; // égalité
+    if (team === 'team1' && match.home_score > match.away_score) return 'winner';
+    if (team === 'team2' && match.away_score > match.home_score) return 'winner';
+    return '';
+  }
+
+  matchSettingUp(match: Match): void {
+    if (!match || !match.football_match_id) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Identifiant du match manquant.'
+      });
+      return;
     }
-  });
-}
 
-getWinnerClass(match: any, team: 'team1' | 'team2') {
-  if (!match) return '';
-  if (match.home_score === match.away_score) return ''; // égalité
-  if (team === 'team1' && match.home_score > match.away_score) return 'winner';
-  if (team === 'team2' && match.away_score > match.home_score) return 'winner';
-  return '';
-}
+    this.router.navigate(['/match-setup', match.football_match_id], {
+    state: { match }
+  }).catch(err => {
+      console.error('Navigation échouée', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur de navigation',
+        detail: 'Impossible de naviguer vers la page de configuration du match.'
+      });
+    });
+  }
 
 }

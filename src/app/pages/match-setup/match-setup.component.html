@@ -1,0 +1,268 @@
+<div class="match-setup">
+    <header class="header">
+        <h2>Préparation du match</h2>
+    </header>
+
+    <nav class="tabs">
+        <button [class.active]="activeTab==='officials'" (click)="setTab('officials')">Officiels</button>
+        <button [class.active]="activeTab==='teams'" (click)="setTab('teams')">Équipes</button>
+    </nav>
+
+    <!-- OFFICIELS -->
+    <section *ngIf="activeTab === 'officials'" class="card">
+        <h3>Assignation des officiels</h3>
+        <div class="assignments">
+            <div class="assignment-row">
+                <!-- Select pour sélectionner un officiel -->
+                <p-select [options]="officials" optionLabel="first_name" optionValue="id" [disabled]="isClosed"
+                    placeholder="-- Choisir un officiel --" filter="true" [(ngModel)]="selectedOfficialId"
+                    name="official">
+                    <ng-template let-official pTemplate="item">
+                        {{ official.first_name }} {{ official.last_name }} ({{ official.official_type }})
+                    </ng-template>
+                    <ng-template let-official pTemplate="selectedItem">
+                        {{ official.first_name }} {{ official.last_name }} ({{ official.official_type }})
+                    </ng-template>
+                </p-select>
+                <!-- Select pour sélectionner un rôle -->
+                <p-select [options]="roles" placeholder="-- Choisir un rôle --" [(ngModel)]="selectedRole"
+                    [disabled]="isClosed" name="role">
+                </p-select>
+                <!-- Bouton pour assigner -->
+                <button type="button" (click)="assignOfficial()"
+                    [disabled]="!selectedOfficialId || !selectedRole || isClosed">
+                    Assigner
+                </button>
+            </div>
+            <div class="assigned-officials">
+                <h4>Officiels déjà assignés</h4>
+                <table *ngIf="officialsofmatch.length > 0; else noOfficials">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Type</th>
+                            <th>Rôle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let o of officialsofmatch">
+                            <td>{{ o.first_name }} {{ o.last_name }}</td>
+                            <td>{{ o.official_type }}</td>
+                            <td>{{ mapRole(o.matches?.[0]?.pivot?.role ?? '') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <ng-template #noOfficials>
+                    <p>Aucun officiel assigné pour l’instant.</p>
+                </ng-template>
+            </div>
+        </div>
+    </section>
+
+    <!-- TEAMS -->
+    <section *ngIf="activeTab === 'teams'" class="teams">
+        <!-- Infos générales -->
+        <div class="team-card">
+            <h4>Équipe Domicile</h4>
+            <div class="team-info">
+                <img [src]="homeTeam.logo" alt="Logo domicile" class="team-logo" />
+                <span>{{ homeTeam.name }}</span>
+            </div>
+            <div class="meta">
+                <label>Formation</label>
+                <select [disabled]="isClosed" [(ngModel)]="homeCallup.formation">
+                    <option value="4-4-2">4-4-2</option>
+                    <option value="4-3-3">4-3-3</option>
+                    <option value="3-5-2">3-5-2</option>
+                    <option value="4-2-3-1">4-2-3-1</option>
+                    <option value="3-4-3">3-4-3</option>
+                </select>
+
+
+                <label>Coach</label>
+                <select [disabled]="isClosed" [(ngModel)]="homeCallup.coachId"
+                    (ngModelChange)="setCoach('home', $event)">
+                    <option [ngValue]="null">-- Choisir coach --</option>
+                    <option *ngFor="let c of homeCoaches" [ngValue]="c.id">{{ c.name }}</option>
+                </select>
+
+                <label>Capitaine</label>
+                <select [disabled]="isClosed" [(ngModel)]="homeCallup.captainId"
+                    (ngModelChange)="setCaptain('home', $event)">
+                    <option [ngValue]="null">-- Choisir capitaine --</option>
+                    <option *ngFor="let t of homeCallup.players" [ngValue]="t.playerId">
+                        {{ getPlayerName('home', t.playerId) }}
+                    </option>
+                </select>
+            </div>
+
+            <h5>Joueurs disponibles</h5>
+
+            <div class="border rounded-md p-4 bg-gray-50 max-h-[270px] overflow-y-auto">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div *ngFor="let p of homePlayersPool"
+                        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
+                        [ngClass]="{
+        'ring-2 ring-green-500': p.selectionOrder && p.selectionOrder <= 11,
+        'ring-2 ring-yellow-400': p.selectionOrder && p.selectionOrder > 11
+      }">
+
+                        <!-- Checkbox -->
+                        <input type="checkbox" [(ngModel)]="p.selected"
+                            (ngModelChange)="onPlayerToggle('home', p, $event)" class="absolute top-2 left-2" />
+
+                        <!-- Rang affiché en badge -->
+                        <div *ngIf="p.selected"
+                            class="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
+                            #{{ p.selectionOrder }}
+                        </div>
+
+                        <!-- Image -->
+                        <img *ngIf="p.photo_url; else noPhoto" [src]="p.photo_url" alt="Photo joueur"
+                            class="w-12 h-12 object-cover rounded-full" />
+                        <ng-template #noPhoto>
+                            <div
+                                class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-sm">
+                                N/A
+                            </div>
+                        </ng-template>
+
+                        <!-- Nom -->
+                        <div class="text-sm font-semibold text-center">
+                            {{ p.first_name }} {{ p.last_name }}
+                        </div>
+
+                        <!-- Poste -->
+                        <div class="text-xs text-gray-500 uppercase">
+                            {{ p.position }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Légende des couleurs -->
+            <div class="mt-4 p-3 rounded border border-gray-300 bg-gray-50 text-sm text-gray-700">
+                <strong>Légende :</strong>
+                <ul class="mt-2 space-y-1">
+                    <li>
+                        🟢 <strong>Vert</strong> — Titulaire (dans les 11 premiers sélectionnés)
+                    </li>
+                    <li>
+                        🟡 <strong>Jaune</strong> — Remplaçant (au-delà des 11 premiers)
+                    </li>
+                </ul>
+            </div>
+
+            <button (click)="saveCallup('home')" [disabled]="isClosed">Sauvegarder Domicile</button>
+        </div>
+
+        <div class="team-card">
+            <h4>Équipe Extérieure</h4>
+            <div class="team-info">
+                <img [src]="awayTeam.logo" alt="Logo extérieur" class="team-logo" />
+                <span>{{ awayTeam.name }}</span>
+            </div>
+            <div class="meta">
+                <label>Formation</label>
+                <select [disabled]="isClosed" [(ngModel)]="homeCallup.formation">
+                    <option value="4-4-2">4-4-2</option>
+                    <option value="4-3-3">4-3-3</option>
+                    <option value="3-5-2">3-5-2</option>
+                    <option value="4-2-3-1">4-2-3-1</option>
+                    <option value="3-4-3">3-4-3</option>
+                </select>
+
+
+                <label>Coach</label>
+                <select [disabled]="isClosed" [(ngModel)]="awayCallup.coachId"
+                    (ngModelChange)="setCoach('away', $event)">
+                    <option [ngValue]="null">-- Choisir coach --</option>
+                    <option *ngFor="let c of awayCoaches" [ngValue]="c.id">{{ c.name }}</option>
+                </select>
+
+                <label>Capitaine</label>
+                <select [disabled]="isClosed" [(ngModel)]="awayCallup.captainId"
+                    (ngModelChange)="setCaptain('away', $event)">
+                    <option [ngValue]="null">-- Choisir capitaine --</option>
+                    <option *ngFor="let t of awayCallup.players" [ngValue]="t.playerId">
+                        {{ getPlayerName('away', t.playerId) }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Liste des joueurs disponibles -->
+            <h5>Joueurs disponibles</h5>
+
+            <div class="border rounded-md p-4 bg-gray-50 max-h-[270px] overflow-y-auto">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div *ngFor="let p of awayPlayersPool"
+                        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
+                        [ngClass]="{
+        'ring-2 ring-green-500': p.selectionOrder && p.selectionOrder <= 11,
+        'ring-2 ring-yellow-400': p.selectionOrder && p.selectionOrder > 11
+      }">
+
+                        <!-- Checkbox -->
+                        <input type="checkbox" [(ngModel)]="p.selected"
+                            (ngModelChange)="onPlayerToggle('away', p, $event)" class="absolute top-2 left-2" />
+
+                        <!-- Rang affiché en badge -->
+                        <div *ngIf="getTeamPlayer('away', p.id) as sel"
+                            class="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
+                            #{{ p.selectionOrder }}
+                        </div>
+
+                        <!-- Image -->
+                        <img *ngIf="p.photo_url; else noPhoto" [src]="p.photo_url" alt="Photo joueur"
+                            class="w-12 h-12 object-cover rounded-full" />
+                        <ng-template #noPhoto>
+                            <div
+                                class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-sm">
+                                N/A
+                            </div>
+                        </ng-template>
+
+                        <!-- Nom -->
+                        <div class="text-sm font-semibold text-center">
+                            {{ p.first_name }} {{ p.last_name }}
+                        </div>
+
+                        <!-- Poste -->
+                        <div class="text-xs text-gray-500 uppercase">
+                            {{ p.position }}
+                        </div>
+
+                        <!-- Détails -->
+                        <div *ngIf="getTeamPlayer('home', p.id) as sel"
+                            class="flex flex-col items-center gap-1 w-full mt-2">
+                            <label class="text-xs font-medium">#</label>
+                            <input type="number" class="w-full text-center text-sm border rounded px-1 py-0.5"
+                                [(ngModel)]="sel.jerseyNumber" [disabled]="isClosed" />
+
+                            <label class="text-xs font-medium">Titulaire</label>
+                            <input type="checkbox" [checked]="p.selectionOrder && p.selectionOrder <= 11" disabled />
+
+                            <label class="text-xs font-medium">Remplaçant (ordre)</label>
+                            <input type="number" class="w-full text-center text-sm border rounded px-1 py-0.5"
+                                [value]="p.selectionOrder && p.selectionOrder > 11 ? p.selectionOrder - 11 : null"
+                                disabled />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Légende des couleurs -->
+            <div class="mt-4 p-3 rounded border border-gray-300 bg-gray-50 text-sm text-gray-700">
+                <strong>Légende :</strong>
+                <ul class="mt-2 space-y-1">
+                    <li>
+                        🟢 <strong>Vert</strong> — Titulaire (dans les 11 premiers sélectionnés)
+                    </li>
+                    <li>
+                        🟡 <strong>Jaune</strong> — Remplaçant (au-delà des 11 premiers)
+                    </li>
+                </ul>
+            </div>
+
+            <button (click)="saveCallup('away')" [disabled]="isClosed">Sauvegarder Extérieur</button>
+        </div>
+    </section>
