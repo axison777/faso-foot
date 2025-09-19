@@ -1,7 +1,7 @@
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<div class="season-container">
+<div *ngIf="season" class="season-container">
   <div class="header">
     <h1>{{ season.name }}</h1>
     <p> Saison {{season.start_date | date:'yyyy'}} - {{season.end_date | date:'yyyy'}}</p>
@@ -11,8 +11,8 @@
 
     <!-- ===== MATCHS ===== -->
     <p-tabPanel header="Matchs" leftIcon="pi pi-calendar">
-      <div class="filters">
-        <p-select [options]="getPoolsOptions()" [(ngModel)]="selectedPoolId" placeholder="Choisir un pool"></p-select>
+      <div *ngIf="getPoolsOptions()" class="filters">
+        <p-select *ngIf="getPoolsOptions()!.length>1"  [options]="getPoolsOptions()" [(ngModel)]="selectedPoolId" placeholder="Choisir un pool"></p-select>
         <p-select [options]="getPhasesOptions()" [(ngModel)]="selectedPhaseKey" placeholder="Choisir une phase"></p-select>
       </div>
 
@@ -22,7 +22,7 @@
             <p-accordion-header>{{day.label}}</p-accordion-header>
             <p-accordion-content>
                           <div class="cards-grid">
-       <p-card class="match-card" *ngFor="let match of day.matches">
+<p-card class="match-card" *ngFor="let match of day.matches">
   <div class="match-teams">
     <div class="team-row">
       <ng-container *ngIf="match.team1_logo; else team1Placeholder">
@@ -34,6 +34,9 @@
         </div>
       </ng-template>
       <span class="team-name">{{ match.team1 }}</span>
+      <span class="team-score" [ngClass]="getWinnerClass(match, 'team1')">
+        {{ match.home_score }}
+      </span>
     </div>
 
     <div class="team-row">
@@ -46,6 +49,9 @@
         </div>
       </ng-template>
       <span class="team-name">{{ match.team2 }}</span>
+      <span class="team-score" [ngClass]="getWinnerClass(match, 'team2')">
+        {{ match.away_score }}
+      </span>
     </div>
   </div>
 
@@ -55,12 +61,15 @@
   </div>
 
   <div class="match-actions">
-    <p-button severity="primary" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"></p-button>
-    <p-button severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil" class="p-button-rounded p-button-text"></p-button>
-    <p-button severity="danger"  pTooltip="Valider résultat" icon="pi pi-check" class="p-button-rounded p-button-text"></p-button>
+    <p-button [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock" class="p-button-rounded p-button-text"></p-button>
+    <p-button severity="primary" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"
+           (click)="openDetails(match)"></p-button>
+    <p-button severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil" class="p-button-rounded p-button-text"
+              (click)="openResultDialog(match)"></p-button>
+    <p-button severity="danger" pTooltip="Valider résultat" icon="pi pi-check" class="p-button-rounded p-button-text"
+              (onClick)="confirmValidate(match)"></p-button>
   </div>
 </p-card>
-
 
 
           </div>
@@ -101,13 +110,225 @@
     </p-tabPanel>
 
     <!-- ===== INFOS ===== -->
-    <p-tabPanel header="Infos" leftIcon="pi pi-info-circle">
+  <!--   <p-tabPanel header="Infos" leftIcon="pi pi-info-circle">
       <div class="info-section">
         <p><strong>Nom :</strong> {{ season.name }}</p>
         <p><strong>Durée :</strong> {{ season.start_date }} → {{ season.end_date }}</p>
         <button pButton type="button" label="Voir calendrier" class="btn-primary"></button>
       </div>
-    </p-tabPanel>
+    </p-tabPanel> -->
 
   </p-tabView>
 </div>
+
+<!-- DIALOG DETAILS -->
+<p-dialog header="Détails du match" [(visible)]="detailsDialog" [modal]="true" [style]="{width:'600px'}">
+  <div class="match-details">
+
+    <!-- Ligne principale équipes + scores centrés -->
+    <div class="teams-line-centered">
+      <!-- Équipe 1 -->
+      <div class="team-left">
+        <img *ngIf="selectedMatch?.team1_logo; else team1Placeholder" [src]="selectedMatch?.team1_logo" class="team-logo" alt="{{selectedMatch?.team1}}">
+        <ng-template #team1Placeholder>
+          <div class="team-logo placeholder" [style.background-color]="getTeamColor(selectedMatch?.team1)">
+            {{ getInitials(selectedMatch?.team1) }}
+          </div>
+        </ng-template>
+        <span class="team-abbr">{{ selectedMatch?.team1 }}</span>
+      </div>
+
+      <!-- Score au centre -->
+      <div class="score-center">
+        <span [ngClass]="getWinnerClass(selectedMatch,'team1')">{{ selectedMatch?.home_score }}</span>
+        -
+        <span [ngClass]="getWinnerClass(selectedMatch,'team2')">{{ selectedMatch?.away_score }}</span>
+      </div>
+
+      <!-- Équipe 2 -->
+      <div class="team-right">
+                <img *ngIf="selectedMatch?.team2_logo; else team2Placeholder" [src]="selectedMatch?.team2_logo" class="team-logo" alt="{{selectedMatch?.team2}}">
+        <ng-template #team2Placeholder>
+          <div class="team-logo placeholder" [style.background-color]="getTeamColor(selectedMatch?.team2)">
+            {{ getInitials(selectedMatch?.team2) }}
+          </div>
+        </ng-template>
+        <span class="team-abbr">{{ selectedMatch?.team2 }}</span>
+
+      </div>
+    </div>
+
+    <!-- Infos générales -->
+    <div class="extra-info">
+      <p><strong>Stade :</strong> {{ selectedMatch?.stadium }}</p>
+      <p><strong>Date :</strong> {{ selectedMatch?.match_date }} - {{ selectedMatch?.time }}</p>
+      <p><strong>Type de résultat :</strong> {{ selectedMatch?.result_type }}</p>
+    </div>
+
+    <!-- Détails scores -->
+    <div class="score-details">
+      <h4>Détails des scores</h4>
+      <table class="score-table">
+        <tr>
+          <th>Période</th>
+          <th>{{ selectedMatch?.team1 }}</th>
+          <th>{{ selectedMatch?.team2 }}</th>
+        </tr>
+        <tr>
+          <td>Mi-temps</td>
+          <td>{{ selectedMatch?.halftime_home_score }}</td>
+          <td>{{ selectedMatch?.halftime_away_score }}</td>
+        </tr>
+        <tr>
+          <td>Prolongations</td>
+          <td>{{ selectedMatch?.extra_time_home_score }}</td>
+          <td>{{ selectedMatch?.extra_time_away_score }}</td>
+        </tr>
+        <tr>
+          <td>Tirs au but</td>
+          <td>{{ selectedMatch?.penalty_home_score }}</td>
+          <td>{{ selectedMatch?.penalty_away_score }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</p-dialog>
+
+
+
+<!-- Dialog Définir/Modifier résultat -->
+<p-dialog
+  [draggable]="false"
+  [(visible)]="resultDialog"
+  [style]="{ width: '800px' }"
+  [header]="'Définir le résultat du match'"
+  [modal]="true"
+  [closable]="false"
+>
+  <ng-template #content>
+    <form id="resultForm" [formGroup]="resultForm" (ngSubmit)="saveResult()" class="flex flex-col gap-6">
+
+      <!-- Score -->
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label for="home_score" class="block font-bold mb-2">Score Équipe Domicile</label>
+          <p-inputnumber
+            id="home_score"
+            formControlName="home_score"
+            class="w-full"
+          />
+        </div>
+        <div>
+          <label for="away_score" class="block font-bold mb-2">Score Équipe Extérieure</label>
+          <p-inputnumber
+            id="away_score"
+            formControlName="away_score"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <!-- Score Mi-temps -->
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label for="halftime_home_score" class="block font-bold mb-2">Mi-temps Domicile</label>
+          <p-inputnumber
+            id="halftime_home_score"
+            formControlName="halftime_home_score"
+            class="w-full"
+          />
+        </div>
+        <div>
+          <label for="halftime_away_score" class="block font-bold mb-2">Mi-temps Extérieure</label>
+          <p-inputnumber
+            id="halftime_away_score"
+            formControlName="halftime_away_score"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <!-- Prolongations -->
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label for="extra_time_home_score" class="block font-bold mb-2">Prolongation Domicile</label>
+          <p-inputnumber
+            id="extra_time_home_score"
+            formControlName="extra_time_home_score"
+            class="w-full"
+          />
+        </div>
+        <div>
+          <label for="extra_time_away_score" class="block font-bold mb-2">Prolongation Extérieure</label>
+          <p-inputnumber
+            id="extra_time_away_score"
+            formControlName="extra_time_away_score"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <!-- Pénaltys -->
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label for="penalty_home_score" class="block font-bold mb-2">Pénaltys Domicile</label>
+          <p-inputnumber
+            id="penalty_home_score"
+            formControlName="penalty_home_score"
+            class="w-full"
+          />
+        </div>
+        <div>
+          <label for="penalty_away_score" class="block font-bold mb-2">Pénaltys Extérieure</label>
+          <p-inputnumber
+            id="penalty_away_score"
+            formControlName="penalty_away_score"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <!-- Type de résultat -->
+      <div>
+        <label for="result_type" class="block font-bold mb-2">Type de résultat <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="resultTypes"
+          formControlName="result_type"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Sélectionnez le type de résultat"
+          appendTo="body"
+          class="w-full"
+        ></p-select>
+        <small class="text-red-500" *ngIf="resultForm.get('result_type')?.invalid && resultForm.get('result_type')?.touched">
+          Le type de résultat est requis.
+        </small>
+      </div>
+
+    </form>
+  </ng-template>
+
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Annuler"
+        icon="pi pi-times"
+        [raised]="true"
+        severity="secondary"
+        (click)="resultDialog=false"
+
+      />
+      <p-button
+
+        (click)="saveResult()"
+        label="Enregistrer"
+        icon="pi pi-check"
+        type="submit"
+        form="resultForm"
+      />
+    </div>
+  </ng-template>
+</p-dialog>
+
+
+

@@ -1,3 +1,4 @@
+import { ContractService } from './../../service/contract.service';
 import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
@@ -205,7 +206,8 @@ availableReasons: any[]|undefined;
     private messageService: MessageService,
     private tkService: TeamKitService,
     private playerService : PlayerService,
-    private router: Router
+    private router: Router,
+    private contractService: ContractService
   ) {}
 
   ngOnInit(): void {
@@ -527,8 +529,9 @@ availableReasons: any[]|undefined;
   });
 }
   openPlayerDetails(p: Player) {
-    this.currentPlayer = p;
-    this.showPlayerDetails = true;
+    /* this.currentPlayer = p;
+    this.showPlayerDetails = true; */
+    this.router.navigate(['/joueur-details', p.id]);
   }
 
    get ecControls() { return (this.playerForm.get('emergency_contact') as FormArray).controls as FormGroup[]; }
@@ -677,8 +680,15 @@ availableReasons: any[]|undefined;
       icon: 'pi pi-exclamation-triangle',
       message: 'Supprimer ce contrat ?',
       accept: () => {
-        this.currentPlayer!.contracts = (this.currentPlayer!.contracts || []).filter(c => c.id !== id);
-        this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+        this.contractService.delete(id).subscribe({
+          next: () => {
+            this.loadClub(this.club_id!);
+            this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+          },
+          error: () => {
+            this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+          }
+        })
       }
     });
   }

@@ -52,7 +52,7 @@ export const appRoutes: Routes = [
              {path: 'joueur-details/:id', component:PlayerDetailsComponent, canActivate: [AuthGuard] },
              {path: 'categories-equipe', component:TeamCategoriesComponent, canActivate: [AuthGuard] },
              {path: 'club-details/:id', component:ClubDetailsComponent, canActivate: [AuthGuard] },
-             {path: 'saison-details', component:SaisonDetailsComponent, canActivate: [AuthGuard] },
+             {path: 'saison-details/:id', component:SaisonDetailsComponent, canActivate: [AuthGuard] },
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },

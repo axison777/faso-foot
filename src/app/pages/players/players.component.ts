@@ -19,6 +19,7 @@ import { Contract } from '../../models/contract.model';
 import { EquipeService } from '../../service/equipe.service';
 import { TextareaModule } from 'primeng/textarea';
 import { Router } from '@angular/router';
+import { ContractService } from '../../service/contract.service';
 
 // Modèles locaux (adaptés au nouveau schéma fourni)
 export interface EmergencyContact {
@@ -130,7 +131,7 @@ export class PlayersComponent implements OnInit {
   teams?: Team[] = [];
    isEditingContract = false;
   constructor(private fb: FormBuilder, private messageService: MessageService, private confirmationService: ConfirmationService,
-    private playerService: PlayerService, private equipeService: EquipeService, private router: Router
+    private playerService: PlayerService, private equipeService: EquipeService, private router: Router, private contractService: ContractService
   ) {}
 
   ngOnInit(): void {
@@ -455,12 +456,38 @@ export class PlayersComponent implements OnInit {
 
   deleteContractConfirm(id?: string) {
     if (!this.currentPlayer || !id) return;
-    this.confirmationService.confirm({ icon: 'pi pi-exclamation-triangle', message: 'Supprimer ce contrat ?', accept: () => { this.currentPlayer!.contracts = (this.currentPlayer!.contracts || []).filter(c => c.id !== id); this.messageService.add({ severity: 'success', summary: 'Suppression', detail: 'Contrat supprimé.' }); } });
+    this.confirmationService.confirm({ icon: 'pi pi-exclamation-triangle', message: 'Supprimer ce contrat ?', accept: () => {
+        accept: () => {
+        this.contractService.delete(id).subscribe({
+          next: () => {
+            this.loadPlayers();
+            this.messageService.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+          }
+        })
+      }
+     } });
   }
 
   // ---------- DELETE PLAYER ----------
   confirmDeletePlayer(id: string) {
-    this.confirmationService.confirm({ icon: 'pi pi-exclamation-triangle', message: 'Voulez-vous vraiment supprimer ce joueur ?', accept: () => { this.players = this.players.filter(p => p.id !== id); this.messageService.add({ severity: 'success', summary: 'Suppression', detail: 'Joueur supprimé.' }); } });
+    this.confirmationService.confirm({ icon: 'pi pi-exclamation-triangle', message: 'Voulez-vous vraiment supprimer ce joueur ?',
+         accept: () => {
+            this.playerService.delete(id).subscribe({
+                next: () => {
+                    this.loadPlayers();
+                    this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Le joueur a été supprimé.' });
+                },
+                error: () => {
+                    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+                }
+            }
+
+
+            )
+        } });
   }
 
   openPlayerDetails(p: Player) {

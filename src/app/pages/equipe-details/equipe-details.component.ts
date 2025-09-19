@@ -18,13 +18,14 @@ import { Player } from '../../models/player.model';
 import { TeamKit } from '../../models/team-kit.model';
 import { Contract } from '../../models/contract.model';
 import { SelectModule } from 'primeng/select';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EquipeService } from '../../service/equipe.service';
 import { TeamKitService } from '../../service/team-kit.service';
 import { PlayerService } from '../../service/player.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FileUploadModule } from 'primeng/fileupload';
+import { ContractService } from '../../service/contract.service';
 
 @Component({
   selector: 'app-equipe-details',
@@ -195,7 +196,9 @@ isEditingSuspension: boolean = false;
     private equipeService: EquipeService,
     private messageService: MessageService,
     private tkService: TeamKitService,
-    private playerService : PlayerService
+    private playerService : PlayerService,
+    private contractService: ContractService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -504,8 +507,9 @@ isEditingSuspension: boolean = false;
   });
 }
   openPlayerDetails(p: Player) {
-    this.currentPlayer = p;
-    this.showPlayerDetails = true;
+    /* this.currentPlayer = p;
+    this.showPlayerDetails = true; */
+    this.router.navigate(['/joueur-details', p.id]);
   }
 
    get ecControls() { return (this.playerForm.get('emergency_contact') as FormArray).controls as FormGroup[]; }
@@ -529,7 +533,18 @@ isEditingSuspension: boolean = false;
       message: 'Voulez-vous vraiment supprimer cet élément ?',
       accept: () => {
         switch (type) {
-          case 'joueur': this.players = this.players.filter(p => p.id !== id); break;
+        case 'joueur': {
+            this.playerService.delete(id).subscribe({
+              next: () => {
+                this.loadPlayers();
+                this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Joueur supprimé.' });
+
+              },
+              error: () => {
+                this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+              }
+            });break;
+          };
           case 'staff': this.team.staff_members = this.team.staff_members?.filter(m => m.id !== id); break;
           case 'maillot': this.team.kits = this.team.kits?.filter(k => k.id !== id); break;
           case 'trophy': this.team.trophies = this.team.trophies?.filter(t => t.id !== id); break;
@@ -622,8 +637,15 @@ isEditingSuspension: boolean = false;
       icon: 'pi pi-exclamation-triangle',
       message: 'Supprimer ce contrat ?',
       accept: () => {
-        this.currentPlayer!.contracts = (this.currentPlayer!.contracts || []).filter(c => c.id !== id);
-        this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+        this.contractService.delete(id).subscribe({
+          next: () => {
+            this.loadTeam(this.team_id!);
+            this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+          },
+          error: () => {
+            this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+          }
+        })
       }
     });
   }

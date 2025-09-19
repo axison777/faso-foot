@@ -320,6 +320,10 @@ rechargerSaisons() {
     }
   }
 
+  voirDetails(id: string) {
+    this.router.navigate(['/saison-details', id]);
+  }
+
 
   ///
 

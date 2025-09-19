@@ -592,13 +592,20 @@ export class PlayerDetailsComponent implements OnInit {
 
 
   deleteContract(id: string) {
-    if (!this.currentPlayer) return;
+    if (!this.player) return;
     this.confirm.confirm({
       icon: 'pi pi-exclamation-triangle',
       message: 'Supprimer ce contrat ?',
       accept: () => {
-        this.currentPlayer!.contracts = (this.currentPlayer!.contracts || []).filter(c => c.id !== id);
-        this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+       this.contractService.delete(id).subscribe({
+          next: () => {
+            this.loadPlayer(this.player.id!);
+            this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+          },
+          error: () => {
+            this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+          }
+        })
       }
     });
   }
