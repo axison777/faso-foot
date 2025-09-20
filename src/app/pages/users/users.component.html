@@ -13,7 +13,7 @@
 
   <!-- Formulaire -->
   <p-dialog
-[draggable]="false"
+    [draggable]="false"
     [(visible)]="showForm"
     [style]="{ width: '500px' }"
     header="Ajouter un nouvel utilisateur"
@@ -25,7 +25,8 @@
         <label class="block font-bold mb-2">Prénom <span class="text-red-500">*</span></label>
         <input pInputText type="text" formControlName="first_name" placeholder="Prénom" class="w-full" />
         <small class="text-red-500" *ngIf="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
-          Champ requis
+          <span *ngIf="userForm.get('first_name')?.errors?.['required']">Le prénom est requis</span>
+          <span *ngIf="userForm.get('first_name')?.errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</span>
         </small>
       </div>
 
@@ -33,7 +34,8 @@
         <label class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
         <input pInputText type="text" formControlName="last_name" placeholder="Nom" class="w-full" />
         <small class="text-red-500" *ngIf="userForm.get('last_name')?.invalid && userForm.get('last_name')?.touched">
-          Champ requis
+          <span *ngIf="userForm.get('last_name')?.errors?.['required']">Le nom est requis</span>
+          <span *ngIf="userForm.get('last_name')?.errors?.['minlength']">Le nom doit contenir au moins 2 caractères</span>
         </small>
       </div>
 
@@ -41,37 +43,38 @@
         <label class="block font-bold mb-2">Email <span class="text-red-500">*</span></label>
         <input pInputText type="email" formControlName="email" placeholder="Email" class="w-full" />
         <small class="text-red-500" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
-          Email invalide
+          <span *ngIf="userForm.get('email')?.errors?.['required']">L'email est requis</span>
+          <span *ngIf="userForm.get('email')?.errors?.['email']">Format d'email invalide</span>
         </small>
       </div>
 
       <div>
-        <label class="block font-bold mb-2">Mot de passe <span class="text-red-500">*</span></label>
-        <input pInputText type="password" formControlName="password" placeholder="Mot de passe" class="w-full" />
-        <small class="text-red-500" *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
-          Mot de passe requis
-        </small>
-      </div>
-
-      <div>
-        <label class="block font-bold mb-2">Rôle <span class="text-red-500">*</span></label>
-        <p-select
-          [options]="roles"
-          formControlName="role"
+        <label class="block font-bold mb-2">Rôles <span class="text-red-500">*</span></label>
+        <p-multiSelect
+          [options]="availableRoles"
+          formControlName="roles"
           optionLabel="name"
           optionValue="value"
-          placeholder="Sélectionnez un rôle"
+          placeholder="Sélectionnez un ou plusieurs rôles"
           class="w-full"
           appendTo="body"
-        ></p-select>
-        <small class="text-red-500" *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched">
-          Rôle requis
+          [showToggleAll]="false"
+          [maxSelectedLabels]="3"
+          selectedItemsLabel="{0} rôles sélectionnés"
+        ></p-multiSelect>
+        <small class="text-red-500" *ngIf="userForm.get('roles')?.invalid && userForm.get('roles')?.touched">
+          Au moins un rôle est requis
         </small>
       </div>
 
       <div class="flex justify-end gap-2">
         <p-button label="Annuler" icon="pi pi-times" severity="secondary" (click)="toggleForm()" />
-        <p-button label="Enregistrer" icon="pi pi-check" type="submit" />
+        <p-button 
+          label="Enregistrer" 
+          icon="pi pi-check" 
+          type="submit" 
+          [disabled]="userForm.invalid"
+        />
       </div>
     </form>
   </p-dialog>
@@ -82,13 +85,14 @@
       type="text"
       class="search-input"
       [(ngModel)]="searchTerm"
-      placeholder="Rechercher par prénom ou nom..."
+      placeholder="Rechercher par prénom, nom, email ou rôle..."
     />
   </div>
 
   <!-- Loading -->
   <div *ngIf="loading" class="loading">
-    Chargement des utilisateurs...
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    <p>Chargement des utilisateurs...</p>
   </div>
 
   <!-- Table des utilisateurs -->
@@ -98,21 +102,41 @@
         <tr>
           <th>Nom complet</th>
           <th>Email</th>
-          <th>Rôle</th>
+          <th>Rôles</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let user of filteredUsers">
-          <td>{{ user.first_name }} {{ user.last_name }}</td>
+          <td class="user-nom">{{ user.first_name }} {{ user.last_name }}</td>
           <td>{{ user.email }}</td>
-          <td>{{ user.role }}</td>
+          <td>
+            <div class="roles-container">
+              <span 
+                *ngFor="let role of user.roles" 
+                [class]="'role-badge ' + getRoleClasses([role])"
+              >
+                {{ getRoleLabels([role]) }}
+              </span>
+              <span *ngIf="!user.roles || user.roles.length === 0" class="no-role">
+                Aucun rôle
+              </span>
+            </div>
+          </td>
           <td class="actions">
             <div class="btn-group">
-              <button class="btn btn-info" >
-                <i class="pi pi-check-circle "></i>
+              <button 
+                class="btn btn-info" 
+                (click)="viewUser(user)"
+                title="Voir les détails"
+              >
+                <i class="pi pi-eye"></i>
               </button>
-              <button class="btn btn-danger" (click)="deleteUser(user.id!)">
+              <button 
+                class="btn btn-danger" 
+                (click)="deleteUser(user.slug!)"
+                title="Supprimer l'utilisateur"
+              >
                 <i class="pi pi-trash"></i>
               </button>
             </div>
@@ -126,5 +150,19 @@
   <div *ngIf="!loading && filteredUsers.length === 0 && searchTerm && users.length > 0" class="no-results">
     <div class="icon">🔍</div>
     <p>Aucun utilisateur trouvé pour "{{ searchTerm }}"</p>
+  </div>
+
+  <!-- Aucun utilisateur -->
+  <div *ngIf="!loading && users.length === 0" class="no-results">
+    <div class="icon">👥</div>
+    <p>Aucun utilisateur enregistré</p>
+    <button class="btn-primary mt-3" (click)="toggleForm()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter le premier utilisateur
+    </button>
+  </div>
+
+  <!-- Info sur le nombre d'utilisateurs -->
+  <div *ngIf="!loading && users.length > 0" class="table-info">
+    {{ filteredUsers.length }} utilisateur(s) affiché(s) sur {{ users.length }}
   </div>
 </div>
