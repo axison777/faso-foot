@@ -50,7 +50,11 @@
 
       <div>
         <label class="block font-bold mb-2">Rôles <span class="text-red-500">*</span></label>
+        <div *ngIf="loadingRoles" class="text-center">
+          <i class="pi pi-spin pi-spinner"></i> Chargement des rôles...
+        </div>
         <p-multiSelect
+          *ngIf="!loadingRoles"
           [options]="availableRoles"
           formControlName="roles"
           optionLabel="name"
@@ -113,10 +117,10 @@
           <td>
             <div class="roles-container">
               <span 
-                *ngFor="let role of user.roles" 
-                [class]="'role-badge ' + getRoleClasses([role])"
+                *ngFor="let role of user.roles; let i = index" 
+                [class]="'role-badge ' + getRoleClasses(role)"
               >
-                {{ getRoleLabels([role]) }}
+                {{ getRoleLabel(role) }}
               </span>
               <span *ngIf="!user.roles || user.roles.length === 0" class="no-role">
                 Aucun rôle

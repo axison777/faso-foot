@@ -13,6 +13,14 @@ import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { User } from '../../models/user.model';
 
+// Interface pour les rôles récupérés du backend
+interface Role {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
@@ -37,19 +45,15 @@ export class UsersComponent implements OnInit {
   selectedUser!: User;
   searchTerm: string = '';
   loading: boolean = false;
+  loadingRoles: boolean = false;
 
   showForm: boolean = false;
   isEditing: boolean = false;
   editingUserSlug?: string | null = null;
   userForm!: FormGroup;
   
-  // Adaptation des rôles selon votre système
-  availableRoles = [
-    { name: 'Administrateur', value: 'admin' },
-    { name: 'Manager', value: 'manager' },
-    { name: 'Utilisateur', value: 'user' },
-    { name: 'Modérateur', value: 'moderator' }
-  ];
+  // Rôles chargés depuis le backend
+  availableRoles: { name: string; value: string }[] = [];
 
   // Pagination
   currentPage: number = 1;
@@ -68,6 +72,7 @@ export class UsersComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadRoles();
     this.loadUsers();
   }
 
@@ -80,14 +85,61 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  // Charger les rôles depuis le backend
+  loadRoles(): void {
+    this.loadingRoles = true;
+    this.userService.getRoles().subscribe({
+      next: (response) => {
+        console.log('Réponse rôles du backend:', response);
+        if (response.status && response.data) {
+          // Adapter les rôles selon la structure retournée par votre API
+          this.availableRoles = Array.isArray(response.data) 
+            ? response.data.map((role: Role) => ({
+                name: role.name,
+                value: role.slug || role.id // Utiliser slug ou id selon votre API
+              }))
+            : [];
+          console.log('Rôles disponibles adaptés:', this.availableRoles);
+        } else {
+          // Rôles par défaut si l'API n'est pas disponible
+          this.availableRoles = [
+            { name: 'Administrateur', value: 'admin' },
+            { name: 'Manager', value: 'manager' },
+            { name: 'Utilisateur', value: 'user' }
+          ];
+          console.log('Utilisation des rôles par défaut');
+        }
+        this.loadingRoles = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des rôles:', error);
+        // Utiliser des rôles par défaut en cas d'erreur
+        this.availableRoles = [
+          { name: 'Administrateur', value: 'admin' },
+          { name: 'Manager', value: 'manager' },
+          { name: 'Utilisateur', value: 'user' }
+        ];
+        this.loadingRoles = false;
+        console.log('Rôles par défaut chargés après erreur');
+      }
+    });
+  }
+
   loadUsers(): void {
     this.loading = true;
     
     // Chargement de tous les utilisateurs (sans pagination pour la liste complète)
     this.userService.getAllUsers().subscribe({
       next: (response) => {
+        console.log('Réponse utilisateurs du backend:', response);
         if (response.status) {
           this.users = Array.isArray(response.data) ? response.data : [];
+          
+          // Debug pour voir la structure des rôles dans les utilisateurs
+          if (this.users.length > 0) {
+            console.log('Exemple d\'utilisateur avec rôles:', this.users[0]);
+            console.log('Structure des rôles du premier utilisateur:', this.users[0].roles);
+          }
           
           // Si vous avez des métadonnées de pagination
           if (response.meta) {
@@ -96,7 +148,7 @@ export class UsersComponent implements OnInit {
             this.currentPage = parseInt(response.meta.current_page);
           }
           
-          console.log('Utilisateurs chargés:', this.users);
+          console.log('Utilisateurs chargés:', this.users.length);
         } else {
           this.users = [];
           this.messageService.add({
@@ -146,14 +198,60 @@ export class UsersComponent implements OnInit {
 
   saveUser(): void {
     if (this.userForm.valid) {
+      // IMPORTANT: Ordre exact selon votre API (last_name en premier)
       const userPayload = {
-        first_name: this.userForm.get('first_name')?.value?.trim(),
         last_name: this.userForm.get('last_name')?.value?.trim(),
+        first_name: this.userForm.get('first_name')?.value?.trim(), 
         email: this.userForm.get('email')?.value?.trim().toLowerCase(),
         roles: this.userForm.get('roles')?.value || []
       };
 
-      console.log('Données à envoyer:', userPayload);
+      // Validation complète des données avant envoi
+      console.log('=== VALIDATION DES DONNÉES ===');
+      console.log('Formulaire valide:', this.userForm.valid);
+      console.log('Payload final:', userPayload);
+      console.log('============================');
+
+      // Validation supplémentaire 
+      if (!userPayload.last_name || userPayload.last_name.length < 2) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Nom invalide',
+          detail: 'Le nom doit contenir au moins 2 caractères',
+          life: 3000
+        });
+        return;
+      }
+
+      if (!userPayload.first_name || userPayload.first_name.length < 2) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Prénom invalide', 
+          detail: 'Le prénom doit contenir au moins 2 caractères',
+          life: 3000
+        });
+        return;
+      }
+
+      if (!userPayload.email || !userPayload.email.includes('@')) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Email invalide',
+          detail: 'L\'email doit être valide et contenir @',
+          life: 3000
+        });
+        return;
+      }
+
+      if (!userPayload.roles || !Array.isArray(userPayload.roles) || userPayload.roles.length === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Rôles manquants',
+          detail: 'Au moins un rôle doit être sélectionné',
+          life: 3000
+        });
+        return;
+      }
 
       const onSuccess = (response: any) => {
         if (response.status) {
@@ -176,36 +274,40 @@ export class UsersComponent implements OnInit {
       };
 
       const onError = (error: any) => {
-        console.error('Erreur lors de la sauvegarde:', error);
+        console.error('=== ERREUR COMPLÈTE ===');
+        console.error('Statut HTTP:', error.status);
+        console.error('Corps de l\'erreur:', error.error);
+        console.error('======================');
+        
         let errorMessage = 'Erreur lors de la création de l\'utilisateur';
         
-        // Gestion des erreurs spécifiques
         if (error.error?.message) {
           errorMessage = error.error.message;
-        } else if (error.status === 422) {
-          errorMessage = 'Données invalides. Veuillez vérifier vos informations';
-        } else if (error.status === 409) {
-          errorMessage = 'Cet email est déjà utilisé par un autre utilisateur';
-        } else if (error.status === 400) {
-          errorMessage = 'Données invalides. Veuillez vérifier vos informations';
+        } else if (error.error?.errors) {
+          const validationErrors = error.error.errors;
+          const errorMessages = Object.keys(validationErrors).map(field => {
+            const fieldErrors = Array.isArray(validationErrors[field]) 
+              ? validationErrors[field] 
+              : [validationErrors[field]];
+            return `${field}: ${fieldErrors.join(', ')}`;
+          });
+          errorMessage = `Erreurs de validation:\n${errorMessages.join('\n')}`;
         }
 
         this.messageService.add({
           severity: 'error',
-          summary: 'Erreur',
+          summary: 'Erreur création utilisateur',
           detail: errorMessage,
-          life: 5000
+          life: 10000
         });
       };
 
-      // Pour l'instant, seulement la création (pas de modification dans l'API documentée)
       this.userService.create(userPayload).subscribe({
         next: onSuccess,
         error: onError
       });
       
     } else {
-      // Marquer tous les champs comme touchés pour afficher les erreurs
       Object.keys(this.userForm.controls).forEach(key => {
         this.userForm.get(key)?.markAsTouched();
       });
@@ -219,19 +321,27 @@ export class UsersComponent implements OnInit {
     }
   }
 
-  // Méthode pour voir les détails d'un utilisateur (au lieu d'éditer)
+  // Méthode pour voir les détails d'un utilisateur
   viewUser(user: User): void {
     if (!user.slug) return;
     
+    console.log('Récupération des détails pour:', user.slug);
     this.userService.getBySlug(user.slug).subscribe({
       next: (response) => {
-        if (response.status) {
-          console.log('Détails de l\'utilisateur:', response.data);
-          // Vous pouvez ouvrir un dialog pour afficher les détails
+        console.log('Réponse détails utilisateur:', response);
+        if (response.status && response.data) {
+          const userData = response.data;
           this.messageService.add({
             severity: 'info',
             summary: 'Détails utilisateur',
-            detail: `${response.data.first_name} ${response.data.last_name}`,
+            detail: `${userData.first_name || 'N/A'} ${userData.last_name || 'N/A'}`,
+            life: 3000
+          });
+        } else {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Attention',
+            detail: 'Aucune donnée utilisateur disponible',
             life: 3000
           });
         }
@@ -311,23 +421,40 @@ export class UsersComponent implements OnInit {
     return this.users.filter(user =>
       `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTermLower) ||
       user.email?.toLowerCase().includes(searchTermLower) ||
-      user.roles?.some(role => role.toLowerCase().includes(searchTermLower))
+      this.getUserRolesAsString(user.roles).toLowerCase().includes(searchTermLower)
     );
   }
 
-  // Méthode pour obtenir les libellés des rôles
-  getRoleLabels(roles: string[] = []): string {
-    return roles.map(roleValue => {
-      const role = this.availableRoles.find(r => r.value === roleValue);
-      return role ? role.name : roleValue;
-    }).join(', ');
+  // Méthode pour obtenir le libellé d'un seul rôle
+  getRoleLabel(roleValue: string | any): string {
+    // Gérer le cas où roleValue est un objet
+    if (typeof roleValue === 'object' && roleValue !== null) {
+      return roleValue.name || roleValue.slug || roleValue.id || 'Rôle inconnu';
+    }
+    
+    // Si c'est un string, chercher dans availableRoles
+    const role = this.availableRoles.find(r => r.value === roleValue);
+    return role ? role.name : roleValue;
+  }
+
+  // Méthode pour convertir les rôles en chaîne pour la recherche
+  getUserRolesAsString(roles: any[] = []): string {
+    return roles.map(role => this.getRoleLabel(role)).join(', ');
+  }
+
+  // Méthode pour obtenir les libellés des rôles (pour plusieurs rôles)
+  getRoleLabels(roles: any[] = []): string {
+    return roles.map(role => this.getRoleLabel(role)).join(', ');
   }
 
   // Méthode pour obtenir le style des rôles
-  getRoleClasses(roles: string[] = []): string {
-    if (roles.includes('admin')) return 'role-admin';
-    if (roles.includes('manager')) return 'role-manager';
-    if (roles.includes('moderator')) return 'role-moderator';
+  getRoleClasses(role: any): string {
+    const roleValue = typeof role === 'object' ? (role.slug || role.id) : role;
+    
+    if (roleValue && typeof roleValue === 'string') {
+      if (roleValue.toLowerCase().includes('admin')) return 'role-admin';
+      if (roleValue.toLowerCase().includes('manager')) return 'role-manager';
+    }
     return 'role-user';
   }
 }

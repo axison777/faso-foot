@@ -33,13 +33,27 @@ interface CreateUserRequest {
   roles: string[];
 }
 
+// Interface pour les rôles disponibles
+interface Role {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   private apiUrl = environment.apiUrl + '/users';
+  private rolesUrl = environment.apiUrl + '/roles'; // Endpoint pour récupérer les rôles
 
   constructor(private http: HttpClient) {}
+
+  // Récupérer tous les rôles disponibles depuis le backend
+  getRoles(): Observable<ApiResponse<Role[]>> {
+    return this.http.get<ApiResponse<Role[]>>(this.rolesUrl);
+  }
 
   // Récupérer tous les utilisateurs avec pagination
   getAll(page: number = 1, perPage: number = 10): Observable<ApiResponse<User[]>> {
@@ -63,6 +77,13 @@ export class UserService {
 
   // Créer un utilisateur
   create(user: CreateUserRequest): Observable<ApiResponse<string>> {
+    console.log('=== DÉBOGAGE SERVICE ===');
+    console.log('URL complète:', this.apiUrl);
+    console.log('Données utilisateur à envoyer:', JSON.stringify(user, null, 2));
+    console.log('Type de roles:', typeof user.roles, Array.isArray(user.roles));
+    console.log('Valeurs des rôles:', user.roles);
+    console.log('========================');
+    
     return this.http.post<ApiResponse<string>>(this.apiUrl, user);
   }
 
@@ -70,7 +91,4 @@ export class UserService {
   delete(slug: string): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${slug}`);
   }
-
-  // Note: Pas de méthode update car elle n'est pas documentée dans votre API
-  // Si elle existe, vous pouvez l'ajouter plus tard avec le même pattern
 }
