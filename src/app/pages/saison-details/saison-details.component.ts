@@ -15,7 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SaisonService } from '../../service/saison.service';
 import { StepperModule } from 'primeng/stepper';
 import { CdkDragPlaceholder } from "@angular/cdk/drag-drop";
@@ -277,7 +277,8 @@ constructor(
   private acRoute: ActivatedRoute,
   private saisonService: SaisonService,
   private playerService: PlayerService,
-  private matchService: MatchService
+  private matchService: MatchService,
+  private router: Router
 ) {}
 
 
@@ -407,9 +408,9 @@ confirmValidate(match: any) {
 
 getWinnerClass(match: any, team: 'team1' | 'team2') {
   if (!match) return '';
-  if (match.home_score === match.away_score) return ''; // égalité
-  if (team === 'team1' && match.home_score > match.away_score) return 'winner';
-  if (team === 'team2' && match.away_score > match.home_score) return 'winner';
+  if (match?.result?.home_score === match?.result?.away_score) return ''; // égalité
+  if (team === 'team1' && match?.result?.home_score > match?.result?.away_score) return 'winner';
+  if (team === 'team2' && match?.result?.away_score > match?.result?.home_score) return 'winner';
   return '';
 }
 
@@ -527,7 +528,7 @@ saveResult() {
   get teamTwoSubstitutes() {
     return this.match?.team_two_callup?.players?.filter((p: any)  => !p.is_starter) || [];
   }
-    matchSettingUp(match: Match): void {
+    matchSettingUp(match: any): void {
     if (!match || !match.football_match_id) {
       this.messageService.add({
         severity: 'error',
@@ -547,6 +548,11 @@ saveResult() {
         detail: 'Impossible de naviguer vers la page de configuration du match.'
       });
     });
+  }
+
+  getResultTypeLabel(type: string): string {
+    const opt = this.resultTypes.find(o => o.value === type);
+    return opt ? opt.label : type;
   }
 
 }

@@ -35,7 +35,7 @@
       </ng-template>
       <span class="team-name">{{ match.team1 }}</span>
       <span class="team-score" [ngClass]="getWinnerClass(match, 'team1')">
-        {{ match.home_score }}
+        {{ match?.result?.home_score }}
       </span>
     </div>
 
@@ -50,7 +50,7 @@
       </ng-template>
       <span class="team-name">{{ match.team2 }}</span>
       <span class="team-score" [ngClass]="getWinnerClass(match, 'team2')">
-        {{ match.away_score }}
+        {{ match?.result.away_score }}
       </span>
     </div>
   </div>
@@ -192,7 +192,7 @@
     <div class="extra-info">
       <p><strong>Stade :</strong> {{ selectedMatch?.stadium }}</p>
       <p><strong>Date :</strong> {{ selectedMatch?.match_date }} - {{ selectedMatch?.time }}</p>
-      <p><strong>Type de résultat :</strong> {{ selectedMatch?.result_type }}</p>
+      <p><strong>Type de résultat :</strong> {{getResultTypeLabel(selectedMatch?.result_type) || selectedMatch?.result_type }}</p>
     </div>
 
     <!-- Détails scores -->
@@ -584,7 +584,7 @@
           </div>
           <div>
             <div class="text-sm text-gray-500">Type de résultat</div>
-            <div class="font-medium">{{ match.result.result_type }}</div>
+            <div class="font-medium">{{getResultTypeLabel(match.result.result_type) || match.result.result_type }}</div>
           </div>
         </div>
 
