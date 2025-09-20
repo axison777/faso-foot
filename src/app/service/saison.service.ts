@@ -49,4 +49,12 @@ export class SaisonService {
   generate(data:any): Observable<any[]> {
     return this.http.post<any[]>(`${environment.apiUrl}/calendar/return-phase/regenerate`, data);
   }
+
+  getRanking(poolId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/rankings/${poolId}`);
+  }
+
+  saveResults(data:any): Observable<any[]> {
+    return this.http.post<any[]>(`${environment.apiUrl}/match-results/full`, data);
+  }
 }

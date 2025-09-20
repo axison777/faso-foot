@@ -1,6 +1,7 @@
+import { EquipeService } from './../../service/equipe.service';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TabViewModule } from 'primeng/tabview';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
@@ -16,7 +17,12 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ActivatedRoute } from '@angular/router';
 import { SaisonService } from '../../service/saison.service';
-
+import { StepperModule } from 'primeng/stepper';
+import { CdkDragPlaceholder } from "@angular/cdk/drag-drop";
+import { PlayerService } from '../../service/player.service';
+import { MatchService } from '../../service/match.service';
+import { InputTextModule } from 'primeng/inputtext';
+import { DividerModule } from 'primeng/divider';
 
 interface Match {
   team1: string;
@@ -46,7 +52,10 @@ interface Match {
   penalty_home_score?: number;
   penalty_away_score?: number;
   result_type?: string;
+  result?:any
 }
+
+
 
 interface Matchday {
   label: string;
@@ -103,15 +112,55 @@ interface Season {
     TooltipModule,
     DialogModule,
     ReactiveFormsModule,
-    InputNumberModule
-  ],
+    InputNumberModule,
+    StepperModule,
+    InputTextModule,
+    DividerModule
+],
   templateUrl: './saison-details.component.html',
   styleUrls: ['./saison-details.component.scss']
 })
 export class SaisonDetailsComponent {
+      positionOptions = [
+    { label: 'Gardien', value: 'GOALKEEPER' },
+    { label: 'Défenseur', value: 'DEFENSE' },
+    { label: 'Milieu', value: 'MIDFIELD' },
+    { label: 'Attaquant', value: 'ATTACK' }
+  ];
+     resultTypes = [
+    { label: 'Temps réglementaire', value: 'REGULAR' },
+    { label: 'Prolongations', value: 'EXTRA_TIME' },
+    { label: 'Tirs au but', value: 'PENALTIES' }
+  ];
+
+  eventTypes = [
+    { label: 'But', value: 'GOAL' },
+    { label: 'Carton', value: 'CARD' },
+    { label: 'Remplacement', value: 'SUBSTITUTION' }
+  ];
+
+  goalTypeOptions = [
+    { label: 'But normal', value: 'REGULAR' },
+    { label: 'Penalty', value: 'PENALTY' },
+    { label: 'But contre son camp', value: 'OWN_GOAL' },
+    { label: 'Coup franc', value: 'FREE_KICK' }
+  ];
+
+  cardTypeOptions = [
+    { label: 'Jaune', value: 'YELLOW' },
+    { label: 'Rouge', value: 'RED' }
+  ];
+
+    periods = [
+    { key: 'FIRST_HALF', label: '1ère mi-temps' },
+    { key: 'SECOND_HALF', label: '2ème mi-temps' },
+    { key: 'EXTRA_TIME', label: 'Prolongations' },
+    { key: 'PENALTIES', label: 'Tirs au but' }
+  ];
+
   activeIndex = 0;
 
-  /* season: Season = {
+  /*  season: Season = {
     id: 'bd9e2773-aeeb-476e-aa9a-2221ad6b8a7c',
     name: 'Ligue 1',
     start_date: '2025-08-12',
@@ -171,14 +220,27 @@ resultDialog = false;
 selectedMatch: any = null;
 resultForm!: FormGroup;
 
-resultTypes = [
-  { label: 'Temps réglementaire', value: 'REGULAR' },
-  { label: 'Prolongations', value: 'EXTRA_TIME' },
-  { label: 'Pénaltys', value: 'PENALTIES' }
-];
+resultDialogVisible = false;
+activeStep = 1;
+players:any[]=[]
+
+ranking:any
+
+
+
+
+get events(): FormArray {
+  return this.resultForm.get('events') as FormArray;
+}
+
+
 
 seasonId: string=''
 loading?: boolean=false;
+
+ match:any
+
+
 
   getPoolsOptions() {
     return this.season?.pools?.map(p => ({ label: p.name, value: p.id }));
@@ -213,28 +275,52 @@ constructor(
   private confirmationService: ConfirmationService,
   private messageService: MessageService,
   private acRoute: ActivatedRoute,
-  private saisonService: SaisonService
+  private saisonService: SaisonService,
+  private playerService: PlayerService,
+  private matchService: MatchService
 ) {}
 
 
 ngOnInit() {
   this.resultForm = this.fb.group({
-    home_score: [0],
-    away_score: [0],
-    halftime_home_score: [0],
-    halftime_away_score: [0],
-    extra_time_home_score: [0],
-    extra_time_away_score: [0],
-    penalty_home_score: [0],
-    penalty_away_score: [0],
-    result_type: ['REGULAR']
-  });
+  home_score: [0, Validators.required],
+  away_score: [0, Validators.required],
+  halftime_home_score: [0, Validators.required],
+  halftime_away_score: [0, Validators.required],
+  extra_time_home_score: [0],
+  extra_time_away_score: [0],
+  penalty_home_score: [0],
+  penalty_away_score: [0],
+  result_type: ['REGULAR', Validators.required],
+  events: this.fb.array([]),
+});
 
   this.seasonId = this.acRoute.snapshot.params['id'];
 
   this.loadSeason();
 
 
+
+
+
+}
+onTabChange(event: any) {
+  if(this.activeIndex == 2 && this.selectedPoolId){
+    this.loadRanking()
+  }
+}
+
+loadRanking(){
+this.saisonService.getRanking(this.selectedPoolId!).subscribe({
+
+  next: (res: any) => {
+    this.ranking = res;
+    this.loading = false;
+  },
+  error: () => {
+    this.loading = false;
+  },
+})
 }
 
 loadSeason(){
@@ -244,28 +330,69 @@ loadSeason(){
         this.season = res?.data;
         this.selectedPoolId = this.season?.pools[0]?.id || null;
         this.loading = false;
+        this.loadRanking();
       },
       error: () => {
         this.loading = false;
       },
     });}
 
+loadPlayers(match:any){
+  this.matchService.getPlayers(match.football_match_id).subscribe({
+    next: (res: any) => {
+        let t1players= res?.data?.match_callups?.team_one_callup.players || [];
+        let t2players= res?.data?.match_callups?.team_two_callup.players || [];
+      this.players = [...t1players,...t2players] ;
+
+      this.players.forEach((player: any) => {
+        player.fullname = `${player.first_name} ${player.last_name}`
+      })
+      this.loading = false;
+      this.selectedMatch = match;
+  this.resultForm.reset({
+    home_score: match.home_score || 0,
+    away_score: match.away_score || 0,
+    result_type: 'REGULAR',
+    events: [],
+  });
+  this.events.clear();
+  this.activeStep = 1;
+  this.resultDialogVisible = true;
+    },
+    error: () => {
+      this.loading = false;
+    },
+  });
+}
+
 openDetails(match: any) {
+this.matchService.getDetails(match.football_match_id).subscribe({
+  next: (res: any) => {
+    let match = res?.data.match;
+    // mettrre les periods pour 1ere et 2e mitemps
+
+    this.match =match
+    this.detailsDialog = true;
+  },
+  error: () => {
+    this.loading = false;
+  },
+})
   this.selectedMatch = match;
   this.detailsDialog = true;
 }
 
-openResultDialog(match: any) {
+/* openResultDialog(match: any) {
   this.selectedMatch = match;
   this.resultForm.patchValue(match);
   this.resultDialog = true;
-}
+} */
 
-saveResult() {
+/* saveResult() {
   Object.assign(this.selectedMatch, this.resultForm.value);
   this.resultDialog = false;
   this.messageService.add({ severity: 'success', summary: 'Résultat enregistré' });
-}
+} */
 
 confirmValidate(match: any) {
   this.confirmationService.confirm({
@@ -286,4 +413,118 @@ getWinnerClass(match: any, team: 'team1' | 'team2') {
   return '';
 }
 
+getTeamsOptions() {
+  if (!this.selectedMatch) return [];
+  return [
+    { label: this.selectedMatch.team1, value: this.selectedMatch.team1_id },
+    { label: this.selectedMatch.team2, value: this.selectedMatch.team2_id },
+  ];
+}
+
+openResultDialog(match: any) {
+    this.loadPlayers(match);
+
+}
+
+addEvent() {
+  this.events.push(
+    this.fb.group({
+      type: ['', Validators.required],
+      minute: [0, [Validators.required, Validators.min(0), Validators.max(120)]],
+      stoppage: [null],
+      player_id: ['', Validators.required],
+      second_player_id: [null],
+      team_id: ['', Validators.required],
+      goal_type: [null],
+      card_type: [null],
+      card_reason: [null],
+    })
+  );
+}
+
+removeEvent(i: number) {
+  this.events.removeAt(i);
+}
+
+goToStep(step: number) {
+  this.activeStep = step;
+}
+
+saveResult() {
+  if (this.resultForm.valid) {
+    console.log('Résultat enregistré : ', this.resultForm.value);
+    let payload = this.resultForm.value;
+    payload.match_id = this.selectedMatch.football_match_id;
+    let events=this.events.value.map((ev:any) => {
+    let details:any = null;
+
+    if (ev.type === "GOAL") {
+      details = { goal_type: ev.goal_type ?? null };
+    } else if (ev.type === "CARD") {
+      details = {
+        card_type: ev.card_type ?? null,
+        card_reason: ev.card_reason ?? null,
+      };
+    } else if (ev.type === "SUBSTITUTION") {
+      details = null; // pas de détails spécifiques
+    }
+
+    return {
+      type: ev.type,
+      minute: ev.minute,
+      stoppage: ev.stoppage ?? null,
+      player_id: ev.player_id,
+      second_player_id: ev.second_player_id ?? null,
+      team_id: ev.team_id,
+      details,
+    };
+  });
+    payload.events=events;
+    /* console.log(payload);
+    this.resultForm.reset();
+    this.resultDialogVisible = false; */
+    this.saisonService.saveResults(payload).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Résultat enregistré' });
+        this.resultForm.reset();
+        this.resultDialogVisible = false;
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Une erreur est survenue' });
+      }
+    })
+  }
+}
+
+  getScoreClass(score?: number |null, opponent?: number| null): string {
+    if (score == null || opponent == null) return '';
+    return score > opponent ? 'text-green-score' : '';
+  }
+
+  getEventsByPeriod(period: string) {
+    return this.match.events.filter((ev: any) => ev.period === period);
+  }
+
+    getPositionLabel(pos: string | undefined): string {
+    if (!pos) return '';
+    const opt = this.positionOptions.find(o => o.value === pos);
+    return opt ? opt.label : pos;
+  }
+
+    get teamOneStarters() {
+    return this.match?.team_one_callup?.players?.filter((p: any) => p.is_starter) || [];
+  }
+
+  get teamOneSubstitutes() {
+    return this.match?.team_one_callup?.players?.filter((p: any)  => !p.is_starter) || [];
+  }
+
+  // --- Équipe 2 ---
+  get teamTwoStarters() {
+    return this.match?.team_two_callup?.players?.filter((p: any)  => p.is_starter) || [];
+  }
+
+  get teamTwoSubstitutes() {
+    return this.match?.team_two_callup?.players?.filter((p: any)  => !p.is_starter) || [];
+  }
 }

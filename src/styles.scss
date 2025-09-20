@@ -173,6 +173,18 @@ body {
 
 }
 
+.custom-icon.ball {
+  -webkit-mask-image: url('assets/custom-icons/soccer-ball-thin-svgrepo-com.svg');
+  mask-image: url('assets/custom-icons/soccer-ball-thin-svgrepo-com.svg');
+
+}
+
+.custom-icon.swap {
+  -webkit-mask-image: url('assets/custom-icons/swap-vertical-svgrepo-com.svg');
+  mask-image: url('assets/custom-icons/swap-vertical-svgrepo-com.svg');
+
+}
+
 .p-button.p-button-contrast {
   background-color: #333333 !important; /* Gris foncé */
   color: #ffffff !important;

@@ -79,10 +79,10 @@
               </td> -->
               <td class="actions">
                 <div class="btn-group">
-                 <button class="btn btn-gray"  (click)="openContractsModal(p)"><i class="pi pi-file"></i></button>
+               <!--   <button class="btn btn-gray"  (click)="openContractsModal(p)"><i class="pi pi-file"></i></button> -->
                   <p-button severity="warn" icon="pi pi-pencil" (click)="showPlayerDialog(p)" />
                   <button class="btn btn-info" (click)="openPlayerDetails(p)"><i class="pi pi-eye"></i></button>
-                <button class="btn btn-danger" (click)="deleteEntity('joueur', p.id!)"><i class="pi pi-trash"></i></button> 
+                <button class="btn btn-danger" (click)="deleteEntity('joueur', p.id!)"><i class="pi pi-trash"></i></button>
 
                 </div>
               </td>
@@ -644,7 +644,7 @@
     <div></div>
 
     <!-- Clauses -->
-<div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
+<!-- <div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
   <div class="flex justify-between items-center mb-2">
     <label class="font-semibold">Clauses</label>
     <p-button variant="outlined" size="small" (click)="addClause()">
@@ -662,7 +662,7 @@
       </p-button>
     </div>
   </div>
-</div>
+</div> -->
 
 
   </form>

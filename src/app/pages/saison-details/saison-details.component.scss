@@ -73,7 +73,7 @@ $green: rgb(50,145,87);
 
 p-table {
   margin-top: 12px;
-  th { background: $green; color: #fff; text-transform: uppercase; }
+  th { background: $green; color: #fff; text-transform: uppercase; text-align: center; }
 }
 
 .table-actions {
@@ -206,6 +206,7 @@ p-table {
       th {
         background: #f9fafb;
         font-weight: 600;
+        text-align: center;
       }
     }
   }
@@ -217,3 +218,60 @@ p-table {
     font-size: small;
     color: #64748b;
 }
+
+.big-team-logo {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+:host ::ng-deep .p-datatable td {
+  text-align: center;
+}
+
+:host ::ng-deep .p-datatable td:nth-child(2) {
+  text-align: left; /* colonne Club */
+}
+
+.mini-badge{
+    color: white !important;
+}
+
+   .match-details-dialog .p-dialog-content {
+      overflow-y: auto;
+    }
+    .event-card {
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .match-details-dialog .p-dialog-content {
+      overflow-y: auto;
+    }
+   .event-card {
+  background: #fff;
+  border-left: 4px solid transparent;
+
+  &.winner {
+    border-left-color: #22c55e; // vert Tailwind
+  }
+}
+
+.badge.goal {
+  color: #22c55e;
+}
+.badge.sub {
+  color: #3b82f6;
+}
+.yellow {
+    
+    padding: 8px;
+  background-color: #facc15;
+}
+.red {
+  background-color: #ef4444;
+  padding: 8px;
+}
+
+    .text-green-score {
+      color: #16a34a;
+    }

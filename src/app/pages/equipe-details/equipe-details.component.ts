@@ -204,6 +204,7 @@ isEditingSuspension: boolean = false;
   ngOnInit(): void {
 
     let id=this.route.snapshot.params['id'];
+    this.team_id=id;
     this.loadTeam(id);
     this.loadKits();
     this.loadPlayers();
@@ -248,7 +249,7 @@ isEditingSuspension: boolean = false;
     end_date: [null, Validators.required],
     salary_amount: [null, Validators.required],
     status: ['ACTIVE', Validators.required], // valeur par défaut
-    clauses: this.fb.array([]) // gestion dynamique des clauses
+    //clauses: this.fb.array([]) // gestion dynamique des clauses
     });
 
 
@@ -320,7 +321,7 @@ isEditingSuspension: boolean = false;
 
   loadPlayers() {
     this.loadingPlayers = true;
-    this.playerService.getAll().subscribe({
+    this.playerService.getByTeamId(this.team_id).subscribe({
       next: (res: any) => {
         this.players = res?.data?.players || [];
         this.loadingPlayers = false;

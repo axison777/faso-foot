@@ -36,11 +36,11 @@
       <div><span class="label">Nationalité:</span> <span class="value"> {{ player.nationality }}</span></div>
       <div><span class="label">Naissance:</span> <span class="value"> {{ player.date_of_birth | date }}</span></div>
       <div><span class="label">Lieu:</span> <span class="value"> {{ player.birth_place }}</span></div>
-      <div><span class="label">Position:</span> <span class="value"> {{ player.preferred_position }}</span></div>
-      <div><span class="label">Statut:</span> <span class="value"> {{ player.status }}</span></div>
+      <div><span class="label">Position:</span> <span class="value"> {{getPositionLabel(player.preferred_position) }} </span></div>
+      <div><span class="label">Statut:</span> <span class="value"> {{getStatusLabel( player.status) }}</span></div>
       <div><span class="label">Taille:</span> <span class="value"> {{ player.height }} cm</span></div>
       <div><span class="label">Poids:</span> <span class="value"> {{ player.weight }} kg</span></div>
-      <div><span class="label">Pied fort:</span> <span class="value"> {{ player.foot_preference }}</span></div>
+      <div><span class="label">Pied fort:</span> <span class="value"> {{getFootLabel(player.foot_preference) }}</span></div>
     </div>
 
 
@@ -123,7 +123,7 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Club</th>
+            <th>Equipe</th>
             <th>Début</th>
             <th>Fin</th>
             <th>Salaire</th>
@@ -135,7 +135,7 @@
         <tbody>
           <tr *ngFor="let c of player!.contracts!; let i = index">
             <td>{{ i + 1 }}</td>
-            <td class="cell-strong">{{ c.club?.name || c.club_id || '—' }}</td>
+            <td class="cell-strong">{{ c?.team_name || '—' }}</td>
             <td>{{ c.start_date | date: 'dd/MM/yyyy' }}</td>
             <td>{{ c.end_date | date: 'dd/MM/yyyy' }}</td>
             <td>{{ c.salary_amount | number:'1.0-0':'fr-FR' }} F CFA</td>
@@ -145,7 +145,7 @@
                 'status-inactive': c.status === 'INACTIVE',
                 'status-suspended': c.status === 'SUSPENDED'
               }">
-                {{ c.status }}
+                {{getStatusLabel(c.status) || c.status }}
               </span>
             </td>
      <!--        <td>
@@ -409,7 +409,7 @@
     <!-- Salaire -->
     <div class="form-item">
       <label>Salaire <span class="req">*</span></label>
-      <p-inputNumber formControlName="salary_amount" mode="currency" currency="XOF" locale="fr-FR"></p-inputNumber>
+      <p-inputNumber value="0" formControlName="salary_amount" mode="currency" currency="XOF" locale="fr-FR"></p-inputNumber>
       <small class="error" *ngIf="cf['salary_amount']?.invalid && cf['salary_amount']?.touched">Requis</small>
     </div>
 
@@ -430,22 +430,22 @@
     <div>
         <!-- Club -->
         <div class="form-item">
-          <label>Club <span class="req">*</span></label>
-          <p-select formControlName="club_id"
-                    [options]="clubs"
+          <label>Equipe <span class="req">*</span></label>
+          <p-select formControlName="team_id"
+                    [options]="teams"
                     optionLabel="name"
                     optionValue="id"
                     placeholder="Sélectionner un club"
                     appendTo="body">
           </p-select>
-          <small class="error" *ngIf="cf['club_id']?.invalid && cf['club_id']?.touched">Requis</small>
+          <small class="error" *ngIf="cf['team_id']?.invalid && cf['team_id']?.touched">Requis</small>
         </div>
 
 
     </div>
 
     <!-- Clauses -->
-<div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
+<!-- <div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
   <div class="flex justify-between items-center mb-2">
     <label class="font-semibold">Clauses</label>
     <p-button variant="outlined" size="small" (click)="addClause()">
@@ -464,7 +464,7 @@
     </div>
   </div>
 </div>
-
+ -->
 
   </form>
 
@@ -539,9 +539,9 @@
         <div><span class="label">Taille:</span> <span class="value">{{ player.height }} cm</span></div>
         <div><span class="label">Poids:</span> <span class="value">{{ player.weight }} kg</span></div>
         <div><span class="label">Groupe sanguin:</span> <span class="value">{{ player.blood_type }}</span></div>
-        <div><span class="label">Pied fort:</span> <span class="value">{{ player.foot_preference }}</span></div>
-        <div><span class="label">Position préférée:</span> <span class="value">{{ player.preferred_position }}</span></div>
-        <div><span class="label">Positions secondaires:</span> <span class="value">{{ player.secondary_positions }}</span></div>
+        <div><span class="label">Pied fort:</span> <span class="value">{{getFootLabel(player.foot_preference) || player.foot_preference }}</span></div>
+        <div><span class="label">Position préférée:</span> <span class="value">{{getPositionLabel(player.preferred_position) || player.preferred_position }}</span></div>
+        <div><span class="label">Positions secondaires:</span> <span *ngFor="let secondary_position of player.secondary_positions index as i" class="value">{{getPositionLabel(secondary_position)}} {{player.secondary_positions!.length - 1 === i ? '' : ', '}}</span></div>
       </div>
     </div>
 

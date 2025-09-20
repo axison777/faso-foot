@@ -62,7 +62,7 @@ $green-dark: #0f7a32;
   thead {
     background: $green; color: whitesmoke;
     th {
-      padding: 16px 15px; text-align: left; font-weight: 600; font-size: .95rem; text-transform: uppercase; letter-spacing: .5px; border: none;
+      padding: 16px 15px; text-align: center; font-weight: 600; font-size: .95rem; text-transform: uppercase; letter-spacing: .5px; border: none;
       &:first-child { border-top-left-radius: 12px; width: 6%; }
       &:nth-child(2) { width: 20%; }
       &:last-child { border-top-right-radius: 12px; text-align: center; width: 26%; }
@@ -71,7 +71,7 @@ $green-dark: #0f7a32;
   tbody tr {
     transition: all .3s ease; border-bottom: 1px solid #e2e8f0;
     &:hover { background-color: #f0fdf4; transform: scale(1.0000002); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    td { padding: 16px 15px; vertical-align: middle; }
+    td { padding: 16px 15px; vertical-align: middle; text-align: center; }
     .cell-strong { font-weight: 600; color: #1e293b; font-size: 1.02rem; }
     .actions { text-align: center; white-space: nowrap; }
   }

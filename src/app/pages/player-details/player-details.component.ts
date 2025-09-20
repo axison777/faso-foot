@@ -173,7 +173,7 @@ export class PlayerDetailsComponent implements OnInit {
     { label: 'Milieu', value: 'MIDFIELD' },
     { label: 'Attaquant', value: 'ATTACK' }
   ];
-  footOptions = [ { label: 'Gauche', value: 'LEFT' }, { label: 'Droite', value: 'RIGHT' } ];
+  footOptions = [ { label: 'Gauche', value: 'LEFT' }, { label: 'Droite', value: 'RIGHT' }, { label: 'Ambié', value: 'BOTH' } ];
   statusOptions = [ { label: 'Actif', value: 'ACTIVE' }, { label: 'Inactif', value: 'INACTIVE' }, { label: 'Suspendu', value: 'SUSPENDED' } ];
 
 
@@ -243,7 +243,7 @@ export class PlayerDetailsComponent implements OnInit {
     this.contractForm = this.fb.group({
     id: [null], // facultatif, utile en édition
     //player_id: ['', Validators.required],
-    club_id: ['', Validators.required],
+    team_id: ['', Validators.required],
     start_date: [null, Validators.required],
     end_date: [null, Validators.required],
     salary_amount: [null, Validators.required],
@@ -508,24 +508,24 @@ export class PlayerDetailsComponent implements OnInit {
     this.showContracts = true;
     this.showContractForm = false;
     this.contractForm.reset();
-    //this.loadTeams();
+    this.loadTeams();
 
 
   }
 
   newContract() {
     this.showContractForm = true;
-    this.loadClubs();
+    this.loadTeams();
     this.contractForm.reset();
   }
 
   editContract(c: Contract) {
-    this.loadClubs();
+    this.loadTeams();
     this.isEditingContract=true
     this.showContractForm = true;
     this.contractForm.patchValue({
-        id:c.id, salary: c.salary_amount, start_date: c.start_date ? new Date(c.start_date) : null, end_date: c.end_date ? new Date(c.end_date) : null,
-       club_id: c.club_id, status: c.status, clauses: c.clauses
+        id:c.id, salary_amount: c.salary_amount, start_date: c.start_date ? new Date(c.start_date) : null, end_date: c.end_date ? new Date(c.end_date) : null,
+       team_id: c.team_id, status: c.status, clauses: c.clauses
     });
   }
 
@@ -544,15 +544,15 @@ export class PlayerDetailsComponent implements OnInit {
 
   const payload: any = {
     player_id: this.player.id,
-    club_id: formValue.club_id,
+    team_id: formValue.team_id,
     start_date: formValue.start_date ? new Date(formValue.start_date).toISOString() : null,
     end_date: formValue.end_date ? new Date(formValue.end_date).toISOString() : null,
     salary_amount: formValue.salary_amount,
     status: formValue.status,
-    clauses: formValue.clauses?.map((c: any) => ({
+ /*    clauses: formValue.clauses?.map((c: any) => ({
       type: c.type,
       value: c.value
-    }))
+    })) */
   };
 
 /*   if (formValue.id) {
@@ -740,6 +740,12 @@ loadClubs() {
     return opt ? opt.label : foot;
   }
 
+  getPositionLabel(pos: string | undefined): string {
+    if (!pos) return '';
+    const opt = this.positionOptions.find(o => o.value === pos);
+    return opt ? opt.label : pos;
+  }
+
 
 goToTeamDetails(teamId: string): void {
     this.router.navigate(['/equipe-details', teamId]);
@@ -747,7 +753,7 @@ goToTeamDetails(teamId: string): void {
 
   showPlayerAllDetails(){
     this.playerAllDetails = true
-    this.player= {
+/*     this.player= {
   id: "1",
   first_name: "Lionel",
   last_name: "Messi",
@@ -772,7 +778,7 @@ goToTeamDetails(teamId: string): void {
   career_end: "2004-10-16T00:00:00.000000Z",
   status: "ACTIVE",
 
-};
+}; */
 
   }
 
