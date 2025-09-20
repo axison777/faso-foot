@@ -1,45 +1,39 @@
 .match-setup {
-  max-width: 1100px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  font-family: 'Segoe UI', sans-serif;
-  color: #333;
+  padding: 20px;
+  width: 100%;
+  min-width: 0;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
 
   .header {
-    margin-bottom: 1.5rem;
-
-    h2 {
-      margin: 0;
-      font-size: 1.8rem;
-      color: #0b74de;
-    }
-  }
-
-  .tabs {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e2e8f0;
+    flex-wrap: wrap;
+    gap: 15px;
 
-    button {
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      background: #f1f5f9;
-      cursor: pointer;
+    h1 {
+      color: rgb(50, 145, 87);
+      margin: 0;
+      font-size: 2.2rem;
       font-weight: 600;
-      color: #333;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background: #e2e8f0;
-      }
-
-      &.active {
-        background: #0b74de;
-        color: #fff;
-        border-color: #0b74de;
-      }
+      letter-spacing: 0.5px;
+      flex: 1;
+      min-width: 200px;
     }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    
   }
 
   .card {
@@ -55,14 +49,14 @@
       font-size: 1.3rem;
       color: #1e293b;
     }
-
+    
     .summary {
       margin-top: 1.5rem;
 
       h4 {
         margin-bottom: 0.5rem;
         font-size: 1.1rem;
-        color: #475569;
+        color: #2d4260;
       }
 
       ul {
@@ -96,6 +90,25 @@
         min-width: 220px;
       }
     }
+    .btn-info {
+    background-color: rgb(50, 145, 87);
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 120px;
+
+    &:hover {
+      background-color: #0f7a32;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(18, 140, 61, 0.3);
+    }
+  }
   }
 
   .teams {
@@ -118,7 +131,7 @@
       h4 {
         margin: 0 0 1rem;
         font-size: 1.25rem;
-        color: #2563eb;
+        color: rgb(50, 145, 87);
       }
 
       .team-info {
@@ -228,59 +241,121 @@
     }
   }
 
-  .actions {
-    margin-top: 2rem;
-    display: flex;
-    gap: 1.2rem;
-    align-items: center;
-
-    .btn {
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      background: #10b981;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-
-      &:hover {
-        background: #059669;
-      }
-    }
-
-    .finalize {
-      background: #ef4444;
-
-      &:hover {
-        background: #dc2626;
-      }
-    }
-
-    .closed-msg {
-      color: #b91c1c;
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-  }
-
   .assigned-officials {
     margin-top: 2rem;
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
 
-      th,
-      td {
-        border: 1px solid #ddd;
-        padding: 0.5rem;
-        text-align: left;
+    table.custom-table {
+      width: 100% !important;
+      border-collapse: collapse;
+      table-layout: auto;
+
+      thead {
+        background: rgb(50, 145, 87);
+        color: #fff;
+
+        th {
+          padding: 14px 12px;
+          text-align: center;
+          font-weight: 600;
+          font-size: 0.95rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
+
+          &:first-child {
+            border-top-left-radius: 12px;
+          }
+
+          &:last-child {
+            border-top-right-radius: 12px;
+          }
+        }
       }
 
-      th {
-        background-color: #f2f2f2;
+      tbody {
+        tr {
+          transition: all 0.3s ease;
+          border-bottom: 1px solid #e2e8f0;
+
+          &:hover {
+            background-color: #f0fdf4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          td {
+            padding: 14px 12px;
+            vertical-align: middle;
+            text-align: center;
+
+            .badge {
+              display: inline-block;
+              padding: 6px 10px;
+              border-radius: 999px;
+              font-weight: 600;
+              font-size: 0.85rem;
+
+              &.status-active {
+                background: #e6f4ea;
+                color: #0f5132;
+              }
+
+              &.status-suspended {
+                background: #fff3cd;
+                color: #92400e;
+              }
+
+              &.status-retired {
+                background: #fee3e3;
+                color: #7f1d1d;
+              }
+            }
+
+            &.actions {
+              text-align: center;
+              white-space: nowrap;
+            }
+          }
+        }
       }
     }
+
   }
+
+  /* rendre la carte cliquable */
+.match-setup .clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+
+/* état focus clavier */
+.match-setup .clickable:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(11,116,222,0.12);
+}
+
+/* style visible pour l'état sélectionné (fond + texte + ombre) */
+.match-setup .clickable.selected {
+  background: linear-gradient(180deg, rgba(16,185,129,0.06), #ffffff);
+  box-shadow: 0 10px 28px rgba(16,185,129,0.06);
+  transform: translateY(-4px);
+}
+
+/* si tu veux que le texte change légèrement quand sélectionné */
+.match-setup .clickable.selected .text-sm,
+.match-setup .clickable.selected .text-xs {
+  color: #0f172a;
+}
+
+/* garde la checkbox interactive (évite que toute la carte capture les clics) */
+.match-setup .clickable input[type="checkbox"] {
+  z-index: 10;
+}
+
 
 }
