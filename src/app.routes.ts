@@ -28,6 +28,7 @@ import { OfficialsComponent } from './app/pages/officials/officials.component';
 import { OfficialDetailsComponent } from './app/pages/official-details/official-details.component';
 import { ClubDetailsComponent } from './app/pages/club-details/club-details.component';
 import { SaisonDetailsComponent } from './app/pages/saison-details/saison-details.component';
+import { MatchSetupComponent } from './app/pages/match-setup/match-setup.component';
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
     {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
@@ -62,6 +63,7 @@ export const appRoutes: Routes = [
 
             {path: 'officiels', component: OfficialsComponent, canActivate: [AuthGuard] },
             {path: 'officiel-details/:id', component: OfficialDetailsComponent, canActivate: [AuthGuard] },
+            {path: 'match-setup/:id', component: MatchSetupComponent, canActivate: [AuthGuard] },
 
         ]
     },

@@ -527,4 +527,26 @@ saveResult() {
   get teamTwoSubstitutes() {
     return this.match?.team_two_callup?.players?.filter((p: any)  => !p.is_starter) || [];
   }
+    matchSettingUp(match: Match): void {
+    if (!match || !match.football_match_id) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Identifiant du match manquant.'
+      });
+      return;
+    }
+
+    this.router.navigate(['/match-setup', match.football_match_id], {
+    state: { match }
+  }).catch(err => {
+      console.error('Navigation échouée', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur de navigation',
+        detail: 'Impossible de naviguer vers la page de configuration du match.'
+      });
+    });
+  }
+
 }

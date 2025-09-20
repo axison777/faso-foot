@@ -61,10 +61,10 @@
   </div>
 
   <div class="match-actions">
-    <p-button [disabled]="!match.result.verified" [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock"></p-button>
+    <p-button [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock" (click)="matchSettingUp(match)" ></p-button>
     <p-button severity="primary" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"
            (click)="openDetails(match)"></p-button>
-    <p-button [disabled]="!match.result.verified" severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil" 
+    <p-button [disabled]="!match.result.verified" severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil"
               (click)="openResultDialog(match)"></p-button>
     <p-button [disabled]="!match.result.verified" severity="danger" pTooltip="Valider résultat" icon="pi pi-check"
               (onClick)="confirmValidate(match)"></p-button>

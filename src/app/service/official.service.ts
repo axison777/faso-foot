@@ -4,6 +4,12 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Official } from '../models/official.model';
 
+interface AssignOfficialPayload {
+  official_id: string;
+  match_id: string;
+  role: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,9 +29,6 @@ export class OfficialService {
   }
 
   // Détails
-  /* getById(id: string): Observable<Official> {
-    return this.http.get<Official>(`${this.apiUrl}/show/${id}`);
-  } */
   getById(id: string): Observable<Official> {
     return this.http.get<Official>(`${this.apiUrl}/show/${id}`)
   }
@@ -44,4 +47,15 @@ export class OfficialService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
   }
+
+  // La liste des officiels désigné pour un match
+  getOfficialsofMatch(matchId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/matchOfficials/${matchId}`)
+  }
+
+  // Assigner un officiel à un match
+  assign(payload: AssignOfficialPayload): Observable<Official> {
+    return this.http.post<Official>(`${this.apiUrl}/assign`, payload);
+  }
+
 }
