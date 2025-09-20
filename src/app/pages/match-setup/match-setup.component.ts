@@ -9,15 +9,9 @@ import { Official } from '../../models/official.model';
 import { SelectModule } from 'primeng/select';
 import { TabViewModule } from 'primeng/tabview';
 
-type OfficialRole = 'MAIN_REFEREE' | 'ASSISTANT_1' | 'ASSISTANT_2' | 'COMMISSIONER';
-interface Assignment {
-  role: OfficialRole;
-  officialId?: string | null; // ✅ string
-}
-
 interface PlayerPoolItem {
-  id: string;               // ✅ string
-  teamId?: string;          // ✅ string
+  id: string;
+  teamId?: string;
   first_name: string;
   last_name: string;
   position: string;
@@ -59,6 +53,7 @@ export class MatchSetupComponent implements OnInit {
   isClosed = false;
   officials: Official[] = [];
   officialsofmatch: Official[] = [];
+  assignedTeams: any = null;
 
   selectedOfficialId: string | null = null;
   selectedRole: string | null = null;
@@ -202,7 +197,32 @@ export class MatchSetupComponent implements OnInit {
         });
       }
     });
+
+    this.callupService.getCallUpByMatch(this.matchId).subscribe({
+      next: (res: any) => {
+        this.assignedTeams = res?.data?.match_callups || null;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des listes assignées des équipes'
+        });
+      }
+    });
   }
+
+  getPlayerPhoto(p: any) {
+    return p?.player?.photo || 'assets/default-avatar.png';
+  }
+
+  getStarters(players: any[]) {
+  return players.filter(p => p.is_starter);
+}
+
+getSubstitutes(players: any[]) {
+  return players.filter(p => !p.is_starter);
+}
 
   assignOfficial() {
     if (!this.selectedOfficialId || !this.selectedRole) return;
@@ -231,43 +251,42 @@ export class MatchSetupComponent implements OnInit {
   }
 
   onPlayerToggle(side: 'home' | 'away', player: PlayerPoolItem, selected: boolean) {
-  const pool = side === 'home' ? this.homePlayersPool : this.awayPlayersPool;
-  const callup = side === 'home' ? this.homeCallup : this.awayCallup;
+    const pool = side === 'home' ? this.homePlayersPool : this.awayPlayersPool;
+    const callup = side === 'home' ? this.homeCallup : this.awayCallup;
 
-  // nombre de joueurs sélectionnés *hors* le joueur courant
-  const otherSelectedCount = pool.filter(p => p.selected && p.id !== player.id).length;
+    // nombre de joueurs sélectionnés *hors* le joueur courant
+    const otherSelectedCount = pool.filter(p => p.selected && p.id !== player.id).length;
 
-  if (selected) {
-    // nouvelle sélection
-    // nextOrder = nombre déjà sélectionnés hors courant + 1
-    const nextOrder = otherSelectedCount + 1;
-    player.selectionOrder = nextOrder;
-    player.selected = true; // synchronise le modèle si appelé depuis parent click
+    if (selected) {
+      // nouvelle sélection
+      // nextOrder = nombre déjà sélectionnés hors courant + 1
+      const nextOrder = otherSelectedCount + 1;
+      player.selectionOrder = nextOrder;
+      player.selected = true; // synchronise le modèle si appelé depuis parent click
 
-    if (!callup.players.some(tp => tp.playerId === player.id)) {
-      callup.players.push({
-        playerId: player.id,
-        jersey_number: player.jersey_number ?? null,
-        position: player.position as 'GOALKEEPER' | 'DEFENSE' | 'MIDFIELD' | 'ATTACK',
-        isStarter: (nextOrder <= 11),
-        substituteOrder: nextOrder > 11 ? (nextOrder - 11) : null
-      });
+      if (!callup.players.some(tp => tp.playerId === player.id)) {
+        callup.players.push({
+          playerId: player.id,
+          jersey_number: player.jersey_number ?? null,
+          position: player.position as 'GOALKEEPER' | 'DEFENSE' | 'MIDFIELD' | 'ATTACK',
+          isStarter: (nextOrder <= 11),
+          substituteOrder: nextOrder > 11 ? (nextOrder - 11) : null
+        });
+      } else {
+        const tp = callup.players.find(tp => tp.playerId === player.id)!;
+        tp.isStarter = nextOrder <= 11;
+        tp.substituteOrder = nextOrder > 11 ? (nextOrder - 11) : null;
+      }
     } else {
-      const tp = callup.players.find(tp => tp.playerId === player.id)!;
-      tp.isStarter = nextOrder <= 11;
-      tp.substituteOrder = nextOrder > 11 ? (nextOrder - 11) : null;
+      // désélection
+      // si appelé depuis checkbox ngModelChange, p.selected a déjà été mis à false par ngModel
+      // si appelé depuis parent click, on s'assure de mettre player.selected = false
+      player.selected = false;
+      callup.players = callup.players.filter(tp => tp.playerId !== player.id);
+      player.selectionOrder = null;
+      this.reorderAfterRemoval(pool, callup);
     }
-  } else {
-    // désélection
-    // si appelé depuis checkbox ngModelChange, p.selected a déjà été mis à false par ngModel
-    // si appelé depuis parent click, on s'assure de mettre player.selected = false
-    player.selected = false;
-    callup.players = callup.players.filter(tp => tp.playerId !== player.id);
-    player.selectionOrder = null;
-    this.reorderAfterRemoval(pool, callup);
   }
-}
-
 
   /** Cherche le jersey_number d'un joueur dans les pools (home/away) */
   private findPlayerNumberInPool(teamId: string, playerId: string): number | null {
@@ -411,10 +430,10 @@ export class MatchSetupComponent implements OnInit {
 
     this.callupService.createCallup(payload).subscribe({
       next: () => this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: "Composition enregistrée",
-        }),
+        severity: 'success',
+        summary: 'Succès',
+        detail: "Composition enregistrée",
+      }),
       error: (err) => {
         this.messageService.add({
           severity: 'error',

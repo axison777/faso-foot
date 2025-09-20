@@ -52,7 +52,12 @@ export class CallupService {
   }
 
   // Obtenir les joueurs disponibles pour une équipe donnée
-  getAvailablePlayers(teamId: number): Observable<any> {
+  getAvailablePlayers(teamId: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/available-players/${teamId}`);
+  }
+
+  // Obtenir laliste des joueurs déjà assigné d'un match
+  getCallUpByMatch(matchId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/match/${matchId}`)
   }
 }

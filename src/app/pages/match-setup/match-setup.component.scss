@@ -33,7 +33,7 @@
       align-items: center;
     }
 
-    
+
   }
 
   .card {
@@ -49,7 +49,7 @@
       font-size: 1.3rem;
       color: #1e293b;
     }
-    
+
     .summary {
       margin-top: 1.5rem;
 
@@ -90,25 +90,26 @@
         min-width: 220px;
       }
     }
-    .btn-info {
-    background-color: rgb(50, 145, 87);
-    color: #ffffff;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    white-space: nowrap;
-    min-width: 120px;
 
-    &:hover {
-      background-color: #0f7a32;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(18, 140, 61, 0.3);
+    .btn-info {
+      background-color: rgb(50, 145, 87);
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      white-space: nowrap;
+      min-width: 120px;
+
+      &:hover {
+        background-color: #0f7a32;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(18, 140, 61, 0.3);
+      }
     }
-  }
   }
 
   .teams {
@@ -327,35 +328,188 @@
   }
 
   /* rendre la carte cliquable */
-.match-setup .clickable {
-  cursor: pointer;
-  user-select: none;
-  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
-}
+  .match-setup .clickable {
+    cursor: pointer;
+    user-select: none;
+    transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+  }
 
-/* état focus clavier */
-.match-setup .clickable:focus {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(11,116,222,0.12);
-}
+  /* état focus clavier */
+  .match-setup .clickable:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(11, 116, 222, 0.12);
+  }
 
-/* style visible pour l'état sélectionné (fond + texte + ombre) */
-.match-setup .clickable.selected {
-  background: linear-gradient(180deg, rgba(16,185,129,0.06), #ffffff);
-  box-shadow: 0 10px 28px rgba(16,185,129,0.06);
-  transform: translateY(-4px);
-}
+  /* style visible pour l'état sélectionné (fond + texte + ombre) */
+  .match-setup .clickable.selected {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.06), #ffffff);
+    box-shadow: 0 10px 28px rgba(16, 185, 129, 0.06);
+    transform: translateY(-4px);
+  }
 
-/* si tu veux que le texte change légèrement quand sélectionné */
-.match-setup .clickable.selected .text-sm,
-.match-setup .clickable.selected .text-xs {
-  color: #0f172a;
-}
+  /* si tu veux que le texte change légèrement quand sélectionné */
+  .match-setup .clickable.selected .text-sm,
+  .match-setup .clickable.selected .text-xs {
+    color: #0f172a;
+  }
 
-/* garde la checkbox interactive (évite que toute la carte capture les clics) */
-.match-setup .clickable input[type="checkbox"] {
-  z-index: 10;
-}
+  /* garde la checkbox interactive (évite que toute la carte capture les clics) */
+  .match-setup .clickable input[type="checkbox"] {
+    z-index: 10;
+  }
 
+  /* Container global */
+  .teams-callup-container {
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color: #1f2937;
+    padding: 18px;
+  }
+
+  /* Card équipe */
+  .team-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 6px 18px rgba(20, 30, 40, 0.06);
+    margin-bottom: 22px;
+    border: 1px solid rgba(15, 23, 42, 0.04);
+  }
+
+  /* En-têtes */
+  .team-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 8px 0;
+    font-size: 1.15rem;
+  }
+
+  .team-card .team-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-left: auto;
+    /* si besoin pour aligner à droite */
+    box-shadow: 0 4px 10px rgba(16, 24, 40, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+
+  /* Infos coach / formation */
+  .team-card p {
+    margin: 4px 0;
+    color: #374151;
+    font-size: 0.95rem;
+  }
+
+  /* Titre des sections (Titulaires / Remplaçants) */
+  .team-card h4 {
+    margin-top: 12px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #0f172a;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Transforme la <ul> en grille responsive de cartes joueurs */
+  .team-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    /* chaque "tuile joueur" fait au moins 220px, s'étend si l'espace le permet */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  /* Style de chaque joueur (tuile) */
+  .team-card ul li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(245, 247, 250, 1), rgba(255, 255, 255, 1));
+    border: 1px solid rgba(15, 23, 42, 0.03);
+    box-shadow: 0 2px 6px rgba(10, 20, 30, 0.03);
+    font-size: 0.92rem;
+    color: #0f172a;
+    min-height: 56px;
+    align-items: center;
+  }
+
+  /* Photo du joueur (premier élément <img> dans le li) */
+  .team-card ul li>img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  /* Texte joueur : nom + position sur deux lignes si nécessaire */
+  .team-card ul li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+  }
+
+  /* Container texte (nom + position) */
+  .team-card ul li> :not(img):nth-child(2) {
+    /* ceci cible le texte qui suit l'image (le texte principal dans ton li) */
+    line-height: 1.05;
+    overflow: hidden;
+    white-space: normal;
+    text-overflow: ellipsis;
+    font-weight: 600;
+  }
+
+  /* Affichage compact du nom + position sur deux lignes : */
+  /* On garde la structure textuelle fournie, donc on améliore simplement l'apparence */
+  .team-card ul li> :not(img):nth-child(2)::after {
+    content: "";
+  }
+
+  /* Badge du numéro de maillot (dernier morceau du texte) */
+  .team-card ul li::after {
+    /* on ne modifie pas ton texte, mais on améliore la présentation du numéro si présent :
+     on masque l'ancien numéro déjà dans le texte ? Non — on ajoute un style visuel à droite.
+     Comme on ne peut pas extraire dynamiquement le # depuis le texte sans TS, on le laisse visible
+     et on ajoute un petit badge visuel à droite si l'information est possible ailleurs.
+     Ici on place un badge vide pour laisser l'espace ; si tu veux retirer le numéro du texte,
+     il faudrait adapter le template (TS/HTML). */
+    content: "";
+  }
+
+  /* Hover / focus */
+  .team-card ul li:hover {
+    transform: translateY(-3px);
+    transition: transform 140ms ease;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  }
+
+  /* Responsive : sur très petit écran, une colonne */
+  @media (max-width: 520px) {
+    .team-card ul {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Optionnel : distingue titulaires et remplaçants par un léger accent */
+  .team-card h4:contains("Titulaires")~ul,
+  .team-card h4:contains("Remplaçants")~ul {
+    /* :contains n'est pas un sélecteur CSS standard — si votre build supporte :has() ou JS, on pourrait pousser
+     l'accessoirisation. Laisser ceci en commentaire — impact nul si non supporté. */
+  }
+
+  /* Petite astuce pour rendre la ligne "Coach / Formation / Capitaine" plus compacte */
+  .team-card p strong {
+    color: #111827;
+    font-weight: 700;
+  }
 
 }
