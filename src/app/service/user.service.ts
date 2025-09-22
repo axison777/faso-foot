@@ -87,6 +87,18 @@ export class UserService {
     return this.http.post<ApiResponse<string>>(this.apiUrl, user);
   }
 
+  // Activation de compte via invitation
+  confirmInvitation(payload: { token: string; password: string; password_confirmation: string }): Observable<ApiResponse<string>> {
+    const url = environment.apiUrl + '/users/users/confirm-invitation';
+    return this.http.post<ApiResponse<string>>(url, payload);
+  }
+
+  // Renvoyer le lien d'invitation
+  resendInvitation(payload: { email: string }): Observable<ApiResponse<string>> {
+    const url = environment.apiUrl + '/users/users/invitation/resend';
+    return this.http.post<ApiResponse<string>>(url, payload);
+  }
+
   // Supprimer un utilisateur par son slug
   delete(slug: string): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${slug}`);

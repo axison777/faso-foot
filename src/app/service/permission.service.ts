@@ -1,8 +1,8 @@
 // src/app/service/permission.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { Permission } from '../models/role.model'; // On réutilise le modèle partagé
 
@@ -49,8 +49,32 @@ export class PermissionService {
    * Récupère la liste paginée de toutes les permissions.
    * Le retour est typé avec la structure exacte de la réponse de l'API.
    */
-  getAll(): Observable<PaginatedPermissionsResponse> {
-    return this.http.get<PaginatedPermissionsResponse>(this.apiUrl );
+  getAll(page: number = 1, perPage: number = 100): Observable<PaginatedPermissionsResponse> {
+    const params = new HttpParams().set('page', String(page)).set('per_page', String(perPage));
+    return this.http.get<PaginatedPermissionsResponse>(this.apiUrl, { params });
+  }
+
+  /**
+   * Récupère toutes les permissions en agrégeant toutes les pages.
+   */
+  getAllPages(perPage: number = 100): Observable<Permission[]> {
+    return this.getAll(1, perPage).pipe(
+      switchMap((first) => {
+        const firstData = (first?.data as any[]) || [];
+        const lastPage = Number((first as any)?.meta?.last_page) || 1;
+        if (lastPage <= 1) return of(firstData as Permission[]);
+        const requests: Observable<PaginatedPermissionsResponse>[] = [];
+        for (let p = 2; p <= lastPage; p++) {
+          requests.push(this.getAll(p, perPage));
+        }
+        return forkJoin(requests).pipe(
+          map((pages) => {
+            const rest = pages.flatMap((res) => ((res?.data as any[]) || []));
+            return [...firstData, ...rest] as Permission[];
+          })
+        );
+      })
+    );
   }
 
   /**

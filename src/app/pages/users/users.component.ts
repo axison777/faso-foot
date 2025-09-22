@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../service/user.service';
+import { RoleService } from '../../service/role.service';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -40,7 +41,7 @@ interface Role {
     ReactiveFormsModule,
     InputSwitchModule
   ],
-  providers: [MessageService, ConfirmationService]
+  providers: [MessageService, ConfirmationService, RoleService]
 })
 export class UsersComponent implements OnInit {
   users: User[] = [];
@@ -67,6 +68,7 @@ export class UsersComponent implements OnInit {
 
   constructor(
     private userService: UserService,
+    private roleService: RoleService,
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
@@ -89,42 +91,20 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  // Charger les rôles depuis le backend
+  // Charger les rôles depuis le backend (via RoleService, liste paginée)
   loadRoles(): void {
     this.loadingRoles = true;
-    this.userService.getRoles().subscribe({
+    this.roleService.getAll().subscribe({
       next: (response) => {
-        console.log('Réponse rôles du backend:', response);
-        if (response.status && response.data) {
-          // Adapter les rôles selon la structure retournée par votre API
-          this.availableRoles = Array.isArray(response.data) 
-            ? response.data.map((role: Role) => ({
-                name: role.name,
-                value: role.slug || role.id // Utiliser slug ou id selon votre API
-              }))
-            : [];
-          console.log('Rôles disponibles adaptés:', this.availableRoles);
-        } else {
-          // Rôles par défaut si l'API n'est pas disponible
-          this.availableRoles = [
-            { name: 'Administrateur', value: 'admin' },
-            { name: 'Manager', value: 'manager' },
-            { name: 'Utilisateur', value: 'user' }
-          ];
-          console.log('Utilisation des rôles par défaut');
-        }
+        console.log('Réponse rôles (paginated):', response);
+        const raw = Array.isArray((response as any)?.data) ? (response as any).data : [];
+        this.availableRoles = raw.map((role: any) => ({ name: role.name, value: role.slug }));
         this.loadingRoles = false;
       },
       error: (error) => {
         console.error('Erreur lors du chargement des rôles:', error);
-        // Utiliser des rôles par défaut en cas d'erreur
-        this.availableRoles = [
-          { name: 'Administrateur', value: 'admin' },
-          { name: 'Manager', value: 'manager' },
-          { name: 'Utilisateur', value: 'user' }
-        ];
+        this.availableRoles = [];
         this.loadingRoles = false;
-        console.log('Rôles par défaut chargés après erreur');
       }
     });
   }

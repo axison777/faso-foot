@@ -51,6 +51,10 @@ export class RolesComponent implements OnInit {
   currentRole: Role | null = null;
   roleForm!: FormGroup;
 
+  permissionsAdmin: Permission[] = [];
+  permissionsMatch: Permission[] = [];
+  permissionsOther: Permission[] = [];
+
   constructor(
     private fb: FormBuilder,
     private roleService: RoleService,
@@ -83,13 +87,18 @@ export class RolesComponent implements OnInit {
   async loadInitialData(): Promise<void> {
     this.loading = true;
     try {
-      const [permissionsRes, rolesRes] = await Promise.all([
-        firstValueFrom(this.permissionService.getAll()),
+      const [permissionsList, rolesRes] = await Promise.all([
+        firstValueFrom(this.permissionService.getAllPages(100)),
         firstValueFrom(this.roleService.getAll())
       ]);
 
       // Traitement des permissions
-      this.allPermissions = (permissionsRes as any)?.data ?? [];
+      this.allPermissions = (permissionsList as any[]) ?? [];
+      // Regrouper et trier
+      const byName = (a: Permission, b: Permission) => a.name.localeCompare(b.name);
+      this.permissionsAdmin = this.allPermissions.filter(p => this.getPermissionCategory(p.slug) === 'Administration').sort(byName);
+      this.permissionsMatch = this.allPermissions.filter(p => this.getPermissionCategory(p.slug) === 'Match & Clubs').sort(byName);
+      this.permissionsOther = this.allPermissions.filter(p => this.getPermissionCategory(p.slug) === 'Autres').sort(byName);
       
       // Traitement des rôles
       this.roles = ((rolesRes as PaginatedRolesResponse)?.data ?? []).map((role: any) => ({
@@ -337,6 +346,21 @@ export class RolesComponent implements OnInit {
     );
     
     return permissionNames.join(', ');
+  }
+
+  // Catégories de permissions (heuristique par slug)
+  getPermissionCategory(slug: string): string {
+    const s = slug.toLowerCase();
+    if (s.includes('admin') || s.includes('param')) return 'Administration';
+    if (s.includes('match') || s.includes('club') || s.includes('team')) return 'Match & Clubs';
+    return 'Autres';
+  }
+
+  getPermissionBadgeClass(slug: string): string {
+    const s = slug.toLowerCase();
+    if (s.includes('admin') || s.includes('param')) return 'badge-red';
+    if (s.includes('match') || s.includes('club') || s.includes('team')) return 'badge-green';
+    return 'badge-gray';
   }
 
   // --- Gestion des toggles de permissions dans le formulaire ---

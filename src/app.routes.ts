@@ -28,6 +28,8 @@ import { RolesComponent } from './app/pages/roles/roles.component';
 
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
+    { path: 'activation-compte', loadComponent: () => import('./app/pages/activation-compte/activation-compte.component').then(m => m.ActivationCompteComponent) },
+    { path: 'lien-expire', loadComponent: () => import('./app/pages/lien-expire/lien-expire.component').then(m => m.LienExpireComponent) },
     {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
     {
         path: '',

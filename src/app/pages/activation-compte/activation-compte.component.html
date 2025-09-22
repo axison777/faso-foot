@@ -1,0 +1,62 @@
+<p-toast></p-toast>
+<div class="login-container">
+  <section class="login-section">
+    <!-- Left side (logos) -->
+    <div class="logo-side">
+      <div class="logo-content">
+        <div class="logo-header">
+          <div class="flex items-center gap-4 justify-center logo-wrapper">
+            <div class="logo-item">
+              <img src="assets/images/Logo-FBF.png" alt="Logo FBF" class="logo-image" />
+              <span class="app-title">FÉDÉRATION BURKINABÈ DE FOOTBALL</span>
+            </div>
+            <div class="logo-divider"></div>
+            <div class="logo-item">
+              <img src="assets/images/lfp.png" alt="Logo LFP" class="logo-image" />
+              <p class="app-description">LIGUE DE FOOTBALL PROFESSIONNEL</p>
+            </div>
+          </div>
+          <div class="logo-title">Activez votre compte pour accéder à la plateforme.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side (form) -->
+    <div class="form-side">
+      <div class="form-container card">
+        <h4 class="form-title">Activation du compte</h4>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <!-- Password -->
+          <div class="mb-4">
+            <label class="block font-bold mb-2">Mot de passe</label>
+            <p-iconfield>
+              <p-inputicon class="pi pi-lock" />
+              <input pInputText type="password" formControlName="password" placeholder="Mot de passe" class="w-full" />
+            </p-iconfield>
+            <div class="text-red-500 text-sm mt-1" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
+              <span *ngIf="form.get('password')?.errors?.['required']">Le mot de passe est requis.</span>
+              <span *ngIf="form.get('password')?.errors?.['minlength']">6 caractères minimum.</span>
+            </div>
+          </div>
+          <!-- Confirm Password -->
+          <div class="mb-4">
+            <label class="block font-bold mb-2">Confirmation</label>
+            <p-iconfield>
+              <p-inputicon class="pi pi-lock" />
+              <input pInputText type="password" formControlName="password_confirmation" placeholder="Confirmez le mot de passe" class="w-full" />
+            </p-iconfield>
+            <div class="text-red-500 text-sm mt-1" *ngIf="form.get('password_confirmation')?.touched && form.get('password_confirmation')?.invalid">
+              <span>La confirmation est requise.</span>
+            </div>
+          </div>
+
+          <button type="submit" [disabled]="loading() || form.invalid" class="login-button">
+            <span *ngIf="loading()" class="loading-spinner"></span>
+            <span *ngIf="!loading()">Valider</span>
+            <span *ngIf="loading()">Activation en cours...</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
