@@ -11,6 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { User } from '../../models/user.model';
 
 // Interface pour les rôles récupérés du backend
@@ -36,7 +37,8 @@ interface Role {
     ToastModule,
     SelectModule,
     MultiSelectModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    InputSwitchModule
   ],
   providers: [MessageService, ConfirmationService]
 })
@@ -50,6 +52,8 @@ export class UsersComponent implements OnInit {
   showForm: boolean = false;
   isEditing: boolean = false;
   editingUserSlug?: string | null = null;
+  showDetails: boolean = false;
+  currentUser: User | null = null;
   userForm!: FormGroup;
   
   // Rôles chargés depuis le backend
@@ -187,6 +191,25 @@ export class UsersComponent implements OnInit {
     }
   }
 
+  openCreate(): void {
+    this.isEditing = false;
+    this.editingUserSlug = null;
+    this.resetForm();
+    this.showForm = true;
+  }
+
+  openEdit(user: User): void {
+    this.isEditing = true;
+    this.editingUserSlug = user.slug || null;
+    this.userForm.reset({
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+      email: user.email || '',
+      roles: (user.roles || []).map(r => typeof r === 'object' ? (r as any).slug || (r as any).id : r)
+    });
+    this.showForm = true;
+  }
+
   resetForm(): void {
     this.userForm.reset();
     this.userForm.patchValue({
@@ -302,7 +325,11 @@ export class UsersComponent implements OnInit {
         });
       };
 
-      this.userService.create(userPayload).subscribe({
+      const request$ = this.isEditing && this.editingUserSlug
+        ? this.userService.update(this.editingUserSlug, userPayload)
+        : this.userService.create(userPayload);
+
+      request$.subscribe({
         next: onSuccess,
         error: onError
       });
@@ -321,41 +348,22 @@ export class UsersComponent implements OnInit {
     }
   }
 
-  // Méthode pour voir les détails d'un utilisateur
+  // Détails utilisateur (ouverture modal)
   viewUser(user: User): void {
-    if (!user.slug) return;
-    
-    console.log('Récupération des détails pour:', user.slug);
-    this.userService.getBySlug(user.slug).subscribe({
-      next: (response) => {
-        console.log('Réponse détails utilisateur:', response);
-        if (response.status && response.data) {
-          const userData = response.data;
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Détails utilisateur',
-            detail: `${userData.first_name || 'N/A'} ${userData.last_name || 'N/A'}`,
-            life: 3000
-          });
-        } else {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Attention',
-            detail: 'Aucune donnée utilisateur disponible',
-            life: 3000
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Erreur lors de la récupération des détails:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Impossible de récupérer les détails de l\'utilisateur',
-          life: 3000
-        });
-      }
-    });
+    this.currentUser = user;
+    this.showDetails = true;
+  }
+
+  closeDetails(): void {
+    this.showDetails = false;
+    this.currentUser = null;
+  }
+
+  editFromDetails(): void {
+    if (this.currentUser) {
+      this.openEdit(this.currentUser);
+      this.closeDetails();
+    }
   }
 
   deleteUser(slug?: string): void {
@@ -375,6 +383,8 @@ export class UsersComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Oui',
       rejectLabel: 'Non',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
       accept: () => {
         this.userService.delete(slug).subscribe({
           next: (response) => {
@@ -456,5 +466,22 @@ export class UsersComponent implements OnInit {
       if (roleValue.toLowerCase().includes('manager')) return 'role-manager';
     }
     return 'role-user';
+  }
+
+  // Gestion du toggle des rôles dans le formulaire
+  onToggleRole(value: string, checked: boolean): void {
+    const control = this.userForm.get('roles');
+    if (!control) return;
+
+    const current: string[] = (control.value || []) as string[];
+    const exists = current.includes(value);
+
+    if (checked && !exists) {
+      control.setValue([...current, value]);
+    } else if (!checked && exists) {
+      control.setValue(current.filter(v => v !== value));
+    }
+    control.markAsDirty();
+    control.markAsTouched();
   }
 }

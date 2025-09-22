@@ -74,12 +74,13 @@
             [modal]="true" 
             [draggable]="false" 
             [closable]="false"
-            [style]="{ width: '600px', height: 'auto' }"  
+            [style]="{ width: '900px', height: 'auto' }"  
             [header]="isEditing ? 'Modifier le rôle' : 'Ajouter un rôle'">
     
     <form [formGroup]="roleForm" class="role-form" (ngSubmit)="saveRole()">
-      <div class="grid">
-        <div class="col-12">
+      <div class="grid two-cols">
+        <!-- Colonne gauche: Nom du rôle -->
+        <div class="col left-col">
           <label>Nom du rôle <span class="req">*</span></label>
           <input pInputText 
                  formControlName="name" 
@@ -91,39 +92,30 @@
           </small>
         </div>
 
-        <div class="col-12">
+        <!-- Colonne droite: Permissions avec toggle -->
+        <div class="col right-col">
           <label>Permissions <span class="req">*</span></label>
-          <div class="custom-multiselect">
-            <p-multiSelect id="permissions" 
-                           [options]="allPermissions" 
-                           formControlName="permissions"
-                           optionLabel="name" 
-                           optionValue="slug" 
-                           placeholder="Sélectionner les permissions"
-                           display="chip"
-                           [showToggleAll]="true"
-                           [filter]="true"
-                           filterPlaceHolder="Rechercher une permission"
-                           [style]="{width: '100%'}"
-                           [panelStyle]="{maxHeight: '300px', overflowY: 'auto'}"
-                           [virtualScroll]="false"
-                           [appendTo]="'body'"
-                           styleClass="permissions-dropdown">
-              
-              <!-- Template pour les options -->
-              <ng-template let-option pTemplate="item">
-                <div class="permission-item">
-                  <span>{{ option.name }}</span>
-                  <small class="permission-slug">{{ option.slug }}</small>
-                </div>
-              </ng-template>
-            </p-multiSelect>
-            
-            <small class="error-message" 
-                   *ngIf="roleForm.get('permissions')?.invalid && roleForm.get('permissions')?.touched">
-              Au moins une permission doit être sélectionnée
-            </small>
+          <div class="permissions-list-switch" *ngIf="allPermissions?.length; else noPerms">
+            <div class="permission-row" *ngFor="let p of allPermissions; trackBy: trackPermission">
+              <div class="info">
+                <div class="name">{{ p.name }}</div>
+                <div class="slug">{{ p.slug }}</div>
+              </div>
+              <p-inputSwitch 
+                [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
+                [ngModelOptions]="{standalone: true}"
+                (onChange)="togglePermission(p.slug, $event.checked)"
+                [disabled]="isSubmitting">
+              </p-inputSwitch>
+            </div>
           </div>
+          <ng-template #noPerms>
+            <p class="empty">Aucune permission disponible</p>
+          </ng-template>
+          <small class="error-message" 
+                 *ngIf="roleForm.get('permissions')?.invalid && roleForm.get('permissions')?.touched">
+            Au moins une permission doit être sélectionnée
+          </small>
         </div>
       </div>
 
@@ -197,17 +189,21 @@
     </div>
 
     <ng-template pTemplate="footer">
-      <div class="dialog-footer">
-        <button class="btn btn-secondary" 
-                type="button" 
-                (click)="closeDetails()">
-          Fermer
-        </button>
-        <button class="btn btn-info" 
-                type="button" 
-                (click)="editFromDetails()">
-          Modifier
-        </button>
+      <div class="dialog-footer spaced">
+        <div class="left">
+          <button class="btn btn-secondary" 
+                  type="button" 
+                  (click)="closeDetails()">
+            Fermer
+          </button>
+        </div>
+        <div class="right">
+          <button class="btn btn-warning" 
+                  type="button" 
+                  (click)="editFromDetails()">
+            Modifier
+          </button>
+        </div>
       </div>
     </ng-template>
   </p-dialog>
