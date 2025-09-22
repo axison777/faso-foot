@@ -334,7 +334,7 @@ export class UsersComponent implements OnInit {
           this.messageService.add({
             severity: 'info',
             summary: 'Détails utilisateur',
-            detail: `${userData.first_name || 'N/A'} ${userData.last_name || 'N/A'}`,
+            detail: `${userData.first_name || 'user'} ${userData.last_name || 'user'}`,
             life: 3000
           });
         } else {
