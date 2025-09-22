@@ -11,6 +11,7 @@ import { TabViewModule } from 'primeng/tabview';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { Checkbox } from "primeng/checkbox";
+import { ToastModule } from 'primeng/toast';
 
 interface PlayerPoolItem {
   id: string;
@@ -45,7 +46,7 @@ interface TeamSetup {
 @Component({
   selector: 'app-match-setup',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectModule, TabViewModule, ButtonModule, DialogModule, Checkbox],
+  imports: [CommonModule, FormsModule, SelectModule, TabViewModule, ButtonModule, DialogModule, Checkbox, ToastModule],
   templateUrl: './match-setup.component.html',
   styleUrls: ['./match-setup.component.scss']
 })
