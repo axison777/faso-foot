@@ -1,7 +1,7 @@
 // src/app/pages/roles/roles.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { firstValueFrom, Observable } from 'rxjs';
 
 // PrimeNG Modules
@@ -16,6 +16,7 @@ import { SidebarModule } from 'primeng/sidebar';
 import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
+import { InputSwitchModule } from 'primeng/inputswitch';
 
 // Services & Models
 import { RoleService, PaginatedRolesResponse, SingleRoleResponse } from '../../service/role.service';
@@ -29,9 +30,9 @@ import { ConfirmationService, MessageService } from 'primeng/api';
   templateUrl: './roles.component.html',
   styleUrls: ['./roles.component.scss'],
   imports: [
-    CommonModule, ReactiveFormsModule, TableModule, DialogModule, ButtonModule,
+    CommonModule, ReactiveFormsModule, FormsModule, TableModule, DialogModule, ButtonModule,
     InputTextModule, ConfirmDialogModule, ToastModule, MultiSelectModule,
-    SidebarModule, TooltipModule, CardModule, TagModule
+    SidebarModule, TooltipModule, CardModule, TagModule, InputSwitchModule
   ],
   providers: [MessageService, ConfirmationService, RoleService, PermissionService]
 })
@@ -245,32 +246,34 @@ export class RolesComponent implements OnInit {
     }
 
     this.confirmationService.confirm({
-      message: `Êtes-vous sûr de vouloir supprimer le rôle "${role.name}" ?`,
-      header: 'Confirmation de suppression',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Oui, supprimer',
-      rejectLabel: 'Annuler',
-      accept: async () => {
-        try {
-          await firstValueFrom(this.roleService.delete(role.slug!));
-          
-          this.messageService.add({ 
-            severity: 'success', 
-            summary: 'Supprimé', 
-            detail: `Rôle "${role.name}" supprimé avec succès.` 
-          });
-          
-          // Mise à jour locale de la liste
-          this.roles = this.roles.filter(r => r.slug !== role.slug);
-          
-        } catch (error: any) {
-          console.error('Erreur lors de la suppression:', error);
-          
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Erreur', 
-            detail: error?.error?.message || 'La suppression a échoué.' 
-          });
+    message: `Êtes-vous sûr de vouloir supprimer le rôle "${role.name}" ?`,
+    header: 'Confirmation de suppression',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Oui, supprimer',
+    rejectLabel: 'Annuler',
+    acceptButtonStyleClass: 'p-button-danger',
+    rejectButtonStyleClass: 'p-button-secondary',
+    accept: async () => {
+    try {
+    await firstValueFrom(this.roleService.delete(role.slug!));
+    
+    this.messageService.add({ 
+    severity: 'success', 
+      summary: 'Supprimé', 
+      detail: `Rôle "${role.name}" supprimé avec succès.` 
+    });
+    
+    // Mise à jour locale de la liste
+      this.roles = this.roles.filter(r => r.slug !== role.slug);
+    
+    } catch (error: any) {
+    console.error('Erreur lors de la suppression:', error);
+    
+    this.messageService.add({ 
+    severity: 'error', 
+      summary: 'Erreur', 
+        detail: error?.error?.message || 'La suppression a échoué.' 
+        });
         }
       }
     });
@@ -334,6 +337,23 @@ export class RolesComponent implements OnInit {
     );
     
     return permissionNames.join(', ');
+  }
+
+  // --- Gestion des toggles de permissions dans le formulaire ---
+  togglePermission(slug: string, checked: boolean): void {
+    const control = this.roleForm.get('permissions');
+    if (!control) return;
+
+    const current: string[] = (control.value || []) as string[];
+    const exists = current.includes(slug);
+
+    if (checked && !exists) {
+      control.setValue([...current, slug]);
+    } else if (!checked && exists) {
+      control.setValue(current.filter(s => s !== slug));
+    }
+    control.markAsDirty();
+    control.markAsTouched();
   }
 
   // Méthodes trackBy pour optimiser les performances

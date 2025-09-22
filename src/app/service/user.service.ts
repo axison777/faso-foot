@@ -91,4 +91,9 @@ export class UserService {
   delete(slug: string): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${slug}`);
   }
+
+  // Mettre à jour un utilisateur par son slug
+  update(slug: string, user: CreateUserRequest): Observable<ApiResponse<string>> {
+    return this.http.put<ApiResponse<string>>(`${this.apiUrl}/${slug}`, user);
+  }
 }

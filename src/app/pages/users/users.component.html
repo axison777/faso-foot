@@ -6,7 +6,7 @@
   <div class="header">
      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <h1>Utilisateurs</h1>
-    <button class="btn-primary" (click)="toggleForm()">
+    <button class="btn-primary" (click)="openCreate()">
       <i class="pi pi-plus-circle mr-2"></i> Ajouter un utilisateur
     </button>
   </div>
@@ -15,72 +15,120 @@
   <p-dialog
     [draggable]="false"
     [(visible)]="showForm"
-    [style]="{ width: '500px' }"
-    header="Ajouter un nouvel utilisateur"
+    [style]="{ width: '900px' }"
+    [header]="isEditing ? 'Modifier l\'utilisateur' : 'Ajouter un nouvel utilisateur'"
     [modal]="true"
     [closable]="false"
   >
-    <form [formGroup]="userForm" (ngSubmit)="saveUser()" class="flex flex-col gap-5">
-      <div>
-        <label class="block font-bold mb-2">Prénom <span class="text-red-500">*</span></label>
-        <input pInputText type="text" formControlName="first_name" placeholder="Prénom" class="w-full" />
-        <small class="text-red-500" *ngIf="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
-          <span *ngIf="userForm.get('first_name')?.errors?.['required']">Le prénom est requis</span>
-          <span *ngIf="userForm.get('first_name')?.errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</span>
-        </small>
+    <form [formGroup]="userForm" (ngSubmit)="saveUser()" class="user-form-grid">
+      <!-- Colonne gauche: informations -->
+      <div class="left-col">
+        <div class="form-group">
+          <label class="block font-bold mb-2">Prénom <span class="text-red-500">*</span></label>
+          <input pInputText type="text" formControlName="first_name" placeholder="Prénom" class="w-full" />
+          <small class="text-red-500" *ngIf="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
+            <span *ngIf="userForm.get('first_name')?.errors?.['required']">Le prénom est requis</span>
+            <span *ngIf="userForm.get('first_name')?.errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</span>
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
+          <input pInputText type="text" formControlName="last_name" placeholder="Nom" class="w-full" />
+          <small class="text-red-500" *ngIf="userForm.get('last_name')?.invalid && userForm.get('last_name')?.touched">
+            <span *ngIf="userForm.get('last_name')?.errors?.['required']">Le nom est requis</span>
+            <span *ngIf="userForm.get('last_name')?.errors?.['minlength']">Le nom doit contenir au moins 2 caractères</span>
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="block font-bold mb-2">Email <span class="text-red-500">*</span></label>
+          <input pInputText type="email" formControlName="email" placeholder="Email" class="w-full" />
+          <small class="text-red-500" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+            <span *ngIf="userForm.get('email')?.errors?.['required']">L'email est requis</span>
+            <span *ngIf="userForm.get('email')?.errors?.['email']">Format d'email invalide</span>
+          </small>
+        </div>
       </div>
 
-      <div>
-        <label class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
-        <input pInputText type="text" formControlName="last_name" placeholder="Nom" class="w-full" />
-        <small class="text-red-500" *ngIf="userForm.get('last_name')?.invalid && userForm.get('last_name')?.touched">
-          <span *ngIf="userForm.get('last_name')?.errors?.['required']">Le nom est requis</span>
-          <span *ngIf="userForm.get('last_name')?.errors?.['minlength']">Le nom doit contenir au moins 2 caractères</span>
-        </small>
-      </div>
-
-      <div>
-        <label class="block font-bold mb-2">Email <span class="text-red-500">*</span></label>
-        <input pInputText type="email" formControlName="email" placeholder="Email" class="w-full" />
-        <small class="text-red-500" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
-          <span *ngIf="userForm.get('email')?.errors?.['required']">L'email est requis</span>
-          <span *ngIf="userForm.get('email')?.errors?.['email']">Format d'email invalide</span>
-        </small>
-      </div>
-
-      <div>
+      <!-- Colonne droite: rôles avec toggle -->
+      <div class="right-col">
         <label class="block font-bold mb-2">Rôles <span class="text-red-500">*</span></label>
-        <div *ngIf="loadingRoles" class="text-center">
+        <div *ngIf="loadingRoles" class="text-center py-3">
           <i class="pi pi-spin pi-spinner"></i> Chargement des rôles...
         </div>
-        <p-multiSelect
-          *ngIf="!loadingRoles"
-          [options]="availableRoles"
-          formControlName="roles"
-          optionLabel="name"
-          optionValue="value"
-          placeholder="Sélectionnez un ou plusieurs rôles"
-          class="w-full"
-          appendTo="body"
-          [showToggleAll]="false"
-          [maxSelectedLabels]="3"
-          selectedItemsLabel="{0} rôles sélectionnés"
-        ></p-multiSelect>
+        <div class="roles-list-switch" *ngIf="!loadingRoles && availableRoles?.length; else noRoles">
+          <div class="role-row" *ngFor="let r of availableRoles">
+            <div class="info">
+              <div class="name">{{ r.name }}</div>
+              <div class="slug">{{ r.value }}</div>
+            </div>
+            <p-inputSwitch
+              [ngModel]="(userForm.get('roles')?.value || []).includes(r.value)"
+              [ngModelOptions]="{standalone: true}"
+              (onChange)="onToggleRole(r.value, $event.checked)"
+            ></p-inputSwitch>
+          </div>
+        </div>
+        <ng-template #noRoles>
+          <p class="text-sm text-gray-500">Aucun rôle disponible</p>
+        </ng-template>
         <small class="text-red-500" *ngIf="userForm.get('roles')?.invalid && userForm.get('roles')?.touched">
           Au moins un rôle est requis
         </small>
       </div>
 
-      <div class="flex justify-end gap-2">
-        <p-button label="Annuler" icon="pi pi-times" severity="secondary" (click)="toggleForm()" />
-        <p-button 
-          label="Enregistrer" 
-          icon="pi pi-check" 
-          type="submit" 
-          [disabled]="userForm.invalid"
-        />
+      <div class="form-actions">
+        <div class="left">
+          <p-button label="Annuler" icon="pi pi-times" severity="secondary" (click)="toggleForm()" />
+        </div>
+        <div class="right">
+          <p-button 
+            [label]="isEditing ? 'Modifier' : 'Enregistrer'" 
+            icon="pi pi-check" 
+            type="submit" 
+            [disabled]="userForm.invalid"
+          />
+        </div>
       </div>
     </form>
+  </p-dialog>
+
+  <!-- Détails utilisateur -->
+  <p-dialog [(visible)]="showDetails" [modal]="true" [draggable]="false" [style]="{ width: '680px' }"
+            [header]="currentUser ? (currentUser.first_name + ' ' + currentUser.last_name) : 'Détails utilisateur'">
+    <div *ngIf="currentUser" class="user-details-grid">
+      <div class="left">
+        <div class="avatar-large">
+          <span>{{ (currentUser.first_name || 'U').charAt(0) }}</span>
+        </div>
+        <div class="summary">
+          <h2>{{ currentUser.first_name }} {{ currentUser.last_name }}</h2>
+          <p class="muted">{{ currentUser.email }}</p>
+        </div>
+      </div>
+      <div class="right">
+        <section>
+          <h3>Rôles</h3>
+          <ul class="roles-list">
+            <li *ngFor="let role of currentUser.roles">
+              {{ getRoleLabel(role) }}
+            </li>
+          </ul>
+          <p *ngIf="!currentUser.roles || currentUser.roles.length === 0" class="empty">Aucun rôle attribué</p>
+        </section>
+      </div>
+    </div>
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer spaced">
+        <div class="left">
+          <button class="btn btn-secondary" type="button" (click)="closeDetails()">Fermer</button>
+        </div>
+        <div class="right">
+          <button class="btn btn-warning" type="button" (click)="editFromDetails()">Modifier</button>
+        </div>
+      </div>
+    </ng-template>
   </p-dialog>
 
   <!-- Search -->
