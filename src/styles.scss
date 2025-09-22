@@ -186,18 +186,21 @@ body {
 }
 
 .p-button.p-button-contrast {
-  background-color: #333333 !important; /* Gris foncé */
+  background-color: #475569 !important; /* Gris foncé */
   color: #ffffff !important;
-  border-color: #333333 !important;
+  border-color: #475569 !important;
 }
 
 /* Styles pour l'état survolé (hover) */
 .p-button.p-button-contrast:hover {
-  background-color: #444444 !important; /* Un peu plus clair au survol */
-  border-color: #444444 !important;
+  background-color: #334155 !important; /* Un peu plus clair au survol */
+  border-color: #334155 !important;
 }
 
 /* Styles pour l'état de focus */
 .p-button.p-button-contrast:focus {
   box-shadow: 0 0 0 0.2rem rgba(51, 51, 51, 0.5) !important;
 }
+
+
+  

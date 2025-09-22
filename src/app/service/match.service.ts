@@ -25,8 +25,8 @@ export class MatchService {
       return this.http.get<any[]>(this.apiUrl+"/"+id);
     }
 
-    validate(id : string, data: any): Observable<any[]> {
-      return this.http.put<any[]>(environment.apiUrl+`/match-results/${id}/verification/verify`,data);
+    validate(id : string): Observable<any[]> {
+      return this.http.post<any[]>(environment.apiUrl+`/match-results/${id}/verification/verify`,{id:id});
     }
 
     getPlayers(id : string): Observable<any[]> {

@@ -400,8 +400,16 @@ confirmValidate(match: any) {
     message: `Valider le résultat du match ${match.team1} vs ${match.team2} ?`,
     header: 'Confirmation',
     accept: () => {
-      match.validated = true;
-      this.messageService.add({ severity: 'success', summary: 'Résultat validé' });
+         this.matchService.validate(match.result.id).subscribe({
+           next: () => {
+             this.messageService.add({ severity: 'success', summary: 'Résultat validé' });
+             this.loadSeason();
+           },
+           error: () => {
+             this.messageService.add({ severity: 'error', summary: 'Erreur lors de la validation' });
+           },
+         })
+
     }
   });
 }

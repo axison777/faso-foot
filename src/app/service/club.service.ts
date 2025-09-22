@@ -31,7 +31,7 @@ export class ClubService {
   }
 
   delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
   }
 
   suspend(id?: string, data?:any): Observable<void> {

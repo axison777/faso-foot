@@ -8,6 +8,9 @@ import { MessageService } from 'primeng/api';
 import { Official } from '../../models/official.model';
 import { SelectModule } from 'primeng/select';
 import { TabViewModule } from 'primeng/tabview';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { Checkbox } from "primeng/checkbox";
 
 interface PlayerPoolItem {
   id: string;
@@ -19,6 +22,8 @@ interface PlayerPoolItem {
   photo_url?: string;
   selectionOrder?: number | null;
   jersey_number?: number | null;
+  is_starter?: boolean;
+  role?: string;
 }
 
 interface TeamPlayerSelection {
@@ -40,7 +45,7 @@ interface TeamSetup {
 @Component({
   selector: 'app-match-setup',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectModule, TabViewModule],
+  imports: [CommonModule, FormsModule, SelectModule, TabViewModule, ButtonModule, DialogModule, Checkbox],
   templateUrl: './match-setup.component.html',
   styleUrls: ['./match-setup.component.scss']
 })
@@ -85,6 +90,10 @@ export class MatchSetupComponent implements OnInit {
 
   homeCoaches: { id: string; name: string }[] = []; // ✅ string
   awayCoaches: { id: string; name: string }[] = []; // ✅ string
+
+    showHomeForm = false;
+  showAwayForm = false;
+
 
   constructor(
     private router: Router,
@@ -394,7 +403,7 @@ getSubstitutes(players: any[]) {
     };
   }
 
-  saveCallup(teamKey: 'home' | 'away') {
+/*   saveCallup(teamKey: 'home' | 'away') {
     const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
 
     if (!team.teamId) {
@@ -442,6 +451,203 @@ getSubstitutes(players: any[]) {
         });
       }
     });
+  } */
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+   // --- nouvel open/close des formulaires (par équipe) ---
+  toggleHomeForm() {
+    this.showHomeForm = !this.showHomeForm;
+    if (this.showHomeForm) {
+      // si on ouvre, préremplir si des données existent
+      this.prefillTeamFromAssigned('home');
+    } else {
+      // si on ferme sans sauvegarder, restaurer l'état (selon assignedTeams)
+      this.restoreSelectionFromAssigned('home');
+    }
   }
+
+  toggleAwayForm() {
+    this.showAwayForm = !this.showAwayForm;
+    if (this.showAwayForm) {
+      this.prefillTeamFromAssigned('away');
+    } else {
+      this.restoreSelectionFromAssigned('away');
+    }
+  }
+
+  /**
+   * Retourne l'id existant de la composition (si présent) pour détecter le mode édition.
+   * On regarde plusieurs champs possibles (id / callup_id) au cas où l'API varie.
+   */
+  private getExistingCallupId(teamKey: 'home' | 'away'): string | null {
+    if (!this.assignedTeams) return null;
+    const callup = teamKey === 'home' ? this.assignedTeams.team_one_callup : this.assignedTeams.team_two_callup;
+    return callup?.id ? String(callup.id) : (callup?.callup_id ? String(callup.callup_id) : null);
+  }
+
+  /**
+   * Préremplit homeCallup/awayCallup ET met à jour les pools (selected + selectionOrder)
+   * si assignedTeams contient une composition pour l'équipe demandée.
+   */
+  private prefillTeamFromAssigned(teamKey: 'home' | 'away') {
+    if (!this.assignedTeams) {
+      // rien à préremplir
+      return;
+    }
+
+    const callupData = teamKey === 'home' ? this.assignedTeams.team_one_callup : this.assignedTeams.team_two_callup;
+    const pool = teamKey === 'home' ? this.homePlayersPool : this.awayPlayersPool;
+    const target = teamKey === 'home' ? this.homeCallup : this.awayCallup;
+
+    if (!callupData) {
+      // pas de composition enregistrée -> reset léger
+      pool.forEach(p => { p.selected = false; p.selectionOrder = null; });
+      target.players = [];
+      target.coachId = null;
+      target.captainId = null;
+      return;
+    }
+
+    // map fields robustement
+    target.teamId = String(callupData.team_id ?? target.teamId ?? (teamKey === 'home' ? this.homeTeam.id : this.awayTeam.id));
+    target.formation = (callupData.formation ?? target.formation) as TeamSetup['formation'];
+    target.coachId = callupData.coach_id ? String(callupData.coach_id) : null;
+    target.captainId = callupData.captain_id ? String(callupData.captain_id) : null;
+
+    // build players list dans le format TeamPlayerSelection
+    const playersFromApi = (callupData.players || []) as any[];
+    const mappedPlayers: TeamPlayerSelection[] = playersFromApi.map(p => ({
+      playerId: String(p.player_id ?? p.playerId ?? p.id),
+      jersey_number: p.jersey_number ?? null,
+      position: (p.position ?? p.pos ?? 'MIDFIELD') as TeamPlayerSelection['position'],
+      isStarter: !!(p.is_starter ?? p.isStarter),
+      substituteOrder: (p.substitute_order ?? p.substituteOrder ?? null)
+    }));
+
+    target.players = mappedPlayers;
+
+    // reset pool selections
+    pool.forEach(p => { p.selected = false; p.selectionOrder = null; });
+
+    // assign selectionOrder :
+    // - les titulaires conservent un ordre selon leur apparition dans mappedPlayers (où isStarter === true)
+    // - les remplaçants sont ordonnés par substituteOrder si présent, puis viennent après les titulaires
+    const starters = mappedPlayers.filter(mp => mp.isStarter);
+    starters.forEach((sp, idx) => {
+      const poolP = pool.find(pp => String(pp.id) === String(sp.playerId));
+      if (poolP) {
+        poolP.selected = true;
+        poolP.selectionOrder = idx + 1;
+      }
+    });
+
+    const substitutes = mappedPlayers
+      .filter(mp => !mp.isStarter)
+      .sort((a, b) => ( (a.substituteOrder ?? 999) - (b.substituteOrder ?? 999) ));
+
+    let subStart = starters.length + 1;
+    substitutes.forEach((sub, idx) => {
+      const poolP = pool.find(pp => String(pp.id) === String(sub.playerId));
+      if (poolP) {
+        poolP.selected = true;
+        poolP.selectionOrder = subStart + idx;
+      }
+    });
+  }
+
+  /**
+   * Restaurer l'affichage du pool selon assignedTeams (ou clear s'il n'y a rien).
+   * Utilisé quand on ferme le formulaire sans sauvegarder.
+   */
+  private restoreSelectionFromAssigned(teamKey: 'home' | 'away') {
+    if (this.assignedTeams) {
+      this.prefillTeamFromAssigned(teamKey);
+    } else {
+      const pool = teamKey === 'home' ? this.homePlayersPool : this.awayPlayersPool;
+      pool.forEach(p => { p.selected = false; p.selectionOrder = null; });
+      const target = teamKey === 'home' ? this.homeCallup : this.awayCallup;
+      target.players = [];
+      target.coachId = null;
+      target.captainId = null;
+    }
+  }
+
+  /**
+   * Sauvegarde (create ou update selon présence d'une composition existante)
+   */
+  saveCallup(teamKey: 'home' | 'away') {
+    const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
+
+    if (!team.teamId) {
+      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Identifiant de l\'équipe manquant.' });
+      return;
+    }
+
+    if (team.players.filter(p => p.isStarter).length < 11) {
+      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Il faut au moins 11 titulaires.' });
+      return;
+    }
+
+    const missingNumbers = team.players.filter(p => !p.jersey_number || p.jersey_number <= 0);
+    if (missingNumbers.length > 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: `Renseignez le numéro de maillot pour tous les joueurs sélectionnés (${missingNumbers.length} manquant(s)).`
+      });
+      return;
+    }
+
+    const payload = this.makeTeamPayload(team);
+    console.log('Payload envoyé à create/updateCallup:', payload);
+
+    const existingCallupId = this.getExistingCallupId(teamKey);
+
+    if (existingCallupId) {
+      // mode edition -> utiliser update
+      this.callupService.updateCallup(existingCallupId, payload).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Succès', detail: "Composition mise à jour" });
+          // rafraîchir l'état depuis l'API pour garder assignedTeams à jour
+          this.loadData();
+          // fermer le formulaire
+          if (teamKey === 'home') this.showHomeForm = false; else this.showAwayForm = false;
+        },
+        error: (err) => {
+          console.error('Erreur updateCallup', err);
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour.' });
+        }
+      });
+    } else {
+      // création
+      this.callupService.createCallup(payload).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Succès', detail: "Composition enregistrée" });
+          this.loadData();
+          if (teamKey === 'home') this.showHomeForm = false; else this.showAwayForm = false;
+        },
+        error: (err) => {
+          console.error('Erreur createCallup', err);
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la sauvegarde.' });
+        }
+      });
+    }
+  }
+
+  getPlayerRingClass(p: any): 'green' | 'yellow' | null {
+  if (p.role) {
+    // mode édition : on se base sur role
+    if (p.role === 'Titulaire') return 'green';
+    if (p.role === 'Remplaçant') return 'yellow';
+  } else {
+    // mode création : on se base sur selectionOrder / is_starter
+    if (!p.selected) return null;
+    return p.selectionOrder && p.selectionOrder <= 11 ? 'green' : 'yellow';
+  }
+  return null;
+}
+
+
 
 }

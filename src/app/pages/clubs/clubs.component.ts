@@ -381,14 +381,14 @@ updateGlobalSelection() {
   deleteClub(id?: string): void {
     this.confirmationService.confirm({
      icon: 'pi pi-exclamation-triangle',
-      message: 'Voulez-vous vraiment supprimer cette club ?',
+      message: 'Voulez-vous vraiment supprimer ce club ?',
       accept: () => {
         this.clubService.delete(id).subscribe(() => {
           this.loadClubs();
           this.messageService.add({
             severity: 'success',
             summary: 'Suppression réussie',
-            detail: 'La club a été supprimée.'
+            detail: 'La club a été supprimé.'
           });
         });
       }
