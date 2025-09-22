@@ -62,7 +62,7 @@
 
   <div class="match-actions">
     <p-button [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock" (click)="matchSettingUp(match)" ></p-button>
-    <p-button severity="contrast" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"
+    <p-button [disabled]="!match?.result?.verified" severity="contrast" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"
            (click)="openDetails(match)"></p-button>
     <p-button [disabled]="!match?.result?.verified" severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil"
               (click)="openResultDialog(match)"></p-button>
