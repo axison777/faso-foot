@@ -61,12 +61,12 @@
   </div>
 
   <div class="match-actions">
-    <p-button [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock" (click)="matchSettingUp(match)" ></p-button>
+    <p-button [disabled]="match?.result?.verified" [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock" (click)="matchSettingUp(match)" ></p-button>
     <p-button [disabled]="!match?.result?.verified" severity="contrast" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"
            (click)="openDetails(match)"></p-button>
-    <p-button [disabled]="!match?.result?.verified" severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil"
+    <p-button [disabled]="match?.result?.verified" severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil"
               (click)="openResultDialog(match)"></p-button>
-    <p-button [disabled]="!match?.result?.verified" severity="primary" pTooltip="Valider résultat" icon="pi pi-check"
+    <p-button [disabled]="match?.result?.verified || !match?.result" severity="primary" pTooltip="Valider résultat" icon="pi pi-check"
               (onClick)="confirmValidate(match)"></p-button>
   </div>
 </p-card>
@@ -232,9 +232,10 @@
   [(visible)]="resultDialogVisible"
   [modal]="true"
   [style]="{ width: '60rem' }"
+  (onHide)="onCloseResultDialog()"
 >
   <form [formGroup]="resultForm" class="flex flex-col gap-4">
-    <p-stepper  [value]="activeStep" >
+    <p-stepper   [value]="1" >
       <p-step-list>
         <p-step [value]="1">Score</p-step>
         <p-step [value]="2">Événements</p-step>
