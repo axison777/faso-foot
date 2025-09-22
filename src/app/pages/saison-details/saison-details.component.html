@@ -50,7 +50,7 @@
       </ng-template>
       <span class="team-name">{{ match.team2 }}</span>
       <span class="team-score" [ngClass]="getWinnerClass(match, 'team2')">
-        {{ match?.result.away_score }}
+        {{ match?.result?.away_score }}
       </span>
     </div>
   </div>
@@ -64,9 +64,9 @@
     <p-button [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock" (click)="matchSettingUp(match)" ></p-button>
     <p-button severity="contrast" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"
            (click)="openDetails(match)"></p-button>
-    <p-button [disabled]="!match.result.verified" severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil"
+    <p-button [disabled]="!match?.result?.verified" severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil"
               (click)="openResultDialog(match)"></p-button>
-    <p-button [disabled]="!match.result.verified" severity="primary" pTooltip="Valider résultat" icon="pi pi-check"
+    <p-button [disabled]="!match?.result?.verified" severity="primary" pTooltip="Valider résultat" icon="pi pi-check"
               (onClick)="confirmValidate(match)"></p-button>
   </div>
 </p-card>
