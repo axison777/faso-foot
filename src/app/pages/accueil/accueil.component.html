@@ -1,83 +1,73 @@
-<div class="dashboard-container">
-  <h2 class="dashboard-title">Tableau de bord</h2>
+<div class="p-4">
+  <h2>Tableau de Bord des Compétitions</h2>
 
-  <!-- 🔹 Dropdown saison -->
+  <!-- 🔹 Sélection Ligue -->
   <p-dropdown
-    [options]="saisons"
-    [(ngModel)]="selectedSaison"
+    [options]="ligues"
     optionLabel="nom"
+    [(ngModel)]="selectedLigue"
+    placeholder="Sélectionner une ligue"
+    (onChange)="onLigueChange()">
+  </p-dropdown>
+
+  <!-- 🔹 Sélection Saison -->
+  <p-dropdown
+    *ngIf="selectedLigue?.saisons?.length"
+    [options]="selectedLigue?.saisons"
+    optionLabel="nom"
+    [(ngModel)]="selectedSaison"
     placeholder="Sélectionner une saison"
-    (onChange)="onSaisonChange()"
-  ></p-dropdown>
+    (onChange)="onSaisonChange()">
+  </p-dropdown>
 
-  <!-- 🔹 Indicateurs rapides -->
-  <div class="cards-grid">
-    <div class="card-item blue">
-      <i class="pi pi-check-circle card-icon"></i>
-      <div>
-        <p class="card-title">Matchs joués</p>
-        <h3 class="card-value">{{ totalMatchsJoues }}</h3>
-      </div>
-    </div>
+  <!-- 🔹 Sélection Poule -->
+  <p-dropdown
+    *ngIf="selectedSaison?.poules?.length"
+    [options]="selectedSaison?.poules"
+    optionLabel="nom"
+    [(ngModel)]="selectedPoule"
+    placeholder="Sélectionner une poule"
+    (onChange)="onPouleChange()">
+  </p-dropdown>
 
-    <div class="card-item yellow">
-      <i class="pi pi-calendar-times card-icon"></i>
-      <div>
-        <p class="card-title">Matchs reportés</p>
-        <h3 class="card-value">{{ totalMatchsReportes }}</h3>
-      </div>
-    </div>
-
-    <div class="card-item red">
-      <i class="pi pi-times-circle card-icon"></i>
-      <div>
-        <p class="card-title">Matchs annulés</p>
-        <h3 class="card-value">{{ totalMatchsAnnuels }}</h3>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🔹 Graphiques côte à côte -->
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Répartition des matchs</h3>
+  <!-- 🔹 Graphiques -->
+  <div class="grid grid-cols-2 gap-4 mt-4">
+    <div>
+      <h3>Statistiques Matchs</h3>
       <canvas baseChart
-              [data]="pieChartData"
-              [options]="pieChartOptions"
-              chartType="pie">
+        [data]="pieChartData"
+        [options]="pieChartOptions"
+        type="pie">
       </canvas>
     </div>
 
-    <div class="chart-card">
-      <h3>Classement par points</h3>
+    <div>
+      <h3>Classement</h3>
       <canvas baseChart
-              [data]="barChartData"
-              [options]="barChartOptions"
-              chartType="bar">
+        [data]="barChartData"
+        [options]="barChartOptions"
+        type="bar">
       </canvas>
     </div>
   </div>
 
-  <!-- 🔹 Tableau de classement -->
-  <div class="ranking-card">
-    <h3>Classement des équipes</h3>
-    <table class="ranking-table">
-      <thead>
-        <tr>
-          <th>Équipe</th>
-          <th>Points</th>
-          <th>Victoires</th>
-          <th>Diff. buts</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let equipe of classementEquipes">
-          <td>{{ equipe.nom }}</td>
-          <td>{{ equipe.points }}</td>
-          <td>{{ equipe.victoires }}</td>
-          <td>{{ equipe.differenceButs }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- 🔹 Tableau Classement -->
+  <table *ngIf="classementEquipes?.length" class="table mt-4">
+    <thead>
+      <tr>
+        <th>Équipe</th>
+        <th>Points</th>
+        <th>Victoires</th>
+        <th>Différence Buts</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let equipe of classementEquipes">
+        <td>{{ equipe.nom }}</td>
+        <td>{{ equipe.points }}</td>
+        <td>{{ equipe.victoires }}</td>
+        <td>{{ equipe.differenceButs }}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
