@@ -87,6 +87,7 @@
             [label]="isEditing ? 'Modifier' : 'Enregistrer'" 
             icon="pi pi-check" 
             type="submit" 
+            [styleClass]="isEditing ? 'p-button-warning' : 'p-button-success'"
             [disabled]="userForm.invalid"
           />
         </div>
@@ -95,40 +96,32 @@
   </p-dialog>
 
   <!-- Détails utilisateur -->
-  <p-dialog [(visible)]="showDetails" [modal]="true" [draggable]="false" [style]="{ width: '680px' }"
-            [header]="currentUser ? (currentUser.first_name + ' ' + currentUser.last_name) : 'Détails utilisateur'">
-    <div *ngIf="currentUser" class="user-details-grid">
-      <div class="left">
-        <div class="avatar-large">
-          <span>{{ (currentUser.first_name || 'U').charAt(0) }}</span>
+  <p-dialog [(visible)]="showDetails" [modal]="true" [draggable]="false" [style]="{ width: '720px' }" [showHeader]="false">
+    <div *ngIf="currentUser" class="user-details-card">
+      <div class="card-header">
+        <div class="avatar">
+          <span>{{ (currentUser.last_name || currentUser.first_name || 'U').charAt(0) }}</span>
         </div>
-        <div class="summary">
-          <h2>{{ currentUser.first_name }} {{ currentUser.last_name }}</h2>
-          <p class="muted">{{ currentUser.email }}</p>
+        <div class="title">
+          <strong>{{ currentUser.first_name }} {{ currentUser.last_name }}</strong>
         </div>
       </div>
-      <div class="right">
-        <section>
-          <h3>Rôles</h3>
-          <ul class="roles-list">
-            <li *ngFor="let role of currentUser.roles">
-              {{ getRoleLabel(role) }}
-            </li>
-          </ul>
-          <p *ngIf="!currentUser.roles || currentUser.roles.length === 0" class="empty">Aucun rôle attribué</p>
-        </section>
+      <div class="card-body">
+        <div class="row"><span class="label">Nom :</span><span class="value">{{ currentUser.last_name || '—' }}</span></div>
+        <div class="row"><span class="label">Prénom :</span><span class="value">{{ currentUser.first_name || '—' }}</span></div>
+        <div class="row"><span class="label">Email :</span><span class="value">{{ currentUser.email || '—' }}</span></div>
+        <div class="row roles-row">
+          <span class="label">Rôles :</span>
+          <span class="value badges">
+            <span *ngFor="let role of currentUser.roles" [class]="'badge ' + getRoleClasses(role)">{{ getRoleLabel(role) }}</span>
+            <span *ngIf="!currentUser.roles || currentUser.roles.length === 0" class="muted">Aucun rôle</span>
+          </span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-flat" type="button" (click)="closeDetails()">Fermer</button>
       </div>
     </div>
-    <ng-template pTemplate="footer">
-      <div class="dialog-footer spaced">
-        <div class="left">
-          <button class="btn btn-secondary" type="button" (click)="closeDetails()">Fermer</button>
-        </div>
-        <div class="right">
-          <button class="btn btn-warning" type="button" (click)="editFromDetails()">Modifier</button>
-        </div>
-      </div>
-    </ng-template>
   </p-dialog>
 
   <!-- Search -->

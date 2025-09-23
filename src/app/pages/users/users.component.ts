@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../service/user.service';
+import { RoleService } from '../../service/role.service';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -40,7 +41,7 @@ interface Role {
     ReactiveFormsModule,
     InputSwitchModule
   ],
-  providers: [MessageService, ConfirmationService]
+  providers: [MessageService, ConfirmationService, RoleService]
 })
 export class UsersComponent implements OnInit {
   users: User[] = [];
@@ -67,6 +68,7 @@ export class UsersComponent implements OnInit {
 
   constructor(
     private userService: UserService,
+    private roleService: RoleService,
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
@@ -89,10 +91,10 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  // Charger les rôles depuis le backend
+  // Charger les rôles depuis le backend (via RoleService, liste paginée)
   loadRoles(): void {
     this.loadingRoles = true;
-    this.userService.getRoles().subscribe({
+    this.roleService.getAll().subscribe({
       next: (response) => {
         console.log('Réponse rôles du backend:', response);
         if (response.status && response.data) {

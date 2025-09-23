@@ -96,17 +96,52 @@
         <div class="col right-col">
           <label>Permissions <span class="req">*</span></label>
           <div class="permissions-list-switch" *ngIf="allPermissions?.length; else noPerms">
-            <div class="permission-row" *ngFor="let p of allPermissions; trackBy: trackPermission">
-              <div class="info">
-                <div class="name">{{ p.name }}</div>
-                <div class="slug">{{ p.slug }}</div>
+            <!-- Groupe Administration -->
+            <h4 class="group-title" *ngIf="permissionsAdmin.length">Administration</h4>
+            <div class="group-grid" *ngIf="permissionsAdmin.length">
+              <div class="permission-row" *ngFor="let p of permissionsAdmin; trackBy: trackPermission">
+                <div class="info">
+                  <div class="name">{{ p.name }}</div>
+                </div>
+                <p-inputSwitch 
+                  [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
+                  [ngModelOptions]="{standalone: true}"
+                  (onChange)="togglePermission(p.slug, $event.checked)"
+                  [disabled]="isSubmitting">
+                </p-inputSwitch>
               </div>
-              <p-inputSwitch 
-                [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
-                [ngModelOptions]="{standalone: true}"
-                (onChange)="togglePermission(p.slug, $event.checked)"
-                [disabled]="isSubmitting">
-              </p-inputSwitch>
+            </div>
+
+            <!-- Groupe Match & Clubs -->
+            <h4 class="group-title" *ngIf="permissionsMatch.length">Match & Clubs</h4>
+            <div class="group-grid" *ngIf="permissionsMatch.length">
+              <div class="permission-row" *ngFor="let p of permissionsMatch; trackBy: trackPermission">
+                <div class="info">
+                  <div class="name">{{ p.name }}</div>
+                </div>
+                <p-inputSwitch 
+                  [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
+                  [ngModelOptions]="{standalone: true}"
+                  (onChange)="togglePermission(p.slug, $event.checked)"
+                  [disabled]="isSubmitting">
+                </p-inputSwitch>
+              </div>
+            </div>
+
+            <!-- Groupe Autres -->
+            <h4 class="group-title" *ngIf="permissionsOther.length">Autres</h4>
+            <div class="group-grid" *ngIf="permissionsOther.length">
+              <div class="permission-row" *ngFor="let p of permissionsOther; trackBy: trackPermission">
+                <div class="info">
+                  <div class="name">{{ p.name }}</div>
+                </div>
+                <p-inputSwitch 
+                  [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
+                  [ngModelOptions]="{standalone: true}"
+                  (onChange)="togglePermission(p.slug, $event.checked)"
+                  [disabled]="isSubmitting">
+                </p-inputSwitch>
+              </div>
             </div>
           </div>
           <ng-template #noPerms>
@@ -129,7 +164,7 @@
         </div>
         <div class="right">
           <button type="submit" 
-                  class="btn btn-info" 
+                  [ngClass]="isEditing ? 'btn btn-warning' : 'btn btn-info'" 
                   [disabled]="roleForm.invalid || isSubmitting">
             <span *ngIf="isSubmitting">Enregistrement...</span>
             <span *ngIf="!isSubmitting">{{ isEditing ? 'Modifier' : 'Créer' }}</span>
@@ -143,68 +178,32 @@
   <p-dialog [(visible)]="showDetails" 
             [modal]="true" 
             [draggable]="false" 
-            [style]="{ width: '680px' }" 
-            [header]="currentRole ? currentRole.name : 'Détails'" 
+            [style]="{ width: '720px' }" 
+            [showHeader]="false" 
             [styleClass]="'role-details-dialog'">
     
-    <div class="details-grid" *ngIf="currentRole">
-      <div class="left-col">
-        <div class="avatar-large">
-          <span>{{ currentRole.name?.charAt(0) || 'R' }}</span>
+    <div class="user-details-card" *ngIf="currentRole">
+      <div class="card-header">
+        <div class="avatar">
+          <span>{{ (currentRole.name || 'R').charAt(0) }}</span>
         </div>
-
-        <div class="summary">
-          <h2>{{ currentRole.name }}</h2>
-          <p class="muted">{{ currentRole.slug || '—' }}</p>
-
-          <div class="meta-row">
-            <div>
-              <strong>Permissions</strong>
-              <div>{{ currentRole.permissions?.length || 0 }}</div>
-            </div>
-            <div>
-              <strong>Statut</strong>
-              <div>Actif</div>
-            </div>
-          </div>
+        <div class="title"><strong>{{ currentRole.name }}</strong></div>
+      </div>
+      <div class="card-body">
+        <div class="row"><span class="label">Nom du rôle :</span><span class="value">{{ currentRole.name }}</span></div>
+        <div class="row"><span class="label">Permissions :</span><span class="value">{{ currentRole.permissions?.length || 0 }}</span></div>
+        <div class="row roles-row">
+          <span class="label">Permissions accordées :</span>
+          <span class="value badges">
+            <span *ngFor="let slug of currentRole.permissions" [class]="'badge ' + getPermissionBadgeClass(slug)">{{ getPermissionName(slug) }}</span>
+            <span *ngIf="!currentRole.permissions || currentRole.permissions.length === 0" class="muted">Aucune permission</span>
+          </span>
         </div>
       </div>
-
-      <div class="right-col">
-        <section>
-          <h3>Permissions accordées</h3>
-          <div *ngIf="currentRole.permissions?.length; else noPermissions">
-            <ul class="permissions-list">
-              <li *ngFor="let slug of currentRole.permissions" class="permission-item-detail">
-                <div class="permission-name">{{ getPermissionName(slug) }}</div>
-                <div class="permission-slug-detail">{{ slug }}</div>
-              </li>
-            </ul>
-          </div>
-          <ng-template #noPermissions>
-            <p class="empty">Aucune permission accordée</p>
-          </ng-template>
-        </section>
+      <div class="card-footer">
+        <button class="btn btn-flat" type="button" (click)="closeDetails()">Fermer</button>
+        <button class="btn btn-warning" type="button" (click)="editFromDetails()">Modifier</button>
       </div>
     </div>
-
-    <ng-template pTemplate="footer">
-      <div class="dialog-footer spaced">
-        <div class="left">
-          <button class="btn btn-secondary" 
-                  type="button" 
-                  (click)="closeDetails()">
-            Fermer
-          </button>
-        </div>
-        <div class="right">
-          <button class="btn btn-warning" 
-                  type="button" 
-                  (click)="editFromDetails()">
-            Modifier
-          </button>
-        </div>
-      </div>
-    </ng-template>
   </p-dialog>
 </div>
