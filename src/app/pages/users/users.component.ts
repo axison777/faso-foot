@@ -96,63 +96,44 @@ export class UsersComponent implements OnInit {
       next: (response) => {
         console.log('Réponse rôles du backend:', response);
         if (response.status && response.data) {
-          // Adapter les rôles selon la structure retournée par votre API
           this.availableRoles = Array.isArray(response.data) 
             ? response.data.map((role: Role) => ({
                 name: role.name,
-                value: role.slug || role.id // Utiliser slug ou id selon votre API
+                value: role.slug || role.id
               }))
             : [];
-          console.log('Rôles disponibles adaptés:', this.availableRoles);
         } else {
-          // Rôles par défaut si l'API n'est pas disponible
           this.availableRoles = [
             { name: 'Administrateur', value: 'admin' },
             { name: 'Manager', value: 'manager' },
             { name: 'Utilisateur', value: 'user' }
           ];
-          console.log('Utilisation des rôles par défaut');
         }
         this.loadingRoles = false;
       },
       error: (error) => {
         console.error('Erreur lors du chargement des rôles:', error);
-        // Utiliser des rôles par défaut en cas d'erreur
         this.availableRoles = [
           { name: 'Administrateur', value: 'admin' },
           { name: 'Manager', value: 'manager' },
           { name: 'Utilisateur', value: 'user' }
         ];
         this.loadingRoles = false;
-        console.log('Rôles par défaut chargés après erreur');
       }
     });
   }
 
   loadUsers(): void {
     this.loading = true;
-    
-    // Chargement de tous les utilisateurs (sans pagination pour la liste complète)
     this.userService.getAllUsers().subscribe({
       next: (response) => {
-        console.log('Réponse utilisateurs du backend:', response);
         if (response.status) {
           this.users = Array.isArray(response.data) ? response.data : [];
-          
-          // Debug pour voir la structure des rôles dans les utilisateurs
-          if (this.users.length > 0) {
-            console.log('Exemple d\'utilisateur avec rôles:', this.users[0]);
-            console.log('Structure des rôles du premier utilisateur:', this.users[0].roles);
-          }
-          
-          // Si vous avez des métadonnées de pagination
           if (response.meta) {
             this.totalItems = parseInt(response.meta.total);
             this.totalPages = parseInt(response.meta.last_page);
             this.currentPage = parseInt(response.meta.current_page);
           }
-          
-          console.log('Utilisateurs chargés:', this.users.length);
         } else {
           this.users = [];
           this.messageService.add({
@@ -168,16 +149,10 @@ export class UsersComponent implements OnInit {
         console.error('Erreur lors du chargement des utilisateurs:', error);
         this.loading = false;
         this.users = [];
-        
-        let errorMessage = 'Erreur lors du chargement des utilisateurs';
-        if (error.error?.message) {
-          errorMessage = error.error.message;
-        }
-        
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: errorMessage,
+          detail: 'Erreur lors du chargement des utilisateurs',
           life: 5000
         });
       }
@@ -213,7 +188,7 @@ export class UsersComponent implements OnInit {
   resetForm(): void {
     this.userForm.reset();
     this.userForm.patchValue({
-      roles: [] // Réinitialiser avec un array vide
+      roles: []
     });
     this.isEditing = false;
     this.editingUserSlug = null;
@@ -221,7 +196,6 @@ export class UsersComponent implements OnInit {
 
   saveUser(): void {
     if (this.userForm.valid) {
-      // IMPORTANT: Ordre exact selon votre API (last_name en premier)
       const userPayload = {
         last_name: this.userForm.get('last_name')?.value?.trim(),
         first_name: this.userForm.get('first_name')?.value?.trim(), 
@@ -229,116 +203,43 @@ export class UsersComponent implements OnInit {
         roles: this.userForm.get('roles')?.value || []
       };
 
-      // Validation complète des données avant envoi
-      console.log('=== VALIDATION DES DONNÉES ===');
-      console.log('Formulaire valide:', this.userForm.valid);
-      console.log('Payload final:', userPayload);
-      console.log('============================');
-
-      // Validation supplémentaire 
-      if (!userPayload.last_name || userPayload.last_name.length < 2) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Nom invalide',
-          detail: 'Le nom doit contenir au moins 2 caractères',
-          life: 3000
-        });
-        return;
-      }
-
-      if (!userPayload.first_name || userPayload.first_name.length < 2) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Prénom invalide', 
-          detail: 'Le prénom doit contenir au moins 2 caractères',
-          life: 3000
-        });
-        return;
-      }
-
-      if (!userPayload.email || !userPayload.email.includes('@')) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Email invalide',
-          detail: 'L\'email doit être valide et contenir @',
-          life: 3000
-        });
-        return;
-      }
-
-      if (!userPayload.roles || !Array.isArray(userPayload.roles) || userPayload.roles.length === 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Rôles manquants',
-          detail: 'Au moins un rôle doit être sélectionné',
-          life: 3000
-        });
-        return;
-      }
-
-      const onSuccess = (response: any) => {
-        if (response.status) {
-          this.loadUsers();
-          this.toggleForm();
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: response.message || 'Utilisateur créé avec succès',
-            life: 3000
-          });
-        } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: response.message || 'Erreur lors de la création',
-            life: 5000
-          });
-        }
-      };
-
-      const onError = (error: any) => {
-        console.error('=== ERREUR COMPLÈTE ===');
-        console.error('Statut HTTP:', error.status);
-        console.error('Corps de l\'erreur:', error.error);
-        console.error('======================');
-        
-        let errorMessage = 'Erreur lors de la création de l\'utilisateur';
-        
-        if (error.error?.message) {
-          errorMessage = error.error.message;
-        } else if (error.error?.errors) {
-          const validationErrors = error.error.errors;
-          const errorMessages = Object.keys(validationErrors).map(field => {
-            const fieldErrors = Array.isArray(validationErrors[field]) 
-              ? validationErrors[field] 
-              : [validationErrors[field]];
-            return `${field}: ${fieldErrors.join(', ')}`;
-          });
-          errorMessage = `Erreurs de validation:\n${errorMessages.join('\n')}`;
-        }
-
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur création utilisateur',
-          detail: errorMessage,
-          life: 10000
-        });
-      };
-
       const request$ = this.isEditing && this.editingUserSlug
         ? this.userService.update(this.editingUserSlug, userPayload)
         : this.userService.create(userPayload);
 
       request$.subscribe({
-        next: onSuccess,
-        error: onError
+        next: (response) => {
+          if (response.status) {
+            this.loadUsers();
+            this.toggleForm();
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Succès',
+              detail: response.message || 'Utilisateur sauvegardé avec succès',
+              life: 3000
+            });
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: response.message || 'Erreur lors de la sauvegarde',
+              life: 5000
+            });
+          }
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Erreur lors de la sauvegarde de l\'utilisateur',
+            life: 5000
+          });
+        }
       });
-      
     } else {
       Object.keys(this.userForm.controls).forEach(key => {
         this.userForm.get(key)?.markAsTouched();
       });
-      
       this.messageService.add({
         severity: 'warn',
         summary: 'Formulaire invalide',
@@ -348,22 +249,13 @@ export class UsersComponent implements OnInit {
     }
   }
 
-  // Détails utilisateur (ouverture modal)
   viewUser(user: User): void {
     if (!user.slug) return;
-    
-    console.log('Récupération des détails pour:', user.slug);
     this.userService.getBySlug(user.slug).subscribe({
       next: (response) => {
-        console.log('Réponse détails utilisateur:', response);
         if (response.status && response.data) {
-          const userData = response.data;
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Détails utilisateur',
-            detail: `${userData.first_name || 'user'} ${userData.last_name || 'user'}`,
-            life: 3000
-          });
+          this.currentUser = response.data;
+          this.showDetails = true;
         } else {
           this.messageService.add({
             severity: 'warn',
@@ -373,8 +265,7 @@ export class UsersComponent implements OnInit {
           });
         }
       },
-      error: (error) => {
-        console.error('Erreur lors de la récupération des détails:', error);
+      error: () => {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
@@ -412,7 +303,7 @@ export class UsersComponent implements OnInit {
               this.messageService.add({
                 severity: 'success',
                 summary: 'Suppression réussie',
-                detail: response.message || 'L\'utilisateur a été supprimé avec succès',
+                detail: response.message || 'Utilisateur supprimé avec succès',
                 life: 3000
               });
             } else {
@@ -424,17 +315,11 @@ export class UsersComponent implements OnInit {
               });
             }
           },
-          error: (error) => {
-            console.error('Erreur lors de la suppression:', error);
-            let errorMessage = 'Erreur lors de la suppression de l\'utilisateur';
-            if (error.error?.message) {
-              errorMessage = error.error.message;
-            }
-            
+          error: () => {
             this.messageService.add({
               severity: 'error',
               summary: 'Erreur',
-              detail: errorMessage,
+              detail: 'Erreur lors de la suppression de l\'utilisateur',
               life: 5000
             });
           }
@@ -445,7 +330,6 @@ export class UsersComponent implements OnInit {
 
   get filteredUsers(): User[] {
     if (!this.searchTerm) return this.users;
-    
     const searchTermLower = this.searchTerm.toLowerCase().trim();
     return this.users.filter(user =>
       `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTermLower) ||
@@ -454,32 +338,24 @@ export class UsersComponent implements OnInit {
     );
   }
 
-  // Méthode pour obtenir le libellé d'un seul rôle
   getRoleLabel(roleValue: string | any): string {
-    // Gérer le cas où roleValue est un objet
     if (typeof roleValue === 'object' && roleValue !== null) {
       return roleValue.name || roleValue.slug || roleValue.id || 'Rôle inconnu';
     }
-    
-    // Si c'est un string, chercher dans availableRoles
     const role = this.availableRoles.find(r => r.value === roleValue);
     return role ? role.name : roleValue;
   }
 
-  // Méthode pour convertir les rôles en chaîne pour la recherche
   getUserRolesAsString(roles: any[] = []): string {
     return roles.map(role => this.getRoleLabel(role)).join(', ');
   }
 
-  // Méthode pour obtenir les libellés des rôles (pour plusieurs rôles)
   getRoleLabels(roles: any[] = []): string {
     return roles.map(role => this.getRoleLabel(role)).join(', ');
   }
 
-  // Méthode pour obtenir le style des rôles
   getRoleClasses(role: any): string {
     const roleValue = typeof role === 'object' ? (role.slug || role.id) : role;
-    
     if (roleValue && typeof roleValue === 'string') {
       if (roleValue.toLowerCase().includes('admin')) return 'role-admin';
       if (roleValue.toLowerCase().includes('manager')) return 'role-manager';
@@ -487,14 +363,11 @@ export class UsersComponent implements OnInit {
     return 'role-user';
   }
 
-  // Gestion du toggle des rôles dans le formulaire
   onToggleRole(value: string, checked: boolean): void {
     const control = this.userForm.get('roles');
     if (!control) return;
-
     const current: string[] = (control.value || []) as string[];
     const exists = current.includes(value);
-
     if (checked && !exists) {
       control.setValue([...current, value]);
     } else if (!checked && exists) {
@@ -502,5 +375,18 @@ export class UsersComponent implements OnInit {
     }
     control.markAsDirty();
     control.markAsTouched();
+  }
+
+  // ✅ Ajouts manquants
+  closeDetails(): void {
+    this.showDetails = false;
+    this.currentUser = null;
+  }
+
+  editFromDetails(): void {
+    if (this.currentUser) {
+      this.openEdit(this.currentUser);
+      this.closeDetails();
+    }
   }
 }
