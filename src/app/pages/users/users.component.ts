@@ -13,15 +13,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { InputSwitchModule } from 'primeng/inputswitch';
-import { User } from '../../models/user.model';
-
-// Interface pour les rôles récupérés du backend
-interface Role {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-}
+import { User, UserRole } from '../../models/user.model';
+import { Role } from '../../models/role.model';
 
 @Component({
   selector: 'app-users',
@@ -91,7 +84,7 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  // Charger les rôles depuis le backend (via RoleService, liste paginée)
+  // Charger les rôles depuis le backend
   loadRoles(): void {
     this.loadingRoles = true;
     this.roleService.getAll().subscribe({
@@ -101,26 +94,24 @@ export class UsersComponent implements OnInit {
           this.availableRoles = Array.isArray(response.data) 
             ? response.data.map((role: Role) => ({
                 name: role.name,
-                value: role.slug || role.id
+                value: role.slug ?? ''
               }))
             : [];
         } else {
-          this.availableRoles = [
-            { name: 'Administrateur', value: 'admin' },
-            { name: 'Manager', value: 'manager' },
-            { name: 'Utilisateur', value: 'user' }
-          ];
+          this.availableRoles = [];
         }
         this.loadingRoles = false;
       },
       error: (error) => {
         console.error('Erreur lors du chargement des rôles:', error);
-        this.availableRoles = [
-          { name: 'Administrateur', value: 'admin' },
-          { name: 'Manager', value: 'manager' },
-          { name: 'Utilisateur', value: 'user' }
-        ];
+        this.availableRoles = [];
         this.loadingRoles = false;
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Attention',
+          detail: 'Impossible de charger les rôles',
+          life: 3000
+        });
       }
     });
   }
@@ -129,6 +120,7 @@ export class UsersComponent implements OnInit {
     this.loading = true;
     this.userService.getAllUsers().subscribe({
       next: (response) => {
+        console.log('Réponse utilisateurs du backend:', response);
         if (response.status) {
           this.users = Array.isArray(response.data) ? response.data : [];
           if (response.meta) {
@@ -176,14 +168,23 @@ export class UsersComponent implements OnInit {
   }
 
   openEdit(user: User): void {
+    console.log('=== OUVERTURE ÉDITION UTILISATEUR ===');
+    console.log('Utilisateur à éditer:', user);
+    
     this.isEditing = true;
     this.editingUserSlug = user.slug || null;
+    
+    // Extraire les slugs des rôles pour le formulaire
+    const rolesSlugs = this.extractRoleSlugs(user.roles || []);
+    console.log('Rôles extraits pour le formulaire:', rolesSlugs);
+    
     this.userForm.reset({
       first_name: user.first_name || '',
       last_name: user.last_name || '',
       email: user.email || '',
-      roles: (user.roles || []).map(r => typeof r === 'object' ? (r as any).slug || (r as any).id : r)
+      roles: rolesSlugs
     });
+    
     this.showForm = true;
   }
 
@@ -205,12 +206,18 @@ export class UsersComponent implements OnInit {
         roles: this.userForm.get('roles')?.value || []
       };
 
+      console.log('=== SAUVEGARDE UTILISATEUR ===');
+      console.log('Mode édition:', this.isEditing);
+      console.log('Slug à éditer:', this.editingUserSlug);
+      console.log('Payload:', userPayload);
+
       const request$ = this.isEditing && this.editingUserSlug
         ? this.userService.update(this.editingUserSlug, userPayload)
         : this.userService.create(userPayload);
 
       request$.subscribe({
         next: (response) => {
+          console.log('Réponse sauvegarde:', response);
           if (response.status) {
             this.loadUsers();
             this.toggleForm();
@@ -229,7 +236,8 @@ export class UsersComponent implements OnInit {
             });
           }
         },
-        error: () => {
+        error: (error) => {
+          console.error('Erreur sauvegarde utilisateur:', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
@@ -252,26 +260,58 @@ export class UsersComponent implements OnInit {
   }
 
   viewUser(user: User): void {
-    if (!user.slug) return;
+    console.log('=== AFFICHAGE DÉTAILS UTILISATEUR ===');
+    console.log('Utilisateur sélectionné:', user);
+    console.log('Slug à utiliser:', user.slug);
+    
+    if (!user.slug) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Identifiant utilisateur manquant',
+        life: 3000
+      });
+      return;
+    }
+    
+    // Debug de l'URL qui sera appelée
+    console.log('URL qui sera appelée:', `${this.userService['apiUrl']}/${user.slug}`);
+    
     this.userService.getBySlug(user.slug).subscribe({
       next: (response) => {
-        if (response.status && response.data) {
+        console.log('=== RÉPONSE DU BACKEND ===');
+        console.log('Réponse complète:', response);
+        console.log('Status:', response?.status);
+        console.log('Data:', response?.data);
+        console.log('Message:', response?.message);
+        
+        if (response && response.status && response.data) {
           this.currentUser = response.data;
+          console.log('=== UTILISATEUR ASSIGNÉ POUR AFFICHAGE ===');
+          console.log('CurrentUser:', this.currentUser);
+          console.log('Rôles de l\'utilisateur:', this.currentUser.roles);
           this.showDetails = true;
         } else {
+          console.error('Structure de réponse inattendue:', response);
           this.messageService.add({
             severity: 'warn',
             summary: 'Attention',
-            detail: 'Aucune donnée utilisateur disponible',
+            detail: response?.message || 'Aucune donnée utilisateur disponible',
             life: 3000
           });
         }
       },
-      error: () => {
+      error: (error) => {
+        console.error('=== ERREUR RÉCUPÉRATION UTILISATEUR ===');
+        console.error('Erreur complète:', error);
+        console.error('Status:', error.status);
+        console.error('URL:', error.url);
+        console.error('Message:', error.message);
+        
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Impossible de récupérer les détails de l\'utilisateur',
+          detail: `Impossible de récupérer les détails de l'utilisateur (${error.status || 'Erreur inconnue'})`,
           life: 3000
         });
       }
@@ -336,50 +376,93 @@ export class UsersComponent implements OnInit {
     return this.users.filter(user =>
       `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTermLower) ||
       user.email?.toLowerCase().includes(searchTermLower) ||
-      this.getUserRolesAsString(user.roles).toLowerCase().includes(searchTermLower)
+      this.getUserRolesAsString(user.roles || []).toLowerCase().includes(searchTermLower)
     );
   }
 
-  getRoleLabel(roleValue: string | any): string {
-    if (typeof roleValue === 'object' && roleValue !== null) {
-      return roleValue.name || roleValue.slug || roleValue.id || 'Rôle inconnu';
+  // === MÉTHODES POUR GÉRER LES RÔLES ===
+
+  /**
+   * Extrait les slugs des rôles depuis différents formats
+   */
+  extractRoleSlugs(roles: (string | UserRole)[]): string[] {
+    return roles.map(role => {
+      if (typeof role === 'string') {
+        return role; // Déjà un slug
+      } else if (role && typeof role === 'object' && role.slug) {
+        return role.slug; // Objet avec slug
+      }
+      return '';
+    }).filter(slug => slug !== '');
+  }
+
+  /**
+   * Obtient le nom d'affichage d'un rôle
+   */
+  getRoleLabel(role: string | UserRole): string {
+    if (typeof role === 'object' && role !== null) {
+      return role.name || role.slug || 'Rôle inconnu';
     }
-    const role = this.availableRoles.find(r => r.value === roleValue);
-    return role ? role.name : roleValue;
+    
+    // Si c'est un string, chercher dans les rôles disponibles
+    const availableRole = this.availableRoles.find(r => r.value === role);
+    return availableRole ? availableRole.name : role;
   }
 
-  getUserRolesAsString(roles: any[] = []): string {
+  /**
+   * Obtient les rôles d'un utilisateur sous forme de chaîne
+   */
+  getUserRolesAsString(roles: (string | UserRole)[] = []): string {
     return roles.map(role => this.getRoleLabel(role)).join(', ');
   }
 
-  getRoleLabels(roles: any[] = []): string {
-    return roles.map(role => this.getRoleLabel(role)).join(', ');
+  /**
+   * Alias pour compatibilité
+   */
+  getRoleLabels(roles: (string | UserRole)[] = []): string {
+    return this.getUserRolesAsString(roles);
   }
 
-  getRoleClasses(role: any): string {
-    const roleValue = typeof role === 'object' ? (role.slug || role.id) : role;
-    if (roleValue && typeof roleValue === 'string') {
-      if (roleValue.toLowerCase().includes('admin')) return 'role-admin';
-      if (roleValue.toLowerCase().includes('manager')) return 'role-manager';
+  /**
+   * Obtient les classes CSS pour un rôle
+   */
+  getRoleClasses(role: string | UserRole): string {
+    const roleSlug = typeof role === 'object' ? (role.slug || '') : role;
+    
+    if (roleSlug && typeof roleSlug === 'string') {
+      const slug = roleSlug.toLowerCase();
+      if (slug.includes('admin')) return 'role-admin';
+      if (slug.includes('manager')) return 'role-manager';
     }
     return 'role-user';
   }
 
+  /**
+   * Gère l'activation/désactivation des rôles dans le formulaire
+   */
   onToggleRole(value: string, checked: boolean): void {
+    console.log('Toggle rôle:', { value, checked });
+    
     const control = this.userForm.get('roles');
     if (!control) return;
+    
     const current: string[] = (control.value || []) as string[];
     const exists = current.includes(value);
+    
     if (checked && !exists) {
       control.setValue([...current, value]);
     } else if (!checked && exists) {
       control.setValue(current.filter(v => v !== value));
     }
+    
     control.markAsDirty();
     control.markAsTouched();
+    
+    console.log('Nouveaux rôles sélectionnés:', control.value);
   }
 
-  // ✅ Ajouts manquants
+  // === MÉTHODES POUR LES DÉTAILS ===
+
   closeDetails(): void {
     this.showDetails = false;
     this.currentUser = null;

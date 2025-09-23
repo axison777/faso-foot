@@ -150,74 +150,167 @@ export class RolesComponent implements OnInit {
     this.isEditing = true;
     this.currentRole = { ...role };
     this.isSubmitting = false;
+
+    // Conversion plus robuste des permissions
+    let permissionSlugs: string[] = [];
     
-    const permissionSlugs = (role.permissions || []).map(p => 
-      typeof p === 'string' ? p : (p as Permission).slug
-    );
+    if (role.permissions && Array.isArray(role.permissions)) {
+      permissionSlugs = role.permissions.map((p: any) => {
+        if (typeof p === 'string') {
+          return p;
+        } else if (p && typeof p === 'object' && p.slug) {
+          return p.slug;
+        }
+        return '';
+      }).filter(slug => slug !== ''); // Filtrer les valeurs vides
+    }
+
+    console.log('Permissions extraites:', permissionSlugs);
 
     this.roleForm.reset({
-      name: role.name,
+      name: role.name || '',
       permissions: permissionSlugs
     });
-    
-    // Marquer le formulaire comme non touché
+
     this.roleForm.markAsUntouched();
     this.roleForm.markAsPristine();
-    
     this.showForm = true;
   }
 
   async saveRole(): Promise<void> {
     console.log('Tentative de sauvegarde du rôle');
-    console.log('État du formulaire:', {
-      valid: this.roleForm.valid,
-      value: this.roleForm.value,
-      errors: this.roleForm.errors
-    });
+    
+    // Debug du formulaire avant validation
+    this.debugForm();
 
-    // Vérification de la validité du formulaire
     if (this.roleForm.invalid) {
-      console.log('Formulaire invalide, marquage des champs comme touchés');
       this.roleForm.markAllAsTouched();
       
-      // Affichage des erreurs spécifiques
-      Object.keys(this.roleForm.controls).forEach(key => {
-        const control = this.roleForm.get(key);
-        if (control && control.errors) {
-          console.log(`Erreurs pour ${key}:`, control.errors);
-        }
-      });
+      // Messages d'erreur plus spécifiques
+      const nameControl = this.roleForm.get('name');
+      const permissionsControl = this.roleForm.get('permissions');
       
+      let errorDetails = 'Veuillez corriger les erreurs suivantes : ';
+      if (nameControl?.errors) {
+        if (nameControl.errors['required']) {
+          errorDetails += 'Le nom est requis. ';
+        }
+        if (nameControl.errors['minlength']) {
+          errorDetails += 'Le nom doit contenir au moins 2 caractères. ';
+        }
+      }
+      if (permissionsControl?.errors) {
+        if (permissionsControl.errors['required']) {
+          errorDetails += 'Au moins une permission doit être sélectionnée.';
+        }
+      }
+
       this.messageService.add({
         severity: 'warn',
         summary: 'Formulaire invalide',
-        detail: 'Veuillez corriger les erreurs avant de continuer.'
+        detail: errorDetails
       });
       return;
     }
 
     this.isSubmitting = true;
-    const payload = this.roleForm.value;
+
+    // Nettoyage et validation du payload
+    const formValue = this.roleForm.value;
     
-    console.log('Payload à envoyer:', payload);
+    // Validation supplémentaire
+    if (!formValue.name || typeof formValue.name !== 'string' || formValue.name.trim().length === 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur de validation',
+        detail: 'Le nom du rôle est requis.'
+      });
+      this.isSubmitting = false;
+      return;
+    }
+
+    if (!formValue.permissions || !Array.isArray(formValue.permissions) || formValue.permissions.length === 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur de validation',
+        detail: 'Au moins une permission doit être sélectionnée.'
+      });
+      this.isSubmitting = false;
+      return;
+    }
+
+    const payload = {
+      name: formValue.name.trim(),
+      permissions: formValue.permissions.filter((p: any) => {
+        const slug = typeof p === 'string' ? p : (p && p.slug ? p.slug : '');
+        return slug && slug.trim() !== '';
+      })
+    };
+
+    // Vérifier si quelque chose a réellement changé
+    if (this.isEditing && this.currentRole) {
+      const originalPermissions = Array.isArray(this.currentRole.permissions) ? 
+        this.currentRole.permissions.sort() : [];
+      const newPermissions = payload.permissions.sort();
+      
+      const nameChanged = payload.name !== this.currentRole.name;
+      const permissionsChanged = JSON.stringify(originalPermissions) !== JSON.stringify(newPermissions);
+      
+      console.log('Changements détectés:', {
+        nameChanged,
+        permissionsChanged,
+        originalName: this.currentRole.name,
+        newName: payload.name,
+        originalPermissions,
+        newPermissions
+      });
+      
+      if (!nameChanged && !permissionsChanged) {
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Aucun changement',
+          detail: 'Aucune modification n\'a été détectée.'
+        });
+        this.isSubmitting = false;
+        return;
+      }
+    }
+
+    // Validation finale du payload
+    if (payload.permissions.length === 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur de validation',
+        detail: 'Aucune permission valide trouvée.'
+      });
+      this.isSubmitting = false;
+      return;
+    }
 
     try {
       let result: any;
-      
+
       if (this.isEditing && this.currentRole?.slug) {
-        console.log('Mise à jour du rôle:', this.currentRole.slug);
+        console.log('=== MISE À JOUR D\'UN RÔLE ===');
+        console.log('Slug du rôle à modifier:', this.currentRole.slug);
+        console.log('Nom original:', this.currentRole.name);
+        console.log('Nouveau nom:', payload.name);
+        console.log('Permissions originales:', this.currentRole.permissions);
+        console.log('Nouvelles permissions:', payload.permissions);
+        console.log('URL complète:', `${this.roleService['apiUrl']}/${this.currentRole.slug}`);
+        console.log('Payload envoyé:', payload);
+        console.log('=== FIN DEBUG MISE À JOUR ===');
+        
         result = await firstValueFrom(
-          this.roleService.update(this.currentRole.slug, payload) as Observable<Role>
+          this.roleService.update(this.currentRole.slug, payload)
         );
       } else {
         console.log('Création d\'un nouveau rôle');
-        result = await firstValueFrom(
-          this.roleService.create(payload) as Observable<Role>
-        );
+        result = await firstValueFrom(this.roleService.create(payload));
       }
-      
+
       console.log('Résultat de l\'opération:', result);
-      
+
       this.messageService.add({
         severity: 'success',
         summary: 'Succès',
@@ -226,22 +319,38 @@ export class RolesComponent implements OnInit {
 
       this.showForm = false;
       await this.loadInitialData();
-      
+
     } catch (error: any) {
       console.error('Erreur lors de la sauvegarde:', error);
-      
+      console.error('Détails de l\'erreur:', {
+        status: error.status,
+        statusText: error.statusText,
+        error: error.error,
+        message: error.message
+      });
+
       let errorMsg = 'Une erreur est survenue lors de l\'enregistrement.';
       
-      if (error?.error?.message) {
+      if (error.status === 400) {
+        if (error.error && error.error.message) {
+          errorMsg = `Erreur de validation : ${error.error.message}`;
+        } else if (error.error && typeof error.error === 'object') {
+          // Si l'erreur contient des détails de validation
+          const errorDetails = Object.values(error.error).flat().join(', ');
+          errorMsg = `Erreur de validation : ${errorDetails}`;
+        } else {
+          errorMsg = 'Données invalides. Vérifiez le nom et les permissions sélectionnées.';
+        }
+      } else if (error.error?.message) {
         errorMsg = error.error.message;
-      } else if (error?.message) {
+      } else if (error.message) {
         errorMsg = error.message;
       }
-      
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Erreur', 
-        detail: errorMsg 
+
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: errorMsg
       });
     } finally {
       this.isSubmitting = false;
@@ -410,21 +519,35 @@ export class RolesComponent implements OnInit {
   // --- Méthodes de debugging ---
   
   debugForm(): void {
-    console.log('Debug du formulaire:', {
-      valid: this.roleForm.valid,
-      invalid: this.roleForm.invalid,
-      value: this.roleForm.value,
-      errors: this.roleForm.errors,
-      nameControl: {
-        value: this.roleForm.get('name')?.value,
-        valid: this.roleForm.get('name')?.valid,
-        errors: this.roleForm.get('name')?.errors
-      },
-      permissionsControl: {
-        value: this.roleForm.get('permissions')?.value,
-        valid: this.roleForm.get('permissions')?.valid,
-        errors: this.roleForm.get('permissions')?.errors
-      }
-    });
+    const formValue = this.roleForm.value;
+    const nameControl = this.roleForm.get('name');
+    const permissionsControl = this.roleForm.get('permissions');
+
+    console.log('=== DEBUG FORMULAIRE ===');
+    console.log('Formulaire valide:', this.roleForm.valid);
+    console.log('Formulaire invalide:', this.roleForm.invalid);
+    console.log('Valeur du formulaire:', formValue);
+    console.log('Erreurs du formulaire:', this.roleForm.errors);
+    
+    console.log('--- Contrôle Name ---');
+    console.log('Valeur:', nameControl?.value);
+    console.log('Valide:', nameControl?.valid);
+    console.log('Erreurs:', nameControl?.errors);
+    
+    console.log('--- Contrôle Permissions ---');
+    console.log('Valeur:', permissionsControl?.value);
+    console.log('Type:', Array.isArray(permissionsControl?.value) ? 'Array' : typeof permissionsControl?.value);
+    console.log('Longueur:', permissionsControl?.value?.length);
+    console.log('Valide:', permissionsControl?.valid);
+    console.log('Erreurs:', permissionsControl?.errors);
+    
+    if (this.isEditing && this.currentRole) {
+      console.log('--- Rôle en cours d\'édition ---');
+      console.log('Slug:', this.currentRole.slug);
+      console.log('Nom:', this.currentRole.name);
+      console.log('Permissions originales:', this.currentRole.permissions);
+    }
+    
+    console.log('=== FIN DEBUG ===');
   }
 }

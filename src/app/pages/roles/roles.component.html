@@ -163,12 +163,13 @@
           </button>
         </div>
         <div class="right">
-          <button type="submit" 
-                  [ngClass]="isEditing ? 'btn btn-warning' : 'btn btn-info'" 
-                  [disabled]="roleForm.invalid || isSubmitting">
-            <span *ngIf="isSubmitting">Enregistrement...</span>
-            <span *ngIf="!isSubmitting">{{ isEditing ? 'Modifier' : 'Créer' }}</span>
-          </button>
+         <button type="submit" 
+        [ngClass]="isEditing ? 'btn btn-update' : 'btn btn-create'" 
+        [disabled]="roleForm.invalid || isSubmitting">
+  <span *ngIf="isSubmitting">Enregistrement...</span>
+  <span *ngIf="!isSubmitting">{{ isEditing ? 'Modifier' : 'Créer' }}</span>
+</button>
+
         </div>
       </div>
     </form>
