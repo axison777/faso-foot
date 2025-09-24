@@ -17,11 +17,11 @@
                             placeholder="-- Choisir un officiel --" filter="true" [(ngModel)]="selectedOfficialId"
                             name="official">
                             <ng-template let-official pTemplate="item">
-                                {{ official.first_name }} {{ official.last_name }} ({{ official.official_type }})
-                                {{official.status}}
+                                {{ official.first_name }} {{ official.last_name }} ({{getOfficialTypeLabel( official.official_type) }})
+                                {{getStatusLabel(official.status) || official.status}}
                             </ng-template>
                             <ng-template let-official pTemplate="selectedItem">
-                                {{ official.first_name }} {{ official.last_name }} ({{ official.official_type }})
+                                {{ official.first_name }} {{ official.last_name }} ({{ getOfficialTypeLabel(official.official_type) }})
                             </ng-template>
                         </p-select>
 
@@ -50,7 +50,7 @@
                             <tbody>
                                 <tr *ngFor="let o of officialsofmatch">
                                     <td>{{ o.first_name }} {{ o.last_name }}</td>
-                                    <td>{{ o.official_type }}</td>
+                                    <td>{{ getOfficialTypeLabel(o.official_type) }}</td>
                                     <td>{{ mapRole(o.matches?.[0]?.pivot?.role ?? '') }}</td>
                                 </tr>
                             </tbody>
@@ -214,8 +214,9 @@
         *ngFor="let p of homePlayersPool"
         class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
    [ngClass]="{
-    'ring-2 ring-green-500': getPlayerRingClass(p) === 'green',
-    'ring-2 ring-yellow-400': getPlayerRingClass(p) === 'yellow',
+     'ring-yellow-400': getPlayerRingClass(p) === 'yellow',
+    ' ring-green-500':getPlayerRingClass(p) === 'green',
+    'ring-2':p.selected,
     selected: p.selected
   }"
         (click)="onPlayerToggle('home', p, !p.selected)"
@@ -259,8 +260,8 @@
     </div>
   </div>
 
-<ng-template #footer>
-  <div class="flex mt-3 justify-content-between align-items-center gap-5">
+      <ng-template #footer >
+      <div class="flex mt-3 justify-content-between align-items-center gap-5">
     <div class="p-3 rounded border border-gray-300 bg-gray-50 text-sm text-gray-700">
       <strong>Légende :</strong>
       <ul class="mt-2 space-y-1">
@@ -269,7 +270,7 @@
       </ul>
     </div>
 
-    <div>
+    <div class=" pt-[55px]">
       <p-button
         [raised]="true"
         label="Sauvegarder Domicile"
@@ -285,7 +286,7 @@
       ></p-button>
     </div>
   </div>
-</ng-template>
+      </ng-template>
 </p-dialog>
 
 
@@ -359,11 +360,12 @@
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <div *ngFor="let p of awayPlayersPool"
                class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
-               [ngClass]="{
-                 'ring-2 ring-green-500': (p.selectionOrder && p.selectionOrder <= 11) || p.is_starter,
-                 'ring-2 ring-yellow-400': p.selectionOrder && p.selectionOrder > 11,
-                 'selected': p.selected
-               }"
+                [ngClass]="{
+     'ring-yellow-400': getPlayerRingClass(p) === 'yellow',
+    ' ring-green-500':getPlayerRingClass(p) === 'green',
+    'ring-2':p.selected,
+    selected: p.selected
+  }"
                (click)="onPlayerToggle('away', p, !p.selected)"
                tabindex="0" role="button" [attr.aria-pressed]="p.selected">
 
@@ -399,7 +401,7 @@
       </ul>
     </div>
 
-    <div>
+    <div class=" pt-[55px]">
       <p-button
         [raised]="true"
         label="Sauvegarder Extérieur"

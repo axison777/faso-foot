@@ -246,6 +246,7 @@ getSubstitutes(players: any[]) {
     this.officialService.assign(payload).subscribe({
       next: (response) => {
         console.log('Officiel assigné avec succès', response);
+        this.loadData();
       },
       error: (error) => {
         console.error('Erreur lors de l\'assignation', error);
@@ -649,6 +650,21 @@ getSubstitutes(players: any[]) {
   return null;
 }
 
+getStatusLabel(status: string | undefined): string {
+  switch (status) {
+      case 'ACTIVE': return 'Actif';
+      case 'INACTIVE': return 'Inactif';
+      case 'SUSPENDED': return 'Suspendu';
+      default: return '';
+  }
 
+}
 
+getOfficialTypeLabel(type: string | undefined): string {
+  switch (type) {
+      case 'REFEREE': return 'Arbitre';
+      case 'COMMISSIONER': return 'Commissaire';
+      default: return '';
+  }
+}
 }

@@ -221,7 +221,7 @@ selectedMatch: any = null;
 resultForm!: FormGroup;
 
 resultDialogVisible = false;
-activeStep = 1;
+activeStep = 2;
 players:any[]=[]
 
 ranking:any
@@ -351,12 +351,12 @@ loadPlayers(match:any){
       this.loading = false;
       this.selectedMatch = match;
   this.resultForm.reset({
-    home_score: match.home_score || 0,
-    away_score: match.away_score || 0,
-    result_type: 'REGULAR',
-    events: [],
+    home_score: match?.result?.home_score || 0,
+    away_score: match?.result?.away_score || 0,
+    result_type: match?.result?.result_type || 'REGULAR',
+
   });
-  this.events.clear();
+  //this.events.clear();
   this.activeStep = 1;
   this.resultDialogVisible = true;
     },
@@ -377,6 +377,7 @@ this.matchService.getDetails(match.football_match_id).subscribe({
   },
   error: () => {
     this.loading = false;
+    this.messageService.add({ severity: 'error', summary: 'Erreur lors de la chargement du match' });
   },
 })
   this.selectedMatch = match;
@@ -432,6 +433,50 @@ getTeamsOptions() {
 
 openResultDialog(match: any) {
     this.loadPlayers(match);
+    /* match structure
+    {
+    "football_match_id": "a2708177-deee-478c-9562-783b970a40f8",
+    "team1_id": "61bed823-692a-4456-b1c6-6ce00ae5d55e",
+    "team1": "Qui consequatur cons",
+    "team1_logo": "N/A",
+    "team2_id": "2657f009-efd1-4323-8c0b-6f658d55e1c8",
+    "team2": "SALITAS FC",
+    "team2_logo": "N/A",
+    "stadium_id": "7fedff12-764c-46f4-a776-873c6503803e",
+    "stadium": "Rail Club du Kadiogo 22",
+    "match_date": "27/08/2025",
+    "time": "16:00",
+    "is_derby": 1,
+    "is_rescheduled": 0,
+    "result": {
+        "id": "6e271d79-59b6-4d89-b6f6-844ebd92fbda",
+        "home_score": 3,
+        "away_score": 2,
+        "result_type": "REGULAR",
+        "verified": true,
+        "recorded_at": "2025-09-19T10:44:53.000000Z",
+        "decisive_score": {
+            "home": 3,
+            "away": 2
+        },
+        "is_draw": false
+    }
+}
+    */
+
+if(match.result){
+    this.matchService.getDetails(match.football_match_id).subscribe({
+  next: (res: any) => {
+    let match = res?.data.match;
+    this.patchEvents(match);
+
+  },
+  error: () => {
+    this.loading = false;
+    this.messageService.add({ severity: 'error', summary: 'Erreur lors du chargement du match' });
+  },
+})
+}
 
 }
 
@@ -561,6 +606,36 @@ saveResult() {
   getResultTypeLabel(type: string): string {
     const opt = this.resultTypes.find(o => o.value === type);
     return opt ? opt.label : type;
+  }
+
+  onCloseResultDialog() {
+    this.resultForm.reset();
+    this.resultDialogVisible = false;
+    this.activeStep = 1;
+  }
+
+    patchEvents(match: any) {
+    const eventsFormArray = this.resultForm.get('events') as FormArray;
+    eventsFormArray.clear(); // Clear existing controls
+
+    if (match.events && match.events.length > 0) {
+      match.events.forEach((event:any) => {
+        const eventGroup = this.fb.group({
+          id: [event.id],
+          type: [event.type, Validators.required],
+          minute: [event.minute, Validators.required],
+          stoppage: [event.stoppage || null],
+          team_id: [event.team_id, Validators.required],
+          player_id: [event.player_id, Validators.required],
+          second_player_id: [event.secondary_player_id || null], // Handle null secondary player
+          // Add conditional controls for specific event types
+          goal_type: [event.type === 'GOAL' ? event.goal_type : null],
+          card_type: [event.type === 'CARD' ? event.card_type : null],
+          card_reason: [event.type === 'CARD' ? event.card_reason : null]
+        });
+        eventsFormArray.push(eventGroup);
+      });
+    }
   }
 
 }
