@@ -19,6 +19,7 @@ import { Team } from '../../models/team.model';
 import { EquipeService } from '../../service/equipe.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { Club } from '../../models/club.model';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-clubs',
@@ -32,7 +33,8 @@ import { Club } from '../../models/club.model';
     SelectModule,
     ReactiveFormsModule,
     FileUploadModule,
-    SelectModule,InputNumberModule],
+    SelectModule,InputNumberModule,
+    DatePickerModule],
   templateUrl: './clubs.component.html',
   styleUrl: './clubs.component.scss'
 })
@@ -170,7 +172,7 @@ export class ClubsComponent {
     if (this.clubForm.get('abbreviation')?.value)
       formData.append('abbreviation', this.clubForm.get('abbreviation')?.value);
     if (this.clubForm.get('founded_year')?.value)
-      formData.append('fonded_year', this.clubForm.get('founded_year')?.value);
+      formData.append('fonded_year', new Date(this.clubForm.get('founded_year')?.value).getFullYear().toString()); ;
     if (this.clubForm.get('status')?.value)
       formData.append('status', this.clubForm.get('status')?.value);
     if (this.selectedFile) {

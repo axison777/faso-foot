@@ -48,11 +48,16 @@
 
         <div>
           <label for="founded_year" class="block font-bold mb-2">Année de création <span class="text-red-500">*</span></label>
-          <p-inputnumber
+          <p-datepicker
             id="founded_year"
             formControlName="founded_year"
             placeholder="Entrez l'année de création du club"
+            view="year"
+            dateFormat="yy"
             class="w-full"
+            appendTo="body"
+            [showIcon]="true"
+            [style]="{ width: '100%' }"
 
           />
           <small class="text-red-500" *ngIf="clubForm.get('founded_year')?.invalid && clubForm.get('founded_year')?.touched">
@@ -203,11 +208,11 @@
           <td class="actions">
             <div class="btn-group">
                 <p-button severity="primary" icon="pi pi-eye"  (click)="goToClubDetails(club.id!)"/>
-                   <p-button severity="primary" icon="pi pi-users"  (click)="showClubTeams(club)"/>
+                   <p-button severity="contrast" icon="pi pi-users"  (click)="showClubTeams(club)"/>
               <p-button severity="warn" icon="pi pi-pencil" (click)="editClub(club)"/>
               <button class="btn btn-danger" (click)="deleteClub(club.id!)">
                 <i class="pi pi-trash"></i>
-              </button> 
+              </button>
 
             </div>
           </td>
@@ -338,3 +343,5 @@
     </ng-template> -->
 
 </p-dialog>
+
+

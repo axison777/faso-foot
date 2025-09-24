@@ -29,6 +29,10 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ClubService } from '../../service/club.service';
 import { Club } from '../../models/club.model';
 import { Suspension } from '../../models/suspension.model';
+import { TeamCategory } from '../../models/team-category.model';
+import { TeamCategoryService } from '../../service/team-category.service';
+import { VilleService } from '../../service/ville.service';
+import { City } from '../../models/city.model';
 
 @Component({
   selector: 'app-club-details',
@@ -193,6 +197,13 @@ availableReasons: any[]|undefined;
 
   suspensionForm!: FormGroup;
   club_id?: string='';
+  showTeamForm: boolean = false;
+  teamForm!: FormGroup;
+  isEditingTeam: boolean = false;
+  currentLogo: string | null = null;
+  categories: TeamCategory[] = [];
+  villes: City[] = [];
+  editingTeamId?: string;
 
 
 
@@ -207,8 +218,24 @@ availableReasons: any[]|undefined;
     private tkService: TeamKitService,
     private playerService : PlayerService,
     private router: Router,
-    private contractService: ContractService
-  ) {}
+    private contractService: ContractService,
+    private tcService: TeamCategoryService,
+    private villeService: VilleService
+  ) {
+     this.teamForm = this.fb.group({
+      name: [''],
+      abbreviation: [''],
+      phone: [''],
+      email: ['', [Validators.email]],
+      city_id: ['', Validators.required],
+      logo: [''],
+      manager_first_name: [''],
+      manager_last_name: [''],
+      manager_role: [''],
+      category_id: [''],
+      club_id: ['']
+    });
+  }
 
   ngOnInit(): void {
 
@@ -945,6 +972,111 @@ removeReason(index: number) {
   }
 
 
+    toggleTeamForm(): void {
+    this.showTeamForm = !this.showTeamForm;
+    if (this.showTeamForm) {
+        this.loadCategories();
+        this.loadVilles();
+      this.resetTeamForm();
+
+    }
+  }
+
+  resetTeamForm(): void {
+    this.teamForm.reset();
+    //this.isEditingTeam = false;
+    //this.editingTeamId = null;
+    //this.currentLogo = null;
+    this.selectedFile = null;
+  }
+
+    loadCategories(): void {
+    this.loading = true;
+    this.tcService.getAll().subscribe({
+      next: (res: any) => {
+        this.categories = res?.data?.team_categories || [];
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des categories',
+        });
+      }
+    });
+  }
+
+  loadVilles(): void {
+    this.villeService.getAll().subscribe({
+      next: (res: any) => {
+        this.villes = res?.data.cities || [];
+      }
+    });
+  }
+
+  saveTeam(): void {
+    if (this.teamForm.valid) {
+      const formData = new FormData();
+      if(this.teamForm.get('name')?.value)
+        formData.append('name', this.teamForm.get('name')?.value);
+      if(this.teamForm.get('abbreviation')?.value)
+        formData.append('abbreviation', this.teamForm.get('abbreviation')?.value);
+      if(this.teamForm.get('phone')?.value)
+        formData.append('phone', this.teamForm.get('phone')?.value);
+      if(this.teamForm.get('email')?.value)
+        formData.append('email', this.teamForm.get('email')?.value);
+      if(this.teamForm.get('city_id')?.value)
+        formData.append('city_id', this.teamForm.get('city_id')?.value);
+      if(this.teamForm.get('manager_first_name')?.value)
+        formData.append('manager_first_name', this.teamForm.get('manager_first_name')?.value);
+      if(this.teamForm.get('manager_last_name')?.value)
+        formData.append('manager_last_name', this.teamForm.get('manager_last_name')?.value);
+      if(this.teamForm.get('manager_role')?.value)
+        formData.append('manager_role', this.teamForm.get('manager_role')?.value);
+        if(this.teamForm.get('category_id')?.value)
+        formData.append('category_id', this.teamForm.get('category_id')?.value);
+        if(this.club_id)
+        formData.append('club_id', this.club_id);
+
+      if (this.selectedFile) {
+        formData.append('logo', this.selectedFile);
+      }
+
+      if (this.isEditingTeam) {
+        formData.append('_method', 'PUT');
+      }
+
+      const onSuccess = () => {
+        this.loadClub(this.club_id!);
+        this.toggleTeamForm();
+        this.teamForm.reset();
+        this.messageService.add({
+          severity: 'success',
+          summary: this.isEditingTeam ? 'Équipe modifiée' : 'Équipe créée',
+          detail: `${this.teamForm.get('name')?.value}`,
+          life: 3000
+        });
+      };
+
+      const onError = () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: `Erreur lors de la ${this.isEditingTeam ? 'modification' : 'création'} de l'équipe`,
+        });
+      };
+
+      if (this.isEditingTeam && this.editingTeamId) {
+        this.equipeService.update(this.editingTeamId, formData).subscribe({ next: onSuccess, error: onError });
+      } else {
+        this.equipeService.create(formData).subscribe({ next: onSuccess, error: onError });
+      }
+    } else {
+      this.teamForm.markAllAsTouched();
+    }
+  }
 
 
 
