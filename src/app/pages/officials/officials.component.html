@@ -22,11 +22,6 @@
             <div class="search-container flex align-items-end">
                 <input type="text" class="search-input" [(ngModel)]="searchTerm"
                     placeholder="Rechercher un arbitre (nom, prénom, licence)..." />
-                <!-- <div class="header-actions ml-auto mt-auto">
-                    <button class="btn-info" (click)="toggleForm()">
-                        <i class="pi pi-plus-circle mr-2"></i> Ajouter un arbitre
-                    </button>
-                </div> -->
             </div>
 
             <!-- Loading -->
@@ -159,65 +154,118 @@
     <p-dialog [(visible)]="showForm" [modal]="true" [draggable]="false" [closable]="false" [style]="{ width: '800px' }"
         [header]="isEditing ? 'Modifier un officiel' : 'Ajouter un officiel'">
         <form [formGroup]="officialForm" class="form-grid" (ngSubmit)="saveOfficial()">
+            <!-- NOM -->
             <div class="form-item">
                 <label>Nom <span class="req">*</span></label>
                 <input pInputText formControlName="last_name" placeholder="Nom" />
+                <small class="error"
+                    *ngIf="officialForm.get('last_name')?.invalid && officialForm.get('last_name')?.touched">
+                    Le nom est requis
+                </small>
             </div>
 
+            <!-- PRÉNOM -->
             <div class="form-item">
                 <label>Prénom <span class="req">*</span></label>
                 <input pInputText formControlName="first_name" placeholder="Prénom" />
+                <small class="error"
+                    *ngIf="officialForm.get('first_name')?.invalid && officialForm.get('first_name')?.touched">
+                    Le prénom est requis
+                </small>
             </div>
 
+            <!-- DATE DE NAISSANCE -->
             <div class="form-item">
                 <label>Date de naissance</label>
                 <p-datepicker [style]="{ width: '100%' }" formControlName="date_of_birth" dateFormat="dd/mm/yy"
                     [showIcon]="true"></p-datepicker>
             </div>
 
+            <!-- LIEU DE NAISSANCE -->
             <div class="form-item">
                 <label>Lieu de naissance</label>
                 <input pInputText formControlName="birth_place" placeholder="Lieu" />
             </div>
 
+            <!-- TYPE -->
             <div class="form-item">
                 <label>Type <span class="req">*</span></label>
                 <p-select [options]="officialTypes" formControlName="official_type" optionLabel="label"
                     optionValue="value" placeholder="Type d'officiel"></p-select>
+                <small class="error"
+                    *ngIf="officialForm.get('official_type')?.invalid && officialForm.get('official_type')?.touched">
+                    Le type d'officiel est requis
+                </small>
             </div>
 
+            <!-- NIVEAU -->
             <div class="form-item">
                 <label>Niveau <span class="req">*</span></label>
                 <p-select [options]="levels" formControlName="level" optionLabel="label" optionValue="value"
                     placeholder="Niveau"></p-select>
+                <small class="error" *ngIf="officialForm.get('level')?.invalid && officialForm.get('level')?.touched">
+                    Le niveau est requis
+                </small>
             </div>
 
+            <!-- STATUT -->
             <div class="form-item">
                 <label>Statut <span class="req">*</span></label>
                 <p-select [options]="statuses" formControlName="status" optionLabel="label" optionValue="value"
                     placeholder="Statut"></p-select>
+                <small class="error" *ngIf="officialForm.get('status')?.invalid && officialForm.get('status')?.touched">
+                    Le statut est requis
+                </small>
             </div>
 
+            <!-- NATIONALITÉ -->
             <div class="form-item">
                 <label>Nationalité</label>
                 <input pInputText formControlName="nationality" placeholder="Nationalité" />
             </div>
 
+            <!-- LICENCE -->
             <div class="form-item">
                 <label>N° Licence <span class="req">*</span></label>
                 <input pInputText formControlName="license_number" placeholder="Licence" />
+                <small class="error"
+                    *ngIf="officialForm.get('license_number')?.invalid && officialForm.get('license_number')?.touched">
+                    {{ officialForm.get('license_number')?.errors?.['required'] ? 'Le numéro de licence est requis' :
+                    officialForm.get('license_number')?.errors?.['custom'] }}
+                </small>
             </div>
 
+            <!-- STRUCTURE -->
             <div class="form-item">
                 <label>Structure</label>
                 <input pInputText formControlName="structure" placeholder="Structure" />
             </div>
 
+            <!-- EXPÉRIENCE -->
             <div class="form-item">
                 <label>Expérience (années)</label>
                 <input pInputText formControlName="experience" type="number" />
+                <small class="error"
+                    *ngIf="officialForm.get('experience')?.invalid && officialForm.get('experience')?.touched">
+                    L'expérience ne peut pas être négative
+                </small>
             </div>
 
+            <!-- CERTIFICATION DATE -->
+            <div class="form-item">
+                <label>Date de certification</label>
+                <p-datepicker [style]="{ width: '100%' }" formControlName="certification_date" dateFormat="dd/mm/yy"
+                    [showIcon]="true"></p-datepicker>
+            </div>
+
+            <!-- CERTIFICATION EXPIRY -->
+            <div class="form-item">
+                <label>Expiration de certification</label>
+                <p-datepicker [style]="{ width: '100%' }" formControlName="certification_expiry" dateFormat="dd/mm/yy"
+                    [showIcon]="true"></p-datepicker>
+            </div>
+
+            <!-- FOOTER -->
             <div class="form-footer">
                 <p-button [raised]="true" severity="secondary" type="button" (click)="toggleForm()">Annuler</p-button>
                 <p-button [loading]="loadingForm" [raised]="true" type="submit">Enregistrer</p-button>

@@ -155,20 +155,30 @@ export class OfficialsComponent implements OnInit {
         });
       };
 
-      const onError = () => {
+      const onError = (error: any) => {
         this.loadingForm = false;
+
+        // Récupérer un message spécifique s'il existe
+        const specificMessage =
+          error?.error?.message ||
+          error?.error?.errors?.license_number?.[0] ||
+          `Erreur lors de la ${this.isEditing ? 'modification' : 'création'} de l'officiel`;
+
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: `Erreur lors de la ${this.isEditing ? 'modification' : 'création'} de l'officiel`
+          detail: specificMessage
         });
       };
 
       if (this.isEditing && this.editingOfficialId) {
-        this.officialService.update(this.editingOfficialId, payload).subscribe({ next: onSuccess, error: onError });
+        this.officialService.update(this.editingOfficialId, payload)
+          .subscribe({ next: onSuccess, error: onError });
       } else {
-        this.officialService.create(payload).subscribe({ next: onSuccess, error: onError });
+        this.officialService.create(payload)
+          .subscribe({ next: onSuccess, error: onError });
       }
+
     } else {
       this.officialForm.markAllAsTouched();
     }
