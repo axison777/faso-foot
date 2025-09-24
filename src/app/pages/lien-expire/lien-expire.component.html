@@ -1,0 +1,48 @@
+<p-toast></p-toast>
+<div class="login-container">
+  <section class="login-section">
+    <!-- Left side (logos) -->
+    <div class="logo-side">
+      <div class="logo-content">
+        <div class="logo-header">
+          <div class="flex items-center gap-4 justify-center logo-wrapper">
+            <div class="logo-item">
+              <img src="assets/images/Logo-FBF.png" alt="Logo FBF" class="logo-image" />
+              <span class="app-title">FÉDÉRATION BURKINABÈ DE FOOTBALL</span>
+            </div>
+            <div class="logo-divider"></div>
+            <div class="logo-item">
+              <img src="assets/images/lfp.png" alt="Logo LFP" class="logo-image" />
+              <p class="app-description">LIGUE DE FOOTBALL PROFESSIONNEL</p>
+            </div>
+          </div>
+          <div class="logo-title">Votre lien d’activation a expiré.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side (form) -->
+    <div class="form-side">
+      <div class="form-container card">
+        <h4 class="form-title">Renvoyer le lien</h4>
+        <form [formGroup]="form" (ngSubmit)="resend()">
+          <div class="mb-4">
+            <label class="block font-bold mb-2">Email</label>
+            <p-iconfield>
+              <p-inputicon class="pi pi-envelope" />
+              <input pInputText type="email" formControlName="email" placeholder="Adresse email" class="w-full" />
+            </p-iconfield>
+            <div class="text-red-500 text-sm mt-1" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+              <span *ngIf="form.get('email')?.errors?.['required']">L'email est requis.</span>
+              <span *ngIf="form.get('email')?.errors?.['email']">Email invalide.</span>
+            </div>
+          </div>
+          <button type="submit" [disabled]="loading || form.invalid" class="login-button">
+            <span *ngIf="!loading">Renvoyer le lien</span>
+            <span *ngIf="loading" class="loading-spinner"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>

@@ -29,8 +29,12 @@ import { OfficialDetailsComponent } from './app/pages/official-details/official-
 import { ClubDetailsComponent } from './app/pages/club-details/club-details.component';
 import { SaisonDetailsComponent } from './app/pages/saison-details/saison-details.component';
 import { MatchSetupComponent } from './app/pages/match-setup/match-setup.component';
+import { RolesComponent } from './app/pages/roles/roles.component';
+
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
+    { path: 'activation-compte', loadComponent: () => import('./app/pages/activation-compte/activation-compte.component').then(m => m.ActivationCompteComponent) },
+    { path: 'lien-expire', loadComponent: () => import('./app/pages/lien-expire/lien-expire.component').then(m => m.LienExpireComponent) },
     {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
     {
         path: '',
@@ -59,6 +63,9 @@ export const appRoutes: Routes = [
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
+            { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
+
+
           /*    {path: 'calendar', component:CalendarComponent}, */
 
             {path: 'officiels', component: OfficialsComponent, canActivate: [AuthGuard] },
