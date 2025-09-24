@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { User } from '../models/user.model';
 
@@ -46,7 +48,7 @@ interface Role {
 })
 export class UserService {
   private apiUrl = environment.apiUrl + '/users';
-  private rolesUrl = environment.apiUrl + '/roles'; // Endpoint pour récupérer les rôles
+  private rolesUrl = environment.apiUrl + '/roles';
 
   constructor(private http: HttpClient) {}
 
@@ -64,27 +66,109 @@ export class UserService {
     return this.http.get<ApiResponse<User[]>>(this.apiUrl, { params });
   }
 
-  // Récupérer tous les utilisateurs sans pagination (pour avoir tous les users)
+  // Récupérer tous les utilisateurs sans pagination
   getAllUsers(): Observable<ApiResponse<User[]>> {
-    let params = new HttpParams().set('per_page', '1000'); // Grande valeur pour récupérer tous
-    return this.http.get<ApiResponse<User[]>>(this.apiUrl, { params });
+    let params = new HttpParams().set('per_page', '1000');
+    return this.http.get<ApiResponse<User[]>>(this.apiUrl, { params })
+      .pipe(
+        tap(response => console.log('Réponse getAllUsers:', response)),
+        catchError(error => {
+          console.error('Erreur getAllUsers:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
-  // Récupérer un utilisateur par son slug
+  // Récupérer un utilisateur par son slug - MÉTHODE CORRIGÉE
   getBySlug(slug: string): Observable<ApiResponse<User>> {
-    return this.http.get<ApiResponse<User>>(`${this.apiUrl}/${slug}`);
+    const url = `${this.apiUrl}/${slug}`;
+    
+    console.log('=== DEBUG getBySlug ===');
+    console.log('URL construite:', url);
+    console.log('Slug reçu:', slug);
+    console.log('apiUrl de base:', this.apiUrl);
+    
+    return this.http.get<ApiResponse<User>>(url)
+      .pipe(
+        tap(response => {
+          console.log('=== RÉPONSE getBySlug ===');
+          console.log('Réponse complète:', response);
+          console.log('Status:', response?.status);
+          console.log('Data:', response?.data);
+          console.log('Message:', response?.message);
+          
+          // Vérifier la structure des rôles
+          if (response?.data && (response.data as any).roles) {
+            console.log('Rôles dans la réponse:', (response.data as any).roles);
+            console.log('Type des rôles:', typeof (response.data as any).roles);
+          }
+        }),
+        catchError(error => {
+          console.error('=== ERREUR getBySlug ===');
+          console.error('Erreur complète:', error);
+          console.error('Status:', error.status);
+          console.error('URL qui a échoué:', url);
+          console.error('Message d\'erreur:', error.message);
+          console.error('Corps de l\'erreur:', error.error);
+          
+          return throwError(() => error);
+        })
+      );
   }
 
   // Créer un utilisateur
   create(user: CreateUserRequest): Observable<ApiResponse<string>> {
-    console.log('=== DÉBOGAGE SERVICE ===');
+    console.log('=== CRÉATION UTILISATEUR ===');
     console.log('URL complète:', this.apiUrl);
     console.log('Données utilisateur à envoyer:', JSON.stringify(user, null, 2));
     console.log('Type de roles:', typeof user.roles, Array.isArray(user.roles));
     console.log('Valeurs des rôles:', user.roles);
-    console.log('========================');
     
-    return this.http.post<ApiResponse<string>>(this.apiUrl, user);
+    return this.http.post<ApiResponse<string>>(this.apiUrl, user)
+      .pipe(
+        tap(response => console.log('Réponse création:', response)),
+        catchError(error => {
+          console.error('Erreur création utilisateur:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  // Mettre à jour un utilisateur par son slug
+  update(slug: string, user: CreateUserRequest): Observable<ApiResponse<string>> {
+    const url = `${this.apiUrl}/${slug}`;
+    
+    console.log('=== MISE À JOUR UTILISATEUR ===');
+    console.log('URL:', url);
+    console.log('Slug:', slug);
+    console.log('Données:', user);
+    
+    return this.http.put<ApiResponse<string>>(url, user)
+      .pipe(
+        tap(response => console.log('Réponse mise à jour:', response)),
+        catchError(error => {
+          console.error('Erreur mise à jour utilisateur:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  // Supprimer un utilisateur par son slug
+  delete(slug: string): Observable<ApiResponse<any>> {
+    const url = `${this.apiUrl}/${slug}`;
+    
+    console.log('=== SUPPRESSION UTILISATEUR ===');
+    console.log('URL:', url);
+    console.log('Slug:', slug);
+    
+    return this.http.delete<ApiResponse<any>>(url)
+      .pipe(
+        tap(response => console.log('Réponse suppression:', response)),
+        catchError(error => {
+          console.error('Erreur suppression utilisateur:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   // Activation de compte via invitation
@@ -97,15 +181,5 @@ export class UserService {
   resendInvitation(payload: { email: string }): Observable<ApiResponse<string>> {
     const url = environment.apiUrl + '/users/users/invitation/resend';
     return this.http.post<ApiResponse<string>>(url, payload);
-  }
-
-  // Supprimer un utilisateur par son slug
-  delete(slug: string): Observable<ApiResponse<any>> {
-    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${slug}`);
-  }
-
-  // Mettre à jour un utilisateur par son slug
-  update(slug: string, user: CreateUserRequest): Observable<ApiResponse<string>> {
-    return this.http.put<ApiResponse<string>>(`${this.apiUrl}/${slug}`, user);
   }
 }

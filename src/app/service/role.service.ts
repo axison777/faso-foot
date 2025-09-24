@@ -204,7 +204,7 @@ export class RoleService {
         if (error.error && error.error.message) {
           userMessage = error.error.message;
         } else if (error.error && typeof error.error === 'object') {
-          // Gérer les erreurs de validation Laravel/API
+    // Gérer les erreurs de validation Laravel/API
           const errorMessages = this.extractValidationErrors(error.error);
           if (errorMessages.length > 0) {
             userMessage = `Erreurs de validation : ${errorMessages.join(', ')}`;

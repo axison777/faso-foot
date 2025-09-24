@@ -96,6 +96,19 @@
         <div class="col right-col">
           <label>Permissions <span class="req">*</span></label>
           <div class="permissions-list-switch" *ngIf="allPermissions?.length; else noPerms">
+                    
+    <!-- Switch global Tout sélectionner -->
+    <div class="select-all">
+      <p-inputSwitch
+        [(ngModel)]="allSelected"
+        [ngModelOptions]="{standalone: true}"
+        (onChange)="toggleAllPermissions($event.checked)">
+      </p-inputSwitch>
+      <span class="ml-2">Tout sélectionner</span>
+      <span class="ml-3 text-sm text-gray-500">
+        {{ roleForm.value.permissions?.length || 0 }} / {{ allPermissions.length }} sélectionnées
+      </span>
+    </div>
             <!-- Groupe Administration -->
             <h4 class="group-title" *ngIf="permissionsAdmin.length">Administration</h4>
             <div class="group-grid" *ngIf="permissionsAdmin.length">
@@ -111,6 +124,7 @@
                 </p-inputSwitch>
               </div>
             </div>
+
 
             <!-- Groupe Match & Clubs -->
             <h4 class="group-title" *ngIf="permissionsMatch.length">Match & Clubs</h4>
@@ -166,9 +180,9 @@
          <button type="submit" 
         [ngClass]="isEditing ? 'btn btn-update' : 'btn btn-create'" 
         [disabled]="roleForm.invalid || isSubmitting">
-  <span *ngIf="isSubmitting">Enregistrement...</span>
-  <span *ngIf="!isSubmitting">{{ isEditing ? 'Modifier' : 'Créer' }}</span>
-</button>
+          <span *ngIf="isSubmitting">Enregistrement...</span>
+          <span *ngIf="!isSubmitting">{{ isEditing ? 'Modifier' : 'Créer' }}</span>
+        </button>
 
         </div>
       </div>

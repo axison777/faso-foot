@@ -53,6 +53,9 @@ export class UsersComponent implements OnInit {
   // Rôles chargés depuis le backend
   availableRoles: { name: string; value: string }[] = [];
 
+  // Switch global "Tout sélectionner"
+  allRolesSelected: boolean = false;
+
   // Pagination
   currentPage: number = 1;
   totalPages: number = 1;
@@ -184,6 +187,8 @@ export class UsersComponent implements OnInit {
       email: user.email || '',
       roles: rolesSlugs
     });
+
+    this.updateAllRolesSelected(); // maj du switch global
     
     this.showForm = true;
   }
@@ -195,6 +200,7 @@ export class UsersComponent implements OnInit {
     });
     this.isEditing = false;
     this.editingUserSlug = null;
+    this.allRolesSelected = false;
   }
 
   saveUser(): void {
@@ -274,25 +280,12 @@ export class UsersComponent implements OnInit {
       return;
     }
     
-    // Debug de l'URL qui sera appelée
-    console.log('URL qui sera appelée:', `${this.userService['apiUrl']}/${user.slug}`);
-    
     this.userService.getBySlug(user.slug).subscribe({
       next: (response) => {
-        console.log('=== RÉPONSE DU BACKEND ===');
-        console.log('Réponse complète:', response);
-        console.log('Status:', response?.status);
-        console.log('Data:', response?.data);
-        console.log('Message:', response?.message);
-        
         if (response && response.status && response.data) {
           this.currentUser = response.data;
-          console.log('=== UTILISATEUR ASSIGNÉ POUR AFFICHAGE ===');
-          console.log('CurrentUser:', this.currentUser);
-          console.log('Rôles de l\'utilisateur:', this.currentUser.roles);
           this.showDetails = true;
         } else {
-          console.error('Structure de réponse inattendue:', response);
           this.messageService.add({
             severity: 'warn',
             summary: 'Attention',
@@ -302,12 +295,6 @@ export class UsersComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('=== ERREUR RÉCUPÉRATION UTILISATEUR ===');
-        console.error('Erreur complète:', error);
-        console.error('Status:', error.status);
-        console.error('URL:', error.url);
-        console.error('Message:', error.message);
-        
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
@@ -382,50 +369,34 @@ export class UsersComponent implements OnInit {
 
   // === MÉTHODES POUR GÉRER LES RÔLES ===
 
-  /**
-   * Extrait les slugs des rôles depuis différents formats
-   */
   extractRoleSlugs(roles: (string | UserRole)[]): string[] {
     return roles.map(role => {
       if (typeof role === 'string') {
-        return role; // Déjà un slug
+        return role;
       } else if (role && typeof role === 'object' && role.slug) {
-        return role.slug; // Objet avec slug
+        return role.slug;
       }
       return '';
     }).filter(slug => slug !== '');
   }
 
-  /**
-   * Obtient le nom d'affichage d'un rôle
-   */
   getRoleLabel(role: string | UserRole): string {
     if (typeof role === 'object' && role !== null) {
       return role.name || role.slug || 'Rôle inconnu';
     }
     
-    // Si c'est un string, chercher dans les rôles disponibles
     const availableRole = this.availableRoles.find(r => r.value === role);
     return availableRole ? availableRole.name : role;
   }
 
-  /**
-   * Obtient les rôles d'un utilisateur sous forme de chaîne
-   */
   getUserRolesAsString(roles: (string | UserRole)[] = []): string {
     return roles.map(role => this.getRoleLabel(role)).join(', ');
   }
 
-  /**
-   * Alias pour compatibilité
-   */
   getRoleLabels(roles: (string | UserRole)[] = []): string {
     return this.getUserRolesAsString(roles);
   }
 
-  /**
-   * Obtient les classes CSS pour un rôle
-   */
   getRoleClasses(role: string | UserRole): string {
     const roleSlug = typeof role === 'object' ? (role.slug || '') : role;
     
@@ -437,12 +408,7 @@ export class UsersComponent implements OnInit {
     return 'role-user';
   }
 
-  /**
-   * Gère l'activation/désactivation des rôles dans le formulaire
-   */
   onToggleRole(value: string, checked: boolean): void {
-    console.log('Toggle rôle:', { value, checked });
-    
     const control = this.userForm.get('roles');
     if (!control) return;
     
@@ -458,7 +424,29 @@ export class UsersComponent implements OnInit {
     control.markAsDirty();
     control.markAsTouched();
     
-    console.log('Nouveaux rôles sélectionnés:', control.value);
+    this.updateAllRolesSelected();
+  }
+
+  toggleAllRoles(checked: boolean): void {
+    const control = this.userForm.get('roles');
+    if (!control) return;
+
+    if (checked) {
+      control.setValue(this.availableRoles.map(r => r.value));
+    } else {
+      control.setValue([]);
+    }
+
+    control.markAsDirty();
+    control.markAsTouched();
+    this.allRolesSelected = checked;
+  }
+
+  updateAllRolesSelected(): void {
+    const control = this.userForm.get('roles');
+    if (!control) return;
+
+    this.allRolesSelected = control.value?.length === this.availableRoles.length;
   }
 
   // === MÉTHODES POUR LES DÉTAILS ===

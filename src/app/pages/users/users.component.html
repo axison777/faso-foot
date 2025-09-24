@@ -52,31 +52,51 @@
       </div>
 
       <!-- Colonne droite: rôles avec toggle -->
-      <div class="right-col">
-        <label class="block font-bold mb-2">Rôles <span class="text-red-500">*</span></label>
-        <div *ngIf="loadingRoles" class="text-center py-3">
-          <i class="pi pi-spin pi-spinner"></i> Chargement des rôles...
-        </div>
-        <div class="roles-list-switch" *ngIf="!loadingRoles && availableRoles?.length; else noRoles">
-          <div class="role-row" *ngFor="let r of availableRoles">
-            <div class="info">
-              <div class="name">{{ r.name }}</div>
-              <div class="slug">{{ r.value }}</div>
-            </div>
-            <p-inputSwitch
-              [ngModel]="(userForm.get('roles')?.value || []).includes(r.value)"
-              [ngModelOptions]="{standalone: true}"
-              (onChange)="onToggleRole(r.value, $event.checked)"
-            ></p-inputSwitch>
-          </div>
-        </div>
-        <ng-template #noRoles>
-          <p class="text-sm text-gray-500">Aucun rôle disponible</p>
-        </ng-template>
-        <small class="text-red-500" *ngIf="userForm.get('roles')?.invalid && userForm.get('roles')?.touched">
-          Au moins un rôle est requis
-        </small>
+     <!-- Colonne droite: rôles avec toggle -->
+<div class="right-col">
+  <label class="block font-bold mb-2">Rôles <span class="text-red-500">*</span></label>
+
+  <div *ngIf="loadingRoles" class="text-center py-3">
+    <i class="pi pi-spin pi-spinner"></i> Chargement des rôles...
+  </div>
+
+  <!-- Switch global -->
+  <div *ngIf="!loadingRoles && availableRoles?.length" class="mb-2 flex items-center">
+    <p-inputSwitch 
+      [(ngModel)]="allRolesSelected" 
+      [ngModelOptions]="{standalone: true}"
+      (onChange)="toggleAllRoles($event.checked)">
+    </p-inputSwitch>
+    <span class="ml-2">Tout sélectionner</span>
+    <span class="ml-2 text-gray-500 text-sm">
+      {{ userForm.get('roles')?.value?.length || 0 }} / {{ availableRoles.length }} sélectionné(s)
+    </span>
+  </div>
+
+  <!-- Liste des rôles -->
+  <div class="roles-list-switch" *ngIf="!loadingRoles && availableRoles?.length; else noRoles">
+    <div class="role-row" *ngFor="let r of availableRoles">
+      <div class="info">
+        <div class="name">{{ r.name }}</div>
+        <div class="slug">{{ r.value }}</div>
       </div>
+      <p-inputSwitch
+        [ngModel]="(userForm.get('roles')?.value || []).includes(r.value)"
+        [ngModelOptions]="{standalone: true}"
+        (onChange)="onToggleRole(r.value, $event.checked)"
+      ></p-inputSwitch>
+    </div>
+  </div>
+
+  <ng-template #noRoles>
+    <p class="text-sm text-gray-500">Aucun rôle disponible</p>
+  </ng-template>
+
+  <small class="text-red-500" *ngIf="userForm.get('roles')?.invalid && userForm.get('roles')?.touched">
+    Au moins un rôle est requis
+  </small>
+</div>
+
 
      <div class="form-actions">
   <div class="left">

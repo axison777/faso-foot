@@ -461,6 +461,7 @@ table.custom-table {
       }
     }
   }
+  
 
   .permission-item {
     display: flex;
@@ -664,3 +665,33 @@ table.custom-table {
     
   }
 }
+
+
+/* Empêche la sélection bleue du texte quand on clique sur "Tout sélectionner" */
+.select-all {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;            /* standard */
+  -webkit-user-select: none;    /* Chrome/Safari */
+  -moz-user-select: none;       /* Firefox */
+  -ms-user-select: none;        /* IE/Edge */
+  -webkit-tap-highlight-color: transparent; /* supprime la surbrillance tactile sur mobile */
+}
+
+/* S'assurer que les spans n'héritent pas de sélection */
+.select-all span {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Rendre le switch cliquable et lisible au survol */
+.select-all ::ng-deep .p-inputswitch,
+.select-all p-inputSwitch {
+  cursor: pointer;
+}
+
+/* (optionnel) petit espacement / style */
+.select-all .ml-2 { margin-left: 8px; }
+.select-all .ml-3 { margin-left: 12px; color: #64748b; font-size: 0.9rem; }
+
