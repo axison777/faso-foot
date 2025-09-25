@@ -19,6 +19,7 @@ import { Team } from '../../models/team.model';
 import { EquipeService } from '../../service/equipe.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { Club } from '../../models/club.model';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-clubs',
@@ -32,7 +33,8 @@ import { Club } from '../../models/club.model';
     SelectModule,
     ReactiveFormsModule,
     FileUploadModule,
-    SelectModule,InputNumberModule],
+    SelectModule,InputNumberModule,
+    DatePickerModule],
   templateUrl: './clubs.component.html',
   styleUrl: './clubs.component.scss'
 })
@@ -94,7 +96,7 @@ export class ClubsComponent {
 
   ngOnInit(): void {
      this.loadClubs();
-     this.loadTeams();
+     //this.loadTeams();
 /*     this.clubs = [
   {
     id: 1,
@@ -170,7 +172,7 @@ export class ClubsComponent {
     if (this.clubForm.get('abbreviation')?.value)
       formData.append('abbreviation', this.clubForm.get('abbreviation')?.value);
     if (this.clubForm.get('founded_year')?.value)
-      formData.append('fonded_year', this.clubForm.get('founded_year')?.value);
+      formData.append('fonded_year', new Date(this.clubForm.get('founded_year')?.value).getFullYear().toString()); ;
     if (this.clubForm.get('status')?.value)
       formData.append('status', this.clubForm.get('status')?.value);
     if (this.selectedFile) {
@@ -226,16 +228,17 @@ export class ClubsComponent {
 
     //this.selectedTeamIds = Array.from(club.teams_ids || []);
 
-    this.clubService.get(club.id!).subscribe({
+    this.clubService.getById(club.id!).subscribe({
       next: (res: any) => {
-        this.teams = res?.data.club.teams || [];
+        this.selectedClub = res?.data?.club  || null;
+
         this.isEditingTeams = true;
       },
       error: (err) => {
         console.error('Erreur lors du chargement des équipes', err);
       }
     })
-    this.selectedClub = club;
+
     //this.updateTeamControls();
   }
 
@@ -269,9 +272,10 @@ export class ClubsComponent {
     } */
   }
 
-  filteredTeams(): any[] {
+  get filteredTeams(): any[] {
   const term = this.teamSearchControl.value?.toLowerCase() || '';
-  return this.teams.filter(team =>
+  if (!this.selectedClub.teams) return [];
+  return this.selectedClub.teams.filter(team =>
     team.name?.toLowerCase().includes(term) ||
     team.abbreviation?.toLowerCase().includes(term)
   );
@@ -311,7 +315,8 @@ get teamSelectionControls(): FormControl[] {
 }
 
 updateTeamControls() {
-  const filtered = this.filteredTeams();
+  //const filtered = this.filteredTeams();
+    const filtered = this.filteredTeams;
   this.teamControls.clear();
   for (let team of filtered) {
     const control = new FormControl<boolean>(this.selectedTeamIds.includes(team.id), { nonNullable: true });
@@ -330,11 +335,13 @@ updateTeamControls() {
 
 
 get selectedTeamObjects() {
-  return this.teams.filter(team => this.selectedTeamIds.includes(team?.id!));
+ /*  return this.teams.filter(team => this.selectedTeamIds.includes(team?.id!)); */
+ return this.teams
 }
 
 uncheckTeam(teamId: string) {
-  const filtered = this.filteredTeams();
+  //const filtered = this.filteredTeams();
+    const filtered = this.filteredTeams;
   const index = filtered.findIndex(t => t.id === teamId);
   if (index !== -1) {
     this.teamSelectionControls[index].setValue(false);
@@ -376,14 +383,14 @@ updateGlobalSelection() {
   deleteClub(id?: string): void {
     this.confirmationService.confirm({
      icon: 'pi pi-exclamation-triangle',
-      message: 'Voulez-vous vraiment supprimer cette club ?',
+      message: 'Voulez-vous vraiment supprimer ce club ?',
       accept: () => {
         this.clubService.delete(id).subscribe(() => {
           this.loadClubs();
           this.messageService.add({
             severity: 'success',
             summary: 'Suppression réussie',
-            detail: 'La club a été supprimée.'
+            detail: 'La club a été supprimé.'
           });
         });
       }
@@ -430,5 +437,15 @@ updateGlobalSelection() {
         });
       }
     });
+  }
+
+  goToTeamDetails(teamId: string): void {
+    this.router.navigate(['/equipe-details', teamId]);
+  }
+
+  goToClubDetails(id: string): void {
+    /* this.selectedTeam = team;
+    this.showDetails = true; */
+    this.router.navigate(['/club-details', id],);
   }
 }

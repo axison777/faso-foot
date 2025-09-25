@@ -207,12 +207,15 @@ export class TeamCategoriesComponent implements OnInit {
   return this.categories.indexOf(obj) + 1;
 }
 
-  filteredTeams(): any[] {
+  get filteredTeams(): any[] {
   const term = this.teamSearchControl.value?.toLowerCase() || '';
-  return this.teams.filter(team =>
+  if (this.selectedCategory?.teams)
+  return this.selectedCategory.teams.filter(team =>
     team.name?.toLowerCase().includes(term) ||
     team.abbreviation?.toLowerCase().includes(term)
   );
+  else
+    return [];
 }
 
    showCategoryTeams(category: TeamCategory): void {
@@ -221,7 +224,8 @@ export class TeamCategoriesComponent implements OnInit {
 
     this.tcService.get(category.id!).subscribe({
       next: (res: any) => {
-        this.teams = res?.data.team_category.teams || [];
+        this.selectedCategory = res?.data.team_category || null;
+
         this.isEditingTeams = true;
       },
       error: (err) => {
@@ -231,4 +235,9 @@ export class TeamCategoriesComponent implements OnInit {
     this.selectedCategory= category;
     //this.updateTeamControls();
   }
+
+  goToTeamDetails(teamId: string): void {
+    this.router.navigate(['/equipe-details', teamId]);
+  }
 }
+      

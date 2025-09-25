@@ -167,5 +167,40 @@ body {
   mask-image: url('assets/custom-icons/category-new-each-svgrepo-com.svg');
 
 }
+.custom-icon.referee {
+  -webkit-mask-image: url('assets/custom-icons/whistle-1-svgrepo-com.svg');
+  mask-image: url('assets/custom-icons/whistle-1-svgrepo-com.svg');
+
+}
+
+.custom-icon.ball {
+  -webkit-mask-image: url('assets/custom-icons/soccer-ball-thin-svgrepo-com.svg');
+  mask-image: url('assets/custom-icons/soccer-ball-thin-svgrepo-com.svg');
+
+}
+
+.custom-icon.swap {
+  -webkit-mask-image: url('assets/custom-icons/swap-vertical-svgrepo-com.svg');
+  mask-image: url('assets/custom-icons/swap-vertical-svgrepo-com.svg');
+
+}
+
+.p-button.p-button-contrast {
+  background-color: #475569 !important; /* Gris foncé */
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+/* Styles pour l'état survolé (hover) */
+.p-button.p-button-contrast:hover {
+  background-color: #334155 !important; /* Un peu plus clair au survol */
+  border-color: #334155 !important;
+}
+
+/* Styles pour l'état de focus */
+.p-button.p-button-contrast:focus {
+  box-shadow: 0 0 0 0.2rem rgba(51, 51, 51, 0.5) !important;
+}
 
 
+  

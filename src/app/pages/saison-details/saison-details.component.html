@@ -1,0 +1,807 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<div *ngIf="season" class="season-container">
+  <div class="header">
+    <h1>{{ season.name }}</h1>
+    <p> Saison {{season.start_date | date:'yyyy'}} - {{season.end_date | date:'yyyy'}}</p>
+  </div>
+
+  <p-tabView [(activeIndex)]="activeIndex" class="season-tabs" (onChange)="onTabChange($event)">
+
+    <!-- ===== MATCHS ===== -->
+    <p-tabPanel header="Matchs" leftIcon="pi pi-calendar">
+      <div *ngIf="getPoolsOptions()" class="filters">
+        <p-select *ngIf="getPoolsOptions()!.length>1"  [options]="getPoolsOptions()" [(ngModel)]="selectedPoolId" placeholder="Choisir un pool"></p-select>
+        <p-select [options]="getPhasesOptions()" [(ngModel)]="selectedPhaseKey" placeholder="Choisir une phase"></p-select>
+      </div>
+
+      <p-accordion value="0">
+
+        <p-accordion-panel value="{{i}}" *ngFor="let day of getMatchdays() index as i" >
+            <p-accordion-header>{{day.label}}</p-accordion-header>
+            <p-accordion-content>
+                          <div class="cards-grid">
+<p-card class="match-card" *ngFor="let match of day.matches">
+  <div class="match-teams">
+    <div class="team-row">
+      <ng-container *ngIf="match.team1_logo; else team1Placeholder">
+        <img [src]="match.team1_logo" alt="{{match.team1}}" class="team-logo">
+      </ng-container>
+      <ng-template #team1Placeholder>
+        <div class="team-logo placeholder" [style.background-color]="getTeamColor(match.team1)">
+          {{ getInitials(match.team1) }}
+        </div>
+      </ng-template>
+      <span class="team-name">{{ match.team1 }}</span>
+      <span class="team-score" [ngClass]="getWinnerClass(match, 'team1')">
+        {{ match?.result?.home_score }}
+      </span>
+    </div>
+
+    <div class="team-row">
+      <ng-container *ngIf="match.team2_logo; else team2Placeholder">
+        <img [src]="match.team2_logo" alt="{{match.team2}}" class="team-logo">
+      </ng-container>
+      <ng-template #team2Placeholder>
+        <div class="team-logo placeholder" [style.background-color]="getTeamColor(match.team2)">
+          {{ getInitials(match.team2) }}
+        </div>
+      </ng-template>
+      <span class="team-name">{{ match.team2 }}</span>
+      <span class="team-score" [ngClass]="getWinnerClass(match, 'team2')">
+        {{ match?.result?.away_score }}
+      </span>
+    </div>
+  </div>
+
+  <div class="match-meta">
+    <div>{{ match.stadium }}</div>
+    <div>{{ match.match_date }} - {{ match.time }}</div>
+  </div>
+
+  <div class="match-actions">
+    <p-button [disabled]="match?.result?.verified" [raised]="true" severity="secondary" pTooltip="Initier" icon="pi pi-clock" (click)="matchSettingUp(match)" ></p-button>
+    <p-button [disabled]="!match?.result?.verified" severity="contrast" pTooltip="Détails" icon="pi pi-eye" class="p-button-rounded p-button-text"
+           (click)="openDetails(match)"></p-button>
+    <p-button [disabled]="match?.result?.verified" severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil"
+              (click)="openResultDialog(match)"></p-button>
+    <p-button [disabled]="match?.result?.verified || !match?.result" severity="primary" pTooltip="Valider résultat" icon="pi pi-check"
+              (onClick)="confirmValidate(match)"></p-button>
+  </div>
+</p-card>
+
+
+          </div>
+            </p-accordion-content>
+        </p-accordion-panel>
+      </p-accordion>
+    </p-tabPanel>
+
+    <!-- ===== CLASSEMENT ===== -->
+    <p-tabPanel header="Classement" leftIcon="pi pi-list">
+        <div *ngIf="getPoolsOptions()" class="filters">
+        <p-select *ngIf="getPoolsOptions()!.length>1" (onChange)="loadRanking()"  [options]="getPoolsOptions()" [(ngModel)]="selectedPoolId" placeholder="Choisir un pool"></p-select>
+
+      </div>
+   <!--    <div class="table-actions">
+        <button pButton type="button" label="Aller au calendrier" class="btn-primary"></button>
+      </div> -->
+<p-table [value]="ranking" styleClass="p-datatable-sm p-datatable-gridlines w-full">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>#</th>
+      <th>Club</th>
+      <th>MJ</th>
+      <th>G</th>
+      <th>N</th>
+      <th>P</th>
+      <th>BP</th>
+      <th>BC</th>
+      <th>DB</th>
+      <th>Pts</th>
+      <th>5 derniers</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-team>
+    <tr>
+      <td class="text-center">{{getPositionLabel(team.position) || team.position }}</td>
+      <td class="text-left font-medium">{{ team.team_name }}</td>
+      <td class="text-center">{{ team.matches_played }}</td>
+      <td class="text-center">{{ team.wins }}</td>
+      <td class="text-center">{{ team.draws }}</td>
+      <td class="text-center">{{ team.losses }}</td>
+      <td class="text-center">{{ team.goals_for }}</td>
+      <td class="text-center">{{ team.goals_against }}</td>
+      <td class="text-center">{{ team.goals_for - team.goals_against }}</td>
+      <td class="text-center font-bold">{{ team.points }}</td>
+      <td>
+        <div class="flex gap-1 justify-center">
+          <ng-container *ngFor="let r of team.last_5_results">
+            <span
+              class="mini-badge w-6 h-6 flex items-center justify-center rounded text-xs font-bold text-white"
+              [ngClass]="{
+                'bg-green-600 text-white': r === 'W',
+                'bg-gray-400 text-white': r === 'D',
+                'bg-red-500 text-white': r === 'L'
+              }"
+            >
+              {{ r=== 'W' ? 'V' : r === 'D' ? 'N' : 'D' }}
+            </span>
+          </ng-container>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+
+    </p-tabPanel>
+
+    <!-- ===== INFOS ===== -->
+  <!--   <p-tabPanel header="Infos" leftIcon="pi pi-info-circle">
+      <div class="info-section">
+        <p><strong>Nom :</strong> {{ season.name }}</p>
+        <p><strong>Durée :</strong> {{ season.start_date }} → {{ season.end_date }}</p>
+        <button pButton type="button" label="Voir calendrier" class="btn-primary"></button>
+      </div>
+    </p-tabPanel> -->
+
+  </p-tabView>
+</div>
+
+<!-- DIALOG DETAILS -->
+<p-dialog header="Détails du match" *ngIf="0" [modal]="true" [style]="{width:'600px'}">
+  <div class="match-details">
+
+    <!-- Ligne principale équipes + scores centrés -->
+    <div class="teams-line-centered">
+      <!-- Équipe 1 -->
+      <div class="team-left">
+        <img *ngIf="selectedMatch?.team1_logo; else team1Placeholder" [src]="selectedMatch?.team1_logo" class="team-logo" alt="{{selectedMatch?.team1}}">
+        <ng-template #team1Placeholder>
+          <div class="team-logo placeholder" [style.background-color]="getTeamColor(selectedMatch?.team1)">
+            {{ getInitials(selectedMatch?.team1) }}
+          </div>
+        </ng-template>
+        <span class="team-abbr">{{ selectedMatch?.team1 }}</span>
+      </div>
+
+      <!-- Score au centre -->
+      <div class="score-center">
+        <span [ngClass]="getWinnerClass(selectedMatch,'team1')">{{ selectedMatch?.home_score }}</span>
+        -
+        <span [ngClass]="getWinnerClass(selectedMatch,'team2')">{{ selectedMatch?.away_score }}</span>
+      </div>
+
+      <!-- Équipe 2 -->
+      <div class="team-right">
+                <img *ngIf="selectedMatch?.team2_logo; else team2Placeholder" [src]="selectedMatch?.team2_logo" class="team-logo" alt="{{selectedMatch?.team2}}">
+        <ng-template #team2Placeholder>
+          <div class="team-logo placeholder" [style.background-color]="getTeamColor(selectedMatch?.team2)">
+            {{ getInitials(selectedMatch?.team2) }}
+          </div>
+        </ng-template>
+        <span class="team-abbr">{{ selectedMatch?.team2 }}</span>
+
+      </div>
+    </div>
+
+    <!-- Infos générales -->
+    <div class="extra-info">
+      <p><strong>Stade :</strong> {{ selectedMatch?.stadium }}</p>
+      <p><strong>Date :</strong> {{ selectedMatch?.match_date }} - {{ selectedMatch?.time }}</p>
+      <p><strong>Type de résultat :</strong> {{getResultTypeLabel(selectedMatch?.result_type) || selectedMatch?.result_type }}</p>
+    </div>
+
+    <!-- Détails scores -->
+    <div class="score-details">
+      <h4>Détails des scores</h4>
+      <table class="score-table">
+        <tr>
+          <th>Période</th>
+          <th>{{ selectedMatch?.team1 }}</th>
+          <th>{{ selectedMatch?.team2 }}</th>
+        </tr>
+        <tr>
+          <td>Score à la mi-temps</td>
+          <td>{{ selectedMatch?.halftime_home_score }}</td>
+          <td>{{ selectedMatch?.halftime_away_score }}</td>
+        </tr>
+        <tr>
+          <td>Score après les prolongations</td>
+          <td>{{ selectedMatch?.extra_time_home_score }}</td>
+          <td>{{ selectedMatch?.extra_time_away_score }}</td>
+        </tr>
+        <tr>
+          <td>Score après les tirs au but</td>
+          <td>{{ selectedMatch?.penalty_home_score }}</td>
+          <td>{{ selectedMatch?.penalty_away_score }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</p-dialog>
+
+
+
+<!-- Dialog Définir/Modifier résultat -->
+<p-dialog
+  header="Définir le résultat"
+  [(visible)]="resultDialogVisible"
+  [modal]="true"
+  [style]="{ width: '60rem' }"
+  (onHide)="onCloseResultDialog()"
+>
+  <form [formGroup]="resultForm" class="flex flex-col gap-4">
+    <p-stepper   [value]="1" >
+      <p-step-list>
+        <p-step [value]="1">Score</p-step>
+        <p-step [value]="2">Événements</p-step>
+      <!--   <p-step [value]="3">Résumé</p-step> -->
+      </p-step-list>
+
+      <p-step-panels>
+        <!-- STEP 1 : SCORES -->
+        <p-step-panel [value]="1">
+        <ng-template #content let-activateCallback="activateCallback">
+            <!-- Score principal -->
+  <div class="flex justify-between items-center gap-8 mb-6">
+    <div class="flex flex-col items-center gap-2">
+      <img
+        [src]="selectedMatch?.team1_logo"
+        *ngIf="selectedMatch?.team1_logo; else team1ph"
+        class=" h-16 w-16 rounded-full object-cover"
+      />
+      <ng-template #team1ph>
+            <div class="big-team-logo placeholder" [style.background-color]="getTeamColor(selectedMatch?.team1)">
+          {{ getInitials(selectedMatch?.team1) }}
+        </div>
+      </ng-template>
+      <span class="font-semibold">{{ selectedMatch?.team1 }}</span>
+      <p-inputnumber
+        formControlName="home_score"
+        min="0"
+        max="99"
+        class=" text-center"
+      />
+    </div>
+
+    <div class="text-xl font-bold">VS</div>
+
+    <div class="flex flex-col items-center gap-2">
+      <img
+        [src]="selectedMatch?.team2_logo"
+        *ngIf="selectedMatch?.team2_logo; else team2ph"
+        class=" h-16 rounded-full object-cover"
+      />
+      <ng-template #team2ph>
+            <div class="big-team-logo placeholder w-50 h-50" [style.background-color]="getTeamColor(selectedMatch?.team2)">
+          {{ getInitials(selectedMatch?.team2) }}
+        </div>
+      </ng-template>
+      <span class="font-semibold">{{ selectedMatch?.team2 }}</span>
+      <p-inputnumber
+        formControlName="away_score"
+        min="0"
+        max="99"
+        class=" text-center"
+      />
+    </div>
+  </div>
+
+  <!-- Type de résultat -->
+  <div class="mt-4 grid justify-center text-center">
+    <h5 class="font-semibold mb-1"> Fin du match </h5>
+    <p-select
+      [options]="resultTypes"
+      optionLabel="label"
+      optionValue="value"
+      formControlName="result_type"
+      placeholder="Type de résultat"
+    ></p-select>
+  </div>
+
+  <!-- Détails des scores -->
+<div class="mt-6 grid grid-cols-1 gap-4">
+  <div class="border rounded p-3">
+    <h5 class="font-semibold mb-2">Score à la mi-temps</h5>
+    <div class="flex items-center justify-center gap-3">
+      <p-inputNumber
+        formControlName="halftime_home_score"
+        min="0"
+        max="99"
+        class="w-1/2 text-center"
+        placeholder="{{ selectedMatch?.team1 }}"
+      />
+      <span>-</span>
+      <p-inputNumber
+        formControlName="halftime_away_score"
+        min="0"
+        max="99"
+        class="w-1/2 text-center"
+        placeholder="{{ selectedMatch?.team2 }}"
+      />
+    </div>
+  </div>
+
+  <div *ngIf="resultForm.get('result_type')?.value === 'EXTRA_TIME' || resultForm.get('result_type')?.value === 'PENALTIES'" class="border rounded p-3">
+    <h5 class="font-semibold mb-2">Score après les prolongations</h5>
+    <div class="flex items-center justify-center gap-3">
+      <p-inputNumber
+        formControlName="extra_time_home_score"
+        min="0"
+        max="99"
+        class="w-1/2 text-center"
+        placeholder="{{ selectedMatch?.team1 }}"
+      />
+      <span>-</span>
+      <p-inputNumber
+        formControlName="extra_time_away_score"
+        min="0"
+        max="99"
+        class="w-1/2 text-center"
+        placeholder="{{ selectedMatch?.team2 }}"
+      />
+    </div>
+  </div>
+
+  <div *ngIf="resultForm.get('result_type')?.value === 'PENALTIES'" class="border rounded p-3">
+    <h5 class="font-semibold mb-2">Score après les tirs au but</h5>
+    <div class="flex items-center justify-center gap-3">
+      <p-inputNumber
+        formControlName="penalty_home_score"
+        min="0"
+        max="99"
+        class="w-1/2 text-center"
+        placeholder="{{ selectedMatch?.team1 }}"
+      />
+      <span>-</span>
+      <p-inputNumber
+        formControlName="penalty_away_score"
+        min="0"
+        max="99"
+        class="w-1/2 text-center"
+        placeholder="{{ selectedMatch?.team2 }}"
+      />
+    </div>
+  </div>
+</div>
+
+  <!-- Navigation -->
+  <div class="mt-6 flex justify-end">
+    <p-button label="Suivant" (onClick)="goToStep(2)"></p-button>
+  </div>
+          </ng-template>
+        </p-step-panel>
+
+        <!-- STEP 2 : EVENTS -->
+        <p-step-panel [value]="2">
+          <ng-template #content let-activateCallback="activateCallback">
+            <div formArrayName="events" class="flex flex-col gap-4">
+            <div
+  *ngFor="let ev of events.controls; let i = index"
+  [formGroupName]="i"
+  class="p-4 border rounded-lg flex flex-col gap-4"
+>
+  <!-- Ligne 1 -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+    <div class="flex flex-col">
+      <label class=" font-medium mb-1">Type</label>
+      <p-select
+        [options]="eventTypes"
+        optionLabel="label"
+        optionValue="value"
+        formControlName="type"
+        placeholder="Type"
+      ></p-select>
+    </div>
+
+    <div class="flex flex-col">
+      <label class="font-medium mb-1">Minute</label>
+      <p-inputnumber formControlName="minute" class="w-full" />
+    </div>
+
+    <div class="flex flex-col">
+      <label class="font-medium mb-1">Temps d'arrêt (mn)  </label>
+      <p-inputnumber formControlName="stoppage" class="w-full" />
+    </div>
+  </div>
+
+  <!-- Ligne 2 -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div class="flex flex-col">
+      <label class="font-medium mb-1">Équipe</label>
+      <p-select
+        [options]="getTeamsOptions()"
+        optionLabel="label"
+        optionValue="value"
+        formControlName="team_id"
+        placeholder="Équipe"
+      ></p-select>
+    </div>
+
+    <div class="flex flex-col">
+      <label class="font-medium mb-1">Joueur 1</label>
+      <p-select
+      [filter]="true"
+      filterBy="fullname"
+        [options]="players"
+        optionLabel="fullname"
+        optionValue="id"
+        formControlName="player_id"
+        placeholder="Joueur 1"
+      ></p-select>
+    </div>
+
+    <div class="flex flex-col">
+      <label class="font-medium mb-1">Joueur 2</label>
+      <p-select
+      [filter]="true"
+      filterBy="fullname"
+        [options]="players"
+        optionLabel="fullname"
+        optionValue="id"
+        formControlName="second_player_id"
+        placeholder="Joueur 2"
+      ></p-select>
+    </div>
+  </div>
+
+  <!-- Ligne but -->
+  <div *ngIf="ev.get('type')?.value === 'GOAL'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div class="flex flex-col">
+      <label class=" font-medium mb-1">Type de but</label>
+      <p-select
+        [options]="goalTypeOptions || []"
+        optionLabel="label"
+        optionValue="value"
+        formControlName="goal_type"
+        placeholder="Type de but"
+      ></p-select>
+    </div>
+  </div>
+
+  <!-- Ligne carton -->
+  <div *ngIf="ev.get('type')?.value === 'CARD'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div class="flex flex-col">
+      <label class=" font-medium mb-1">Type de carton</label>
+      <p-select
+        [options]="cardTypeOptions || []"
+        optionLabel="label"
+        optionValue="value"
+        formControlName="card_type"
+        placeholder="Type de carton"
+      ></p-select>
+    </div>
+    <div class="flex flex-col">
+      <label class="font-medium mb-1">Raison</label>
+      <input
+      pInputText
+        formControlName="card_reason"
+        maxlength="255"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+  <!-- Supprimer -->
+  <div class="flex justify-end">
+    <p-button
+      icon="pi pi-trash"
+      severity="danger"
+      class="p-button-rounded p-button-text"
+      (onClick)="removeEvent(i)"
+    ></p-button>
+  </div>
+</div>
+
+
+            <div>
+              <p-button
+                icon="pi pi-plus"
+                label="Ajouter un événement"
+                (onClick)="addEvent()"
+              ></p-button>
+            </div>
+          </div>
+
+           <div class="mt-4 flex justify-between">
+            <p-button severity="secondary" label="Précédent" (onClick)="goToStep(1)"></p-button>
+            <p-button label="Valider" (onClick)="saveResult()"></p-button>
+          </div>
+          </ng-template>
+
+
+        </p-step-panel>
+
+        <!-- STEP 3 : RESUME -->
+    <!--     <p-step-panel [value]="3">
+            <ng-template #content let-activateCallback="activateCallback">
+                          <h3 class="mb-4">Résumé du match</h3>
+          <pre>{{ resultForm.value | json }}</pre>
+
+          <div class="mt-4 flex justify-between">
+            <p-button label="Précédent" (onClick)="goToStep(2)"></p-button>
+            <p-button label="Valider" (onClick)="saveResult()"></p-button>
+          </div>
+            </ng-template>
+        </p-step-panel> -->
+      </p-step-panels>
+    </p-stepper>
+  </form>
+</p-dialog>
+
+<!-- ------------- -->
+<p-dialog *ngIf="match"
+    [(visible)]="detailsDialog"
+    [modal]="true"
+    [closable]="true"
+    [style]="{width: '1000px', height: '90vh'}"
+    styleClass="match-details-dialog"
+  >
+    <!-- HEADER AVEC SCORE -->
+    <ng-template pTemplate="header">
+      <div class="flex items-center justify-center gap-6 w-full">
+        <div class="flex flex-col items-center">
+          <img [src]="match.team_one.logo" alt="" class="w-12 h-12 object-contain" />
+          <span class="font-semibold">{{ match.team_one.abbreviation }}</span>
+        </div>
+
+        <div class="text-2xl font-bold flex items-center gap-2">
+          <span [ngClass]="getScoreClass(match.result.home_score, match.result.away_score)">
+            {{ match.result.home_score }}
+          </span>
+          <span>-</span>
+          <span [ngClass]="getScoreClass(match.result.away_score, match.result.home_score)">
+            {{ match.result.away_score }}
+          </span>
+        </div>
+
+        <div class="flex flex-col items-center">
+          <img [src]="match.team_two.logo" alt="" class="w-12 h-12 object-contain" />
+          <span class="font-semibold">{{ match.team_two.abbreviation }}</span>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- TABS -->
+    <p-tabView>
+      <!-- Résumé -->
+      <p-tabPanel header="Résumé">
+        <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div>
+            <div class="text-sm text-gray-500">Stade</div>
+            <div class="font-medium">{{ match.stadium.name }}</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500">Journée</div>
+            <div class="font-medium">{{ match.match_day.label }}</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500">Date</div>
+            <div class="font-medium">{{ match.match_day.scheduled_at | date:'dd/MM/yyyy HH:mm' }}</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500">Type de résultat</div>
+            <div class="font-medium">{{getResultTypeLabel(match.result.result_type) || match.result.result_type }}</div>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div>
+            <div class="text-sm text-gray-500">Mi-temps</div>
+            <div class="font-semibold">
+              <span [ngClass]="getScoreClass(match.result.halftime_home_score, match.result.halftime_away_score)">
+                {{ match.result.halftime_home_score }}
+              </span>
+              -
+              <span [ngClass]="getScoreClass(match.result.halftime_away_score, match.result.halftime_home_score)">
+                {{ match.result.halftime_away_score }}
+              </span>
+            </div>
+          </div>
+          <div>
+            <div  class="text-sm text-gray-500">Prolongations</div>
+            <div class="font-semibold">
+              <span [ngClass]="getScoreClass(match.result.extra_time_home_score, match.result.extra_time_away_score)">
+                {{ match.result.extra_time_home_score ?? '-' }}
+              </span>
+              -
+              <span [ngClass]="getScoreClass(match.result.extra_time_away_score, match.result.extra_time_home_score)">
+                {{ match.result.extra_time_away_score ?? '-' }}
+              </span>
+            </div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500">Tirs au but</div>
+            <div class="font-semibold">
+              <span [ngClass]="getScoreClass(match.result.penalty_home_score, match.result.penalty_away_score)">
+                {{ match.result.penalty_home_score ?? '-' }}
+              </span>
+              -
+              <span [ngClass]="getScoreClass(match.result.penalty_away_score, match.result.penalty_home_score)">
+                {{ match.result.penalty_away_score ?? '-' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Équipes -->
+          <p-tabPanel header="Équipes">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+
+        <!-- Équipe 1 -->
+        <div>
+          <h3 class="font-bold mb-2">{{ match.team_one.abbreviation }}</h3>
+
+          <!-- Titulaires -->
+          <h4 class="mt-2 mb-1">Titulaires</h4>
+          <p-table
+            [value]="teamOneStarters"
+            responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>#</th>
+                <th>Nom</th>
+                <th>Poste</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-player>
+              <tr>
+                <td>{{ player.jersey_number }}</td>
+                <td>
+                  {{ player.first_name }} {{ player.last_name }}
+                  <span *ngIf="match.team_one_callup.captain_id === player.player_id"
+                        class="text-white fw-bold ml-1 bg-red-500 px-1">C</span>
+                </td>
+                <td>{{ getPositionLabel(player.position) || player.position }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+
+          <!-- Remplaçants -->
+          <h4 class="mt-4 mb-1">Remplaçants</h4>
+          <p-table
+            [value]="teamOneSubstitutes"
+            responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>#</th>
+                <th>Nom</th>
+                <th>Poste</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-player>
+              <tr>
+                <td>{{ player.jersey_number }}</td>
+                <td>
+                  {{ player.first_name }} {{ player.last_name }}
+                  <span *ngIf="match.team_two_callup.captain_id === player.player_id"
+                        class="text-white fw-bold ml-1 bg-red-500 px-1">C</span>
+                </td>
+                <td>{{ getPositionLabel(player.position) || player.position }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!-- Équipe 2 -->
+        <div>
+          <h3 class="font-bold mb-2">{{ match.team_two.abbreviation }}</h3>
+
+          <!-- Titulaires -->
+          <h4 class="mt-2 mb-1">Titulaires</h4>
+          <p-table
+            [value]="teamTwoStarters"
+            responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>#</th>
+                <th>Nom</th>
+                <th>Poste</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-player>
+              <tr>
+                <td>{{ player.jersey_number }}</td>
+                <td>
+                  {{ player.first_name }} {{ player.last_name }}
+                  <span *ngIf="player.is_captain"
+                        class="text-white fw-bold ml-1 bg-red-500 px-1">C</span>
+                </td>
+                <td>{{ getPositionLabel(player.position) || player.position }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+
+          <!-- Remplaçants -->
+          <h4 class="mt-4 mb-1">Remplaçants</h4>
+          <p-table
+            [value]="teamTwoSubstitutes"
+            responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>#</th>
+                <th>Nom</th>
+                <th>Poste</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-player>
+              <tr>
+                <td>{{ player.jersey_number }}</td>
+                <td>
+                  {{ player.first_name }} {{ player.last_name }}
+                  <span *ngIf="player.is_captain"
+                        class="text-white fw-bold ml-1 bg-red-500 px-1">C</span>
+                </td>
+                <td>{{ getPositionLabel(player.position) || player.position }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+      </div>
+    </p-tabPanel>
+
+      <!-- Événements -->
+<!--       <p-tabPanel header="Événements">
+        <div class="p-4 space-y-6">
+          <div *ngFor="let period of periods">
+            <ng-container *ngIf="
+    (['FIRST_HALF','SECOND_HALF'].includes(period.key)) ||
+    (period.key === 'EXTRA_TIME' && (match.result_type === 'EXTRA_TIME' || match.result_type === 'PENALTIES')) ||
+    (period.key === 'PENALTIES' && match.result_type === 'PENALTIES')
+  ">
+            <h4 class="font-semibold mb-2">{{ period.label }}</h4>
+            <div class="space-y-2">
+
+      <div *ngFor="let ev of getEventsByPeriod(period.key)" class="event-card flex items-center gap-3 p-2 rounded border">
+  <span class="minute">{{ ev.minute }}'</span>
+
+  <ng-container [ngSwitch]="ev.type">
+    <span *ngSwitchCase="'GOAL'" ><i class="custom-icon ball text-green-600 "></i></span>
+    <span *ngSwitchCase="'CARD'" [ngClass]="{'yellow': ev.card_type==='YELLOW', 'red': ev.card_type==='RED'}"></span>
+
+    <span *ngSwitchCase="'SUBSTITUTION'" class="badge sub"><i class="custom-icon swap text-gray-500"></i></span>
+  </ng-container>
+
+  <span class="player">{{ ev.player.first_name }} {{ ev.player.last_name }}</span>
+  <span class="team text-gray-500">{{ ev.team_name }}</span>
+</div>
+
+
+            </div>
+            </ng-container>
+          </div>
+        </div>
+      </p-tabPanel> -->
+    <p-tabPanel header="Événements">
+  <div class="p-4 space-y-6">
+    <div *ngFor="let ev of match.events" class="event-card flex items-center gap-3 p-2 rounded border">
+      <span class="minute">{{ ev.minute }}'</span>
+
+      <ng-container [ngSwitch]="ev.type">
+        <span *ngSwitchCase="'GOAL'">
+          <i class="custom-icon ball text-green-600"></i>
+        </span>
+        <span *ngSwitchCase="'CARD'" [ngClass]="{'yellow': ev.card_type==='YELLOW', 'red': ev.card_type==='RED'}"></span>
+        <span *ngSwitchCase="'SUBSTITUTION'" class="badge sub">
+          <i class="custom-icon swap text-gray-500"></i>
+        </span>
+      </ng-container>
+
+      <span class="player">{{ ev?.player_name }} </span>
+      <span class="team text-gray-500">{{ ev.team_name }}</span>
+      <span class="text-gray-500">{{ (ev?.secondary_player_name)}}</span>
+    </div>
+  </div>
+</p-tabPanel>
+
+    </p-tabView>
+  </p-dialog>
+

@@ -60,10 +60,16 @@
                 <span>Voir</span>
               </button> -->
               <button class="btn btn-info"
-                (click)="voirCalendrier(saison)">
+                (click)="voirDetails(saison.id)">
                 <i class=" pi pi-eye"></i>
                <!--  <span>Voir</span> -->
               </button>
+              <button class="btn btn-gray"
+                (click)="voirCalendrier(saison)">
+                <i class=" pi pi-calendar"></i>
+               <!--  <span>Voir</span> -->
+              </button>
+
                  <button class="btn btn-danger" (click)="deleteSeason(saison.id!)"><i class="pi pi-trash"></i></button>
             </div>
           </td>

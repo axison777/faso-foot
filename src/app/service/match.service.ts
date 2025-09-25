@@ -20,4 +20,20 @@ export class MatchService {
     reschedule(id : string, data: any): Observable<any[]> {
       return this.http.put<any[]>(this.apiUrl+"/"+id,data);
     }
+
+    getDetails(id : string): Observable<any[]> {
+      return this.http.get<any[]>(this.apiUrl+"/"+id);
+    }
+
+    validate(id : string): Observable<any[]> {
+      return this.http.post<any[]>(environment.apiUrl+`/match-results/${id}/verification/verify`,{id:id});
+    }
+
+    getPlayers(id : string): Observable<any[]> {
+      return this.http.get<any[]>(environment.apiUrl+`/callups/match/${id}`);
+    }
+
+
+
+
 }

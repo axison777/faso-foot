@@ -1,0 +1,277 @@
+$green: rgb(50,145,87);
+
+.season-container, ::ng-deep .p-dialog {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1rem; /* même base que stades */
+  color: #1e293b; /* même couleur */
+}
+
+
+.header {
+  margin-bottom: 20px;
+  h1 { font-size: 2rem; color: $green; margin-bottom: 4px; }
+  p { font-size: 1.3rem; color: #46494e; }
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+  gap: 12px;
+
+.match-card {
+  margin-bottom: 1rem;
+
+  .match-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .team-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: space-between;
+
+    .team-name {
+      flex: 1;
+      font-weight: 500;
+      font-size: small;
+    }
+
+    .team-score {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .winner {
+      color: #16a34a; // vert
+    }
+  }
+
+  .match-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+}
+
+
+
+
+
+}
+
+p-table {
+  margin-top: 12px;
+  th { background: $green; color: #fff; text-transform: uppercase; text-align: center; }
+}
+
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.info-section {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-form {
+  .score-inputs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    input {
+      width: 70px;
+      text-align: center;
+    }
+  }
+}
+
+
+ .p-field{
+    margin-bottom: 5px;
+   label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    display: block;
+    color: #374151;
+  }
+ }
+
+      .team-logo {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+
+      .placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.8rem;
+      }
+
+
+.match-details {
+  .teams-line-centered {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    .team-left, .team-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .team-logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .team-abbr {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+    }
+
+    .team-right {
+      flex-direction: row-reverse;
+    }
+
+    .score-center {
+      font-weight: bold;
+      font-size: 1.2rem;
+      display: flex;
+      gap: 0.5rem;
+
+      span.winner {
+        color: #16a34a; // vert pour le gagnant
+      }
+    }
+  }
+
+  .extra-info {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #374151;
+
+    p {
+      margin: 0.2rem 0;
+    }
+  }
+
+  .score-details {
+    h4 {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th, td {
+        border: 1px solid #e5e7eb;
+        padding: 0.4rem 0.6rem;
+        text-align: center;
+        font-size: 0.85rem;
+      }
+
+      th {
+        background: #f9fafb;
+        font-weight: 600;
+        text-align: center;
+      }
+    }
+  }
+}
+
+.match-meta{
+    text-align: center;
+    margin-top: 5px;
+    font-size: small;
+    color: #64748b;
+}
+
+.big-team-logo {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+:host ::ng-deep .p-datatable td {
+  text-align: center;
+}
+
+:host ::ng-deep .p-datatable td:nth-child(2) {
+  text-align: left; /* colonne Club */
+}
+
+.mini-badge{
+    color: white !important;
+}
+
+   .match-details-dialog .p-dialog-content {
+      overflow-y: auto;
+    }
+    .event-card {
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .match-details-dialog .p-dialog-content {
+      overflow-y: auto;
+    }
+   .event-card {
+  background: #fff;
+  border-left: 4px solid transparent;
+
+  &.winner {
+    border-left-color: #22c55e; // vert Tailwind
+  }
+}
+
+.badge.goal {
+  color: #22c55e;
+}
+.badge.sub {
+  color: #3b82f6;
+}
+.yellow {
+    
+    padding: 8px;
+  background-color: #facc15;
+}
+.red {
+  background-color: #ef4444;
+  padding: 8px;
+}
+
+    .text-green-score {
+      color: #16a34a;
+    }

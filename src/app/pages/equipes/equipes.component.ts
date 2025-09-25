@@ -331,6 +331,8 @@ export class EquipesComponent implements OnInit {
     this.teamForm.get('manager_first_name')?.setValue(team.manager_first_name);
     this.teamForm.get('manager_last_name')?.setValue(team.manager_last_name);
     this.teamForm.get('manager_role')?.setValue(team.manager_role);
+    this.teamForm.get('category_id')?.setValue(team?.category?.id);
+    this.teamForm.get('club_id')?.setValue(team?.club?.id);
     this.currentLogo = team.logo ?? null;
     this.teamForm.get('logo')?.patchValue(team.logo ? team.logo : '');
     this.isEditing = true;

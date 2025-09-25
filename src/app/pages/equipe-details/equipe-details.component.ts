@@ -18,13 +18,14 @@ import { Player } from '../../models/player.model';
 import { TeamKit } from '../../models/team-kit.model';
 import { Contract } from '../../models/contract.model';
 import { SelectModule } from 'primeng/select';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EquipeService } from '../../service/equipe.service';
 import { TeamKitService } from '../../service/team-kit.service';
 import { PlayerService } from '../../service/player.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FileUploadModule } from 'primeng/fileupload';
+import { ContractService } from '../../service/contract.service';
 
 @Component({
   selector: 'app-equipe-details',
@@ -49,7 +50,7 @@ export class EquipeDetailsComponent implements OnInit {
     loadingForm: boolean = false;
 
   // ---------- DATA ----------
-  team!: Team;
+  team: Team={};
   players: Player[] = [];
   activeIndex = 0; // TabView index
 
@@ -97,7 +98,7 @@ export class EquipeDetailsComponent implements OnInit {
   kitTypes = [
     { label: 'Domicile', value: 'home' },
     { label: 'Extérieur', value: 'away' },
-    { label: 'Neutre', value: 'neutral' }
+    { label: 'Neutre', value: 'third' }
   ];
 
   // ---------- MOCK ----------
@@ -180,6 +181,11 @@ export class EquipeDetailsComponent implements OnInit {
   selectedFile: File | null = null;
   currentPhoto: string | null = null;
 
+  suspensionForm!: FormGroup;
+  team_id?: string='';
+
+  showSuspensionForm: boolean = false;
+isEditingSuspension: boolean = false;
 
 
   constructor(
@@ -190,12 +196,15 @@ export class EquipeDetailsComponent implements OnInit {
     private equipeService: EquipeService,
     private messageService: MessageService,
     private tkService: TeamKitService,
-    private playerService : PlayerService
+    private playerService : PlayerService,
+    private contractService: ContractService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
 
     let id=this.route.snapshot.params['id'];
+    this.team_id=id;
     this.loadTeam(id);
     this.loadKits();
     this.loadPlayers();
@@ -240,7 +249,7 @@ export class EquipeDetailsComponent implements OnInit {
     end_date: [null, Validators.required],
     salary_amount: [null, Validators.required],
     status: ['ACTIVE', Validators.required], // valeur par défaut
-    clauses: this.fb.array([]) // gestion dynamique des clauses
+    //clauses: this.fb.array([]) // gestion dynamique des clauses
     });
 
 
@@ -312,7 +321,7 @@ export class EquipeDetailsComponent implements OnInit {
 
   loadPlayers() {
     this.loadingPlayers = true;
-    this.playerService.getAll().subscribe({
+    this.playerService.getByTeamId(this.team_id).subscribe({
       next: (res: any) => {
         this.players = res?.data?.players || [];
         this.loadingPlayers = false;
@@ -499,8 +508,9 @@ export class EquipeDetailsComponent implements OnInit {
   });
 }
   openPlayerDetails(p: Player) {
-    this.currentPlayer = p;
-    this.showPlayerDetails = true;
+    /* this.currentPlayer = p;
+    this.showPlayerDetails = true; */
+    this.router.navigate(['/joueur-details', p.id]);
   }
 
    get ecControls() { return (this.playerForm.get('emergency_contact') as FormArray).controls as FormGroup[]; }
@@ -518,13 +528,24 @@ export class EquipeDetailsComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  deleteEntity(type: 'joueur'|'staff'|'maillot'|'trophy', id: string) {
+  deleteEntity(type: 'joueur'|'staff'|'maillot'|'trophy'|'suspension', id: string) {
     this.confirm.confirm({
       icon: 'pi pi-exclamation-triangle',
       message: 'Voulez-vous vraiment supprimer cet élément ?',
       accept: () => {
         switch (type) {
-          case 'joueur': this.players = this.players.filter(p => p.id !== id); break;
+        case 'joueur': {
+            this.playerService.delete(id).subscribe({
+              next: () => {
+                this.loadPlayers();
+                this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Joueur supprimé.' });
+
+              },
+              error: () => {
+                this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+              }
+            });break;
+          };
           case 'staff': this.team.staff_members = this.team.staff_members?.filter(m => m.id !== id); break;
           case 'maillot': this.team.kits = this.team.kits?.filter(k => k.id !== id); break;
           case 'trophy': this.team.trophies = this.team.trophies?.filter(t => t.id !== id); break;
@@ -617,8 +638,15 @@ export class EquipeDetailsComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       message: 'Supprimer ce contrat ?',
       accept: () => {
-        this.currentPlayer!.contracts = (this.currentPlayer!.contracts || []).filter(c => c.id !== id);
-        this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+        this.contractService.delete(id).subscribe({
+          next: () => {
+            this.loadTeam(this.team_id!);
+            this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+          },
+          error: () => {
+            this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+          }
+        })
       }
     });
   }
@@ -769,6 +797,97 @@ loadTeams() {
     if (!foot) return '';
     const opt = this.footOptions.find(o => o.value === foot);
     return opt ? opt.label : foot;
+  }
+
+  showSuspensionDialog(suspension?: any): void {
+    this.isEditingSuspension = !!suspension;
+    if (suspension) {
+      this.suspensionForm.patchValue({
+        effective_from: suspension.effective_from ? new Date(suspension.effective_from) : null,
+        effective_until: suspension.effective_until ? new Date(suspension.effective_until) : null,
+        reasons: suspension.reasons || []
+      });
+    } else {
+      // Nouvelle suspension : reset form
+      this.suspensionForm.reset({ reasons: [] });
+    }
+    this.showSuspensionForm = true;
+  }
+
+  showReactivationDialog(): void {
+    this.isEditingSuspension = false;
+    // Réactivation : seules les raisons sont modifiables
+    this.suspensionForm.reset({ reasons: [] });
+    this.showSuspensionForm = true;
+  }
+
+  closeSuspensionForm(): void {
+    this.showSuspensionForm = false;
+    this.suspensionForm.reset({ reasons: [] });
+  }
+  get reasonsArray(): FormArray<FormControl<string>> {
+  return this.suspensionForm.get('reasons') as FormArray<FormControl<string >>;
+}
+addReason(value: string = '') {
+  this.reasonsArray.push(new FormControl(value, { nonNullable: true, validators: Validators.required }));
+}
+
+removeReason(index: number) {
+  this.reasonsArray.removeAt(index);
+}
+
+
+  saveSuspension(): void {
+    if (this.suspensionForm.invalid) {
+      this.suspensionForm.markAllAsTouched();
+      return;
+    }
+
+    const payload: any = {
+        reasons: this.reasonsArray.value.filter((r:string) => r && r.trim() !== '')
+    };
+
+    // Ajouter les dates uniquement si on suspend
+    if (this.team.status === 'ACTIVE') {
+      payload.effective_from = this.suspensionForm.value.effective_from;
+      payload.effective_until = this.suspensionForm.value.effective_until;
+    }
+
+    this.loading = true;
+
+    if (this.isEditingSuspension) {
+      // Modifier une suspension existante
+    /*   this.clubService.updateSuspension(this.suspensionForm.value).subscribe({
+        next: () => this.onSaveSuccess(),
+        error: (err) => this.onSaveError(err)
+      }); */
+    } else {
+      if (this.team.status === 'SUSPENDED') {
+        // Reactiver le club
+        this.equipeService.reactivate(this.team_id, payload).subscribe({
+          next: () => this.onSaveSuccess(),
+          error: (err) => this.onSaveError(err)
+        });
+      }
+      else{
+      this.equipeService.suspend(this.team_id, payload).subscribe({
+        next: () => this.onSaveSuccess(),
+        error: (err) => this.onSaveError(err)
+      });}
+    }
+  }
+
+  private onSaveSuccess(): void {
+    this.loading = false;
+    this.showSuspensionForm = false;
+    this.loadTeam(this.team_id!); // Recharge le club avec suspensions à jour
+    this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Opération réussie.' });
+  }
+
+  private onSaveError(err: any): void {
+    this.loading = false;
+    console.error(err);
+    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur s\'est produite.' });
   }
 
 
