@@ -118,6 +118,25 @@ export class AccueilComponent implements OnInit {
   totalMatchsAnnuels = 0;
   classementEquipes: Equipe[] = [];
 
+  // --- Graphiques ---
+  public barChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    indexAxis: 'y',
+    scales: { x: { beginAtZero: true } }
+  };
+
+  public barChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: [],
+    datasets: [{ data: [], label: 'Points', backgroundColor: '#3EB489' }]
+  };
+
+  public pieChartOptions: ChartConfiguration<'pie'>['options'] = { responsive: true };
+
+  public pieChartData: ChartConfiguration<'pie'>['data'] = {
+    labels: ['Joués', 'Reportés', 'Annulés'],
+    datasets: [{ data: [0, 0, 0], backgroundColor: ['#329157', '#f59e0b', '#dc2626'] }]
+  };
+
   ngOnInit(): void {}
 
   // --- Gestion des sélections ---
@@ -162,34 +181,28 @@ export class AccueilComponent implements OnInit {
     this.updateCharts();
   }
 
-  // --- Mise à jour des graphiques ---
   updateCharts(): void {
-    this.pieChartData.datasets[0].data = [
-      this.totalMatchsJoues,
-      this.totalMatchsReportes,
-      this.totalMatchsAnnuels
-    ];
+    // 🔹 Pie Chart
+    this.pieChartData = {
+      labels: ['Joués', 'Reportés', 'Annulés'],
+      datasets: [
+        {
+          data: [this.totalMatchsJoues, this.totalMatchsReportes, this.totalMatchsAnnuels],
+          backgroundColor: ['#329157', '#f59e0b', '#dc2626']
+        }
+      ]
+    };
 
-    this.barChartData.labels = this.classementEquipes.map(e => e.nom);
-    this.barChartData.datasets[0].data = this.classementEquipes.map(e => e.points);
+    // 🔹 Bar Chart
+    this.barChartData = {
+      labels: this.classementEquipes.map(e => e.nom),
+      datasets: [
+        {
+          data: this.classementEquipes.map(e => e.points),
+          label: 'Points',
+          backgroundColor: '#3EB489'
+        }
+      ]
+    };
   }
-
-  // --- Graphiques Chart.js ---
-  public barChartOptions: ChartConfiguration<'bar'>['options'] = {
-    responsive: true,
-    indexAxis: 'y',
-    scales: { x: { beginAtZero: true } }
-  };
-
-  public barChartData: ChartConfiguration<'bar'>['data'] = {
-    labels: [],
-    datasets: [{ data: [], label: 'Points', backgroundColor: '#3EB489' }]
-  };
-
-  public pieChartOptions: ChartConfiguration<'pie'>['options'] = { responsive: true };
-
-  public pieChartData: ChartConfiguration<'pie'>['data'] = {
-    labels: ['Joués', 'Reportés', 'Annulés'],
-    datasets: [{ data: [0, 0, 0], backgroundColor: ['#329157', '#f59e0b', '#dc2626'] }]
-  };
 }

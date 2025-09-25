@@ -52,22 +52,36 @@
   </div>
 
   <!-- 🔹 Tableau Classement -->
-  <table *ngIf="classementEquipes?.length" class="table mt-4">
-    <thead>
-      <tr>
-        <th>Équipe</th>
-        <th>Points</th>
-        <th>Victoires</th>
-        <th>Différence Buts</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let equipe of classementEquipes">
-        <td>{{ equipe.nom }}</td>
-        <td>{{ equipe.points }}</td>
-        <td>{{ equipe.victoires }}</td>
-        <td>{{ equipe.differenceButs }}</td>
-      </tr>
-    </tbody>
-  </table>
+<div *ngIf="classementEquipes?.length" class="mt-6">
+  <h3 class="text-lg font-semibold mb-3">Classement des équipes</h3>
+
+  <div class="overflow-x-auto shadow-md rounded-lg">
+    <table class="min-w-full border border-gray-200 rounded-lg">
+      <thead class="bg-green-600 text-white">
+        <tr>
+          <th class="px-4 py-2 text-left">#</th>
+          <th class="px-4 py-2 text-left">Équipe</th>
+          <th class="px-4 py-2 text-center">Points</th>
+          <th class="px-4 py-2 text-center">Victoires</th>
+          <th class="px-4 py-2 text-center">Différence Buts</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let equipe of classementEquipes; let i = index"
+            [ngClass]="{
+              'bg-yellow-100 font-bold': i === 0, 
+              'bg-gray-50': i % 2 !== 0
+            }"
+            class="hover:bg-green-50 transition">
+          <td class="px-4 py-2">{{ i + 1 }}</td>
+          <td class="px-4 py-2">{{ equipe.nom }}</td>
+          <td class="px-4 py-2 text-center">{{ equipe.points }}</td>
+          <td class="px-4 py-2 text-center">{{ equipe.victoires }}</td>
+          <td class="px-4 py-2 text-center">{{ equipe.differenceButs }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 </div>
