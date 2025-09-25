@@ -1,0 +1,95 @@
+<div class="official-details-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>Détails Officiel</h1>
+  </div>
+
+  <!-- Informations personnelles -->
+  <div class="details-card">
+    <h2>Informations personnelles</h2>
+    <div class="details-grid">
+      <div><strong>Nom :</strong> {{ official?.last_name }}</div>
+      <div><strong>Prénom :</strong> {{ official?.first_name }}</div>
+      <div><strong>Date de naissance :</strong> {{ official?.date_of_birth | date }}</div>
+      <div><strong>Lieu :</strong> {{ official?.birth_place }}</div>
+      <div><strong>Nationalité :</strong> {{ official?.nationality }}</div>
+    </div>
+  </div>
+
+  <!-- Informations d’officiel -->
+  <div class="details-card">
+    <h2>Informations d’officiel</h2>
+    <div class="details-grid">
+      <div><strong>Type :</strong> {{ official?.official_type }}</div>
+      <div><strong>N° Licence :</strong> {{ official?.license_number }}</div>
+      <div><strong>Niveau :</strong> {{ official?.level }}</div>
+      <div>
+        <strong>Statut :</strong>
+        <span class="badge"
+          [ngClass]="{
+            'status-active': official?.status === 'ACTIVE',
+            'status-suspended': official?.status === 'SUSPENDED',
+            'status-retired': official?.status === 'RETIRED'
+          }"
+        >
+          {{ official?.status }}
+        </span>
+      </div>
+      <div><strong>Structure :</strong> {{ official?.structure || '—' }}</div>
+      <div><strong>Expérience :</strong> {{ official?.experience }} ans</div>
+      <div><strong>Certification :</strong> {{ official?.certification_date | date }}</div>
+      <div><strong>Expiration :</strong> {{ official?.certification_expiry | date }}</div>
+    </div>
+  </div>
+
+  <!-- Spécialisations -->
+  <div class="details-card" *ngIf="official?.specializations?.length">
+    <h2>Spécialisations</h2>
+    <ul class="list">
+      <li *ngFor="let s of official?.specializations">
+        {{ s.type }} ({{ s.level }}) — certifié le {{ s.certifiedAt | date }}
+      </li>
+    </ul>
+  </div>
+
+  <!-- Assignments -->
+  <div class="details-card" *ngIf="official?.assignments?.length">
+    <h2>Affectations aux matchs</h2>
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Match</th>
+          <th>Date</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of official?.assignments">
+          <td>{{ a.matchId }}</td>
+          <td>{{ a.createdAt | date }}</td>
+          <td>{{ a.role }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Rapports -->
+  <div class="details-card" *ngIf="official?.reports?.length">
+    <h2>Rapports</h2>
+    <ul class="list">
+      <li *ngFor="let r of official?.reports">
+        {{ r.content }} — <small>{{ r.reportDate | date }}</small>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="details-card" *ngIf="official?.statistics">
+    <h2>Statistiques</h2>
+    <div class="details-grid">
+      <div><strong>Matchs officiés :</strong> {{ official?.statistics?.matchesOfficiated }}</div>
+      <div><strong>Cartons rouges distribués :</strong> {{ official?.statistics?.redCardsGiven }}</div>
+      <div><strong>Cartons jaunes distribués :</strong> {{ official?.statistics?.yellowCardsGiven }}</div>
+    </div>
+  </div>
+</div>

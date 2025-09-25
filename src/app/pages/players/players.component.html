@@ -36,7 +36,7 @@
           <tr *ngFor="let p of filteredPlayers; let i = index">
             <td>{{ i + 1 }}</td>
             <td class="player-cell">
-              <div class="avatar hidden lg:block" [ngStyle]="{'background-image': p.photo_url ? 'url('+p.photo_url+')' : 'linear-gradient(135deg,#2ecc71,#118c46)'}">
+              <div class="avatar hidden lg:block" [ngStyle]="{'background-image': p.photo_url ? 'url('+p.photo_url+')' : 'linear-gradient(135deg,#118c46,#118c46)'}">
                 <span *ngIf="!p.photo_url">{{ (p.first_name?.charAt(0) || '') + (p.last_name?.charAt(0) || '') }}</span>
               </div>
               <div class="player-meta">
@@ -54,7 +54,7 @@
                 <!-- <button class="btn btn-gray" title="Contrats" (click)="openContractsModal(p)"><i class="pi pi-file"></i></button> -->
                 <button class="btn btn-warning " title="Modifier" (click)="showPlayerDialog(p)"><i class="pi pi-pencil"></i></button>
                 <button class="btn btn-info" title="Détails" ><i class="pi pi-eye" (click)="openPlayerDetails(p)"></i></button>
-               <!--  <button class="btn btn-danger" title="Supprimer" (click)="confirmDeletePlayer(p.id!)"><i class="pi pi-trash"></i></button> -->
+            <button class="btn btn-danger" title="Supprimer" (click)="confirmDeletePlayer(p.id!)"><i class="pi pi-trash"></i></button>
               </div>
             </td>
           </tr>
@@ -219,7 +219,7 @@
     <p-dialog [(visible)]="showPlayerDetails" [modal]="true" [draggable]="false" [style]="{ width: '680px' }" [header]="currentPlayer ? (currentPlayer.first_name + ' ' + currentPlayer.last_name) : 'Détails'" [styleClass]="'player-details-dialog'">
       <div class="details-grid" *ngIf="currentPlayer">
         <div class="left-col">
-          <div class="avatar-large" [ngStyle]="{'background-image': currentPlayer.photo_url ? 'url('+currentPlayer.photo_url+')' : 'linear-gradient(135deg,#2ecc71,#118c46)'}">
+          <div class="avatar-large" [ngStyle]="{'background-image': currentPlayer.photo_url ? 'url('+currentPlayer.photo_url+')' : 'linear-gradient(135deg,#2ecc71,#2ecc71)'}">
             <span *ngIf="!currentPlayer.photo_url">{{ (currentPlayer.first_name?.charAt(0) || '') + (currentPlayer.last_name?.charAt(0) || '') }}</span>
           </div>
 

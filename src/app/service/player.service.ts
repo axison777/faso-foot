@@ -30,6 +30,10 @@ export class PlayerService {
   }
 
   getByTeamId(teamId?: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/team/${teamId}`);
+    return this.http.get<any>(`${environment.apiUrl}/teams/${teamId}/players`);
+  }
+
+  show(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/show/${id}`);
   }
 }
