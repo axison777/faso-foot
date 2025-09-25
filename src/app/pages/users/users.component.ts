@@ -265,6 +265,7 @@ export class UsersComponent implements OnInit {
     }
   }
 
+  // MÉTHODE CORRIGÉE POUR AFFICHER LES DÉTAILS
   viewUser(user: User): void {
     console.log('=== AFFICHAGE DÉTAILS UTILISATEUR ===');
     console.log('Utilisateur sélectionné:', user);
@@ -280,12 +281,29 @@ export class UsersComponent implements OnInit {
       return;
     }
     
+    // Debug de l'URL qui sera appelée
+    console.log('URL qui sera appelée:', `${this.userService['apiUrl']}/${user.slug}`);
+    
     this.userService.getBySlug(user.slug).subscribe({
       next: (response) => {
+        console.log('=== RÉPONSE DU BACKEND ===');
+        console.log('Réponse complète:', response);
+        console.log('Status:', response?.status);
+        console.log('Data:', response?.data);
+        console.log('Message:', response?.message);
+        
         if (response && response.status && response.data) {
-          this.currentUser = response.data;
+          // CORRECTION : Gérer la structure data.user du backend
+          const userData = (response.data as any).user || response.data;
+          
+          console.log('=== DONNÉES UTILISATEUR EXTRAITES ===');
+          console.log('Données utilisateur:', userData);
+          console.log('Rôles de l\'utilisateur:', userData.roles);
+          
+          this.currentUser = userData;
           this.showDetails = true;
         } else {
+          console.error('Structure de réponse inattendue:', response);
           this.messageService.add({
             severity: 'warn',
             summary: 'Attention',
@@ -295,6 +313,12 @@ export class UsersComponent implements OnInit {
         }
       },
       error: (error) => {
+        console.error('=== ERREUR RÉCUPÉRATION UTILISATEUR ===');
+        console.error('Erreur complète:', error);
+        console.error('Status:', error.status);
+        console.error('URL:', error.url);
+        console.error('Message:', error.message);
+        
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',

@@ -98,17 +98,18 @@
           <div class="permissions-list-switch" *ngIf="allPermissions?.length; else noPerms">
                     
     <!-- Switch global Tout sélectionner -->
-    <div class="select-all">
-      <p-inputSwitch
-        [(ngModel)]="allSelected"
-        [ngModelOptions]="{standalone: true}"
-        (onChange)="toggleAllPermissions($event.checked)">
-      </p-inputSwitch>
-      <span class="ml-2">Tout sélectionner</span>
-      <span class="ml-3 text-sm text-gray-500">
-        {{ roleForm.value.permissions?.length || 0 }} / {{ allPermissions.length }} sélectionnées
-      </span>
-    </div>
+    <div class="permissions-header">
+  <p-inputSwitch
+   [(ngModel)]="allSelected"
+    [ngModelOptions]="{standalone: true}"
+    (onChange)="toggleAllPermissions($event.checked)"
+  ></p-inputSwitch>
+  <span class="ml-2">Tout sélectionner</span>
+  <span class="ml-4 text-gray-500">
+    {{ roleForm.get('permissions')?.value?.length || 0 }} / {{ allPermissions.length }} sélectionnées
+  </span>
+</div>
+
             <!-- Groupe Administration -->
             <h4 class="group-title" *ngIf="permissionsAdmin.length">Administration</h4>
             <div class="group-grid" *ngIf="permissionsAdmin.length">
