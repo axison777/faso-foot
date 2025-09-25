@@ -182,4 +182,16 @@ export class UserService {
     const url = environment.apiUrl + '/users/users/invitation/resend';
     return this.http.post<ApiResponse<string>>(url, payload);
   }
+
+  // Mot de passe oublié
+  forgotPassword(payload: { email: string }): Observable<ApiResponse<string>> {
+    const url = `${environment.apiUrl}/users/forgot-password`;
+    return this.http.post<ApiResponse<string>>(url, payload);
+  }
+
+  // Changement mot de passe (utilisateur connecté)
+  resetPassword(payload: { token: string; current_password: string; new_password: string; new_password_confirmation: string }): Observable<ApiResponse<string>> {
+    const url = `${environment.apiUrl}/users/reset-password`;
+    return this.http.post<ApiResponse<string>>(url, payload);
+  }
 }
