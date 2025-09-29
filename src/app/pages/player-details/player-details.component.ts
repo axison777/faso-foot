@@ -702,6 +702,9 @@ loadTeams() {
   this.equipeService.getAll().subscribe({
     next: (res: any) => {
       this.teams = res?.data?.teams || [];
+      this.teams?.forEach((team: Team) => {
+          team.full_name= team?.abbreviation + ' ' + (team?.category?.name || '');
+      })
 
     },
     error: (err) => {

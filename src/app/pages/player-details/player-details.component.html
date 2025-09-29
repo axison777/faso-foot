@@ -433,9 +433,9 @@
           <label>Equipe <span class="req">*</span></label>
           <p-select formControlName="team_id"
                     [options]="teams"
-                    optionLabel="name"
+                    optionLabel="full_name"
                     optionValue="id"
-                    placeholder="Sélectionner un club"
+                    placeholder="Sélectionner une équipe"
                     appendTo="body">
           </p-select>
           <small class="error" *ngIf="cf['team_id']?.invalid && cf['team_id']?.touched">Requis</small>
@@ -553,7 +553,7 @@
       <div class="grid grid-cols-2 gap-4">
         <div><span class="label">Début carrière:</span> <span class="value">{{ player.career_start | date:'dd/MM/yyyy' }}</span></div>
         <div><span class="label">Fin carrière:</span> <span class="value">{{ player.career_end ? (player.career_end | date:'dd/MM/yyyy') : 'N/A' }}</span></div>
-        <div><span class="label">Statut:</span> <span class="value">{{ player.status }}</span></div>
+        <div><span class="label">Statut:</span> <span class="value">{{getStatusLabel( player.status) || player.status }}</span></div>
       </div>
     </div>
 

@@ -15,10 +15,10 @@
   </div>
 
   <!-- Recherche -->
-  <input pInputText 
-         type="text" 
-         class="search-input mb-5" 
-         (input)="applyFilterGlobal($event)" 
+  <input pInputText
+         type="text"
+         class="search-input mb-5"
+         (input)="applyFilterGlobal($event)"
          placeholder="Rechercher un rôle (nom)..." />
 
   <!-- Loading -->
@@ -44,7 +44,7 @@
             </div>
           </td>
           <td>
-            <span class="badge">{{ role.permissions?.length || 0 }} permission(s)</span>
+            <span class="badge">{{ role?.permissions?.length || 0 }} permission(s)</span>
           </td>
           <td class="actions">
             <div class="btn-group">
@@ -70,23 +70,23 @@
   </div>
 
   <!-- ROLE FORM DIALOG -->
-  <p-dialog [(visible)]="showForm" 
-            [modal]="true" 
-            [draggable]="false" 
+  <p-dialog [(visible)]="showForm"
+            [modal]="true"
+            [draggable]="false"
             [closable]="false"
-            [style]="{ width: '900px', height: 'auto' }"  
+            [style]="{ width: '900px', height: 'auto' }"
             [header]="isEditing ? 'Modifier le rôle' : 'Ajouter un rôle'">
-    
+
     <form [formGroup]="roleForm" class="role-form" (ngSubmit)="saveRole()">
       <div class="grid two-cols">
         <!-- Colonne gauche: Nom du rôle -->
         <div class="col left-col">
           <label>Nom du rôle <span class="req">*</span></label>
-          <input pInputText 
-                 formControlName="name" 
+          <input pInputText
+                 formControlName="name"
                  placeholder="Nom du rôle"
                  [class.error-input]="roleForm.get('name')?.invalid && roleForm.get('name')?.touched" />
-          <small class="error-message" 
+          <small class="error-message"
                  *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched">
             Le nom du rôle est obligatoire
           </small>
@@ -96,7 +96,7 @@
         <div class="col right-col">
           <label>Permissions <span class="req">*</span></label>
           <div class="permissions-list-switch" *ngIf="allPermissions?.length; else noPerms">
-                    
+
     <!-- Switch global Tout sélectionner -->
     <div class="select-all">
       <p-inputSwitch
@@ -116,7 +116,7 @@
                 <div class="info">
                   <div class="name">{{ p.name }}</div>
                 </div>
-                <p-inputSwitch 
+                <p-inputSwitch
                   [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
                   [ngModelOptions]="{standalone: true}"
                   (onChange)="togglePermission(p.slug, $event.checked)"
@@ -133,7 +133,7 @@
                 <div class="info">
                   <div class="name">{{ p.name }}</div>
                 </div>
-                <p-inputSwitch 
+                <p-inputSwitch
                   [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
                   [ngModelOptions]="{standalone: true}"
                   (onChange)="togglePermission(p.slug, $event.checked)"
@@ -149,7 +149,7 @@
                 <div class="info">
                   <div class="name">{{ p.name }}</div>
                 </div>
-                <p-inputSwitch 
+                <p-inputSwitch
                   [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
                   [ngModelOptions]="{standalone: true}"
                   (onChange)="togglePermission(p.slug, $event.checked)"
@@ -161,7 +161,7 @@
           <ng-template #noPerms>
             <p class="empty">Aucune permission disponible</p>
           </ng-template>
-          <small class="error-message" 
+          <small class="error-message"
                  *ngIf="roleForm.get('permissions')?.invalid && roleForm.get('permissions')?.touched">
             Au moins une permission doit être sélectionnée
           </small>
@@ -170,15 +170,15 @@
 
       <div class="form-footer">
         <div class="left">
-          <button type="button" 
-                  class="btn btn-secondary" 
+          <button type="button"
+                  class="btn btn-secondary"
                   (click)="cancelForm()">
             Annuler
           </button>
         </div>
         <div class="right">
-         <button type="submit" 
-        [ngClass]="isEditing ? 'btn btn-update' : 'btn btn-create'" 
+         <button type="submit"
+        [ngClass]="isEditing ? 'btn btn-update' : 'btn btn-create'"
         [disabled]="roleForm.invalid || isSubmitting">
           <span *ngIf="isSubmitting">Enregistrement...</span>
           <span *ngIf="!isSubmitting">{{ isEditing ? 'Modifier' : 'Créer' }}</span>
@@ -190,13 +190,13 @@
   </p-dialog>
 
   <!-- ROLE DETAILS DIALOG -->
-  <p-dialog [(visible)]="showDetails" 
-            [modal]="true" 
-            [draggable]="false" 
-            [style]="{ width: '720px' }" 
-            [showHeader]="false" 
+  <p-dialog [(visible)]="showDetails"
+            [modal]="true"
+            [draggable]="false"
+            [style]="{ width: '720px' }"
+            [showHeader]="false"
             [styleClass]="'role-details-dialog'">
-    
+
     <div class="user-details-card" *ngIf="currentRole">
       <div class="card-header">
         <div class="avatar">
@@ -206,7 +206,7 @@
       </div>
       <div class="card-body">
         <div class="row"><span class="label">Nom du rôle :</span><span class="value">{{ currentRole.name }}</span></div>
-        <div class="row"><span class="label">Permissions :</span><span class="value">{{ currentRole.permissions?.length || 0 }}</span></div>
+        <div class="row"><span class="label">Permissions :</span><span class="value">{{ currentRole.permissions.length || 0 }}</span></div>
         <div class="row roles-row">
           <span class="label">Permissions accordées :</span>
           <span class="value badges">

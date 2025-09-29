@@ -19,7 +19,7 @@
         <div class="meta-grid">
           <div><span class="label">Abr: </span><span class="value">{{ club.abbreviation }}</span></div>
           <!--  <div><span class="label">Téléphone responsable: </span><span class="value">{{ club.phone }} </span></div> -->
-          <div><span class="label">Ville: </span><span class="value">{{ club.city?.name }}</span></div>
+          <div><span class="label">Ville: </span><span class="value">{{ club.city }}</span></div>
           <!-- <div><span class="label">Compétition: </span><span class="value">{{ club.league?.name }}</span></div> -->
            <!-- <div><span class="label">Email responsable: </span><span class="value"> {{ club.email }}</span></div>
           <div><span class="label">Ligue: </span><span class="value">{{ club.league?.name }}</span></div> -->
@@ -305,7 +305,7 @@
       pInputText
       type="text"
       [formControl]="teamSearchControl"
-      placeholder="Nom ou abréviation "
+      placeholder="Catégorie "
       class="w-full"
 
     />
@@ -315,6 +315,34 @@
       </button>
 
   </div>
+  <!-- Tableau équipes -->
+
+  <div class="table-container" *ngIf="club.teams?.length; else noTeams">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Equipe</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of filteredTeams; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td class="cell-strong">{{ t?.full_name }}</td>
+          <td class="actions">
+            <div class="btn-group">
+              <p-button (click)="editTeam(t)" severity="warn" icon="pi pi-pencil"  />
+              <button (click)="deleteTeam(t.id!)" class="btn btn-danger" ><i class="pi pi-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <ng-template #noTeams>
+    <div class="no-results"><p>Pas d'équipes pour le moment.</p></div>
+  </ng-template>
 
   <!-- Grille des cartes -->
 <!-- ✅ Case à cocher pour tout sélectionner -->
@@ -330,51 +358,7 @@
 </div> -->
 
 <!-- ✅ Conteneur scrollable -->
-<div class="border rounded-md p-4 bg-gray-50  overflow-y-auto">
-  <div *ngIf="club?.teams" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
-    <ng-container *ngIf=" club?.teams!.length > 0">
-      <div
-        *ngFor="let team of filteredTeams; let i = index; "
-        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white hover:bg-green-50 cursor-pointer transition-shadow "
-        (click)="goToTeamDetails(team.id!)"
-      >
-<!--         <p-checkbox
-          binary="true"
-          [formControl]="teamSelectionControls[i]"
-          class="absolute top-2 left-2"
-          [id]="'team-' + team.id"
-          (onChange)="updateGlobalSelection()"
-        ></p-checkbox> -->
-
-         <!-- ✅ Image ou fallback -->
-        <img
-          *ngIf="team.logo; else noLogo"
-          [src]="team.logo"
-          alt="Logo"
-          class=" h-[80px] object-contain"
-        />
-        <ng-template #noLogo>
-          <!-- Icône ou texte par défaut -->
-          <div class="h-[80px] w-[80px] flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-md font-bold">
-            N/A
-          </div>
-        </ng-template>
-
-        <!-- ✅ Abréviation avec style conditionnel -->
-        <div
-          class="text-base font-bold"
-        >
-          {{ team?.name }}
-        </div>
-
-        <!-- ✅ Nom de l’équipe -->
-        <div *ngIf="team?.player_count" class="text-base text-gray-500 text-center">{{ team?.player_count }} joueurs</div>
-      </div>
-    </ng-container>
-
-    <ng-container *ngIf="!club?.teams?.length"><p>Aucune equipe n'appartient à ce club</p></ng-container>
-  </div>
-</div>
+<!-- ---------- -->
 <!--   <span class="text-red-500"
     *ngIf="!selectedTeamObjects.length && teamsForm.get('club_id')?.touched  ">
     Veuillez sélectionner les équipes.
