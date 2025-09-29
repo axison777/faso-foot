@@ -235,6 +235,24 @@
                 </small>
             </div>
 
+            <!-- Email -->
+            <div class="form-item">
+                <label>Adresse email <span class="req">*</span></label>
+                <input pInputText formControlName="email" type="email" placeholder="email" />
+
+                <small class="error" *ngIf="officialForm.get('email')?.touched && officialForm.get('email')?.invalid">
+                    <ng-container *ngIf="officialForm.get('email')?.errors?.['required']">
+                        Une adresse mail est requise.
+                    </ng-container>
+                    <ng-container *ngIf="officialForm.get('email')?.errors?.['email']">
+                        L'adresse email n'est pas valide.
+                    </ng-container>
+                    <ng-container *ngIf="officialForm.get('email')?.errors?.['custom']">
+                        {{ officialForm.get('email')?.errors?.['custom'] }}
+                    </ng-container>
+                </small>
+            </div>
+
             <!-- STRUCTURE -->
             <div class="form-item">
                 <label>Structure</label>

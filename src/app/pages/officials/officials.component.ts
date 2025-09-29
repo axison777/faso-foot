@@ -77,6 +77,7 @@ export class OfficialsComponent implements OnInit {
       date_of_birth: [''],
       birth_place: [''],
       nationality: [''],
+      email: ['', [Validators.required, Validators.email]],
       official_type: ['', Validators.required],
       license_number: ['', Validators.required],
       level: ['', Validators.required],
@@ -198,7 +199,8 @@ export class OfficialsComponent implements OnInit {
       certification_date: official.certification_date,
       certification_expiry: official.certification_expiry,
       structure: official.structure,
-      experience: official.experience
+      experience: official.experience,
+      email: official.email
     });
     this.isEditing = true;
     this.editingOfficialId = official.id;

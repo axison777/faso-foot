@@ -60,6 +60,7 @@ export class OfficialDetailsComponent implements OnInit {
       date_of_birth: raw.date_of_birth ? new Date(raw.date_of_birth) : undefined,
       birth_place: raw.birth_place,
       nationality: raw.nationality,
+      email: raw.email,
       official_type: raw.official_type,
       license_number: raw.license_number,
       level: raw.level,
