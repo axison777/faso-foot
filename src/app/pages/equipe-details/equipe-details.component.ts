@@ -34,7 +34,7 @@ import { ContractService } from '../../service/contract.service';
     CommonModule, FormsModule, ReactiveFormsModule,
     DialogModule, ButtonModule, InputTextModule, InputNumberModule,
     CalendarModule, ConfirmDialogModule, ToastModule, TabViewModule, SelectModule,
-    DatePickerModule, MultiSelectModule, FileUploadModule
+    DatePickerModule, MultiSelectModule, FileUploadModule, DropdownModule
   ],
   templateUrl: './equipe-details.component.html',
   styleUrls: ['./equipe-details.component.scss'],
@@ -244,7 +244,7 @@ isEditingSuspension: boolean = false;
     this.contractForm = this.fb.group({
     id: [null], // facultatif, utile en édition
     player_id: ['', Validators.required],
-    club_id: ['', Validators.required],
+    team_id: ['', Validators.required],
     start_date: [null, Validators.required],
     end_date: [null, Validators.required],
     salary_amount: [null, Validators.required],
@@ -604,7 +604,7 @@ isEditingSuspension: boolean = false;
 
   const payload: any = {
     player_id: formValue.player_id,
-    club_id: formValue.club_id,
+    team_id: formValue.team_id,
     start_date: formValue.start_date ? new Date(formValue.start_date).toISOString() : null,
     end_date: formValue.end_date ? new Date(formValue.end_date).toISOString() : null,
     salary_amount: formValue.salary_amount,

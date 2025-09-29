@@ -36,10 +36,14 @@ export class AppMenu implements OnInit {
                             { label: "Catégories d'équipe", icon: 'custom-icon category', routerLink: ['/categories-equipe'] },
                             { label: 'Stades', icon: 'pi pi-fw pi-building', routerLink: ['/stades'] },
                             { label: 'Ligues', icon: 'pi pi-fw pi-shield', routerLink: ['/ligues'] },
-                            /*  { label: 'Compétitions', icon: 'custom-icon podium', routerLink: ['/competitions'] }, */
-                            { label: 'Villes', icon: 'pi pi-fw pi-map-marker', routerLink: ['/villes'] },]
-                    },
-                    { label: 'Utilisateurs', icon: 'pi pi-fw pi-id-card', routerLink: ['/utilisateurs'] },
+                           /*  { label: 'Compétitions', icon: 'custom-icon podium', routerLink: ['/competitions'] }, */
+                            { label: 'Villes', icon: 'pi pi-fw pi-map-marker', routerLink: ['/villes'] },
+                            { label: 'Utilisateurs', icon: 'pi pi-fw pi-id-card', routerLink: ['/utilisateurs'] },
+                            { label: 'Rôles', icon: 'pi pi-fw pi-id-card', routerLink: ['/roles'] },
+                        ]
+                     },
+
+
 
 
                 ]

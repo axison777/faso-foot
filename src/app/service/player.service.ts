@@ -26,7 +26,7 @@ export class PlayerService {
   }
 
   delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
   }
 
   getByTeamId(teamId?: string): Observable<any> {

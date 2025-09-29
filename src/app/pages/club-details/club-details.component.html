@@ -19,7 +19,7 @@
         <div class="meta-grid">
           <div><span class="label">Abr: </span><span class="value">{{ club.abbreviation }}</span></div>
           <!--  <div><span class="label">Téléphone responsable: </span><span class="value">{{ club.phone }} </span></div> -->
-          <div><span class="label">Ville: </span><span class="value">{{ club.city?.name }}</span></div>
+          <div><span class="label">Ville: </span><span class="value">{{ club.city }}</span></div>
           <!-- <div><span class="label">Compétition: </span><span class="value">{{ club.league?.name }}</span></div> -->
            <!-- <div><span class="label">Email responsable: </span><span class="value"> {{ club.email }}</span></div>
           <div><span class="label">Ligue: </span><span class="value">{{ club.league?.name }}</span></div> -->
@@ -297,17 +297,52 @@
      <p-tabPanel  header="Equipes" leftIcon="pi pi-users">
             <form  class="flex flex-col gap-6 px-4">
   <!-- Barre de recherche -->
-   <div>
-    <label class="font-bold block mb-1">Rechercher une équipe</label>
+
+   <div class="flex  justify-between">
+    <div class="w-1/2">
+          <label class="font-bold block mb-1">Rechercher une équipe</label>
     <input
       pInputText
       type="text"
       [formControl]="teamSearchControl"
-      placeholder="Nom ou abréviation "
+      placeholder="Catégorie "
       class="w-full"
+
     />
+    </div>
+        <button class="btn-primary self-end" (click)="toggleTeamForm()">
+        <i class="pi pi-plus-circle mr-2"></i> Ajouter une équipe
+      </button>
 
   </div>
+  <!-- Tableau équipes -->
+
+  <div class="table-container" *ngIf="club.teams?.length; else noTeams">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Equipe</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of filteredTeams; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td class="cell-strong">{{ t?.full_name }}</td>
+          <td class="actions">
+            <div class="btn-group">
+              <p-button (click)="editTeam(t)" severity="warn" icon="pi pi-pencil"  />
+              <button (click)="deleteTeam(t.id!)" class="btn btn-danger" ><i class="pi pi-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <ng-template #noTeams>
+    <div class="no-results"><p>Pas d'équipes pour le moment.</p></div>
+  </ng-template>
 
   <!-- Grille des cartes -->
 <!-- ✅ Case à cocher pour tout sélectionner -->
@@ -323,51 +358,7 @@
 </div> -->
 
 <!-- ✅ Conteneur scrollable -->
-<div class="border rounded-md p-4 bg-gray-50  overflow-y-auto">
-  <div *ngIf="club?.teams" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
-    <ng-container *ngIf=" club?.teams!.length > 0">
-      <div
-        *ngFor="let team of filteredTeams; let i = index; "
-        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white hover:bg-green-50 cursor-pointer transition-shadow "
-        (click)="goToTeamDetails(team.id!)"
-      >
-<!--         <p-checkbox
-          binary="true"
-          [formControl]="teamSelectionControls[i]"
-          class="absolute top-2 left-2"
-          [id]="'team-' + team.id"
-          (onChange)="updateGlobalSelection()"
-        ></p-checkbox> -->
-
-         <!-- ✅ Image ou fallback -->
-        <img
-          *ngIf="team.logo; else noLogo"
-          [src]="team.logo"
-          alt="Logo"
-          class=" h-[80px] object-contain"
-        />
-        <ng-template #noLogo>
-          <!-- Icône ou texte par défaut -->
-          <div class="h-[80px] w-[80px] flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-md font-bold">
-            N/A
-          </div>
-        </ng-template>
-
-        <!-- ✅ Abréviation avec style conditionnel -->
-        <div
-          class="text-base font-bold"
-        >
-          {{ team?.name }}
-        </div>
-
-        <!-- ✅ Nom de l’équipe -->
-        <div *ngIf="team?.player_count" class="text-base text-gray-500 text-center">{{ team?.player_count }} joueurs</div>
-      </div>
-    </ng-container>
-
-    <ng-container *ngIf="!club?.teams?.length"><p>Aucune equipe n'appartient à ce club</p></ng-container>
-  </div>
-</div>
+<!-- ---------- -->
 <!--   <span class="text-red-500"
     *ngIf="!selectedTeamObjects.length && teamsForm.get('club_id')?.touched  ">
     Veuillez sélectionner les équipes.
@@ -954,3 +945,243 @@
   </ng-template>
 </p-dialog>
 
+
+<!-- Dialog pour ajouter/modifier une équipe (code existant) -->
+<p-dialog
+  [draggable]="false"
+  [(visible)]="showTeamForm"
+  [style]="{ width: '700px', height: '1000px' }"
+  [header]="isEditingTeam ? 'Modifier l\'équipe' : 'Ajouter une nouvelle équipe'"
+  [modal]="true"
+  [closable]="false">
+
+  <ng-template #content>
+    <form [formGroup]="teamForm" (ngSubmit)="saveTeam()" class="flex flex-col gap-6">
+      <!-- ✅ Section ÉQUIPE -->
+      <div>
+        <h3 class="text-lg font-bold border-b pb-1 text-green-700">Equipe</h3>
+      </div>
+      <div class="flex gap-4">
+        <!-- Nom -->
+        <div class="w-1/2">
+          <label for="name" class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
+          <input
+            pInputText
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Nom de l'équipe"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="teamForm.get('name')?.invalid && teamForm.get('name')?.touched">
+            Le nom est requis.
+          </small>
+        </div>
+        <!-- Abréviation -->
+        <div class="w-1/2">
+          <label for="abbreviation" class="block font-bold mb-2">Abréviation</label>
+          <input
+            pInputText
+            type="text"
+            id="abbreviation"
+            formControlName="abbreviation"
+            placeholder="Abréviation"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="teamForm.get('abbreviation')?.invalid && teamForm.get('abbreviation')?.touched">
+            L'abréviation est requise.
+          </small>
+        </div>
+      </div>
+
+      <!-- Ville -->
+      <div class="w-full">
+        <label for="ville" class="block font-bold mb-2">Ville <span class="text-red-500">*</span></label>
+        <p-select
+          id="ville"
+          formControlName="city_id"
+          [options]="villes"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Sélectionnez une ville"
+          class="w-full"
+          appendTo="body"
+        ></p-select>
+        <small class="text-red-500" *ngIf="teamForm.get('city_id')?.invalid && teamForm.get('city_id')?.touched">
+          La ville est requise.
+        </small>
+      </div>
+
+      <!-- Logo -->
+      <div class="w-full">
+        <label for="logo" class="block font-bold mb-2">Logo</label>
+        <div *ngIf="isEditingTeam && currentLogo" class="mb-2">
+          <p class="text-gray-600 text-sm mb-1">Logo actuel :</p>
+          <img [src]="currentLogo" alt="Logo actuel" class="w-16 h-16 object-cover rounded shadow" />
+        </div>
+        <p-fileupload
+          name="logo"
+          [customUpload]="true"
+          [auto]="false"
+          accept="image/*"
+          maxFileSize="1000000"
+          chooseLabel="Choisir un fichier"
+          chooseIcon="pi pi-upload"
+          (onSelect)="onFileSelect($event)"
+          [showUploadButton]="false"
+          [showCancelButton]="false"
+          [mode]="'advanced'"
+        >
+          <ng-template #empty>
+            <div>Glisser le fichier ici</div>
+          </ng-template>
+        </p-fileupload>
+        <small class="text-gray-500">Formats : JPG, PNG, etc.</small>
+      </div>
+
+        <!-- Catégorie -->
+        <div class="w-full">
+          <label for="category" class="block font-bold mb-2">Catégorie </label>
+          <p-select
+            id="category"
+            formControlName="category_id"
+            [options]="categories"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Sélectionnez une catégorie"
+            class="w-full"
+            appendTo="body"
+            [filter]="true"
+
+          ></p-select>
+          <small class="text-red-500" *ngIf="teamForm.get('category_id')?.invalid && teamForm.get('category_id')?.touched">
+            La catégorie est requise.
+          </small>
+        </div>
+
+        <!-- Club -->
+        <!--          <div class="w-full">
+          <label for="category" class="block font-bold mb-2">Club </label>
+          <p-select
+            id="club"
+            formControlName="club_id"
+            [disabled]="true"
+            [options]="clubs"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Sélectionnez un club"
+            class="w-full"
+            appendTo="body"
+            [filter]="true"
+          ></p-select>
+          <small class="text-red-500" *ngIf="teamForm.get('club_id')?.invalid && teamForm.get('club_id')?.touched">
+            Le club est requis.
+          </small>
+        </div> -->
+
+
+      <!-- ✅ Section RESPONSABLE -->
+      <div>
+        <h3 class="text-lg font-bold border-b pb-1 text-green-700">Responsable de l'équipe</h3>
+      </div>
+      <div class="flex gap-4">
+        <!-- Prénom -->
+        <div class="w-1/2">
+          <label for="manager_first_name" class="block font-bold mb-2">Prénom</label>
+          <input
+            pInputText
+            type="text"
+            id="manager_first_name"
+            formControlName="manager_first_name"
+            placeholder="Prénom"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="teamForm.get('manager_first_name')?.invalid && teamForm.get('manager_first_name')?.touched">
+            Le prénom est requis.
+          </small>
+        </div>
+        <!-- Nom -->
+        <div class="w-1/2">
+          <label for="manager_last_name" class="block font-bold mb-2">Nom</label>
+          <input
+            pInputText
+            type="text"
+            id="manager_last_name"
+            formControlName="manager_last_name"
+            placeholder="Nom"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="teamForm.get('manager_last_name')?.invalid && teamForm.get('manager_last_name')?.touched">
+            Le nom est requis.
+          </small>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <!-- Téléphone -->
+        <div class="w-1/2">
+          <label for="phone" class="block font-bold mb-2">Téléphone</label>
+          <input
+            pInputText
+            type="tel"
+            id="phone"
+            formControlName="phone"
+            placeholder="Ex: 70000000"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="teamForm.get('phone')?.invalid && teamForm.get('phone')?.touched">
+            Le téléphone est requis.
+          </small>
+        </div>
+        <!-- Email -->
+        <div class="w-1/2">
+          <label for="email" class="block font-bold mb-2">Email</label>
+          <input
+            pInputText
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="ex: responsable@email.com"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="teamForm.get('email')?.hasError('required') && teamForm.get('email')?.touched">
+            L'email est requis.
+          </small>
+          <small class="text-red-500" *ngIf="teamForm.get('email')?.hasError('email') && teamForm.get('email')?.touched">
+            Email invalide.
+          </small>
+        </div>
+      </div>
+
+      <!-- Poste du responsable -->
+      <div class="w-full">
+        <label for="role" class="block font-bold mb-2">Poste</label>
+        <input
+          pInputText
+          type="text"
+          id="manager_role"
+          formControlName="manager_role"
+          placeholder="Poste"
+          class="w-full"
+        />
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Annuler"
+        icon="pi pi-times"
+        severity="secondary"
+        (click)="toggleTeamForm()"
+      />
+      <p-button
+        [label]="isEditingTeam ? 'Modifier' : 'Enregistrer'"
+        icon="pi pi-check"
+        type="submit"
+        form="equipeForm"
+        (click)="saveTeam()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

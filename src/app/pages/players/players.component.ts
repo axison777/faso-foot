@@ -139,14 +139,14 @@ export class PlayersComponent implements OnInit {
       id: [''],
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      date_of_birth: [null],
-      birth_place: [''],
-      nationality: [''],
-      phone: [''],
-      email: ['', Validators.email],
+      date_of_birth: [null, Validators.required],
+      birth_place: ['', Validators.required],
+      nationality: ['', Validators.required],
+      phone: ['', Validators.required],
+      email: ['', [Validators.email, Validators.required]],
       photo_url: [''],
-      license_number: [''],
-      preferred_position: [''],
+      license_number: ['', Validators.required],
+      preferred_position: ['', Validators.required],
       height: [null],
       weight: [null],
       blood_type: [''],
@@ -304,6 +304,7 @@ export class PlayersComponent implements OnInit {
  savePlayer(): void {
   if (this.playerForm.invalid) {
     this.playerForm.markAllAsTouched();
+    this.ecControls.forEach(ec => ec.markAllAsTouched());
     return;
   }
 
@@ -395,7 +396,7 @@ export class PlayersComponent implements OnInit {
 
   // ----- emergency contacts helpers -----
   get ecControls() { return (this.playerForm.get('emergency_contact') as FormArray).controls as FormGroup[]; }
-  addEmergencyContact() { (this.playerForm.get('emergency_contact') as FormArray).push(this.fb.group({ name: [''], phone: [''], email: [''], relationship: [''] })); }
+  addEmergencyContact() { (this.playerForm.get('emergency_contact') as FormArray).push(this.fb.group({ name: [''], phone: [''], email: ['', Validators.email], relationship: [''] })); }
   removeEmergencyContact(i: number) { (this.playerForm.get('emergency_contact') as FormArray).removeAt(i); }
 
   // photo handling
