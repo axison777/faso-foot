@@ -219,7 +219,7 @@ export class EquipesComponent implements OnInit {
       next: (res: any) => {
         this.teams = res?.data.teams || [];
         this.teams?.forEach((team: Team) => {
-          team.full_name= team?.abbreviation + ' ' + (team?.category?.name || '');
+          team.full_name= (team?.name?.length! <= 15 ? team?.name : team?.abbreviation) + ' ' + (team?.category?.name || '');
       })
         this.loading = false;
       },

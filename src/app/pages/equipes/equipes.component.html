@@ -368,14 +368,28 @@
       <thead>
         <tr>
          <th>#</th>
-          <th>Equipe</th>
+          <th >Equipe</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
   <tr *ngFor="let team of filteredTeams">
     <td>{{getOriginalIndex(team)}}</td>
-    <td class="equipe-nom">{{ team?.full_name }}</td>
+    <td class="equipe-cell">
+  <div class="equipe-info">
+    <ng-container *ngIf="team?.logo; else noLogo">
+      <img [src]="team.logo" alt="logo {{team?.full_name}}" class="equipe-logo" />
+    </ng-container>
+    <ng-template #noLogo>
+      <div class="equipe-logo placeholder">N/A</div>
+    </ng-template>
+
+    <span class="equipe-nom">
+      {{ team?.full_name}}
+    </span>
+  </div>
+</td>
+
     <td class="actions">
 
       <div class="btn-group">

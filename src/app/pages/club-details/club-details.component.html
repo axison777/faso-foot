@@ -400,12 +400,12 @@
   <!-- Bouton d'action selon le statut du club -->
   <div *ngIf="club" class="tab-header-actions text-end mb-3">
     <ng-container *ngIf="club.status === 'ACTIVE'">
-      <button class="btn-danger" (click)="showSuspensionDialog()">
+      <button class="btn btn-danger" (click)="showSuspensionDialog()">
         <i class="pi pi-minus-circle mr-2"></i> Suspendre le club
       </button>
     </ng-container>
     <ng-container *ngIf="club.status === 'SUSPENDED'">
-      <button class="btn-primary" (click)="showReactivationDialog()">
+      <button class="btn btn-primary" (click)="showReactivationDialog()">
         <i class="pi pi-check-circle mr-2"></i> Réactiver le club
       </button>
     </ng-container>

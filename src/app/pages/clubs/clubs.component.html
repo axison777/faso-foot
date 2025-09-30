@@ -203,7 +203,7 @@
       <thead>
         <tr>
           <th>#</th>
-          <th>Nom du club</th>
+          <th>Club</th>
         <!--   <th>Nombre d'équipes</th> -->
 
           <th>Actions</th>
@@ -212,7 +212,20 @@
       <tbody>
         <tr *ngFor="let club of filteredClubs">
           <td>{{getOriginalIndex(club)}}</td>
-          <td class="ligue-nom">{{ club.name }}</td>
+              <td class="club-cell">
+                <div class="club-info">
+                    <ng-container *ngIf="club?.logo; else noLogo">
+                    <img [src]="club.logo" alt="logo {{club?.abbreviation}}" class="club-logo" />
+                    </ng-container>
+                    <ng-template #noLogo>
+                    <div class="club-logo placeholder">N/A</div>
+                    </ng-template>
+
+                    <span class="club-nom">
+                    {{ club?.name?.length! <25 ? club?.name : club?.abbreviation}}
+                    </span>
+                </div>
+                </td>
            <!-- <td class="ligue-team-count">{{ club?.team_count }} </td> -->
           <td class="actions">
             <div class="btn-group">
