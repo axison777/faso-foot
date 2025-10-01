@@ -24,12 +24,19 @@ import { PlayersComponent } from './app/pages/players/players.component';
 import { EquipeDetailsComponent } from './app/pages/equipe-details/equipe-details.component';
 import { PlayerDetailsComponent } from './app/pages/player-details/player-details.component';
 import { TeamCategoriesComponent } from './app/pages/team-categories/team-categories.component';
+import { OfficialsComponent } from './app/pages/officials/officials.component';
+import { OfficialDetailsComponent } from './app/pages/official-details/official-details.component';
+import { ClubDetailsComponent } from './app/pages/club-details/club-details.component';
+import { SaisonDetailsComponent } from './app/pages/saison-details/saison-details.component';
+import { MatchSetupComponent } from './app/pages/match-setup/match-setup.component';
 import { RolesComponent } from './app/pages/roles/roles.component';
 
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'activation-compte', loadComponent: () => import('./app/pages/activation-compte/activation-compte.component').then(m => m.ActivationCompteComponent) },
     { path: 'lien-expire', loadComponent: () => import('./app/pages/lien-expire/lien-expire.component').then(m => m.LienExpireComponent) },
+    { path: 'forgot-password', loadComponent: () => import('./app/pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
+    { path: 'change-forgotpassword', loadComponent: () => import('./app/pages/change-forgotpassword/change-forgotpassword.component').then(m => m.ChangeForgotPasswordComponent) },
     {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
     {
         path: '',
@@ -53,6 +60,8 @@ export const appRoutes: Routes = [
              {path: 'equipe-details/:id', component:EquipeDetailsComponent, canActivate: [AuthGuard] },
              {path: 'joueur-details/:id', component:PlayerDetailsComponent, canActivate: [AuthGuard] },
              {path: 'categories-equipe', component:TeamCategoriesComponent, canActivate: [AuthGuard] },
+             {path: 'club-details/:id', component:ClubDetailsComponent, canActivate: [AuthGuard] },
+             {path: 'saison-details/:id', component:SaisonDetailsComponent, canActivate: [AuthGuard] },
 
             {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
@@ -61,6 +70,9 @@ export const appRoutes: Routes = [
 
           /*    {path: 'calendar', component:CalendarComponent}, */
 
+            {path: 'officiels', component: OfficialsComponent, canActivate: [AuthGuard] },
+            {path: 'officiel-details/:id', component: OfficialDetailsComponent, canActivate: [AuthGuard] },
+            {path: 'match-setup/:id', component: MatchSetupComponent, canActivate: [AuthGuard] },
 
         ]
     },

@@ -1,4 +1,7 @@
 import { City } from "./city.model";
+import { Stadium } from "./stadium.model";
+import { Suspension } from "./suspension.model";
+import { TeamKit } from "./team-kit.model";
 import { Team } from "./team.model";
 
 export interface Club {
@@ -26,6 +29,12 @@ export interface Club {
   responsable_position?: string;
   responsable_phone?: string;
   responsable_email?: string;
+
+  kits?: TeamKit[];
+  stadium_id?: string;
+  stadium?: Stadium;
+  suspensions?: Suspension[]
+
 
 }
 

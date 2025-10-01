@@ -33,6 +33,7 @@
         "primeng": "^19.0.8",
         "rxjs": "~7.8.0",
         "tailwindcss-primeui": "^0.5.1",
+        "three": "^0.165.0",
         "tslib": "^2.3.0",
         "webpack-dev-server": "^5.2.2",
         "zone.js": "~0.15.0"

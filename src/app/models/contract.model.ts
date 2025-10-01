@@ -10,6 +10,8 @@ export interface Contract {
     start_date?: string;
     end_date?: string;
     team?: Team;
+    team_id?: string;
+    team_name?: string;
     number?: number;
     position?: string;
     role?: string;

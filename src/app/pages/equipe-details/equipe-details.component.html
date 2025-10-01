@@ -79,10 +79,11 @@
               </td> -->
               <td class="actions">
                 <div class="btn-group">
-                <!-- <button class="btn btn-gray"  (click)="openContractsModal(p)"><i class="pi pi-file"></i></button> -->
+               <!--   <button class="btn btn-gray"  (click)="openContractsModal(p)"><i class="pi pi-file"></i></button> -->
                   <p-button severity="warn" icon="pi pi-pencil" (click)="showPlayerDialog(p)" />
                   <button class="btn btn-info" (click)="openPlayerDetails(p)"><i class="pi pi-eye"></i></button>
-                  <button class="btn btn-danger" (click)="deleteEntity('joueur', p.id!)"><i class="pi pi-trash"></i></button>
+                <button class="btn btn-danger" (click)="deleteEntity('joueur', p.id!)"><i class="pi pi-trash"></i></button>
+
                 </div>
               </td>
             </tr>
@@ -329,7 +330,61 @@
         <div class="muted">Contact : {{ team.phone }} • {{ team.email }}</div>
       </div>
     </p-tabPanel>
+
+          <!-- TAB SUSPENSIONS -->
+<p-tabPanel header="Suspensions" leftIcon="pi pi-ban">
+
+  <!-- Bouton d'action selon le statut du club -->
+  <div *ngIf="team" class="tab-header-actions text-end mb-3">
+    <ng-container *ngIf="team.status === 'ACTIVE'">
+      <button class="btn-danger" (click)="showSuspensionDialog()">
+        <i class="pi pi-minus-circle mr-2"></i> Suspendre l'équipe
+      </button>
+    </ng-container>
+    <ng-container *ngIf="team.status === 'SUSPENDED'">
+      <button class="btn-primary" (click)="showReactivationDialog()">
+        <i class="pi pi-check-circle mr-2"></i> Réactiver l'équipe
+      </button>
+    </ng-container>
+  </div>
+
+  <!-- Tableau des suspensions -->
+  <div class="table-container" *ngIf="team.suspensions?.length; else noSuspensions">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Début</th>
+          <th>Fin</th>
+          <th>Raisons</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of team.suspensions; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ s.effective_from | date:'shortDate' }}</td>
+          <td>{{ s.effective_until ? (s.effective_until | date:'shortDate') : '-' }}</td>
+          <td>{{ s.reasons?.join(', ') }}</td>
+          <td class="actions">
+            <div class="btn-group">
+              <p-button severity="warn" icon="pi pi-pencil" (click)="showSuspensionDialog(s)"></p-button>
+              <button class="btn btn-danger" (click)="deleteEntity('suspension', s.id!)">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <ng-template #noSuspensions>
+    <div class="no-results"><p>Pas de suspensions pour le moment.</p></div>
+  </ng-template>
+</p-tabPanel>
   </p-tabView>
+
+
 
   <!-- ========== DIALOG: CREATE / EDIT PLAYER ========== -->
     <p-dialog [(visible)]="showPlayerForm" [modal]="true" [draggable]="false" [closable]="false"
@@ -589,7 +644,7 @@
     <div></div>
 
     <!-- Clauses -->
-<div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
+<!-- <div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
   <div class="flex justify-between items-center mb-2">
     <label class="font-semibold">Clauses</label>
     <p-button variant="outlined" size="small" (click)="addClause()">
@@ -607,7 +662,7 @@
       </p-button>
     </div>
   </div>
-</div>
+</div> -->
 
 
   </form>
@@ -783,3 +838,47 @@
     </ng-template>
   </p-dialog>
 
+    <!-- DIALOG SUSPENSION -->
+<p-dialog [draggable]="false" [(visible)]="showSuspensionForm" [modal]="true" [style]="{ width: '520px' }"
+          [header]="isEditingSuspension ? 'Modifier la suspension' : (team.status === 'ACTIVE' ? 'Suspendre le club' : 'Réactiver le club')"
+          [closable]="false">
+  <ng-template #content>
+    <form [formGroup]="suspensionForm" class="form-grid">
+
+      <!-- Dates uniquement si on suspend -->
+      <ng-container *ngIf="team.status === 'ACTIVE'">
+        <div class="form-item">
+          <label>Date de début <span class="req">*</span></label>
+          <p-datepicker appendTo="body" formControlName="effective_from" [showIcon]="true" dateFormat="yy-mm-dd"></p-datepicker>
+        </div>
+        <div class="form-item">
+          <label>Date de fin <span class="req">*</span></label>
+          <p-datepicker appendTo="body" formControlName="effective_until" [showIcon]="true" dateFormat="yy-mm-dd"></p-datepicker>
+        </div>
+      </ng-container>
+
+      <div class="form-item">
+  <label>Raisons <span class="req">*</span></label>
+  <div *ngFor="let r of reasonsArray.controls; let i = index" class="reason-item flex gap-2 mb-1">
+  <input pInputText [formControl]="r" placeholder="Saisir une raison" class="flex-1"/>
+  <button type="button" class="btn btn-danger" (click)="removeReason(i)">
+    <i class="pi pi-trash"></i>
+  </button>
+</div>
+
+  <button type="button" class="btn btn-primary mt-2" (click)="addReason()">
+    <i class="pi pi-plus"></i> Ajouter une raison
+  </button>
+</div>
+
+
+    </form>
+  </ng-template>
+
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <p-button label="Annuler" icon="pi pi-times" [raised]="true" severity="secondary" (click)="closeSuspensionForm()"></p-button>
+      <p-button [loading]="loading" [raised]="true" (click)="saveSuspension()" label="Enregistrer" icon="pi pi-check"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
