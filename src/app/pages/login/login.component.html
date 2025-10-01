@@ -61,6 +61,21 @@
             </p-iconfield>
           </div>
 
+          <!-- Démo -->
+          <div class="demo-credentials">
+            <p class="demo-title">Identifiants de démonstration :</p>
+            <div class="demo-list">
+              <p class="text-primary" *ngFor="let cred of defaultCredentials">
+                {{ cred.email }} / {{ cred.password }}
+              </p>
+            </div>
+          </div>
+          <!-- Mot de passe oublié -->
+          <div class="forgot-password mb-3">
+            <a routerLink="/forgot-password" class="forgot-link">
+              Mot de passe oublié ?
+            </a>
+          </div>
           <!-- Bouton -->
           <button
             type="submit"

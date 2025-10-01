@@ -35,6 +35,8 @@ export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'activation-compte', loadComponent: () => import('./app/pages/activation-compte/activation-compte.component').then(m => m.ActivationCompteComponent) },
     { path: 'lien-expire', loadComponent: () => import('./app/pages/lien-expire/lien-expire.component').then(m => m.LienExpireComponent) },
+    { path: 'forgot-password', loadComponent: () => import('./app/pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
+    { path: 'change-forgotpassword', loadComponent: () => import('./app/pages/change-forgotpassword/change-forgotpassword.component').then(m => m.ChangeForgotPasswordComponent) },
     {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
     {
         path: '',
