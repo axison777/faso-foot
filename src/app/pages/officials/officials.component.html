@@ -8,11 +8,11 @@
             rel="stylesheet" />
         <h1>Gestion des Officiels</h1>
         <div class="header-actions">
-            <button class="btn btn-info" (click)="toggleForm()"><i class="pi pi-plus-circle mr-2"></i>Ajouter un
-                officiel</button>
+            <button class="btn btn-info" (click)="toggleForm()">
+                <i class="pi pi-plus-circle mr-2"></i>Ajouter un officiel
+            </button>
         </div>
     </div>
-
 
     <!-- Onglets -->
     <p-tabView [(activeIndex)]="activeIndex" class="officials-tabs">
@@ -45,27 +45,34 @@
                     <tbody>
                         <tr *ngFor="let o of referees; let i = index">
                             <td>{{ i + 1 }}</td>
-                            <td class="cell-strong">{{ o.last_name }}</td>
-                            <td>{{ o.first_name }}</td>
+                            <!-- Ancien modèle -->
+                            <!-- <td class="cell-strong">{{ o.last_name }}</td> -->
+                            <!-- <td>{{ o.first_name }}</td> -->
+                            <!-- Nouveau modèle -->
+                            <td class="cell-strong">{{ o.user?.last_name }}</td>
+                            <td>{{ o.user?.first_name }}</td>
+
                             <!-- <td>{{ o.license_number }}</td> -->
                             <td>{{ o.level }}</td>
                             <td>{{ o.structure || '—' }}</td>
                             <td>
                                 <span class="badge" [ngClass]="{
-                    'status-active': o.status === 'ACTIVE',
-                    'status-suspended': o.status === 'SUSPENDED',
-                    'status-retired': o.status === 'RETIRED'
-                  }">
+                                    'status-active': o.status === 'ACTIVE',
+                                    'status-suspended': o.status === 'SUSPENDED',
+                                    'status-retired': o.status === 'RETIRED'
+                                }">
                                     {{ o.status }}
                                 </span>
                             </td>
                             <td class="actions">
                                 <div class="btn-group">
                                     <p-button severity="warn" icon="pi pi-pencil" (click)="editOfficial(o)" />
-                                    <button class="btn btn-info" (click)="viewOfficialDetails(o)"><i
-                                            class="pi pi-eye"></i></button>
-                                    <button class="btn btn-danger" (click)="deleteOfficial(o.id!)"><i
-                                            class="pi pi-trash"></i></button>
+                                    <button class="btn btn-info" (click)="viewOfficialDetails(o)">
+                                        <i class="pi pi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-danger" (click)="deleteOfficial(o.id!)">
+                                        <i class="pi pi-trash"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -86,11 +93,6 @@
             <div class="search-container flex align-items-end">
                 <input type="text" class="search-input" [(ngModel)]="searchTerm"
                     placeholder="Rechercher un commissaire (nom, prénom, licence)..." />
-                <!-- <div class="header-actions ml-auto mt-auto">
-                    <button class="btn-info" (click)="toggleForm()">
-                        <i class="pi pi-plus-circle mr-2"></i> Ajouter un commissaire
-                    </button>
-                </div> -->
             </div>
 
             <!-- Loading -->
@@ -114,27 +116,33 @@
                     <tbody>
                         <tr *ngFor="let o of commissioners; let i = index">
                             <td>{{ i + 1 }}</td>
-                            <td class="cell-strong">{{ o.last_name }}</td>
-                            <td>{{ o.first_name }}</td>
+                            <!-- Ancien modèle -->
+                            <!-- <td class="cell-strong">{{ o.last_name }}</td> -->
+                            <!-- <td>{{ o.first_name }}</td> -->
+                            <!-- Nouveau modèle -->
+                            <td class="cell-strong">{{ o.user?.last_name }}</td>
+                            <td>{{ o.user?.first_name }}</td>
                             <!-- <td>{{ o.license_number }}</td> -->
                             <td>{{ o.level }}</td>
                             <td>{{ o.structure || '—' }}</td>
                             <td>
                                 <span class="badge" [ngClass]="{
-                    'status-active': o.status === 'ACTIVE',
-                    'status-suspended': o.status === 'SUSPENDED',
-                    'status-retired': o.status === 'RETIRED'
-                    }">
+                                    'status-active': o.status === 'ACTIVE',
+                                    'status-suspended': o.status === 'SUSPENDED',
+                                    'status-retired': o.status === 'RETIRED'
+                                }">
                                     {{ o.status }}
                                 </span>
                             </td>
                             <td class="actions">
                                 <div class="btn-group">
                                     <p-button severity="warn" icon="pi pi-pencil" (click)="editOfficial(o)" />
-                                    <button class="btn btn-info" (click)="viewOfficialDetails(o)"><i
-                                            class="pi pi-eye"></i></button>
-                                    <button class="btn btn-danger" (click)="deleteOfficial(o.id!)"><i
-                                            class="pi pi-trash"></i></button>
+                                    <button class="btn btn-info" (click)="viewOfficialDetails(o)">
+                                        <i class="pi pi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-danger" (click)="deleteOfficial(o.id!)">
+                                        <i class="pi pi-trash"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -154,12 +162,16 @@
     <p-dialog [(visible)]="showForm" [modal]="true" [draggable]="false" [closable]="false" [style]="{ width: '800px' }"
         [header]="isEditing ? 'Modifier un officiel' : 'Ajouter un officiel'">
         <form [formGroup]="officialForm" class="form-grid" (ngSubmit)="saveOfficial()">
+
             <!-- NOM -->
             <div class="form-item">
                 <label>Nom <span class="req">*</span></label>
-                <input pInputText formControlName="last_name" placeholder="Nom" />
+                <!-- Ancien -->
+                <!-- <input pInputText formControlName="last_name" placeholder="Nom" /> -->
+                <!-- Nouveau -->
+                <input pInputText formControlName="user_last_name" placeholder="Nom" />
                 <small class="error"
-                    *ngIf="officialForm.get('last_name')?.invalid && officialForm.get('last_name')?.touched">
+                    *ngIf="officialForm.get('user_last_name')?.invalid && officialForm.get('user_last_name')?.touched">
                     Le nom est requis
                 </small>
             </div>
@@ -167,24 +179,32 @@
             <!-- PRÉNOM -->
             <div class="form-item">
                 <label>Prénom <span class="req">*</span></label>
-                <input pInputText formControlName="first_name" placeholder="Prénom" />
+                <!-- Ancien -->
+                <!-- <input pInputText formControlName="first_name" placeholder="Prénom" /> -->
+                <!-- Nouveau -->
+                <input pInputText formControlName="user_first_name" placeholder="Prénom" />
                 <small class="error"
-                    *ngIf="officialForm.get('first_name')?.invalid && officialForm.get('first_name')?.touched">
+                    *ngIf="officialForm.get('user_first_name')?.invalid && officialForm.get('user_first_name')?.touched">
                     Le prénom est requis
                 </small>
             </div>
 
-            <!-- DATE DE NAISSANCE -->
+            <!-- Email -->
             <div class="form-item">
-                <label>Date de naissance</label>
-                <p-datepicker [style]="{ width: '100%' }" formControlName="date_of_birth" dateFormat="dd/mm/yy"
-                    [showIcon]="true"></p-datepicker>
-            </div>
-
-            <!-- LIEU DE NAISSANCE -->
-            <div class="form-item">
-                <label>Lieu de naissance</label>
-                <input pInputText formControlName="birth_place" placeholder="Lieu" />
+                <label>Adresse email <span class="req">*</span></label>
+                <!-- Ancien -->
+                <!-- <input pInputText formControlName="email" type="email" placeholder="email" /> -->
+                <!-- Nouveau -->
+                <input pInputText formControlName="user_email" type="email" placeholder="email" />
+                <small class="error"
+                    *ngIf="officialForm.get('user_email')?.touched && officialForm.get('user_email')?.invalid">
+                    <ng-container *ngIf="officialForm.get('user_email')?.errors?.['required']">
+                        Une adresse mail est requise.
+                    </ng-container>
+                    <ng-container *ngIf="officialForm.get('user_email')?.errors?.['email']">
+                        L'adresse email n'est pas valide.
+                    </ng-container>
+                </small>
             </div>
 
             <!-- TYPE -->
@@ -192,10 +212,6 @@
                 <label>Type <span class="req">*</span></label>
                 <p-select [options]="officialTypes" formControlName="official_type" optionLabel="label"
                     optionValue="value" placeholder="Type d'officiel"></p-select>
-                <small class="error"
-                    *ngIf="officialForm.get('official_type')?.invalid && officialForm.get('official_type')?.touched">
-                    Le type d'officiel est requis
-                </small>
             </div>
 
             <!-- NIVEAU -->
@@ -203,9 +219,6 @@
                 <label>Niveau <span class="req">*</span></label>
                 <p-select [options]="levels" formControlName="level" optionLabel="label" optionValue="value"
                     placeholder="Niveau"></p-select>
-                <small class="error" *ngIf="officialForm.get('level')?.invalid && officialForm.get('level')?.touched">
-                    Le niveau est requis
-                </small>
             </div>
 
             <!-- STATUT -->
@@ -213,44 +226,12 @@
                 <label>Statut <span class="req">*</span></label>
                 <p-select [options]="statuses" formControlName="status" optionLabel="label" optionValue="value"
                     placeholder="Statut"></p-select>
-                <small class="error" *ngIf="officialForm.get('status')?.invalid && officialForm.get('status')?.touched">
-                    Le statut est requis
-                </small>
-            </div>
-
-            <!-- NATIONALITÉ -->
-            <div class="form-item">
-                <label>Nationalité</label>
-                <input pInputText formControlName="nationality" placeholder="Nationalité" />
             </div>
 
             <!-- LICENCE -->
             <div class="form-item">
                 <label>N° Licence <span class="req">*</span></label>
                 <input pInputText formControlName="license_number" placeholder="Licence" />
-                <small class="error"
-                    *ngIf="officialForm.get('license_number')?.invalid && officialForm.get('license_number')?.touched">
-                    {{ officialForm.get('license_number')?.errors?.['required'] ? 'Le numéro de licence est requis' :
-                    officialForm.get('license_number')?.errors?.['custom'] }}
-                </small>
-            </div>
-
-            <!-- Email -->
-            <div class="form-item">
-                <label>Adresse email <span class="req">*</span></label>
-                <input pInputText formControlName="email" type="email" placeholder="email" />
-
-                <small class="error" *ngIf="officialForm.get('email')?.touched && officialForm.get('email')?.invalid">
-                    <ng-container *ngIf="officialForm.get('email')?.errors?.['required']">
-                        Une adresse mail est requise.
-                    </ng-container>
-                    <ng-container *ngIf="officialForm.get('email')?.errors?.['email']">
-                        L'adresse email n'est pas valide.
-                    </ng-container>
-                    <ng-container *ngIf="officialForm.get('email')?.errors?.['custom']">
-                        {{ officialForm.get('email')?.errors?.['custom'] }}
-                    </ng-container>
-                </small>
             </div>
 
             <!-- STRUCTURE -->
@@ -263,10 +244,6 @@
             <div class="form-item">
                 <label>Expérience (années)</label>
                 <input pInputText formControlName="experience" type="number" />
-                <small class="error"
-                    *ngIf="officialForm.get('experience')?.invalid && officialForm.get('experience')?.touched">
-                    L'expérience ne peut pas être négative
-                </small>
             </div>
 
             <!-- CERTIFICATION DATE -->

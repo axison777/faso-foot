@@ -17,11 +17,11 @@
                             placeholder="-- Choisir un officiel --" filter="true" [(ngModel)]="selectedOfficialId"
                             name="official">
                             <ng-template let-official pTemplate="item">
-                                {{ official.first_name }} {{ official.last_name }} ({{getOfficialTypeLabel( official.official_type) }})
+                                {{ official.user.first_name }} {{ official.user.last_name }} ({{getOfficialTypeLabel( official.official_type) }})
                                 {{getStatusLabel(official.status) || official.status}}
                             </ng-template>
                             <ng-template let-official pTemplate="selectedItem">
-                                {{ official.first_name }} {{ official.last_name }} ({{ getOfficialTypeLabel(official.official_type) }})
+                                {{ official.user.first_name }} {{ official.user.last_name }} ({{ getOfficialTypeLabel(official.official_type) }})
                             </ng-template>
                         </p-select>
 
@@ -49,7 +49,7 @@
                             </thead>
                             <tbody>
                                 <tr *ngFor="let o of officialsofmatch">
-                                    <td>{{ o.first_name }} {{ o.last_name }}</td>
+                                    <td>{{ o.user.first_name }} {{ o.user.last_name }}</td>
                                     <td>{{ getOfficialTypeLabel(o.official_type) }}</td>
                                     <td>{{ mapRole(o.matches?.[0]?.pivot?.role ?? '') }}</td>
                                 </tr>
@@ -424,4 +424,9 @@
 
 
     </p-tabView>
+<!-- 
+<button (click)="showPitch = true">Ouvrir composition</button>
+
+<app-pitch-setup *ngIf="showPitch" (close)="showPitch = false"></app-pitch-setup>
+ -->
 </div>
