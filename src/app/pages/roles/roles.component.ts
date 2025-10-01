@@ -18,6 +18,7 @@ import { RoleService, PaginatedRolesResponse } from '../../service/role.service'
 import { PermissionService } from '../../service/permission.service';
 import { Role, Permission } from '../../models/role.model';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
   selector: 'app-roles',
@@ -26,7 +27,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
   styleUrls: ['./roles.component.scss'],
   imports: [
     CommonModule, ReactiveFormsModule, FormsModule, TableModule, DialogModule, ButtonModule,
-    InputTextModule, ConfirmDialogModule, ToastModule, InputSwitchModule
+    InputTextModule, ConfirmDialogModule, ToastModule, InputSwitchModule,
+    HasPermissionDirective
   ],
   providers: [MessageService, ConfirmationService, RoleService, PermissionService]
 })

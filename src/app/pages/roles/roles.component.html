@@ -1,5 +1,5 @@
 <!-- src/app/pages/roles/roles.component.html -->
-<div class="roles-container">
+<div class="roles-container" *hasPermission="'voir-parametres'">
   <p-toast></p-toast>
   <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 
@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <h1>Rôles</h1>
     <div class="header-actions">
-      <button class="btn btn-info" (click)="openCreate()">
+      <button class="btn btn-info" (click)="openCreate()" *hasPermission="'creer-parametres'">
         <i class="pi pi-plus-circle mr-2"></i>Ajouter un rôle
       </button>
     </div>
@@ -51,10 +51,10 @@
               <button class="btn btn-info" title="Détails" (click)="openDetails(role)">
                 <i class="pi pi-eye"></i>
               </button>
-              <button class="btn btn-warning" title="Modifier" (click)="openEdit(role)">
+              <button class="btn btn-warning" title="Modifier" (click)="openEdit(role)" *hasPermission="'modifier-parametres'">
                 <i class="pi pi-pencil"></i>
               </button>
-              <button class="btn btn-danger" title="Supprimer" (click)="confirmDelete(role)">
+              <button class="btn btn-danger" title="Supprimer" (click)="confirmDelete(role)" *hasPermission="'supprimer-parametres'">
                 <i class="pi pi-trash"></i>
               </button>
             </div>

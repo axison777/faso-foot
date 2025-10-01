@@ -62,4 +62,26 @@ export class AuthService {
   get token(): string | null {
     return localStorage.getItem('token');
   }
+
+  // Permissions helpers
+  hasPermission(slug: string): boolean {
+    const user = this.currentUser;
+    if (!user?.roles?.length) return false;
+    for (const r of user.roles) {
+      if (!r?.permissions?.length) continue;
+      if (r.permissions.some(p => p?.slug === slug)) return true;
+    }
+    return false;
+  }
+
+  getPermissionSlugs(): string[] {
+    const user = this.currentUser;
+    const set = new Set<string>();
+    if (!user?.roles?.length) return [];
+    for (const r of user.roles) {
+      if (!r?.permissions?.length) continue;
+      for (const p of r.permissions) if (p?.slug) set.add(p.slug);
+    }
+    return Array.from(set);
+  }
 }

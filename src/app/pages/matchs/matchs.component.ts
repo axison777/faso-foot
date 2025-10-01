@@ -1,5 +1,6 @@
 import { formatDate, NgClass, NgFor } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { ActivatedRoute } from '@angular/router';
 import { MatchService } from '../../service/match.service';
 import { SaisonService } from '../../service/saison.service';
@@ -39,8 +40,8 @@ interface Phase {
 @Component({
   selector: 'app-matchs',
   imports: [
-    NgFor,
-
+  NgFor,
+     HasPermissionDirective
   ],
   templateUrl: './matchs.component.html',
   styleUrl: './matchs.component.scss'

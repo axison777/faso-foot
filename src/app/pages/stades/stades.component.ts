@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { Stadium } from '../../models/stadium.model';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
   selector: 'app-stades',
@@ -28,7 +29,8 @@ import { Stadium } from '../../models/stadium.model';
     ConfirmDialogModule,
     ToastModule,
     SelectModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HasPermissionDirective
   ]
 })
 export class StadesComponent implements OnInit {

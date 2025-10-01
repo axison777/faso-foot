@@ -10,7 +10,7 @@
   <div class="header">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <h1>Saisons</h1>
-    <button class="btn-primary" (click)="addSeason()">
+    <button class="btn-primary" (click)="addSeason()" *hasPermission="'creer-journees'">
       <i class="pi pi-plus-circle mr-2"></i> Ajouter saison
     </button>
   </div>
@@ -31,6 +31,7 @@
   </div>
 
   <!-- Table -->
+  <ng-container *hasPermission="'voir-journees'">
   <div *ngIf="!loading && filteredSaisons.length > 0" class="table-container">
     <table class="saisons-table">
       <thead>
@@ -60,25 +61,26 @@
                 <span>Voir</span>
               </button> -->
               <button class="btn btn-info"
-                (click)="voirDetails(saison.id)">
-                <i class=" pi pi-eye"></i>
-               <!--  <span>Voir</span> -->
+              (click)="voirDetails(saison.id)">
+              <i class=" pi pi-eye"></i>
+              <!--  <span>Voir</span> -->
               </button>
               <button class="btn btn-gray"
-                (click)="voirCalendrier(saison)">
-                <i class=" pi pi-calendar"></i>
-               <!--  <span>Voir</span> -->
+              (click)="voirCalendrier(saison)" *hasPermission="'voir-journees'">
+              <i class=" pi pi-calendar"></i>
+              <!--  <span>Voir</span> -->
               </button>
-
-                 <button class="btn btn-danger" (click)="deleteSeason(saison.id!)"><i class="pi pi-trash"></i></button>
+              
+              <button class="btn btn-danger" (click)="deleteSeason(saison.id!)" *hasPermission="'supprimer-journees'"><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
-
-  <!-- No results -->
+   </ng-container>
+  
+   <!-- No results -->
   <div *ngIf="!loading && searchTerm && filteredSaisons.length === 0" class="no-results">
     <div class="icon">🔍</div>
     <p>Aucune saison trouvée pour "{{ searchTerm }}"</p>

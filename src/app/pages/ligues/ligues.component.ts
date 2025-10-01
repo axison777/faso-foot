@@ -18,6 +18,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { Team } from '../../models/team.model';
 import { EquipeService } from '../../service/equipe.service';
 import { CheckboxModule } from 'primeng/checkbox';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
   selector: 'app-ligues',
@@ -37,7 +38,8 @@ import { CheckboxModule } from 'primeng/checkbox';
     ReactiveFormsModule,
     FileUploadModule,
     InputNumberModule,
-    CheckboxModule
+    CheckboxModule,
+    HasPermissionDirective
   ]
 })
 export class LiguesComponent implements OnInit {

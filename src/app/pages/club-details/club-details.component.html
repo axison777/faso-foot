@@ -104,14 +104,14 @@
     <!-- TAB MAILLOTS -->
     <p-tabPanel header="Maillots" leftIcon="pi pi-palette">
       <div class="tab-header-actions text-end">
-        <button class="btn-primary" (click)="showKitDialog()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un maillot</button>
+        <button class="btn-primary" (click)="showKitDialog()" *hasPermission="'creer-equipes'"><i class="pi pi-plus-circle mr-2"></i> Ajouter un maillot</button>
       </div>
 
       <div *ngIf="!loadingKits">
         <ng-container *ngIf="club?.kits?.length; else noKits">
           <div class="kit-carousel border rounded-lg p-4 shadow-sm bg-white">
             <div class="flex items-center justify-between mb-3">
-              <button class="btn btn-danger" (click)="deleteEntity('maillot', selectedKit?.id!)" [disabled]="!selectedKit?.id"><i class="pi pi-trash"></i></button>
+              <button class="btn btn-danger" (click)="deleteEntity('maillot', selectedKit?.id!)" [disabled]="!selectedKit?.id" *hasPermission="'supprimer-equipes'"><i class="pi pi-trash"></i></button>
               <div class="text-lg font-bold">{{ getKitLabel(selectedKit?.type!) }} ({{ selectedKitIndex + 1 }}/{{ club?.kits?.length || 0 }})</div>
               <div class="flex gap-2">
                 <button class="btn btn-gray" (click)="prevKit()"><i class="pi pi-chevron-left"></i></button>
@@ -149,10 +149,12 @@
                 </div>
 
                 <div class="mt-3 flex gap-2 justify-end">
-                  <button class="btn-primary" type="button" (click)="saveSelectedKit()" [disabled]="!hasEditorChanges || loadingForm">
+                  <button class="btn-primary" type="button" (click)="saveSelectedKit()" [disabled]="!hasEditorChanges || loadingForm" *hasPermission="'modifier-equipes'"
+                          [style.opacity]="(!hasEditorChanges || loadingForm) ? 0.5 : 1" [style.cursor]="(!hasEditorChanges || loadingForm) ? 'not-allowed' : 'pointer'">
                     <i class="pi pi-check mr-2"></i> Sauvegarder
                   </button>
-                  <button class="btn" type="button" (click)="patchEditorFromSelected()" [disabled]="!hasEditorChanges">
+                  <button class="btn" type="button" (click)="patchEditorFromSelected()" [disabled]="!hasEditorChanges"
+                          [style.opacity]="(!hasEditorChanges) ? 0.5 : 1" [style.cursor]="(!hasEditorChanges) ? 'not-allowed' : 'pointer'">
                     <i class="pi pi-refresh mr-2"></i> Réinitialiser
                   </button>
                 </div>

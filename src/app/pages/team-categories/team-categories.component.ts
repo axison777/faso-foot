@@ -12,6 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { Team } from '../../models/team.model';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
   selector: 'app-team-categories',
@@ -28,6 +29,7 @@ import { Team } from '../../models/team.model';
     ConfirmDialogModule,
     ToastModule,
     SelectModule,
+    HasPermissionDirective,
   ]
 })
 export class TeamCategoriesComponent implements OnInit {
