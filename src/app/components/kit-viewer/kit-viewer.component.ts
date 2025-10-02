@@ -69,8 +69,7 @@ export class KitViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     // Transparence totale
     // @ts-ignore
     this.renderer.setClearColor(0x000000, 0);
-    // @ts-ignore
-    this.renderer.outputColorSpace = (THREE as any).SRGBColorSpace ?? (THREE as any).sRGBEncoding;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     // Eclairages: hémisphérique + directionnels doux
     const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);

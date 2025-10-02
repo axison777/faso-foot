@@ -34,7 +34,6 @@ import { TeamCategoryService } from '../../service/team-category.service';
 import { VilleService } from '../../service/ville.service';
 import { City } from '../../models/city.model';
 import { KitViewerComponent } from '../../components/kit-viewer/kit-viewer.component';
-import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
 selector: 'app-club-details',

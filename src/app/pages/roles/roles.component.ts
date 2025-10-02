@@ -15,8 +15,7 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 
 // Services & Models
 import { RoleService, PaginatedRolesResponse } from '../../service/role.service';
-import { PermissionService } from '../../service/permission.service';
-import { Role, Permission } from '../../models/role.model';
+import { Role } from '../../models/role.model';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
@@ -28,16 +27,12 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     CommonModule, ReactiveFormsModule, FormsModule, TableModule, DialogModule, ButtonModule,
     InputTextModule, ConfirmDialogModule, ToastModule, InputSwitchModule
   ],
-  providers: [MessageService, ConfirmationService, RoleService, PermissionService]
+  providers: [MessageService, ConfirmationService, RoleService]
 })
 export class RolesComponent implements OnInit {
   @ViewChild('dt') dt: Table | undefined;
 
   roles: Role[] = [];
-  allPermissions: Permission[] = [];
-  permissionsAdmin: Permission[] = [];
-  permissionsMatch: Permission[] = [];
-  permissionsOther: Permission[] = [];
 
   loading = true;
   isSubmitting = false;
@@ -48,12 +43,10 @@ export class RolesComponent implements OnInit {
   currentRole: Role | null = null;
 
   roleForm!: FormGroup;
-  allSelected = false; // Pour le switch "Tout sélectionner"
 
   constructor(
     private fb: FormBuilder,
     private roleService: RoleService,
-    private permissionService: PermissionService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
@@ -65,36 +58,15 @@ export class RolesComponent implements OnInit {
 
   private initializeForm(): void {
     this.roleForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      permissions: [[], [Validators.required, this.atLeastOneValidator]]
+      name: ['', [Validators.required, Validators.minLength(2)]]
     });
-  }
-
-  private atLeastOneValidator(control: any) {
-    const value = control.value;
-    return !value || value.length === 0 ? { required: true } : null;
   }
 
   async loadInitialData(): Promise<void> {
     this.loading = true;
     try {
-      const [permissionsList, rolesRes] = await Promise.all([
-        firstValueFrom(this.permissionService.getAllPages(100)),
-        firstValueFrom(this.roleService.getAll())
-      ]);
-
-      this.allPermissions = (permissionsList as any[]) ?? [];
-
-      const byName = (a: Permission, b: Permission) => a.name.localeCompare(b.name);
-      this.permissionsAdmin = this.allPermissions.filter(p => this.getPermissionCategory(p.slug) === 'Administration').sort(byName);
-      this.permissionsMatch = this.allPermissions.filter(p => this.getPermissionCategory(p.slug) === 'Match & Clubs').sort(byName);
-      this.permissionsOther = this.allPermissions.filter(p => this.getPermissionCategory(p.slug) === 'Autres').sort(byName);
-
-      this.roles = ((rolesRes as PaginatedRolesResponse)?.data ?? []).map((role: any) => ({
-        ...role,
-        permissions: (role.permissions ?? []).map((p: any) => (typeof p === 'object' ? p.slug : p))
-      }));
-
+      const rolesRes = await firstValueFrom(this.roleService.getAll());
+      this.roles = ((rolesRes as PaginatedRolesResponse)?.data ?? []);
     } catch (error) {
       this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de charger les données.' });
     } finally {
@@ -107,15 +79,14 @@ export class RolesComponent implements OnInit {
   openCreate(): void {
     this.isEditing = false;
     this.currentRole = null;
-    this.roleForm.reset({ name: '', permissions: [] });
+    this.roleForm.reset({ name: '' });
     this.showForm = true;
   }
 
   openEdit(role: Role): void {
     this.isEditing = true;
     this.currentRole = { ...role };
-    const permissionSlugs = (role.permissions ?? []).map((p: any) => (typeof p === 'string' ? p : p.slug)).filter(Boolean);
-    this.roleForm.reset({ name: role.name || '', permissions: permissionSlugs });
+    this.roleForm.reset({ name: role.name || '' });
     this.showForm = true;
   }
 
@@ -128,8 +99,7 @@ export class RolesComponent implements OnInit {
     this.isSubmitting = true;
     const formValue = this.roleForm.value;
     const payload = {
-      name: formValue.name.trim(),
-      permissions: formValue.permissions
+      name: formValue.name.trim()
     };
 
     try {
@@ -195,48 +165,7 @@ export class RolesComponent implements OnInit {
     this.dt?.filterGlobal(filterValue, 'contains');
   }
 
-  getPermissionName(slug: string): string {
-    return this.allPermissions.find(p => p.slug === slug)?.name || slug;
-  }
-
-  getPermissionBadgeClass(slug: string): string {
-    const s = slug.toLowerCase();
-    if (s.includes('admin') || s.includes('param')) return 'badge-red';
-    if (s.includes('match') || s.includes('club') || s.includes('team')) return 'badge-green';
-    return 'badge-gray';
-  }
-
-  getPermissionCategory(slug: string): string {
-    const s = slug.toLowerCase();
-    if (s.includes('admin') || s.includes('param')) return 'Administration';
-    if (s.includes('match') || s.includes('club') || s.includes('team')) return 'Match & Clubs';
-    return 'Autres';
-  }
-
-  togglePermission(slug: string, checked: boolean): void {
-    const control = this.roleForm.get('permissions');
-    if (!control) return;
-    const current: string[] = control.value || [];
-    if (checked && !current.includes(slug)) {
-      control.setValue([...current, slug]);
-    } else if (!checked && current.includes(slug)) {
-      control.setValue(current.filter(s => s !== slug));
-    }
-    control.markAsDirty();
-  }
-
-  toggleAllPermissions(checked: boolean): void {
-    const control = this.roleForm.get('permissions');
-    if (!control) return;
-    this.allSelected = checked;
-    control.setValue(checked ? this.allPermissions.map(p => p.slug) : []);
-    control.markAsDirty();
-  }
-
   trackBySlug(index: number, item: Role): any {
-    return item.slug || index;
-  }
-  trackPermission(index: number, item: Permission): any {
     return item.slug || index;
   }
 }

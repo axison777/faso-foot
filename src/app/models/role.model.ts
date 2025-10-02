@@ -1,14 +1,7 @@
 // src/app/models/role.model.ts
-export interface Permission {
-  slug: string;
-  name: string;
-}
-
 export interface Role {
   slug?: string;          // généré côté backend
   name: string;
-  permissions: string[];  // à l’envoi : array de slugs
-  permissionsDetails?: Permission[]; // à la lecture : objets complets
 }
 
 export interface PaginatedResponse<T> {

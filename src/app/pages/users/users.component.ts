@@ -15,7 +15,6 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { User, UserRole } from '../../models/user.model';
 import { Role } from '../../models/role.model';
-import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
   selector: 'app-users',

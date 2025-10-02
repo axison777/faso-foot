@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Role, Permission } from '../models/role.model';
+import { Role } from '../models/role.model';
 
 export interface PaginatedRolesResponse {
   status: boolean;
@@ -60,7 +60,7 @@ export class RoleService {
     );
   }
 
-  create(role: { name: string; permissions: string[] }): Observable<Role> {
+  create(role: { name: string }): Observable<Role> {
     console.log('=== RoleService.create() ===');
     console.log('URL:', this.apiUrl);
     console.log('Payload reçu:', role);
@@ -89,7 +89,7 @@ export class RoleService {
     );
   }
 
-  update(slug: string, role: { name: string; permissions: string[] }): Observable<Role> {
+  update(slug: string, role: { name: string }): Observable<Role> {
     const url = `${this.apiUrl}/${slug}`;
     console.log('=== RoleService.update() ===');
     console.log('URL:', url);
@@ -142,7 +142,7 @@ export class RoleService {
   }
 
   // Méthodes privées pour la validation et le nettoyage
-  private validateRolePayload(role: { name: string; permissions: string[] }): string | null {
+  private validateRolePayload(role: { name: string }): string | null {
     if (!role) {
       return 'Les données du rôle sont requises';
     }
@@ -159,29 +159,12 @@ export class RoleService {
       return 'Le nom du rôle doit contenir au moins 2 caractères';
     }
 
-    if (!Array.isArray(role.permissions)) {
-      return 'Les permissions doivent être un tableau';
-    }
-
-    if (role.permissions.length === 0) {
-      return 'Au moins une permission doit être sélectionnée';
-    }
-
-    // Vérifier que toutes les permissions sont des chaînes non vides
-    const invalidPermissions = role.permissions.filter(p => !p || typeof p !== 'string' || p.trim().length === 0);
-    if (invalidPermissions.length > 0) {
-      return 'Toutes les permissions doivent être des identifiants valides (chaînes non vides)';
-    }
-
     return null;
   }
 
-  private cleanRolePayload(role: { name: string; permissions: string[] }): { name: string; permissions: string[] } {
+  private cleanRolePayload(role: { name: string }): { name: string } {
     return {
-      name: role.name.trim(),
-      permissions: role.permissions
-        .filter(p => p && typeof p === 'string' && p.trim().length > 0)
-        .map(p => p.trim())
+      name: role.name.trim()
     };
   }
 
