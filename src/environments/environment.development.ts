@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://421405db3a872919a07554327838f863.serveo.net/api/v1',
+  apiUrl: 'https://a3d68626a3ecb51fc5de3fcfc944cc7b.serveo.net/api/v1',
 };
