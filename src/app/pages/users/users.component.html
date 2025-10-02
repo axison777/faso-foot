@@ -1,12 +1,12 @@
 <p-confirmDialog></p-confirmDialog>
 <p-toast></p-toast>
 
-<div class="users-container" *hasPermission="'voir-parametres'">
+<div class="users-container">
   <!-- Header -->
   <div class="header">
      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <h1>Utilisateurs</h1>
-    <button class="btn-primary" (click)="openCreate()" *hasPermission="'creer-parametres'">
+    <button class="btn-primary" (click)="openCreate()">
       <i class="pi pi-plus-circle mr-2"></i> Ajouter un utilisateur
     </button>
   </div>
@@ -248,7 +248,6 @@
                 class="btn btn-danger" 
                 (click)="deleteUser(user.slug!)"
                 title="Supprimer l'utilisateur"
-                *hasPermission="'supprimer-parametres'"
               >
                 <i class="pi pi-trash"></i>
               </button>

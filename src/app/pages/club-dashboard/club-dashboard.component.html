@@ -1,0 +1,66 @@
+<p-toast></p-toast>
+
+<!-- TODO: Remettre *hasPermission="'acceder-espace-club'" quand les comptes seront prêts -->
+<div class="club-dashboard-container">
+  <div class="header">
+    <h1>Mon Club</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="pi pi-spin pi-spinner"></i>
+    Chargement des données...
+  </div>
+
+  <ng-container *ngIf="!loading && club">
+    <div class="club-header">
+      <img *ngIf="club.logo" [src]="club.logo" [alt]="club.name" class="club-logo">
+      <div class="club-info">
+        <h2>{{ club.name }}</h2>
+        <p class="club-meta">{{ club.teams?.length || 0 }} équipe(s)</p>
+      </div>
+    </div>
+
+    <app-club-stats-card [stats]="clubStats"></app-club-stats-card>
+
+    <p-tabView [(activeIndex)]="activeTeamIndex" *ngIf="club.teams && club.teams.length > 0">
+      <p-tabPanel *ngFor="let team of club.teams" [header]="team.name || 'Équipe'">
+        <div class="team-section">
+          <div class="team-banner">
+            <img *ngIf="team.logo" [src]="team.logo" [alt]="team.name" class="team-logo">
+            <div class="team-details">
+              <h3>{{ team.name }}</h3>
+              <p *ngIf="team.category">{{ team.category.name }}</p>
+            </div>
+          </div>
+
+          <app-next-match-card 
+            *ngIf="team.id"
+            [match]="getNextMatch(team.id)">
+          </app-next-match-card>
+
+          <app-team-stats-card 
+            *ngIf="team.id"
+            [stats]="getTeamStats(team.id)"
+            [title]="'Statistiques de l\'équipe'">
+          </app-team-stats-card>
+
+          <app-matches-list 
+            *ngIf="team.id"
+            [teamId]="team.id"
+            [competitions]="getCompetitions(team.id)">
+          </app-matches-list>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+
+    <div class="no-teams" *ngIf="!club.teams || club.teams.length === 0">
+      <i class="pi pi-users"></i>
+      <p>Aucune équipe enregistrée pour ce club</p>
+    </div>
+  </ng-container>
+
+  <div class="no-access" *ngIf="!loading && !club">
+    <i class="pi pi-ban"></i>
+    <p>Vous n'avez pas accès aux données d'un club</p>
+  </div>
+</div>

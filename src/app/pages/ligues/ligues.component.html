@@ -6,7 +6,7 @@
   <div class="header">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <h1>Ligues</h1>
-    <button class="btn-primary" (click)="toggleForm()" *hasPermission="'creer-ligues'">
+    <button class="btn-primary" (click)="toggleForm()">
       <i class="pi pi-plus-circle mr-2"></i> Ajouter ligue
     </button>
   </div>
@@ -134,7 +134,6 @@
   </div>
 
   <!-- Table -->
-  <ng-container *hasPermission="'voir-ligues'">
   <div *ngIf="!loading && filteredLeagues.length > 0" class="table-container">
     <table class="ligues-table">
       <thead>
@@ -154,18 +153,17 @@
           <td class="ligue-group-count">{{ league.pools_count  }}</td>
           <td class="actions">
             <div class="btn-group">
-              <p-button severity="warn" icon="pi pi-pencil" (click)="editLeague(league)" *hasPermission="'modifier-ligues'"/>
-              <button class="btn btn-danger" (click)="deleteLeague(league.id!)" *hasPermission="'supprimer-ligues'">
+              <p-button severity="warn" icon="pi pi-pencil" (click)="editLeague(league)"/>
+              <button class="btn btn-danger" (click)="deleteLeague(league.id!)">
                 <i class="pi pi-trash"></i>
               </button>
-              <p-button severity="primary" icon="pi pi-users"  (click)="editLeagueTeams(league)" *hasPermission="'modifier-ligues'"/>
+              <p-button severity="primary" icon="pi pi-users"  (click)="editLeagueTeams(league)"/>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
-   </ng-container>
   
    <!-- No results -->
   <div *ngIf="!loading && filteredLeagues.length === 0 && searchTerm && leagues.length > 0" class="no-results">

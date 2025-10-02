@@ -29,8 +29,7 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
     ConfirmDialogModule,
     ToastModule,
     SelectModule,
-    ReactiveFormsModule,
-    HasPermissionDirective
+    ReactiveFormsModule
   ]
 })
 export class StadesComponent implements OnInit {

@@ -27,8 +27,7 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
     InputTextModule,
     ConfirmDialogModule,
     ToastModule,
-    SelectModule,
-    HasPermissionDirective
+    SelectModule
   ]
 })
 export class VillesComponent implements OnInit {

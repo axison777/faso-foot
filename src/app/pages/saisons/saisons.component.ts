@@ -27,7 +27,6 @@ import { LigueService } from '../../service/ligue.service';
 import { Season } from '../../models/season.model';
 import { League } from '../../models/league.model';
 import { Group } from '../../models/group.model';
-import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 
 
@@ -81,8 +80,7 @@ interface Saison {
     AccordionModule,
     InputNumberModule,
     CardModule,
-    CommonModule,
-    HasPermissionDirective
+    CommonModule
    ],
   templateUrl: './saisons.component.html',
   styleUrls: ['./saisons.component.scss'],

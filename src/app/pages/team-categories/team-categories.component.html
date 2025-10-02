@@ -1,12 +1,12 @@
 <p-confirmDialog></p-confirmDialog>
 <p-toast></p-toast>
 
-<div class="categories-container" *hasPermission="'voir-parametres'">
+<div class="categories-container">
   <!-- Header -->
   <div class="header">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <h1>Categories d'équipe</h1>
-    <button class="btn-primary" (click)="toggleForm()" *hasPermission="'creer-parametres'">
+    <button class="btn-primary" (click)="toggleForm()">
       <i class="pi pi-plus-circle mr-2"></i> Ajouter une categorie
     </button>
   </div>
@@ -128,7 +128,7 @@
             <div class="btn-group">
               <!-- <button class="btn btn-info"><i class="pi pi-eye"></i></button> -->
                   <p-button severity="primary" icon="pi pi-users"  (click)="showCategoryTeams(category)"></p-button>
-              <button class="btn btn-warning" (click)="editCategory(category)" *hasPermission="'modifier-parametres'"><i class="pi pi-pencil"></i></button>
+              <button class="btn btn-warning" (click)="editCategory(category)"><i class="pi pi-pencil"></i></button>
            <!--    <button class="btn btn-info" (click)="showDialog(category)"><i class="pi pi-eye"></i></button> -->
              <!--  <button class="btn btn-danger" (click)="deleteCategory(category.id!)" *hasPermission="'supprimer-parametres'"><i class="pi pi-trash"></i></button> -->
             </div>

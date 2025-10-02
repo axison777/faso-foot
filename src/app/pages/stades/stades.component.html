@@ -1,12 +1,12 @@
 <p-confirmDialog></p-confirmDialog>
 <p-toast></p-toast>
 
-<div class="stades-container" *hasPermission="'voir-parametres'">
+<div class="stades-container">
   <!-- Header -->
   <div class="header">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <h1>Stades</h1>
-    <button class="btn-primary" (click)="toggleForm()" *hasPermission="'creer-parametres'">
+    <button class="btn-primary" (click)="toggleForm()">
       <i class="pi pi-plus-circle mr-2"></i> Ajouter stade
     </button>
   </div>
@@ -166,9 +166,9 @@
 
           <td class="actions">
             <div class="btn-group">
-              <p-button severity="warn" icon="pi pi-pencil"  (click)="editStadium(stadium)" *hasPermission="'modifier-parametres'"/>
+              <p-button severity="warn" icon="pi pi-pencil"  (click)="editStadium(stadium)"/>
               <button class="btn btn-info" (click)="showDialog(stadium)"><i class="pi pi-eye"></i></button>
-              <button class="btn btn-danger" (click)="deleteStadium(stadium.id!)" *hasPermission="'supprimer-parametres'"><i class="pi pi-trash"></i></button>
+              <button class="btn btn-danger" (click)="deleteStadium(stadium.id!)"><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>

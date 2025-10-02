@@ -1,0 +1,165 @@
+.club-dashboard-container {
+  padding: 20px;
+  width: 100%;
+  min-width: 0;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+
+  h1 {
+    color: rgb(50,145,87);
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: #64748b;
+  font-size: 1.2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    display: block;
+  }
+}
+
+.club-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+
+  .club-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  .club-info {
+    flex: 1;
+
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .club-meta {
+      margin: 0;
+      color: #64748b;
+      font-size: 1rem;
+    }
+  }
+}
+
+.team-section {
+  padding: 20px 0;
+}
+
+.team-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #bbf7d0;
+
+  .team-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: white;
+    padding: 8px;
+  }
+
+  .team-details {
+    h3 {
+      margin: 0 0 4px 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: rgb(50,145,87);
+    }
+
+    p {
+      margin: 0;
+      color: #475569;
+      font-size: 0.95rem;
+    }
+  }
+}
+
+.no-teams, .no-access {
+  text-align: center;
+  padding: 60px;
+  color: #64748b;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px dashed #e2e8f0;
+
+  i {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .club-dashboard-container {
+    padding: 15px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .club-header {
+    flex-direction: column;
+    text-align: center;
+
+    .club-info h2 {
+      font-size: 1.5rem;
+    }
+  }
+
+  .team-banner {
+    flex-direction: column;
+    text-align: center;
+
+    .team-details h3 {
+      font-size: 1.3rem;
+    }
+  }
+}

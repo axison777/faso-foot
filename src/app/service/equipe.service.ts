@@ -1,8 +1,10 @@
 // src/app/services/equipe.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { TeamStats } from '../models/dashboard.model';
+import { Team } from '../models/team.model';
 
 export interface Equipe {
   id?: string;
@@ -50,6 +52,21 @@ export class EquipeService {
 
   reactivate(id?: string, data?:any): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}/reactivate`, data);
+  }
+
+  getMyTeam(): Observable<Team> {
+    return this.http.get<Team>(`${this.apiUrl}/my-team`);
+  }
+
+  getTeamStats(teamId: string, filters?: { seasonId?: string; competitionId?: string }): Observable<TeamStats> {
+    let params = new HttpParams();
+    if (filters?.seasonId) {
+      params = params.set('seasonId', filters.seasonId);
+    }
+    if (filters?.competitionId) {
+      params = params.set('competitionId', filters.competitionId);
+    }
+    return this.http.get<TeamStats>(`${this.apiUrl}/${teamId}/stats`, { params });
   }
 
 }

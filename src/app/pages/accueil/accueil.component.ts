@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { NgChartsModule } from 'ng2-charts';
 import { MenuModule } from 'primeng/menu';
 import { ChartConfiguration } from 'chart.js';
-import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 // TODO: Importer les futurs services (commentés si pas encore créés)
 // import { EquipeService } from '../services/equipe.service';
@@ -15,8 +14,7 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
   standalone: true,
   imports: [
     NgChartsModule,
-    MenuModule,
-    HasPermissionDirective
+    MenuModule
   ],
   templateUrl: './accueil.component.html',
   styleUrls: ['./accueil.component.scss']

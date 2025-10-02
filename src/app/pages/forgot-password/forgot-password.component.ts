@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -13,7 +13,7 @@ import { UserService } from '../../service/user.service';
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, IconFieldModule, InputTextModule, InputIconModule, ButtonModule, ToastModule],
+  imports: [CommonModule, ReactiveFormsModule, IconFieldModule, InputTextModule, InputIconModule, ButtonModule, ToastModule],
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss'],
   providers: [MessageService]
@@ -36,7 +36,7 @@ export class ForgotPasswordComponent {
     route.queryParamMap.subscribe(p => this.reason = p.get('reason'));
   }
 
-  submit(): void {
+  resend(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messageService.add({ severity: 'warn', summary: 'Formulaire invalide', detail: 'Veuillez saisir un email valide.' });
@@ -44,14 +44,14 @@ export class ForgotPasswordComponent {
     }
     const email = this.form.value.email as string;
     this.loading = true;
-    this.userService.forgotPassword({ email }).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Succès', detail: "Si cet email existe nous vous enverrons un lien de réinitialisation." });
-        setTimeout(() => this.router.navigate(['/login']), 1500);
+    this.userService.resendInvitation({ email }).subscribe({
+      next: (res) => {
+        this.messageService.add({ severity: 'success', summary: 'Succès', detail: res.message || 'Nouvelle invitation envoyée avec succès.' });
+        setTimeout(() => this.router.navigate(['/login']), 1200);
       },
-      error: () => {
-        // Toujours un message générique pour ne pas divulguer l'existence d'un compte
-        this.messageService.add({ severity: 'success', summary: 'Succès', detail: "Si cet email existe nous vous enverrons un lien de réinitialisation." });
+      error: (err) => {
+        const msg = err?.error?.message || 'Erreur lors de l\'envoi du lien.';
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: msg });
       },
       complete: () => { this.loading = false; }
     });

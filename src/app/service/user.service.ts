@@ -173,13 +173,13 @@ export class UserService {
 
   // Activation de compte via invitation
   confirmInvitation(payload: { token: string; password: string; password_confirmation: string }): Observable<ApiResponse<string>> {
-    const url = environment.apiUrl + '/users/users/confirm-invitation';
+    const url = environment.apiUrl + '/users/confirm-invitation';
     return this.http.post<ApiResponse<string>>(url, payload);
   }
 
   // Renvoyer le lien d'invitation
   resendInvitation(payload: { email: string }): Observable<ApiResponse<string>> {
-    const url = environment.apiUrl + '/users/users/invitation/resend';
+    const url = environment.apiUrl + '/users/invitation/resend';
     return this.http.post<ApiResponse<string>>(url, payload);
   }
 

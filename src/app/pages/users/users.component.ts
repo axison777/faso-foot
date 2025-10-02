@@ -33,8 +33,7 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
     SelectModule,
     MultiSelectModule,
     ReactiveFormsModule,
-    InputSwitchModule,
-    HasPermissionDirective
+    InputSwitchModule
   ],
   providers: [MessageService, ConfirmationService, RoleService]
 })

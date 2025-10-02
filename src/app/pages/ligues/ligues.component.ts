@@ -18,7 +18,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { Team } from '../../models/team.model';
 import { EquipeService } from '../../service/equipe.service';
 import { CheckboxModule } from 'primeng/checkbox';
-import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
   selector: 'app-ligues',
@@ -31,15 +30,14 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
     DialogModule,
     ButtonModule,
     InputTextModule,
-    DropdownModule, // Ajouté pour le dropdown
+    DropdownModule,
     ConfirmDialogModule,
     ToastModule,
     SelectModule,
     ReactiveFormsModule,
     FileUploadModule,
     InputNumberModule,
-    CheckboxModule,
-    HasPermissionDirective
+    CheckboxModule
   ]
 })
 export class LiguesComponent implements OnInit {

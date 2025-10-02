@@ -1,0 +1,64 @@
+<p-toast></p-toast>
+
+<!-- TODO: Remettre *hasPermission="'acceder-espace-coach'" quand les comptes seront prêts -->
+<div class="coach-dashboard-container">
+  <div class="header">
+    <h1>Mon Équipe</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="pi pi-spin pi-spinner"></i>
+    Chargement des données...
+  </div>
+
+  <ng-container *ngIf="!loading && team">
+    <div class="team-header">
+      <img *ngIf="team.logo" [src]="team.logo" [alt]="team.name" class="team-logo">
+      <div class="team-info">
+        <h2>{{ team.name }}</h2>
+        <p class="team-category" *ngIf="team.category">{{ team.category.name }}</p>
+        <p class="team-club" *ngIf="team.club">{{ team.club.name }}</p>
+      </div>
+    </div>
+
+    <app-next-match-card [match]="nextMatch"></app-next-match-card>
+
+    <app-team-stats-card 
+      [stats]="teamStats"
+      [title]="'Statistiques de l\'équipe'">
+    </app-team-stats-card>
+
+    <div class="quick-stats" *ngIf="teamStats">
+      <div class="quick-stat-card">
+        <i class="pi pi-chart-line"></i>
+        <div class="quick-stat-content">
+          <span class="quick-stat-label">Différence de buts</span>
+          <span class="quick-stat-value" 
+                [class.positive]="teamStats.goalDifference > 0"
+                [class.negative]="teamStats.goalDifference < 0">
+            {{ teamStats.goalDifference > 0 ? '+' : '' }}{{ teamStats.goalDifference }}
+          </span>
+        </div>
+      </div>
+
+      <div class="quick-stat-card" *ngIf="team.player_count">
+        <i class="pi pi-users"></i>
+        <div class="quick-stat-content">
+          <span class="quick-stat-label">Joueurs</span>
+          <span class="quick-stat-value">{{ team.player_count }}</span>
+        </div>
+      </div>
+    </div>
+
+    <app-matches-list 
+      *ngIf="team.id"
+      [teamId]="team.id"
+      [competitions]="competitions">
+    </app-matches-list>
+  </ng-container>
+
+  <div class="no-access" *ngIf="!loading && !team">
+    <i class="pi pi-ban"></i>
+    <p>Vous n'avez pas accès aux données d'une équipe</p>
+  </div>
+</div>

@@ -44,8 +44,7 @@ CommonModule, FormsModule, ReactiveFormsModule,
 DialogModule, ButtonModule, InputTextModule, InputNumberModule
 , ConfirmDialogModule, ToastModule, TabViewModule, SelectModule,
   DatePickerModule, MultiSelectModule, FileUploadModule,
-  KitViewerComponent,
-    HasPermissionDirective
+  KitViewerComponent
  ],
   templateUrl: './club-details.component.html',
 styleUrls: ['./club-details.component.scss'],

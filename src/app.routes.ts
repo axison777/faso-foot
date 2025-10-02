@@ -30,6 +30,8 @@ import { ClubDetailsComponent } from './app/pages/club-details/club-details.comp
 import { SaisonDetailsComponent } from './app/pages/saison-details/saison-details.component';
 import { MatchSetupComponent } from './app/pages/match-setup/match-setup.component';
 import { RolesComponent } from './app/pages/roles/roles.component';
+import { ClubDashboardComponent } from './app/pages/club-dashboard/club-dashboard.component';
+import { CoachDashboardComponent } from './app/pages/coach-dashboard/coach-dashboard.component';
 
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -67,6 +69,8 @@ export const appRoutes: Routes = [
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
 
+            {path: 'mon-club', component: ClubDashboardComponent, canActivate: [AuthGuard] },
+            {path: 'mon-equipe', component: CoachDashboardComponent, canActivate: [AuthGuard] },
 
           /*    {path: 'calendar', component:CalendarComponent}, */
 
