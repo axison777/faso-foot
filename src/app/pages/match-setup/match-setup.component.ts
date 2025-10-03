@@ -12,7 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { Checkbox } from "primeng/checkbox";
 import { ToastModule } from 'primeng/toast';
-import { PitchSetupComponent } from '../pitch-setup/pitch-setup.component';
+
 
 interface PlayerPoolItem {
   id: string;
@@ -47,12 +47,12 @@ interface TeamSetup {
 @Component({
   selector: 'app-match-setup',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectModule, TabViewModule, ButtonModule, DialogModule, Checkbox, ToastModule, PitchSetupComponent],
+  imports: [CommonModule, FormsModule, SelectModule, TabViewModule, ButtonModule, DialogModule, Checkbox, ToastModule],
   templateUrl: './match-setup.component.html',
   styleUrls: ['./match-setup.component.scss']
 })
 export class MatchSetupComponent implements OnInit {
-  
+
   showPitch = false;
   matchId!: string;
   match: any;
@@ -409,7 +409,7 @@ export class MatchSetupComponent implements OnInit {
 
   /*   saveCallup(teamKey: 'home' | 'away') {
       const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
-  
+
       if (!team.teamId) {
         this.messageService.add({
           severity: 'error',
@@ -418,7 +418,7 @@ export class MatchSetupComponent implements OnInit {
         });
         return;
       }
-  
+
       if (team.players.filter(p => p.isStarter).length < 11) {
         this.messageService.add({
           severity: 'error',
@@ -427,7 +427,7 @@ export class MatchSetupComponent implements OnInit {
         });
         return;
       }
-  
+
       const missingNumbers = team.players.filter(p => !p.jersey_number || p.jersey_number <= 0);
       if (missingNumbers.length > 0) {
         this.messageService.add({
@@ -437,10 +437,10 @@ export class MatchSetupComponent implements OnInit {
         });
         return;
       }
-  
+
       const payload = this.makeTeamPayload(team);
       console.log('Payload envoyé à createCallup:', payload);
-  
+
       this.callupService.createCallup(payload).subscribe({
         next: () => this.messageService.add({
           severity: 'success',
