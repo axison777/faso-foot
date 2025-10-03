@@ -1,3 +1,5 @@
+import { User } from "./user.model";
+
 export interface Specialization {
     id?: number;
     officialId?: string;
@@ -49,12 +51,11 @@ export interface Match {
 
 export interface Official {
     id?: string;
-    first_name: string;
-    last_name: string;
+    user: User;
+
     date_of_birth?: Date;
     birth_place?: string;
     nationality?: string;
-
     official_type: 'REFEREE' | 'COMMISSIONER';
     license_number: string;
     level: 'REGIONAL' | 'NATIONAL' | 'INTERNATIONAL';
@@ -64,7 +65,6 @@ export interface Official {
     certification_expiry?: Date;
     structure?: string;
     experience?: number;
-
     specializations?: Specialization[];
     assignments?: MatchAssignment[];
     reports?: OfficialReport[];

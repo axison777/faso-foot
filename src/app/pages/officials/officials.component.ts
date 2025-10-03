@@ -72,8 +72,18 @@ export class OfficialsComponent implements OnInit {
     private router: Router
   ) {
     this.officialForm = this.fb.group({
+      // Ancien modèle :
+      /*
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
+      
+      email: ['', [Validators.required, Validators.email]],
+      */
+
+      // Nouveau modèle (les infos personnelles viennent de l’entité User associée à user_id)
+      user_first_name: ['', Validators.required],
+      user_last_name: ['', Validators.required],
+      user_email: ['', [Validators.required, Validators.email]],
       date_of_birth: [''],
       birth_place: [''],
       nationality: [''],
@@ -96,10 +106,21 @@ export class OfficialsComponent implements OnInit {
     this.loading = true;
     this.officialService.getAll().subscribe({
       next: (res: any) => {
-        this.officials = res?.data?.officials || res || [];
+        if (res.status && res.data?.officials) {
+          this.officials = res.data.officials.map((o: any) => ({
+            ...o,
+            // flatten pour simplifier l’affichage et le form
+            first_name: o.user?.first_name,
+            last_name: o.user?.last_name,
+            email: o.user?.email,
+          }));
+
+          // séparer arbitres et commissaires
+          /* this.referees = officials.filter((o) => o.official_type === 'REFEREE');
+          this.commissioners = officials.filter((o) => o.official_type === 'COMMISSIONER'); */
+        }
         this.loading = false;
-      },
-      error: () => {
+      }, error: () => {
         this.loading = false;
         this.messageService.add({
           severity: 'error',
@@ -135,12 +156,22 @@ export class OfficialsComponent implements OnInit {
   saveOfficial(): void {
     if (this.officialForm.valid) {
       this.loadingForm = true;
-      //const payload = this.officialForm.value;
+
       const payload = {
-        ...this.officialForm.value,
-        date_of_birth: this.formatDate(this.officialForm.value.date_of_birth),
-        certification_date: this.formatDate(this.officialForm.value.certification_date),
-        certification_expiry: this.formatDate(this.officialForm.value.certification_expiry)
+        first_name: this.officialForm.value.user_first_name,
+        last_name: this.officialForm.value.user_last_name,
+        email: this.officialForm.value.user_email,
+        official_type: this.officialForm.value.official_type,
+        license_number: this.officialForm.value.license_number,
+        level: this.officialForm.value.level,
+        status: this.officialForm.value.status,
+        certification_date: this.officialForm.value.certification_date,
+        certification_expiry: this.officialForm.value.certification_expiry,
+        structure: this.officialForm.value.structure,
+        experience: this.officialForm.value.experience,
+        date_of_birth: this.officialForm.value.date_of_birth,
+        birth_place: this.officialForm.value.birth_place,
+        nationality: this.officialForm.value.nationality,
       };
 
       const onSuccess = () => {
@@ -150,50 +181,63 @@ export class OfficialsComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: this.isEditing ? 'Officiel modifié' : 'Officiel créé',
-          detail: `${this.officialForm.get('first_name')?.value} ${this.officialForm.get('last_name')?.value}`,
+          detail: `${this.officialForm.get('user_first_name')?.value} ${this.officialForm.get('user_last_name')?.value}`,
           life: 3000
         });
       };
 
-      const onError = () => {
+      const onError = (error: any) => {
         this.loadingForm = false;
+
+        const specificMessage =
+          error?.error?.message ||
+          error?.error?.errors?.license_number?.[0] ||
+          `Erreur lors de la ${this.isEditing ? 'modification' : 'création'} de l'officiel`;
+
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: `Erreur lors de la ${this.isEditing ? 'modification' : 'création'} de l'officiel`
+          detail: specificMessage
         });
       };
 
       if (this.isEditing && this.editingOfficialId) {
-        this.officialService.update(this.editingOfficialId, payload).subscribe({ next: onSuccess, error: onError });
+        this.officialService.update(this.editingOfficialId, payload)
+          .subscribe({ next: onSuccess, error: onError });
       } else {
-        this.officialService.create(payload).subscribe({ next: onSuccess, error: onError });
+        this.officialService.create(payload)
+          .subscribe({ next: onSuccess, error: onError });
       }
+
     } else {
       this.officialForm.markAllAsTouched();
     }
   }
 
-  editOfficial(official: Official): void {
-    this.officialForm.patchValue({
-      first_name: official.first_name,
-      last_name: official.last_name,
-      date_of_birth: official.date_of_birth,
-      birth_place: official.birth_place,
-      nationality: official.nationality,
-      official_type: official.official_type,
-      license_number: official.license_number,
-      level: official.level,
-      status: official.status,
-      certification_date: official.certification_date,
-      certification_expiry: official.certification_expiry,
-      structure: official.structure,
-      experience: official.experience
-    });
+  editOfficial(o: any) {
     this.isEditing = true;
-    this.editingOfficialId = official.id;
     this.showForm = true;
+
+    this.officialForm.patchValue({
+      first_name: o.first_name,
+      last_name: o.last_name,
+      email: o.email,
+      official_type: o.official_type,
+      license_number: o.license_number,
+      level: o.level,
+      status: o.status,
+      certification_date: o.certification_date ? new Date(o.certification_date) : null,
+      certification_expiry: o.certification_expiry ? new Date(o.certification_expiry) : null,
+      structure: o.structure,
+      experience: o.experience,
+      date_of_birth: o.date_of_birth,
+      birth_place: o.birth_place,
+      nationality: o.nationality,
+    });
+
+    this.editingOfficialId = o.id;
   }
+
 
   deleteOfficial(id?: string): void {
     if (!id) return;
@@ -229,8 +273,14 @@ export class OfficialsComponent implements OnInit {
   get filteredOfficials(): Official[] {
     if (!this.searchTerm) return this.officials;
     return this.officials.filter(o =>
+      // Ancien modèle :
+      /*
       o.first_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       o.last_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      o.license_number?.toLowerCase().includes(this.searchTerm.toLowerCase())
+      */
+      o.user.first_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      o.user.last_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       o.license_number?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
