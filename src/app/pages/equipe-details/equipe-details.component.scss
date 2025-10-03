@@ -31,9 +31,42 @@ $green-dark: #0f7a32;
 .team-info { display: flex; align-items: center; gap: 16px;  }
 .logo { width: 96px; height: 96px; border-radius: 9999px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
 .team-meta h2 { margin: 0 0 8px 0; font-size: 1.6rem; font-weight: 700; color: #0f172a; }
-.meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; width: 100%;}
+
 .meta-grid .label { color: #64748b; font-weight: 600; margin-right: 8px; }
 .meta-grid .value { color: #111827; }
+
+.meta-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 colonnes */
+  gap: 20px; /* espace entre colonnes */
+  width: 100%;
+}
+
+/* Responsive : une seule colonne sur petit écran */
+@media (max-width: 768px) {
+  .meta-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.meta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* espace entre lignes d’un bloc */
+}
+
+.label {
+  margin-right: 6px;
+  white-space: nowrap;
+   color: #64748b; font-weight: 600; margin-right: 8px;
+}
+
+.value {
+  word-break: break-word;
+  color: #111827;
+}
+
+
 
 /* Search */
 .search-container { margin: 12px 0 18px; }
@@ -57,14 +90,14 @@ $green-dark: #0f7a32;
 
 /* Table container (reprend ton style Stades) */
 .table-container {
-  background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.1); overflow: hidden; border: 1px solid #e2e8f0; width: 100%;
+  background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.1); overflow-x: auto; overflow-y:hidden; border: 1px solid #e2e8f0; width: 100%;
 }
 .custom-table {
-  width: 100%; table-layout: fixed; border-collapse: collapse;
+  width: 100%; table-layout: auto; border-collapse: collapse;min-width: 750px;
   thead {
     background: $green; color: whitesmoke;
     th {
-      padding: 16px 15px; text-align: left; font-weight: 600; font-size: .95rem; text-transform: uppercase; letter-spacing: .5px; border: none;
+      padding: 16px 15px; text-align: center; font-weight: 600; font-size: .95rem; text-transform: uppercase; letter-spacing: .5px; border: none;
       &:first-child { border-top-left-radius: 12px; width: 6%; }
       &:nth-child(2) { width: 20%; }
       &:last-child { border-top-right-radius: 12px; text-align: center; width: 26%; }
@@ -73,7 +106,7 @@ $green-dark: #0f7a32;
   tbody tr {
     transition: all .3s ease; border-bottom: 1px solid #e2e8f0;
     &:hover { background-color: #f0fdf4; transform: scale(1.0000002); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    td { padding: 16px 15px; vertical-align: middle; }
+    td { padding: 16px 15px; vertical-align: middle; text-align: center;}
     .cell-strong { font-weight: 600; color: #1e293b; font-size: 1.02rem; }
     .actions { text-align: center; white-space: nowrap; }
   }
@@ -95,7 +128,7 @@ $green-dark: #0f7a32;
       }
     }
 }
-.badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; background: #e2f7ea; color: $green; font-weight: 700; font-size: .85rem; }
+//.badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; background: #e2f7ea; color: $green; font-weight: 700; font-size: .85rem; }
 
 /* Cards (kits) */
 .cards-grid { display: grid; grid-template-columns: repeat(1,minmax(0,1fr)); gap: 12px;
@@ -229,3 +262,11 @@ $green-dark: #0f7a32;
   .contract-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eef2f7; }
   .ec-list { list-style:none; padding:0; margin:0; }
   .empty { color:#94a3b8; }
+
+  ::ng-deep  .p-tablist-content{
+    overflow-x: auto !important;
+  }
+.table-scroll {
+  overflow-x: auto; /* active le scroll horizontal seulement si nécessaire */
+  max-width: 100%;  /* empêche le dépassement du dialog */
+}

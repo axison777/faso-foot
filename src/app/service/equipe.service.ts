@@ -52,4 +52,8 @@ export class EquipeService {
     return this.http.put<void>(`${this.apiUrl}/${id}/reactivate`, data);
   }
 
+  getStaff(teamId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${teamId}/staffs`);
+  }
+
 }

@@ -31,6 +31,7 @@ export class AppMenu implements OnInit {
                     { label: 'Equipes', icon: 'pi pi-fw pi-users', routerLink: ['/equipes'] },
                     { label: 'Joueurs', icon: 'custom-icon player', routerLink: ['/joueurs'] },
                     { label: 'Officiels', icon: 'custom-icon referee', routerLink: ['/officiels'] },
+                    /* { label: 'Staffs', icon: 'pi pi-fw pi-briefcase', routerLink: ['/staffs'] }, */
                     { label: 'Paramètres', icon: 'pi pi-fw pi-cog',
                         items: [
                             { label: "Catégories d'équipe", icon: 'custom-icon category', routerLink: ['/categories-equipe'] },

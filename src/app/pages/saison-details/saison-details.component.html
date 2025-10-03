@@ -21,8 +21,8 @@
         <p-accordion-panel value="{{i}}" *ngFor="let day of getMatchdays() index as i" >
             <p-accordion-header>{{day.label}}</p-accordion-header>
             <p-accordion-content>
-                          <div class="cards-grid">
-<p-card class="match-card" *ngFor="let match of day.matches">
+<div class="cards-grid">
+<div class="match-card  p-4  " *ngFor="let match of day.matches">
   <div class="match-teams">
     <div class="team-row">
       <ng-container *ngIf="match.team1_logo; else team1Placeholder">
@@ -55,8 +55,8 @@
     </div>
   </div>
 
-  <div class="match-meta">
-    <div>{{ match.stadium }}</div>
+  <div class="match-meta ">
+    <div class="grid justify-content-start">{{ match.stadium }}</div>
     <div>{{ match.match_date }} - {{ match.time }}</div>
   </div>
 
@@ -67,9 +67,9 @@
     <p-button [disabled]="match?.result?.verified" severity="warn" pTooltip="Modifier résultat" icon="pi pi-pencil"
               (click)="openResultDialog(match)"></p-button>
     <p-button [disabled]="match?.result?.verified || !match?.result" severity="primary" pTooltip="Valider résultat" icon="pi pi-check"
-              (onClick)="confirmValidate(match)"></p-button>
+              (click)="confirmValidate(match)"></p-button>
   </div>
-</p-card>
+</div>
 
 
           </div>
@@ -215,7 +215,7 @@
           <td>{{ selectedMatch?.extra_time_away_score }}</td>
         </tr>
         <tr>
-          <td>Score après les tirs au but</td>
+          <td>Score des tirs au but</td>
           <td>{{ selectedMatch?.penalty_home_score }}</td>
           <td>{{ selectedMatch?.penalty_away_score }}</td>
         </tr>
@@ -235,7 +235,7 @@
   (onHide)="onCloseResultDialog()"
 >
   <form [formGroup]="resultForm" class="flex flex-col gap-4">
-    <p-stepper   [value]="1" >
+    <p-stepper (valueChange)="activeStepIndex=0"   [value]="1" [linear]="true"  >
       <p-step-list>
         <p-step [value]="1">Score</p-step>
         <p-step [value]="2">Événements</p-step>
@@ -371,7 +371,7 @@
 
   <!-- Navigation -->
   <div class="mt-6 flex justify-end">
-    <p-button label="Suivant" (onClick)="goToStep(2)"></p-button>
+    <p-button label="Suivant" (click)="activateCallback(2)"></p-button>
   </div>
           </ng-template>
         </p-step-panel>
@@ -492,7 +492,7 @@
       icon="pi pi-trash"
       severity="danger"
       class="p-button-rounded p-button-text"
-      (onClick)="removeEvent(i)"
+      (click)="removeEvent(i)"
     ></p-button>
   </div>
 </div>
@@ -502,14 +502,14 @@
               <p-button
                 icon="pi pi-plus"
                 label="Ajouter un événement"
-                (onClick)="addEvent()"
+                (click)="addEvent()"
               ></p-button>
             </div>
           </div>
 
            <div class="mt-4 flex justify-between">
-            <p-button severity="secondary" label="Précédent" (onClick)="goToStep(1)"></p-button>
-            <p-button label="Valider" (onClick)="saveResult()"></p-button>
+            <p-button severity="secondary" label="Précédent" (click)="activateCallback(1)"></p-button>
+            <p-button label="Valider" (click)="saveResult()"></p-button>
           </div>
           </ng-template>
 
@@ -523,8 +523,8 @@
           <pre>{{ resultForm.value | json }}</pre>
 
           <div class="mt-4 flex justify-between">
-            <p-button label="Précédent" (onClick)="goToStep(2)"></p-button>
-            <p-button label="Valider" (onClick)="saveResult()"></p-button>
+            <p-button label="Précédent" (click)="goToStep(2)"></p-button>
+            <p-button label="Valider" (click)="saveResult()"></p-button>
           </div>
             </ng-template>
         </p-step-panel> -->

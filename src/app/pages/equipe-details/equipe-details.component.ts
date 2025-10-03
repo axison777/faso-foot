@@ -1,3 +1,4 @@
+import { StaffService } from './../../service/staff.service';
 import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
@@ -26,6 +27,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ContractService } from '../../service/contract.service';
+import { StaffMember } from '../../models/staff-member.model';
 
 @Component({
   selector: 'app-equipe-details',
@@ -65,6 +67,8 @@ export class EquipeDetailsComponent implements OnInit {
 
   showPlayerDetails = false;
   currentPlayer: Player | null = null;
+  selectedStaff: any = null;
+  showStaffDetails = false;
 
   showContracts = false;
   showContractForm = false;
@@ -117,8 +121,7 @@ export class EquipeDetailsComponent implements OnInit {
     manager_role: 'Entraîneur-chef',
     player_count: 22,
     staff_members: [
-      { id: 'staff-1', first_name: 'Marie', last_name: 'Kaboré', role: 'Préparatrice physique' },
-      { id: 'staff-2', first_name: 'Luc', last_name: 'Traoré', role: 'Physiothérapeute' },
+
     ],
     kits: [
       { id: 'kit-1', name: 'Maillot Domicile', type: 'home',
@@ -176,6 +179,19 @@ export class EquipeDetailsComponent implements OnInit {
   footOptions = [ { label: 'Gauche', value: 'LEFT' }, { label: 'Droite', value: 'RIGHT' } ];
   statusOptions = [ { label: 'Actif', value: 'ACTIVE' }, { label: 'Inactif', value: 'INACTIVE' }, { label: 'Suspendu', value: 'SUSPENDED' } ];
 
+  staffRoleOptions=[
+    { label: 'Coach', value: 'COACH' },
+  { label: 'Entraîneur adjoint', value: 'ASSISTANT_COACH' },
+  { label: 'Entraîneur des gardiens', value: 'GOALKEEPER_COACH' },
+  { label: 'Préparateur physique', value: 'PHYSICAL_TRAINER' },
+  { label: 'Kinésithérapeute', value: 'PHYSIOTHERAPIST' },
+  { label: 'Médecin', value: 'DOCTOR' },
+  { label: 'Team Manager', value: 'TEAM_MANAGER' },
+  { label: 'Recruteur / Scout', value: 'SCOUT' },
+  { label: 'Analyste', value: 'ANALYST' }
+  ]
+
+  staffMembers: StaffMember[] = []
 
   teams?: Team[] = [];
   selectedFile: File | null = null;
@@ -186,6 +202,8 @@ export class EquipeDetailsComponent implements OnInit {
 
   showSuspensionForm: boolean = false;
 isEditingSuspension: boolean = false;
+
+activationMailDialog = false;
 
 
   constructor(
@@ -198,7 +216,8 @@ isEditingSuspension: boolean = false;
     private tkService: TeamKitService,
     private playerService : PlayerService,
     private contractService: ContractService,
-    private router: Router
+    private router: Router,
+    private staffService: StaffService
   ) {}
 
   ngOnInit(): void {
@@ -208,6 +227,7 @@ isEditingSuspension: boolean = false;
     this.loadTeam(id);
     this.loadKits();
     this.loadPlayers();
+    this.loadStaff();
 
 
     // init data
@@ -225,7 +245,7 @@ isEditingSuspension: boolean = false;
       birth_place: [''],
       nationality: [''],
       phone: [''],
-      email: [''],
+      email: ['',[Validators.email]],
       photo_url: [''],
       license_number: [''],
       preferred_position: [''],
@@ -243,12 +263,12 @@ isEditingSuspension: boolean = false;
 
     this.contractForm = this.fb.group({
     id: [null], // facultatif, utile en édition
-    player_id: ['', Validators.required],
-    team_id: ['', Validators.required],
+    //player_id: ['', Validators.required],
+    //team_id: ['', Validators.required],
     start_date: [null, Validators.required],
     end_date: [null, Validators.required],
     salary_amount: [null, Validators.required],
-    status: ['ACTIVE', Validators.required], // valeur par défaut
+    status: ['ACTIVE' , Validators.required], // valeur par défaut
     //clauses: this.fb.array([]) // gestion dynamique des clauses
     });
 
@@ -258,6 +278,8 @@ isEditingSuspension: boolean = false;
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
       role: ['', Validators.required],
+      phone: ['', Validators.required],
+      email: ['', [Validators.email, Validators.required]],
     });
 
     this.kitForm = this.fb.group({
@@ -546,27 +568,29 @@ isEditingSuspension: boolean = false;
               }
             });break;
           };
-          case 'staff': this.team.staff_members = this.team.staff_members?.filter(m => m.id !== id); break;
+          case 'staff': {
+            this.staffService.delete(id).subscribe({
+              next: () => {
+                this.loadStaff();
+                this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Membre du staff supprimé.' });
+
+              },
+              error: () => {
+                this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+              }
+            });break;
+          };
           case 'maillot': this.team.kits = this.team.kits?.filter(k => k.id !== id); break;
           case 'trophy': this.team.trophies = this.team.trophies?.filter(t => t.id !== id); break;
         }
-        this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Élément supprimé.' });
+        //this.toast.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Élément supprimé.' });
       }
     });
   }
 
   // ---------- CONTRACTS ----------
   openContractsModal(p: Player) {
-    this.currentPlayer = {
-      id: 'player-1',
-      first_name: 'Alfred',
-      last_name: 'Da',
-      phone: '555-0101',
-      contracts: [
-        { id: 'c1', player_id: 'player-1', team: this.mockTeam, number: 10, position: 'Attaquant', type: 'Professionnel', start_date: '2020-01-01', end_date: '2022-12-31' },
-        { id: 'c2', player_id: 'player-1', team: this.mockTeam, number: 10, position: 'Attaquant', type: 'Professionnel', start_date: '2023-01-01', end_date: '2025-12-31' },
-      ]
-    };
+    this.currentPlayer = p;
     this.showContracts = true;
     this.showContractForm = false;
     this.contractForm.reset();
@@ -603,21 +627,19 @@ isEditingSuspension: boolean = false;
   const formValue = this.contractForm.value;
 
   const payload: any = {
-    player_id: formValue.player_id,
-    team_id: formValue.team_id,
+    //player_id: formValue.player_id,
+    team_id: this.team_id,
     start_date: formValue.start_date ? new Date(formValue.start_date).toISOString() : null,
     end_date: formValue.end_date ? new Date(formValue.end_date).toISOString() : null,
     salary_amount: formValue.salary_amount,
     status: formValue.status,
-    clauses: formValue.clauses?.map((c: any) => ({
+  /*   clauses: formValue.clauses?.map((c: any) => ({
       type: c.type,
       value: c.value
-    }))
+    })) */
   };
 
-  if (formValue.id) {
-    payload['id'] = formValue.id; // si édition
-  }
+
 
 /*
     if (v.id) {
@@ -656,22 +678,63 @@ isEditingSuspension: boolean = false;
     this.isEditingStaff = !!member?.id;
     this.showStaffForm = true;
     this.staffForm.reset();
+    this.contractForm.reset();
     if (member) this.staffForm.patchValue(member);
   }
   closeStaffForm() { this.showStaffForm = false; }
 
   saveStaff() {
-    if (this.staffForm.invalid) { this.staffForm.markAllAsTouched(); return; }
+
+    if (this.staffForm.invalid ) { this.staffForm.markAllAsTouched();return; }
+    this.contractForm.get('status')?.setValue('ACTIVE');
+    if(!this.isEditingStaff && this.contractForm.invalid) {
+    this.contractForm.markAllAsTouched(); console.log(this.contractForm); return; }
     const val = this.staffForm.value;
+    this.loadingForm = true;
     if (this.isEditingStaff && val.id) {
-      this.team.staff_members = this.team.staff_members?.map(m => m.id === val.id ? val : m);
-      this.toast.add({ severity: 'success', summary: 'Staff modifié', detail: `${val.first_name} ${val.last_name}` });
-    } else {
-      val.id = 'staff-' + ((this.team.staff_members?.length || 0) + 1);
-      this.team.staff_members = [...(this.team.staff_members || []), val];
-      this.toast.add({ severity: 'success', summary: 'Staff ajouté', detail: `${val.first_name} ${val.last_name}` });
+      this.staffService.update(val.id, val).subscribe({
+        next: () => {
+          this.toast.add({ severity: 'success', summary: 'Staff modifié', detail: `${val.first_name} ${val.last_name}` });
+          this.loadTeam(this.team_id!);
+          this.loadingForm = false;
+          this.showStaffForm = false;
+          this.loadStaff();
+
+        },
+        error: () => {
+          this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+          this.loadingForm = false;
+        }
+      })
     }
-    this.showStaffForm = false;
+
+    else {
+        let staffContracts=[
+            {
+                start_date: this.contractForm.value.start_date ? new Date(this.contractForm.value.start_date).toISOString() : null,
+                end_date: this.contractForm.value.end_date ? new Date(this.contractForm.value.end_date).toISOString() : null,
+                salary_amount: this.contractForm.value.salary_amount,
+                status: "ACTIVE",
+                team_id: this.team_id
+            }
+        ]
+        val.contract=staffContracts
+      this.staffService.create(val).subscribe({
+        next: () => {
+          this.toast.add({ severity: 'success', summary: 'Membre du staff ajouté', detail: `${val.first_name} ${val.last_name}` });
+          this.loadTeam(this.team_id!);
+          this.loadingForm = false;
+          this.showStaffForm = false;
+          if(val.role=="COACH") this.activationMailDialog=true;
+           this.loadStaff();
+        },
+        error: () => {
+          this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+          this.loadingForm = false;
+        }
+      })
+    }
+
   }
 
   // ---------- KITS ----------
@@ -890,6 +953,34 @@ removeReason(index: number) {
     this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur s\'est produite.' });
   }
 
+    getStaffRoleLabel(role: string | undefined): string {
+      if (!role) return '';
+      const opt = this.staffRoleOptions.find(o => o.value === role);
+      return opt ? opt.label : role;
+    }
+
+    loadStaff(){
+        this.equipeService.getStaff(this.team_id!).subscribe({
+          next: (res) => {
+            this.staffMembers = res?.data?.staffs || [];
+          },
+          error: (err) => {
+            console.error(err);
+            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors du chargement du staff' });
+          }
+        })
+    }
+
+    openStaffDetails(staff: any) {
+      this.selectedStaff = staff;
+      this.showStaffDetails = true;
+    }
+
+    getPositionLabel(pos: string | undefined): string {
+    if (!pos) return '';
+    const opt = this.positionOptions.find(o => o.value === pos);
+    return opt ? opt.label : pos;
+  }
 
 }
 

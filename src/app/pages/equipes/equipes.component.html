@@ -385,7 +385,8 @@
     </ng-template>
 
     <span class="equipe-nom">
-      {{ team?.full_name}}
+      {{ team?.name!.length <= 15 ? team?.name : team?.abbreviation }}
+      <span *ngIf="team.category">({{ team.category.name }})</span>
     </span>
   </div>
 </td>

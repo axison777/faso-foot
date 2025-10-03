@@ -1,3 +1,4 @@
+import { Contract } from "./contract.model";
 
 
 export interface StaffMember {
@@ -8,9 +9,11 @@ export interface StaffMember {
     email?: string;
     team_id?: string;
     team?: any;
-    hire_date?: string;
-    contract_end?: string;
+    //hire_date?: string;
+    //contract_end?: string;
     role?: string;
-    status?: string;
+    //status?: string;
+    contract?: Contract[];
+    contracts?: Contract[];
 
 }

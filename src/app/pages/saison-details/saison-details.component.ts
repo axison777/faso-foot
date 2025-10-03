@@ -159,7 +159,7 @@ export class SaisonDetailsComponent {
   ];
 
   activeIndex = 0;
-
+activeStepIndex: any=0;
   /*  season: Season = {
     id: 'bd9e2773-aeeb-476e-aa9a-2221ad6b8a7c',
     name: 'Ligue 1',
@@ -221,7 +221,7 @@ selectedMatch: any = null;
 resultForm!: FormGroup;
 
 resultDialogVisible = false;
-activeStep = 2;
+activeStep = 0;
 players:any[]=[]
 
 ranking:any
@@ -341,8 +341,12 @@ loadSeason(){
 loadPlayers(match:any){
   this.matchService.getPlayers(match.football_match_id).subscribe({
     next: (res: any) => {
-        let t1players= res?.data?.match_callups?.team_one_callup.players || [];
-        let t2players= res?.data?.match_callups?.team_two_callup.players || [];
+        let t1players= res?.data?.match_callups?.team_one_callup?.players || [];
+        let t2players= res?.data?.match_callups?.team_two_callup?.players || [];
+        if(t1players.length == 0 || t2players.length == 0){
+            this.messageService.add({ severity: 'error', summary: 'Veuillez d\'abord initier le match' });
+            return
+        }
       this.players = [...t1players,...t2players] ;
 
       this.players.forEach((player: any) => {
@@ -501,7 +505,7 @@ removeEvent(i: number) {
 }
 
 goToStep(step: number) {
-  this.activeStep = step;
+  this.activeStepIndex = step;
 }
 
 saveResult() {
