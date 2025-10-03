@@ -49,8 +49,8 @@
                             <!-- <td class="cell-strong">{{ o.last_name }}</td> -->
                             <!-- <td>{{ o.first_name }}</td> -->
                             <!-- Nouveau modèle -->
-                            <td class="cell-strong">{{ o.user?.last_name }}</td>
-                            <td>{{ o.user?.first_name }}</td>
+                            <td class="cell-strong">{{ o.user.last_name }}</td>
+                            <td>{{ o.user.first_name }}</td>
 
                             <!-- <td>{{ o.license_number }}</td> -->
                             <td>{{ o.level }}</td>
@@ -106,7 +106,7 @@
                             <th>#</th>
                             <th>Nom</th>
                             <th>Prénom</th>
-                            <!-- <th>N° Licence</th> -->
+                            <th>N° Licence</th>
                             <th>Niveau</th>
                             <th>Structure</th>
                             <th>Statut</th>
@@ -120,9 +120,9 @@
                             <!-- <td class="cell-strong">{{ o.last_name }}</td> -->
                             <!-- <td>{{ o.first_name }}</td> -->
                             <!-- Nouveau modèle -->
-                            <td class="cell-strong">{{ o.user?.last_name }}</td>
-                            <td>{{ o.user?.first_name }}</td>
-                            <!-- <td>{{ o.license_number }}</td> -->
+                            <td class="cell-strong">{{ o.user.last_name }}</td>
+                            <td>{{ o.user.first_name }}</td>
+                            <td>{{ o.license_number }}</td>
                             <td>{{ o.level }}</td>
                             <td>{{ o.structure || '—' }}</td>
                             <td>
@@ -189,6 +189,19 @@
                 </small>
             </div>
 
+             <!-- DATE DE NAISSANCE -->
+            <div class="form-item">
+                <label>Date de naissance</label>
+                <p-datepicker [style]="{ width: '100%' }" formControlName="date_of_birth" dateFormat="dd/mm/yy"
+                    [showIcon]="true"></p-datepicker>
+            </div>
+
+            <!-- LIEU DE NAISSANCE -->
+            <div class="form-item">
+                <label>Lieu de naissance</label>
+                <input pInputText formControlName="birth_place" placeholder="Lieu" />
+            </div>
+
             <!-- Email -->
             <div class="form-item">
                 <label>Adresse email <span class="req">*</span></label>
@@ -226,6 +239,15 @@
                 <label>Statut <span class="req">*</span></label>
                 <p-select [options]="statuses" formControlName="status" optionLabel="label" optionValue="value"
                     placeholder="Statut"></p-select>
+            <small class="error" *ngIf="officialForm.get('status')?.invalid && officialForm.get('status')?.touched">
+                    Le statut est requis
+                </small>
+            </div>
+
+            <!-- NATIONALITÉ -->
+            <div class="form-item">
+                <label>Nationalité</label>
+                <input pInputText formControlName="nationality" placeholder="Nationalité" />
             </div>
 
             <!-- LICENCE -->

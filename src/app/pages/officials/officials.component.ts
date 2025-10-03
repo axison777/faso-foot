@@ -76,9 +76,7 @@ export class OfficialsComponent implements OnInit {
       /*
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      date_of_birth: [''],
-      birth_place: [''],
-      nationality: [''],
+      
       email: ['', [Validators.required, Validators.email]],
       */
 
@@ -86,7 +84,9 @@ export class OfficialsComponent implements OnInit {
       user_first_name: ['', Validators.required],
       user_last_name: ['', Validators.required],
       user_email: ['', [Validators.required, Validators.email]],
-
+      date_of_birth: [''],
+      birth_place: [''],
+      nationality: [''],
       official_type: ['', Validators.required],
       license_number: ['', Validators.required],
       level: ['', Validators.required],
@@ -169,6 +169,9 @@ export class OfficialsComponent implements OnInit {
         certification_expiry: this.officialForm.value.certification_expiry,
         structure: this.officialForm.value.structure,
         experience: this.officialForm.value.experience,
+        date_of_birth: this.officialForm.value.date_of_birth,
+        birth_place: this.officialForm.value.birth_place,
+        nationality: this.officialForm.value.nationality,
       };
 
       const onSuccess = () => {
@@ -227,6 +230,9 @@ export class OfficialsComponent implements OnInit {
       certification_expiry: o.certification_expiry ? new Date(o.certification_expiry) : null,
       structure: o.structure,
       experience: o.experience,
+      date_of_birth: o.date_of_birth,
+      birth_place: o.birth_place,
+      nationality: o.nationality,
     });
 
     this.editingOfficialId = o.id;
@@ -273,8 +279,8 @@ export class OfficialsComponent implements OnInit {
       o.last_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       o.license_number?.toLowerCase().includes(this.searchTerm.toLowerCase())
       */
-      o.user?.first_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      o.user?.last_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      o.user.first_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      o.user.last_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       o.license_number?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }

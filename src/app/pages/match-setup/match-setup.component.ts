@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { Checkbox } from "primeng/checkbox";
 import { ToastModule } from 'primeng/toast';
+import { PitchSetupComponent } from '../pitch-setup/pitch-setup.component';
 
 interface PlayerPoolItem {
   id: string;
@@ -46,12 +47,13 @@ interface TeamSetup {
 @Component({
   selector: 'app-match-setup',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectModule, TabViewModule, ButtonModule, DialogModule, Checkbox, ToastModule],
+  imports: [CommonModule, FormsModule, SelectModule, TabViewModule, ButtonModule, DialogModule, Checkbox, ToastModule, PitchSetupComponent],
   templateUrl: './match-setup.component.html',
   styleUrls: ['./match-setup.component.scss']
 })
 export class MatchSetupComponent implements OnInit {
-
+  
+  showPitch = false;
   matchId!: string;
   match: any;
   callupId: string | null = null; // ✅ string
@@ -92,7 +94,7 @@ export class MatchSetupComponent implements OnInit {
   homeCoaches: { id: string; name: string }[] = []; // ✅ string
   awayCoaches: { id: string; name: string }[] = []; // ✅ string
 
-    showHomeForm = false;
+  showHomeForm = false;
   showAwayForm = false;
 
 
@@ -227,12 +229,12 @@ export class MatchSetupComponent implements OnInit {
   }
 
   getStarters(players: any[]) {
-  return players.filter(p => p.is_starter);
-}
+    return players.filter(p => p.is_starter);
+  }
 
-getSubstitutes(players: any[]) {
-  return players.filter(p => !p.is_starter);
-}
+  getSubstitutes(players: any[]) {
+    return players.filter(p => !p.is_starter);
+  }
 
   assignOfficial() {
     if (!this.selectedOfficialId || !this.selectedRole) return;
@@ -405,59 +407,59 @@ getSubstitutes(players: any[]) {
     };
   }
 
-/*   saveCallup(teamKey: 'home' | 'away') {
-    const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
-
-    if (!team.teamId) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Identifiant de l\'équipe manquant.'
-      });
-      return;
-    }
-
-    if (team.players.filter(p => p.isStarter).length < 11) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Il faut au moins 11 titulaires.'
-      });
-      return;
-    }
-
-    const missingNumbers = team.players.filter(p => !p.jersey_number || p.jersey_number <= 0);
-    if (missingNumbers.length > 0) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: `Renseignez le numéro de maillot pour tous les joueurs sélectionnés (${missingNumbers.length} manquant(s)).`
-      });
-      return;
-    }
-
-    const payload = this.makeTeamPayload(team);
-    console.log('Payload envoyé à createCallup:', payload);
-
-    this.callupService.createCallup(payload).subscribe({
-      next: () => this.messageService.add({
-        severity: 'success',
-        summary: 'Succès',
-        detail: "Composition enregistrée",
-      }),
-      error: (err) => {
+  /*   saveCallup(teamKey: 'home' | 'away') {
+      const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
+  
+      if (!team.teamId) {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors de la sauvegarde.'
+          detail: 'Identifiant de l\'équipe manquant.'
         });
+        return;
       }
-    });
-  } */
+  
+      if (team.players.filter(p => p.isStarter).length < 11) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Il faut au moins 11 titulaires.'
+        });
+        return;
+      }
+  
+      const missingNumbers = team.players.filter(p => !p.jersey_number || p.jersey_number <= 0);
+      if (missingNumbers.length > 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: `Renseignez le numéro de maillot pour tous les joueurs sélectionnés (${missingNumbers.length} manquant(s)).`
+        });
+        return;
+      }
+  
+      const payload = this.makeTeamPayload(team);
+      console.log('Payload envoyé à createCallup:', payload);
+  
+      this.callupService.createCallup(payload).subscribe({
+        next: () => this.messageService.add({
+          severity: 'success',
+          summary: 'Succès',
+          detail: "Composition enregistrée",
+        }),
+        error: (err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Erreur lors de la sauvegarde.'
+          });
+        }
+      });
+    } */
 
   ///////////////////////////////////////////////////////////////////////////////////////
 
-   // --- nouvel open/close des formulaires (par équipe) ---
+  // --- nouvel open/close des formulaires (par équipe) ---
   toggleHomeForm() {
     this.showHomeForm = !this.showHomeForm;
     if (this.showHomeForm) {
@@ -546,7 +548,7 @@ getSubstitutes(players: any[]) {
 
     const substitutes = mappedPlayers
       .filter(mp => !mp.isStarter)
-      .sort((a, b) => ( (a.substituteOrder ?? 999) - (b.substituteOrder ?? 999) ));
+      .sort((a, b) => ((a.substituteOrder ?? 999) - (b.substituteOrder ?? 999)));
 
     let subStart = starters.length + 1;
     substitutes.forEach((sub, idx) => {
@@ -638,33 +640,32 @@ getSubstitutes(players: any[]) {
   }
 
   getPlayerRingClass(p: any): 'green' | 'yellow' | null {
-  if (p.role) {
-    // mode édition : on se base sur role
-    if (p.role === 'Titulaire') return 'green';
-    if (p.role === 'Remplaçant') return 'yellow';
-  } else {
-    // mode création : on se base sur selectionOrder / is_starter
-    if (!p.selected) return null;
-    return p.selectionOrder && p.selectionOrder <= 11 ? 'green' : 'yellow';
+    if (p.role) {
+      // mode édition : on se base sur role
+      if (p.role === 'Titulaire') return 'green';
+      if (p.role === 'Remplaçant') return 'yellow';
+    } else {
+      // mode création : on se base sur selectionOrder / is_starter
+      if (!p.selected) return null;
+      return p.selectionOrder && p.selectionOrder <= 11 ? 'green' : 'yellow';
+    }
+    return null;
   }
-  return null;
-}
 
-getStatusLabel(status: string | undefined): string {
-  switch (status) {
+  getStatusLabel(status: string | undefined): string {
+    switch (status) {
       case 'ACTIVE': return 'Actif';
       case 'INACTIVE': return 'Inactif';
       case 'SUSPENDED': return 'Suspendu';
       default: return '';
+    }
   }
 
-}
-
-getOfficialTypeLabel(type: string | undefined): string {
-  switch (type) {
+  getOfficialTypeLabel(type: string | undefined): string {
+    switch (type) {
       case 'REFEREE': return 'Arbitre';
       case 'COMMISSIONER': return 'Commissaire';
       default: return '';
+    }
   }
-}
 }
