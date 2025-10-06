@@ -1,0 +1,17 @@
+<div class="club-coach-layout">
+  <div class="sidebar">
+    <div class="menu">
+      <a *ngFor="let item of menuItems" 
+         [routerLink]="item.route" 
+         class="menu-item" 
+         [class.active]="isActive(item.route)">
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+      </a>
+    </div>
+  </div>
+  
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

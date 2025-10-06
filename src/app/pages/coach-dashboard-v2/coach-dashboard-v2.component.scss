@@ -1,0 +1,25 @@
+.coach-dashboard-v2 {
+  .page-header {
+    margin-bottom: 2rem;
+
+    h1 {
+      margin: 0 0 .5rem 0;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    p {
+      margin: 0;
+      color: #64748b;
+      font-size: 1rem;
+    }
+  }
+
+  .loading, .empty {
+    text-align: center;
+    padding: 3rem;
+    color: #64748b;
+    font-style: italic;
+  }
+}

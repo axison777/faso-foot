@@ -1,0 +1,65 @@
+<p-card class="team-dashboard-card">
+  <div class="header">
+    <div class="team-info">
+      <h2 class="team-name">{{ team.name }}</h2>
+      <div class="coach" *ngIf="team.coach">
+        <i class="pi pi-user"></i>
+        <span>Coach: {{ team.coach?.name }}</span>
+      </div>
+    </div>
+    <div class="kit" *ngIf="team.kit?.photo">
+      <img [src]="team.kit?.photo" alt="Maillot" />
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="label">Joueurs actifs</div>
+      <div class="value">{{ team.playerCount || 0 }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Total joueurs</div>
+      <div class="value">{{ team.totalPlayers || 0 }}</div>
+    </div>
+  </div>
+
+  <div class="next-match" *ngIf="team.nextMatch as match">
+    <div class="match-header">
+      <h3>Prochain match</h3>
+      <p-tag [value]="match.competition" severity="info"></p-tag>
+    </div>
+    <div class="match-details">
+      <div class="opponent">vs {{ match.opponent }}</div>
+      <div class="date">{{ match.date | date:'EEEE d MMMM y HH:mm':'':'fr' }}</div>
+    </div>
+    <p-button label="Voir détails" icon="pi pi-eye" [text]="true" size="small" styleClass="p-button-sm"></p-button>
+  </div>
+
+  <div class="ranking" *ngIf="team.standing as standing">
+    <h3>Classement</h3>
+    <div class="ranking-grid">
+      <div class="rank-item">
+        <span class="label">Rang</span>
+        <span class="value">{{ standing.rank }}</span>
+      </div>
+      <div class="rank-item">
+        <span class="label">Points</span>
+        <span class="value">{{ standing.points }}</span>
+      </div>
+      <div class="rank-item">
+        <span class="label">Joués</span>
+        <span class="value">{{ standing.played }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase" *ngIf="team.phase && !team.standing">
+    <h3>Phase actuelle</h3>
+    <p-tag [value]="team.phase" severity="success"></p-tag>
+  </div>
+
+  <div class="performance-chart">
+    <h3>Performances</h3>
+    <p-chart type="bar" [data]="chartData" [options]="chartOptions" height="200px"></p-chart>
+  </div>
+</p-card>

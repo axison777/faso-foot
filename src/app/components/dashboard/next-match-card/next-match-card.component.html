@@ -1,0 +1,28 @@
+<p-card *ngIf="nextMatch() as m" class="next-match-card">
+  <div class="header">
+    <div class="title">Prochain match</div>
+    <p-badge *ngIf="dDayBadge" [value]="dDayBadge" severity="info"></p-badge>
+  </div>
+  <div class="content">
+    <div class="row">
+      <div class="label">Date</div>
+      <div class="value">{{ m.scheduledAt | date:'EEEE d MMMM y':'':'fr' }}</div>
+    </div>
+    <div class="row">
+      <div class="label">Heure</div>
+      <div class="value">{{ m.scheduledAt | date:'HH:mm' }}</div>
+    </div>
+    <div class="row">
+      <div class="label">Stade</div>
+      <div class="value">{{ m.stadium?.name }}</div>
+    </div>
+    <div class="row opponent">
+      <div class="label">Adversaire</div>
+      <div class="value">
+        <span class="badge" [ngClass]="{ home: m.homeAway==='HOME', away: m.homeAway==='AWAY' }">{{ m.homeAway==='HOME' ? 'Domicile' : 'Extérieur' }}</span>
+        <span class="name">{{ m.opponent?.name }}</span>
+      </div>
+    </div>
+  </div>
+</p-card>
+<div *ngIf="!nextMatch()" class="empty">Aucun match à venir</div>

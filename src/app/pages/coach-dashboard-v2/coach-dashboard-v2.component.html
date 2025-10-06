@@ -1,0 +1,14 @@
+<div class="coach-dashboard-v2">
+  <div class="page-header">
+    <h1>Tableau de bord</h1>
+    <p *ngIf="team() as t">{{ t.name }} - {{ t.category }}</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">Chargement...</div>
+
+  <app-team-dashboard-card *ngIf="!loading && teamData() as data" [team]="data"></app-team-dashboard-card>
+
+  <div *ngIf="!loading && !teamData()" class="empty">
+    Aucune équipe disponible
+  </div>
+</div>

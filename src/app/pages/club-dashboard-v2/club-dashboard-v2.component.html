@@ -1,0 +1,18 @@
+<div class="club-dashboard-v2">
+  <div class="page-header">
+    <h1>Tableau de bord</h1>
+    <p *ngIf="club() as c">{{ c.name }} - {{ c.teams?.length || 0 }} équipes</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">Chargement...</div>
+
+  <p-tabView *ngIf="!loading && teamsData().length">
+    <p-tabPanel *ngFor="let team of teamsData()" [header]="team.name">
+      <app-team-dashboard-card [team]="team"></app-team-dashboard-card>
+    </p-tabPanel>
+  </p-tabView>
+
+  <div *ngIf="!loading && !teamsData().length" class="empty">
+    Aucune équipe disponible
+  </div>
+</div>
