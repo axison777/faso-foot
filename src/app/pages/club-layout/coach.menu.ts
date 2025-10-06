@@ -4,14 +4,14 @@ import { LayoutService } from '../../layout/service/layout.service';
 import { AppMenuitem } from '../../layout/component/app.menuitem';
 
 @Component({
-    selector: 'club-menu',
+    selector: 'coach-menu',
     standalone: true,
     imports: [CommonModule, AppMenuitem],
     template: `
         <div class="layout-sidebar">
             <a class="layout-sidebar-anchor"></a>
             <div class="sidebar-header">
-                <span class="sidebar-title">Mon Club</span>
+                <span class="sidebar-title">Mon Équipe</span>
             </div>
             <ul class="layout-menu">
                 <ng-container *ngFor="let item of model; let i = index;">
@@ -33,7 +33,7 @@ import { AppMenuitem } from '../../layout/component/app.menuitem';
         }
     `]
 })
-export class ClubMenuComponent implements OnInit {
+export class CoachMenuComponent implements OnInit {
 
     model: any[] = [];
 
@@ -44,10 +44,9 @@ export class ClubMenuComponent implements OnInit {
             {
                 label: 'Navigation',
                 items: [
-                    { label: 'Tableau de bord', icon: 'pi pi-fw pi-chart-line', routerLink: ['/mon-club/dashboard'] },
-                    { label: 'Matchs', icon: 'pi pi-fw pi-calendar', routerLink: ['/mon-club/matchs'] },
-                    { label: 'Joueurs', icon: 'pi pi-fw pi-users', routerLink: ['/mon-club/joueurs'] },
-                    { label: 'Paramètres', icon: 'pi pi-fw pi-cog', routerLink: ['/mon-club/parametres'] }
+                    { label: 'Tableau de bord', icon: 'pi pi-fw pi-chart-line', routerLink: ['/mon-equipe/dashboard'] },
+                    { label: 'Matchs', icon: 'pi pi-fw pi-calendar', routerLink: ['/mon-equipe/matchs'] },
+                    { label: 'Joueurs', icon: 'pi pi-fw pi-users', routerLink: ['/mon-equipe/joueurs'] }
                 ]
             }
         ];

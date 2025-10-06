@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
+import { ClubLayout } from './app/pages/club-layout/club.layout';
+import { CoachLayout } from './app/pages/club-layout/coach.layout';
 //import { Dashboard } from './app/pages/dashboard/dashboard';
 //import { Documentation } from './app/pages/documentation/documentation';
 //import { Landing } from './app/pages/landing/landing';
@@ -67,36 +69,33 @@ export const appRoutes: Routes = [
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
 
-                       { 
-              path: 'mon-club', 
-              loadComponent: () => import('./app/pages/club-coach-layout/club-coach-layout.component').then(m => m.ClubCoachLayoutComponent),
-              canActivate: [AuthGuard],
-              children: [
-                { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-                { path: 'dashboard', loadComponent: () => import('./app/pages/club-dashboard-v2/club-dashboard-v2.component').then(m => m.ClubDashboardV2Component) },
-                { path: 'matchs', loadComponent: () => import('./app/pages/club-coach-shared/matchs-page/matchs-page.component').then(m => m.MatchsPageComponent) },
-                { path: 'joueurs', loadComponent: () => import('./app/pages/club-coach-shared/joueurs-page/joueurs-page.component').then(m => m.JoueursPageComponent) },
-                { path: 'parametres', loadComponent: () => import('./app/pages/club-coach-shared/parametres-page/parametres-page.component').then(m => m.ParametresPageComponent) }
-              ]
-            },
-            { 
-              path: 'mon-equipe', 
-              loadComponent: () => import('./app/pages/club-coach-layout/club-coach-layout.component').then(m => m.ClubCoachLayoutComponent),
-              canActivate: [AuthGuard],
-              children: [
-                { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-                { path: 'dashboard', loadComponent: () => import('./app/pages/coach-dashboard-v2/coach-dashboard-v2.component').then(m => m.CoachDashboardV2Component) },
-                { path: 'matchs', loadComponent: () => import('./app/pages/club-coach-shared/matchs-page/matchs-page.component').then(m => m.MatchsPageComponent) },
-                { path: 'joueurs', loadComponent: () => import('./app/pages/club-coach-shared/joueurs-page/joueurs-page.component').then(m => m.JoueursPageComponent) }
-              ]
-            },
- 
-            /*    {path: 'calendar', component:CalendarComponent}, */
-
             {path: 'officiels', component: OfficialsComponent, canActivate: [AuthGuard] },
             {path: 'officiel-details/:id', component: OfficialDetailsComponent, canActivate: [AuthGuard] },
                 {path: 'match-setup/:id', component: MatchSetupComponent, canActivate: [AuthGuard] },
 
+        ]
+    },
+    {
+        path: 'mon-club',
+        component: ClubLayout,
+        canActivate: [AuthGuard],
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/club-dashboard-v2/club-dashboard-v2.component').then(m => m.ClubDashboardV2Component) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/club-coach-shared/matchs-page/matchs-page.component').then(m => m.MatchsPageComponent) },
+            { path: 'joueurs', loadComponent: () => import('./app/pages/club-coach-shared/joueurs-page/joueurs-page.component').then(m => m.JoueursPageComponent) },
+            { path: 'parametres', loadComponent: () => import('./app/pages/club-coach-shared/parametres-page/parametres-page.component').then(m => m.ParametresPageComponent) }
+        ]
+    },
+    {
+        path: 'mon-equipe',
+        component: CoachLayout,
+        canActivate: [AuthGuard],
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/coach-dashboard-v2/coach-dashboard-v2.component').then(m => m.CoachDashboardV2Component) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/club-coach-shared/matchs-page/matchs-page.component').then(m => m.MatchsPageComponent) },
+            { path: 'joueurs', loadComponent: () => import('./app/pages/club-coach-shared/joueurs-page/joueurs-page.component').then(m => m.JoueursPageComponent) }
         ]
     },
 
