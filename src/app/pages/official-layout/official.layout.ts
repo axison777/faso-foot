@@ -2,7 +2,7 @@ import { Component, OnDestroy, Renderer2, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AppTopbar } from '../../layout/component/app.topbar';
+import { OfficialTopbar } from './official-topbar';
 import { AppFooter } from '../../layout/component/app.footer';
 import { LayoutService } from '../../layout/service/layout.service';
 import { OfficialMenuComponent } from './official.menu';
@@ -10,7 +10,7 @@ import { OfficialMenuComponent } from './official.menu';
 @Component({
     selector: 'official-layout',
     standalone: true,
-    imports: [CommonModule, AppTopbar, OfficialMenuComponent, RouterModule, AppFooter],
+    imports: [CommonModule, OfficialTopbar, OfficialMenuComponent, RouterModule, AppFooter],
     styles: [`
       .route-overlay {
         position: fixed;
@@ -55,7 +55,7 @@ import { OfficialMenuComponent } from './official.menu';
       }
     `],
     template: `<div class="layout-wrapper" [ngClass]="containerClass">
-        <app-topbar [ngClass]="{ 'blurred': isNavigating }"></app-topbar>
+        <official-topbar [ngClass]="{ 'blurred': isNavigating }"></official-topbar>
         <official-menu [ngClass]="{ 'blurred': isNavigating }"></official-menu>
         <div class="layout-main-container" [ngClass]="{ 'blurred': isNavigating }">
             <div class="layout-main">
@@ -98,7 +98,7 @@ export class OfficialLayout implements OnDestroy {
     menuOutsideClickListener: any;
 
     @ViewChild(OfficialMenuComponent) appSidebar!: OfficialMenuComponent;
-    @ViewChild(AppTopbar) appTopBar!: AppTopbar;
+    @ViewChild(OfficialTopbar) appTopBar!: OfficialTopbar;
 
     constructor(
         public layoutService: LayoutService,
