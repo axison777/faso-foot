@@ -43,11 +43,6 @@ import { map } from 'rxjs/operators';
           <span class="user-role">{{ getUserRole() }}</span>
         </div>
 
-        <!-- Avatar -->
-        <div class="user-avatar">
-          <i class="pi pi-user"></i>
-        </div>
-
         <!-- Notifications -->
         <button 
           class="notification-button" 
@@ -60,14 +55,16 @@ import { map } from 'rxjs/operators';
           </span>
         </button>
 
-        <!-- Menu profil -->
+        <!-- Avatar avec menu -->
         <button
-          class="layout-topbar-action"
+          class="user-menu-button"
           (click)="profileMenu.toggle($event)"
           pRipple
           [ngClass]="{ 'active': isProfileMenuOpen }"
         >
-          <i class="pi pi-cog"></i>
+          <div class="user-avatar">
+            <i class="pi pi-user"></i>
+          </div>
         </button>
         <p-tieredMenu #profileMenu [model]="profileMenuItems" popup appendTo="body"
         (onHide)="isProfileMenuOpen = false"
@@ -244,6 +241,32 @@ import { map } from 'rxjs/operators';
       background-color: #e7fffb;
       color: #c73e3e;
       transform: scale(1.05);
+    }
+
+    .user-menu-button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-menu-button:hover {
+      background-color: var(--hover-color);
+      transform: scale(1.05);
+    }
+
+    .user-menu-button.active {
+      background-color: #e7fffb;
+      transform: scale(1.05);
+    }
+
+    .user-menu-button .user-avatar {
+      margin: 0;
     }
 
     /* Panneau de notifications */
