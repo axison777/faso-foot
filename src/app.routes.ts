@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
 import { ClubLayout } from './app/pages/club-layout/club.layout';
 import { CoachLayout } from './app/pages/club-layout/coach.layout';
+import { OfficialLayout } from './app/pages/official-layout/official.layout';
 //import { Dashboard } from './app/pages/dashboard/dashboard';
 //import { Documentation } from './app/pages/documentation/documentation';
 //import { Landing } from './app/pages/landing/landing';
@@ -96,6 +97,20 @@ export const appRoutes: Routes = [
             { path: 'dashboard', loadComponent: () => import('./app/pages/coach-dashboard-v2/coach-dashboard-v2.component').then(m => m.CoachDashboardV2Component) },
             { path: 'matchs', loadComponent: () => import('./app/pages/club-coach-shared/matchs-page/matchs-page.component').then(m => m.MatchsPageComponent) },
             { path: 'joueurs', loadComponent: () => import('./app/pages/club-coach-shared/joueurs-page/joueurs-page.component').then(m => m.JoueursPageComponent) }
+        ]
+    },
+    {
+        path: 'officiel',
+        component: OfficialLayout,
+        canActivate: [AuthGuard],
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/official-dashboard/official-dashboard.component').then(m => m.OfficialDashboardComponent) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/official-matches/official-matches.component').then(m => m.OfficialMatchesComponent) },
+            { path: 'match-details/:id', loadComponent: () => import('./app/pages/official-match-details/official-match-details.component').then(m => m.OfficialMatchDetailsComponent) },
+            { path: 'match-report/:id', loadComponent: () => import('./app/pages/official-match-report/official-match-report.component').then(m => m.OfficialMatchReportComponent) },
+            { path: 'rapports', loadComponent: () => import('./app/pages/official-match-report/official-match-report.component').then(m => m.OfficialMatchReportComponent) },
+            { path: 'notifications', loadComponent: () => import('./app/pages/official-notifications/official-notifications.component').then(m => m.OfficialNotificationsComponent) }
         ]
     },
 
