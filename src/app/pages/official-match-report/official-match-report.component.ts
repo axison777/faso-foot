@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
-import { FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { OfficialMatchService, OfficialMatch } from '../../service/official-match.service';
 import { MatchReport, MatchEvent, CardEvent, RefereeEvaluation } from '../../models/match-report.model';
 import { Observable } from 'rxjs';
@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 @Component({
     selector: 'app-official-match-report',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
     template: `
         <div class="grid" *ngIf="match$ | async as match; else loadingMatch">
             <div class="col-12">
@@ -216,49 +216,49 @@ import { Observable } from 'rxjs';
                         <!-- Évaluation des arbitres (pour commissaires) -->
                         <div class="form-section" *ngIf="match.officialRole === 'COMMISSIONER'">
                             <h6>Évaluation des arbitres</h6>
-                            <div class="evaluation-grid" formGroupName="refereeEvaluation">
-                                <div class="evaluation-card" *ngFor="let official of match.otherOfficials">
+                            <div class="evaluation-grid">
+                                <div class="evaluation-card" *ngFor="let official of match.otherOfficials; let i = index">
                                     <h6>{{ official.name }} - {{ getRoleLabel(official.role) }}</h6>
                                     <div class="evaluation-criteria">
                                         <div class="criterion">
                                             <label>Application des lois du jeu</label>
                                             <input type="range" min="0" max="10" step="1" 
-                                                   [formControlName]="official.id + '_lawApplication'"
+                                                   [(ngModel)]="evaluationData[i].lawApplication"
                                                    class="p-inputtext">
-                                            <span>{{ getEvaluationValue(official.id + '_lawApplication') }}/10</span>
+                                            <span>{{ evaluationData[i].lawApplication }}/10</span>
                                         </div>
                                         <div class="criterion">
                                             <label>Positionnement et déplacements</label>
                                             <input type="range" min="0" max="10" step="1" 
-                                                   [formControlName]="official.id + '_positioning'"
+                                                   [(ngModel)]="evaluationData[i].positioning"
                                                    class="p-inputtext">
-                                            <span>{{ getEvaluationValue(official.id + '_positioning') }}/10</span>
+                                            <span>{{ evaluationData[i].positioning }}/10</span>
                                         </div>
                                         <div class="criterion">
                                             <label>Contrôle du match</label>
                                             <input type="range" min="0" max="10" step="1" 
-                                                   [formControlName]="official.id + '_matchControl'"
+                                                   [(ngModel)]="evaluationData[i].matchControl"
                                                    class="p-inputtext">
-                                            <span>{{ getEvaluationValue(official.id + '_matchControl') }}/10</span>
+                                            <span>{{ evaluationData[i].matchControl }}/10</span>
                                         </div>
                                         <div class="criterion">
                                             <label>Communication et attitude</label>
                                             <input type="range" min="0" max="10" step="1" 
-                                                   [formControlName]="official.id + '_communication'"
+                                                   [(ngModel)]="evaluationData[i].communication"
                                                    class="p-inputtext">
-                                            <span>{{ getEvaluationValue(official.id + '_communication') }}/10</span>
+                                            <span>{{ evaluationData[i].communication }}/10</span>
                                         </div>
                                         <div class="criterion">
                                             <label>Collaboration entre officiels</label>
                                             <input type="range" min="0" max="10" step="1" 
-                                                   [formControlName]="official.id + '_collaboration'"
+                                                   [(ngModel)]="evaluationData[i].collaboration"
                                                    class="p-inputtext">
-                                            <span>{{ getEvaluationValue(official.id + '_collaboration') }}/10</span>
+                                            <span>{{ evaluationData[i].collaboration }}/10</span>
                                         </div>
                                     </div>
                                     <div class="evaluation-comments">
                                         <label>Commentaires</label>
-                                        <textarea [formControlName]="official.id + '_comments'" 
+                                        <textarea [(ngModel)]="evaluationData[i].comments"
                                                   class="p-inputtext" rows="2" 
                                                   placeholder="Commentaires sur cet officiel"></textarea>
                                     </div>
@@ -419,9 +419,10 @@ import { Observable } from 'rxjs';
     `]
 })
 export class OfficialMatchReportComponent implements OnInit {
-    match$: Observable<OfficialMatch | null>;
+    match$!: Observable<OfficialMatch | null>;
     reportForm: FormGroup;
     matchId: string = '';
+    evaluationData: any[] = [];
 
     constructor(
         private officialMatchService: OfficialMatchService,
@@ -434,6 +435,13 @@ export class OfficialMatchReportComponent implements OnInit {
     ngOnInit() {
         this.matchId = this.route.snapshot.paramMap.get('id') || '';
         this.match$ = this.officialMatchService.getMatchDetails(this.matchId);
+        
+        // Initialiser l'évaluation des arbitres quand le match est chargé
+        this.match$.subscribe(match => {
+            if (match && match.otherOfficials && match.officialRole === 'COMMISSIONER') {
+                this.initializeEvaluationData(match.otherOfficials);
+            }
+        });
     }
 
     createForm(): FormGroup {
@@ -455,12 +463,26 @@ export class OfficialMatchReportComponent implements OnInit {
         });
     }
 
+    initializeEvaluationData(officials: any[]) {
+        this.evaluationData = officials.map(official => ({
+            officialId: official.id,
+            officialName: official.name,
+            role: official.role,
+            lawApplication: 5,
+            positioning: 5,
+            matchControl: 5,
+            communication: 5,
+            collaboration: 5,
+            comments: ''
+        }));
+    }
+
     get eventsArray() {
-        return this.reportForm.get('events') as any;
+        return this.reportForm.get('events') as FormArray;
     }
 
     get cardsArray() {
-        return this.reportForm.get('cards') as any;
+        return this.reportForm.get('cards') as FormArray;
     }
 
     addEvent() {
@@ -495,9 +517,6 @@ export class OfficialMatchReportComponent implements OnInit {
         this.cardsArray.removeAt(index);
     }
 
-    getEvaluationValue(controlName: string): number {
-        return this.reportForm.get(`refereeEvaluation.${controlName}`)?.value || 0;
-    }
 
     getRoleLabel(role: string): string {
         switch (role) {

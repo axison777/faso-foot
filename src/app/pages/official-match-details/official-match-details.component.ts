@@ -380,7 +380,7 @@ import { Observable } from 'rxjs';
     `]
 })
 export class OfficialMatchDetailsComponent implements OnInit {
-    match$: Observable<OfficialMatch | null>;
+    match$!: Observable<OfficialMatch | null>;
     matchId: string = '';
 
     constructor(

@@ -263,7 +263,7 @@ import { Observable } from 'rxjs';
     `]
 })
 export class OfficialMatchesComponent implements OnInit {
-    filteredMatches$: Observable<OfficialMatch[]>;
+    filteredMatches$!: Observable<OfficialMatch[]>;
     selectedStatus = '';
 
     constructor(private officialMatchService: OfficialMatchService) {}
