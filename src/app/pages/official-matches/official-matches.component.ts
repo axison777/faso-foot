@@ -12,11 +12,12 @@ import { RatingModule } from 'primeng/rating';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { MatchReportModalComponent } from './match-report-modal.component';
+import { MatchDetailsModalComponent } from './match-details-modal.component';
 
 @Component({
     selector: 'app-official-matches',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule, DialogModule, ButtonModule, InputTextModule, TextareaModule, RatingModule, ToastModule, MatchReportModalComponent],
+    imports: [CommonModule, RouterModule, FormsModule, DialogModule, ButtonModule, InputTextModule, TextareaModule, RatingModule, ToastModule, MatchReportModalComponent, MatchDetailsModalComponent],
     providers: [MessageService],
     template: `
         <div class="matches-page">
@@ -97,7 +98,7 @@ import { MatchReportModalComponent } from './match-report-modal.component';
 
                     <!-- Actions -->
                     <div class="match-actions">
-                        <button class="action-button primary" (click)="openReportModal(match)">
+                        <button class="action-button primary" (click)="openMatchDetails(match)">
                             <i class="pi pi-eye"></i>
                             Voir détails
                         </button>
@@ -130,6 +131,13 @@ import { MatchReportModalComponent } from './match-report-modal.component';
                 <p>Il n'y a aucun match correspondant à vos critères de recherche.</p>
             </div>
         </div>
+
+        <!-- Modale de détails du match -->
+        <app-match-details-modal 
+            [(visible)]="showMatchDetails"
+            [match]="selectedMatch"
+            (submitReport)="onSubmitReportFromDetails($event)">
+        </app-match-details-modal>
 
         <!-- Modale de rapport -->
         <app-match-report-modal 
@@ -517,6 +525,7 @@ import { MatchReportModalComponent } from './match-report-modal.component';
 export class OfficialMatchesComponent implements OnInit {
     filteredMatches$!: Observable<OfficialMatch[]>;
     selectedStatus = '';
+    showMatchDetails = false;
     showReportModal = false;
     selectedMatch: OfficialMatch | null = null;
 
@@ -593,9 +602,19 @@ export class OfficialMatchesComponent implements OnInit {
         }
     }
 
+    openMatchDetails(match: OfficialMatch) {
+        this.selectedMatch = match;
+        this.showMatchDetails = true;
+    }
+
     openReportModal(match: OfficialMatch) {
         this.selectedMatch = match;
         this.showReportModal = true;
+    }
+
+    onSubmitReportFromDetails(match: OfficialMatch) {
+        this.showMatchDetails = false;
+        this.openReportModal(match);
     }
 
     onReportSubmitted(reportData: any) {
