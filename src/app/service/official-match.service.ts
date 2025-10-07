@@ -48,6 +48,12 @@ export interface OfficialMatch {
     // Rapports
     reports?: MatchReport[];
     incidents?: MatchIncident[];
+    events?: Array<{
+        id: string;
+        minute: number;
+        type: string;
+        description: string;
+    }>;
     
     // Validation
     canSubmitReport: boolean;
