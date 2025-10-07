@@ -27,7 +27,6 @@ export class OfficialAppMenu implements OnInit {
                 items: [
                     { label: 'Tableau de bord', icon: 'pi pi-fw pi-chart-line', routerLink: ['/officiel/dashboard'] },
                     { label: 'Mes matchs', icon: 'pi pi-fw pi-calendar', routerLink: ['/officiel/matchs'] },
-                    { label: 'Rapports', icon: 'pi pi-fw pi-file-text', routerLink: ['/officiel/rapports'] },
                     { label: 'Notifications', icon: 'pi pi-fw pi-bell', routerLink: ['/officiel/notifications'] }
                 ]
             }

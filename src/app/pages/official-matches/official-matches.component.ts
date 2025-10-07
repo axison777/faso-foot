@@ -11,11 +11,12 @@ import { TextareaModule } from 'primeng/textarea';
 import { RatingModule } from 'primeng/rating';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { MatchReportModalComponent } from './match-report-modal.component';
 
 @Component({
     selector: 'app-official-matches',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule, DialogModule, ButtonModule, InputTextModule, TextareaModule, RatingModule, ToastModule],
+    imports: [CommonModule, RouterModule, FormsModule, DialogModule, ButtonModule, InputTextModule, TextareaModule, RatingModule, ToastModule, MatchReportModalComponent],
     providers: [MessageService],
     template: `
         <div class="matches-page">
@@ -96,13 +97,13 @@ import { MessageService } from 'primeng/api';
 
                     <!-- Actions -->
                     <div class="match-actions">
-                        <button class="action-button primary" (click)="viewMatchDetails(match)">
+                        <button class="action-button primary" (click)="openReportModal(match)">
                             <i class="pi pi-eye"></i>
                             Voir détails
                         </button>
                         <button class="action-button" 
                                 *ngIf="match.canSubmitReport && !match.reportSubmitted"
-                                (click)="submitReport(match.id, $event)">
+                                (click)="openReportModal(match)">
                             <i class="pi pi-file-text"></i>
                             Saisir rapport
                         </button>
@@ -130,162 +131,12 @@ import { MessageService } from 'primeng/api';
             </div>
         </div>
 
-        <!-- Modale de détails du match -->
-        <p-dialog 
-            [(visible)]="showMatchDetails" 
-            [modal]="true" 
-            [style]="{width: '90vw', maxWidth: '1200px'}" 
-            [header]="'Détails du match'"
-            [closable]="true">
-            
-            <div class="match-details-modal" *ngIf="selectedMatch">
-                <!-- Informations générales -->
-                <div class="match-info-section">
-                    <h3>Informations du match</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <label>Compétition</label>
-                            <span>{{ selectedMatch.competition.name }}</span>
-                        </div>
-                        <div class="info-item">
-                            <label>Date</label>
-                            <span>{{ selectedMatch.scheduledAt | date:'dd/MM/yyyy' }}</span>
-                        </div>
-                        <div class="info-item">
-                            <label>Heure</label>
-                            <span>{{ selectedMatch.scheduledAt | date:'HH:mm' }}</span>
-                        </div>
-                        <div class="info-item">
-                            <label>Stade</label>
-                            <span>{{ selectedMatch.stadium.name }}</span>
-                        </div>
-                        <div class="info-item">
-                            <label>Statut</label>
-                            <span class="status-badge" [ngClass]="getStatusClass(selectedMatch.status)">
-                                {{ getStatusLabel(selectedMatch.status) }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Équipes et score -->
-                <div class="teams-section-modal">
-                    <h3>Équipes</h3>
-                    <div class="teams-display">
-                        <div class="team-modal">
-                            <div class="team-name">{{ selectedMatch.homeTeam.name }}</div>
-                            <div class="team-score" *ngIf="selectedMatch.score">
-                                {{ selectedMatch.score.home }}
-                            </div>
-                        </div>
-                        <div class="vs-modal">vs</div>
-                        <div class="team-modal">
-                            <div class="team-name">{{ selectedMatch.awayTeam.name }}</div>
-                            <div class="team-score" *ngIf="selectedMatch.score">
-                                {{ selectedMatch.score.away }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Officiels assignés -->
-                <div class="officials-section" *ngIf="selectedMatch.otherOfficials">
-                    <h3>Officiels assignés</h3>
-                    <div class="officials-grid">
-                        <div class="official-item" *ngFor="let official of selectedMatch.otherOfficials">
-                            <div class="official-role">{{ getRoleLabel(official.role) }}</div>
-                            <div class="official-name">{{ official.name }}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section événements -->
-                <div class="events-section" *ngIf="selectedMatch.events && selectedMatch.events.length > 0">
-                    <h3>Événements du match</h3>
-                    <div class="events-list">
-                        <div class="event-item" *ngFor="let event of selectedMatch.events">
-                            <div class="event-time">{{ event.minute }}'</div>
-                            <div class="event-type">{{ event.type }}</div>
-                            <div class="event-description">{{ event.description }}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section rapport (pour commissaires) -->
-                <div class="report-section" *ngIf="selectedMatch.officialRole === 'COMMISSIONER'">
-                    <h3>Rapport de match</h3>
-                    <div class="report-form">
-                        <div class="form-group">
-                            <label>Conditions météorologiques</label>
-                            <input type="text" [(ngModel)]="matchReport.weather" placeholder="Ex: Ensoleillé, 25°C">
-                        </div>
-                        <div class="form-group">
-                            <label>État du terrain</label>
-                            <select [(ngModel)]="matchReport.fieldCondition">
-                                <option value="EXCELLENT">Excellent</option>
-                                <option value="GOOD">Bon</option>
-                                <option value="FAIR">Correct</option>
-                                <option value="POOR">Mauvais</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Affluence</label>
-                            <input type="number" [(ngModel)]="matchReport.attendance" placeholder="Nombre de spectateurs">
-                        </div>
-                        <div class="form-group">
-                            <label>Incidents</label>
-                            <textarea [(ngModel)]="matchReport.incidents" rows="3" placeholder="Décrire les incidents survenus"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Résumé du match</label>
-                            <textarea [(ngModel)]="matchReport.summary" rows="4" placeholder="Résumé général du match"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Évaluation des arbitres (pour commissaires) -->
-                <div class="evaluation-section" *ngIf="selectedMatch.officialRole === 'COMMISSIONER' && selectedMatch.otherOfficials">
-                    <h3>Évaluation des arbitres</h3>
-                    <div class="evaluations-grid">
-                        <div class="evaluation-card" *ngFor="let official of selectedMatch.otherOfficials; let i = index">
-                            <h4>{{ official.name }} - {{ getRoleLabel(official.role) }}</h4>
-                            <div class="evaluation-criteria">
-                                <div class="criterion">
-                                    <label>Ponctualité</label>
-                                    <p-rating [(ngModel)]="evaluations[i].punctuality"></p-rating>
-                                </div>
-                                <div class="criterion">
-                                    <label>Impartialité</label>
-                                    <p-rating [(ngModel)]="evaluations[i].impartiality"></p-rating>
-                                </div>
-                                <div class="criterion">
-                                    <label>Gestion du match</label>
-                                    <p-rating [(ngModel)]="evaluations[i].matchManagement"></p-rating>
-                                </div>
-                                <div class="criterion">
-                                    <label>Communication</label>
-                                    <p-rating [(ngModel)]="evaluations[i].communication"></p-rating>
-                                </div>
-                            </div>
-                            <div class="evaluation-comments">
-                                <label>Commentaires</label>
-                                <textarea [(ngModel)]="evaluations[i].comments" rows="2" placeholder="Commentaires sur cet officiel"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <ng-template pTemplate="footer">
-                <button pButton type="button" label="Fermer" class="p-button-text" (click)="closeMatchDetails()"></button>
-                <button pButton type="button" label="Saisir rapport" class="p-button-success" 
-                        *ngIf="selectedMatch?.canSubmitReport && !selectedMatch?.reportSubmitted"
-                        (click)="goToReport()"></button>
-                <button pButton type="button" label="Soumettre et clôturer" class="p-button-primary" 
-                        *ngIf="selectedMatch?.officialRole === 'COMMISSIONER'"
-                        (click)="submitAndCloseMatch()"></button>
-            </ng-template>
-        </p-dialog>
+        <!-- Modale de rapport -->
+        <app-match-report-modal 
+            [(visible)]="showReportModal"
+            [match]="selectedMatch"
+            (reportSubmitted)="onReportSubmitted($event)">
+        </app-match-report-modal>
 
         <p-toast></p-toast>
     `,
@@ -635,211 +486,6 @@ import { MessageService } from 'primeng/api';
             margin: 0;
         }
 
-        /* Modale de détails */
-        .match-details-modal {
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-
-        .match-info-section, .teams-section-modal, .officials-section, .events-section, .report-section, .evaluation-section {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: #f9fafb;
-            border-radius: 12px;
-        }
-
-        .match-info-section h3, .teams-section-modal h3, .officials-section h3, .events-section h3, .report-section h3, .evaluation-section h3 {
-            margin: 0 0 1rem 0;
-            color: #1a1a1a;
-            font-size: 1.25rem;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .info-item label {
-            font-weight: 600;
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-
-        .info-item span {
-            color: #1a1a1a;
-        }
-
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .teams-display {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-        }
-
-        .team-modal {
-            text-align: center;
-        }
-
-        .team-modal .team-name {
-            font-weight: 600;
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .team-score {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #3b82f6;
-        }
-
-        .vs-modal {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #6b7280;
-        }
-
-        .officials-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .official-item {
-            padding: 1rem;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .official-role {
-            font-weight: 600;
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .official-name {
-            color: #1a1a1a;
-            font-weight: 600;
-        }
-
-        .events-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .event-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .event-time {
-            font-weight: 700;
-            color: #3b82f6;
-            min-width: 40px;
-        }
-
-        .event-type {
-            font-weight: 600;
-            color: #1a1a1a;
-            min-width: 100px;
-        }
-
-        .event-description {
-            color: #6b7280;
-        }
-
-        .report-form {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 0.875rem;
-        }
-
-        .evaluations-grid {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .evaluation-card {
-            padding: 1.5rem;
-            background: white;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .evaluation-card h4 {
-            margin: 0 0 1rem 0;
-            color: #1a1a1a;
-        }
-
-        .evaluation-criteria {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .criterion {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .criterion label {
-            font-weight: 600;
-            color: #374151;
-            font-size: 0.875rem;
-        }
-
-        .evaluation-comments {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .evaluation-comments label {
-            font-weight: 600;
-            color: #374151;
-            font-size: 0.875rem;
-        }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -871,16 +517,8 @@ import { MessageService } from 'primeng/api';
 export class OfficialMatchesComponent implements OnInit {
     filteredMatches$!: Observable<OfficialMatch[]>;
     selectedStatus = '';
-    showMatchDetails = false;
+    showReportModal = false;
     selectedMatch: OfficialMatch | null = null;
-    matchReport: any = {
-        weather: '',
-        fieldCondition: 'GOOD',
-        attendance: 0,
-        incidents: '',
-        summary: ''
-    };
-    evaluations: any[] = [];
 
     constructor(
         private officialMatchService: OfficialMatchService,
@@ -955,11 +593,19 @@ export class OfficialMatchesComponent implements OnInit {
         }
     }
 
-    submitReport(matchId: string, event: Event) {
-        event.stopPropagation();
-        // Navigation vers la page de saisie de rapport
-        // this.router.navigate(['/officiel/match-report', matchId]);
-        console.log('Saisir rapport pour le match:', matchId);
+    openReportModal(match: OfficialMatch) {
+        this.selectedMatch = match;
+        this.showReportModal = true;
+    }
+
+    onReportSubmitted(reportData: any) {
+        console.log('Rapport soumis:', reportData);
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Rapport soumis avec succès'
+        });
+        this.refreshMatches();
     }
 
     getCompetitionClass(type: string): string {
@@ -972,53 +618,6 @@ export class OfficialMatchesComponent implements OnInit {
                 return 'competition-tournament';
             default:
                 return 'competition-league';
-        }
-    }
-
-    viewMatchDetails(match: OfficialMatch) {
-        this.selectedMatch = match;
-        this.showMatchDetails = true;
-        
-        // Initialiser les évaluations si c'est un commissaire
-        if (match.officialRole === 'COMMISSIONER' && match.otherOfficials) {
-            this.evaluations = match.otherOfficials.map(official => ({
-                officialId: official.id,
-                officialName: official.name,
-                role: official.role,
-                punctuality: 5,
-                impartiality: 5,
-                matchManagement: 5,
-                communication: 5,
-                comments: ''
-            }));
-        }
-    }
-
-    closeMatchDetails() {
-        this.showMatchDetails = false;
-        this.selectedMatch = null;
-        this.evaluations = [];
-    }
-
-    goToReport() {
-        if (this.selectedMatch) {
-            this.closeMatchDetails();
-            // Navigation vers la page de rapport
-            // this.router.navigate(['/officiel/match-report', this.selectedMatch.id]);
-            console.log('Aller au rapport pour le match:', this.selectedMatch.id);
-        }
-    }
-
-    submitAndCloseMatch() {
-        if (this.selectedMatch) {
-            // Logique de soumission du rapport et clôture du match
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Succès',
-                detail: 'Rapport soumis et match clôturé avec succès'
-            });
-            this.closeMatchDetails();
-            this.refreshMatches();
         }
     }
 }

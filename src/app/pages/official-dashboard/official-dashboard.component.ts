@@ -53,6 +53,19 @@ import { Observable } from 'rxjs';
                         <div class="stat-label">Notifications</div>
                     </div>
                 </div>
+                <!-- Carte de note d'arbitre -->
+                <div class="stat-card" data-stat="rating" *ngIf="refereeRating">
+                    <div class="stat-icon">
+                        <i class="pi pi-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ refereeRating.toFixed(1) }}</div>
+                        <div class="stat-label">Note moyenne</div>
+                        <div class="rating-level" [ngClass]="getRatingLevelClass(refereeRating)">
+                            {{ getRatingLevelLabel(refereeRating) }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Prochains matchs -->
@@ -222,6 +235,29 @@ import { Observable } from 'rxjs';
         .stat-card[data-stat="notifications"] .stat-icon {
             color: #9c27b0;
         }
+
+        .stat-card[data-stat="rating"] {
+            background: linear-gradient(135deg, #fef3c7 0%, #fef7e0 100%);
+        }
+
+        .stat-card[data-stat="rating"] .stat-icon {
+            color: #f59e0b;
+        }
+
+        .rating-level {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+
+        .rating-excellent { color: #166534; }
+        .rating-very-good { color: #1e40af; }
+        .rating-good { color: #7c3aed; }
+        .rating-medium { color: #d97706; }
+        .rating-insufficient { color: #c2410c; }
+        .rating-bad { color: #dc2626; }
 
         .stat-content {
             text-align: left;
@@ -524,6 +560,7 @@ export class OfficialDashboardComponent implements OnInit {
     completedMatchesCount = 0;
     pendingReportsCount = 0;
     unreadNotificationsCount = 0;
+    refereeRating: number | null = null;
 
     constructor(private officialMatchService: OfficialMatchService) {
         this.upcomingMatches$ = this.officialMatchService.getAssignedMatches({ status: 'UPCOMING' });
@@ -548,6 +585,9 @@ export class OfficialDashboardComponent implements OnInit {
         this.officialMatchService.getNotifications().subscribe(notifications => {
             this.unreadNotificationsCount = notifications.filter(n => !n.read).length;
         });
+
+        // Simuler une note d'arbitre (à remplacer par un appel API réel)
+        this.refereeRating = 8.2;
     }
 
     getRoleClass(role: string): string {
@@ -605,6 +645,24 @@ export class OfficialDashboardComponent implements OnInit {
             default:
                 return 'pi-info-circle';
         }
+    }
+
+    getRatingLevelClass(rating: number): string {
+        if (rating >= 9.0) return 'rating-excellent';
+        if (rating >= 8.4) return 'rating-very-good';
+        if (rating >= 7.9) return 'rating-good';
+        if (rating >= 7.0) return 'rating-medium';
+        if (rating >= 6.5) return 'rating-insufficient';
+        return 'rating-bad';
+    }
+
+    getRatingLevelLabel(rating: number): string {
+        if (rating >= 9.0) return 'Excellent';
+        if (rating >= 8.4) return 'Très bien';
+        if (rating >= 7.9) return 'Bien';
+        if (rating >= 7.0) return 'Moyen';
+        if (rating >= 6.5) return 'Insuffisant';
+        return 'Mauvais';
     }
 
     refreshData() {
