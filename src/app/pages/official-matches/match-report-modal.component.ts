@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -305,8 +305,13 @@ interface EvaluationOfficiel {
                 </div>
 
                 <!-- Step 4: Évaluation des Officiels (Commissaire seulement) -->
-                <div *ngIf="currentStep === 4 && isCommissioner" class="step-content">
+                <div *ngIf="shouldShowEvaluationStep" class="step-content">
                     <h3>Évaluation des Officiels</h3>
+                    <!-- Debug info -->
+                    <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; font-size: 12px;">
+                        <strong>Debug:</strong> isCommissioner={{ isCommissioner }}, currentStep={{ currentStep }}, 
+                        evaluationsOfficiels.length={{ reportData.evaluationsOfficiels.length }}
+                    </div>
                     <div class="officials-evaluation">
                         <div class="evaluation-card" *ngFor="let evaluation of reportData.evaluationsOfficiels; let i = index">
                             <h4>{{ evaluation.officielName }} - {{ getRoleLabel(evaluation.role) }}</h4>
@@ -727,7 +732,7 @@ interface EvaluationOfficiel {
         }
     `]
 })
-export class MatchReportModalComponent implements OnInit {
+export class MatchReportModalComponent implements OnInit, OnChanges {
     @Input() visible = false;
     @Input() match: OfficialMatch | null = null;
     @Output() visibleChange = new EventEmitter<boolean>();
@@ -766,7 +771,16 @@ export class MatchReportModalComponent implements OnInit {
 
     ngOnInit() {
         this.initializeSteps();
-        this.initializeReportData();
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['match'] && this.match) {
+            this.initializeReportData();
+        }
+        if (changes['visible'] && this.visible && this.match) {
+            this.initializeReportData();
+            this.currentStep = 1;
+        }
     }
 
     initializeSteps() {
@@ -929,6 +943,10 @@ export class MatchReportModalComponent implements OnInit {
 
     get isLastStep(): boolean {
         return this.currentStep === this.steps.length;
+    }
+
+    get shouldShowEvaluationStep(): boolean {
+        return this.isCommissioner && this.currentStep === 4;
     }
 
     submitReport() {

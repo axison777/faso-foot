@@ -164,12 +164,13 @@ export class OfficialMatchService {
                 scheduledAt: dt.toISOString(),
                 status: isUpcoming ? 'UPCOMING' : 'COMPLETED',
                 score: !isUpcoming ? { home: Math.floor(Math.random() * 4), away: Math.floor(Math.random() * 4) } : undefined,
-                officialRole: i % 4 === 0 ? 'CENTRAL_REFEREE' : i % 4 === 1 ? 'ASSISTANT_REFEREE_1' : 'COMMISSIONER',
+                officialRole: i % 4 === 0 ? 'CENTRAL_REFEREE' : i % 4 === 1 ? 'ASSISTANT_REFEREE_1' : i % 4 === 2 ? 'ASSISTANT_REFEREE_2' : 'COMMISSIONER',
                 assignedAt: new Date(dt.getTime() - 7 * 24 * 3600 * 1000).toISOString(),
                 otherOfficials: [
                     { id: 'off-1', name: 'Jean Dupont', role: 'CENTRAL_REFEREE' },
                     { id: 'off-2', name: 'Marie Martin', role: 'ASSISTANT_REFEREE_1' },
-                    { id: 'off-3', name: 'Pierre Durand', role: 'ASSISTANT_REFEREE_2' }
+                    { id: 'off-3', name: 'Pierre Durand', role: 'ASSISTANT_REFEREE_2' },
+                    { id: 'off-4', name: 'Sophie Bernard', role: 'FOURTH_OFFICIAL' }
                 ],
                 canSubmitReport: !isUpcoming,
                 reportSubmitted: !isUpcoming && i % 2 === 0,
