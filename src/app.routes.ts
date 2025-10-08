@@ -113,6 +113,17 @@ export const appRoutes: Routes = [
             { path: 'notifications', loadComponent: () => import('./app/pages/official-notifications/official-notifications.component').then(m => m.OfficialNotificationsComponent) }
         ]
     },
+    {
+        path: 'mon-equipe',
+        component: CoachLayout,
+        canActivate: [AuthGuard],
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/coach-dashboard-v2/coach-dashboard-v2.component').then(m => m.CoachDashboardV2Component) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/coach-matches/coach-matches.component').then(m => m.CoachMatchesComponent) },
+            { path: 'joueurs', loadComponent: () => import('./app/pages/players/players.component').then(m => m.PlayersComponent) }
+        ]
+    },
 
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
