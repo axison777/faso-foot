@@ -124,6 +124,58 @@ interface EvaluationOfficiel {
                             </label>
                         </div>
                     </div>
+
+                    <!-- Section Buteurs et Passeurs -->
+                    <div class="goals-section" *ngIf="reportData.resultatFinal.home > 0 || reportData.resultatFinal.away > 0">
+                        <h4>Buteurs et Passeurs Décisifs</h4>
+                        <div class="goals-validation" *ngIf="getGoalsValidationMessage()">
+                            <i class="pi pi-exclamation-triangle"></i>
+                            <span>{{ getGoalsValidationMessage() }}</span>
+                        </div>
+                        <div class="goals-list">
+                            <div class="goal-item" *ngFor="let buteur of reportData.buteurs; let i = index">
+                                <div class="goal-header">
+                                    <div class="goal-info">
+                                        <span class="goal-number">{{ i + 1 }}</span>
+                                        <span class="goal-team" [ngClass]="buteur.equipe">
+                                            {{ buteur.equipe === 'home' ? match?.homeTeam?.name : match?.awayTeam?.name }}
+                                        </span>
+                                    </div>
+                                    <button type="button" class="remove-goal-btn" (click)="removeGoal(i)">
+                                        <i class="pi pi-trash"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="goal-details">
+                                    <div class="goal-scorer">
+                                        <h5>Buteur</h5>
+                                        <div class="player-fields">
+                                            <input type="text" [(ngModel)]="buteur.maillot" placeholder="Maillot" class="field-small">
+                                            <input type="text" [(ngModel)]="buteur.licence" placeholder="N° Licence" class="field-medium">
+                                            <input type="text" [(ngModel)]="buteur.joueur" placeholder="Nom du joueur" class="field-large">
+                                            <input type="number" [(ngModel)]="buteur.minute" placeholder="Min" min="0" max="120" class="field-small">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="goal-assist">
+                                        <h5>Passeur Décisif (optionnel)</h5>
+                                        <div class="player-fields">
+                                            <input type="text" [(ngModel)]="buteur.passeur.maillot" placeholder="Maillot" class="field-small">
+                                            <input type="text" [(ngModel)]="buteur.passeur.licence" placeholder="N° Licence" class="field-medium">
+                                            <input type="text" [(ngModel)]="buteur.passeur.joueur" placeholder="Nom du joueur" class="field-large">
+                                            <button type="button" class="clear-assist-btn" (click)="clearAssist(i)" *ngIf="buteur.passeur.joueur">
+                                                <i class="pi pi-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="add-goal-btn" (click)="addGoal()">
+                            <i class="pi pi-plus"></i> Ajouter un but
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Step 2: Sanctions -->
@@ -494,6 +546,219 @@ interface EvaluationOfficiel {
             cursor: pointer;
         }
 
+        /* Section Buteurs */
+        .goals-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .goals-section h4 {
+            margin: 0 0 1.5rem 0;
+            color: #1a1a1a;
+            font-size: 1.1rem;
+        }
+
+        .goals-validation {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            color: #92400e;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .goals-validation i {
+            color: #f59e0b;
+        }
+
+        .goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .goal-item {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .goal-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .goal-number {
+            width: 30px;
+            height: 30px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .goal-team {
+            font-weight: 600;
+            color: #1a1a1a;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+        }
+
+        .goal-team.home {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .goal-team.away {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .remove-goal-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .remove-goal-btn:hover {
+            background: #dc2626;
+        }
+
+        .goal-details {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .goal-scorer, .goal-assist {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .goal-scorer h5, .goal-assist h5 {
+            margin: 0;
+            color: #374151;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .player-fields {
+            display: grid;
+            grid-template-columns: 60px 120px 1fr 60px auto;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .field-small {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        .field-medium {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .field-large {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .clear-assist-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clear-assist-btn:hover {
+            background: #4b5563;
+        }
+
+        .add-goal-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-goal-btn:hover {
+            background: #059669;
+        }
+
+        /* Responsive pour les buteurs */
+        @media (max-width: 768px) {
+            .goal-details {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .player-fields {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .field-small, .field-medium, .field-large {
+                width: 100%;
+            }
+        }
+
         .sanctions-section {
             margin-bottom: 2rem;
         }
@@ -744,6 +1009,7 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         tirsAuxButs: { home: 0, away: 0 },
         prolongations: false,
         tirsAuxButsEnabled: false,
+        buteurs: [],
         avertissements: [],
         expulsions: [],
         degreDifficulte: 'normal',
@@ -885,6 +1151,61 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
 
     removeExpulsion(index: number) {
         this.reportData.expulsions.splice(index, 1);
+    }
+
+    addGoal() {
+        // Déterminer l'équipe par défaut basée sur le score
+        const totalHomeGoals = this.reportData.buteurs.filter((b: any) => b.equipe === 'home').length;
+        const totalAwayGoals = this.reportData.buteurs.filter((b: any) => b.equipe === 'away').length;
+        
+        let defaultTeam: 'home' | 'away' = 'home';
+        if (totalHomeGoals >= this.reportData.resultatFinal.home && totalAwayGoals < this.reportData.resultatFinal.away) {
+            defaultTeam = 'away';
+        }
+        
+        this.reportData.buteurs.push({
+            id: Date.now().toString(),
+            maillot: '',
+            equipe: defaultTeam,
+            licence: '',
+            joueur: '',
+            minute: 0,
+            passeur: {
+                maillot: '',
+                equipe: defaultTeam,
+                licence: '',
+                joueur: ''
+            }
+        });
+    }
+
+    removeGoal(index: number) {
+        this.reportData.buteurs.splice(index, 1);
+    }
+
+    clearAssist(index: number) {
+        this.reportData.buteurs[index].passeur = {
+            maillot: '',
+            equipe: 'home',
+            licence: '',
+            joueur: ''
+        };
+    }
+
+    getGoalsCount(team: 'home' | 'away'): number {
+        return this.reportData.buteurs.filter((b: any) => b.equipe === team).length;
+    }
+
+    getGoalsValidationMessage(): string {
+        const homeGoals = this.getGoalsCount('home');
+        const awayGoals = this.getGoalsCount('away');
+        const expectedHome = this.reportData.resultatFinal.home;
+        const expectedAway = this.reportData.resultatFinal.away;
+        
+        if (homeGoals !== expectedHome || awayGoals !== expectedAway) {
+            return `Attention: ${homeGoals}/${expectedHome} buts domicile, ${awayGoals}/${expectedAway} buts extérieur`;
+        }
+        return '';
     }
 
     private calculateTimeout: any;
