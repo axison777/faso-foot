@@ -110,7 +110,7 @@ export const appRoutes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', loadComponent: () => import('./app/pages/coach-dashboard-v2/coach-dashboard-v2.component').then(m => m.CoachDashboardV2Component) },
             { path: 'matchs', loadComponent: () => import('./app/pages/coach-matches/coach-matches.component').then(m => m.CoachMatchesComponent) },
-            { path: 'joueurs', loadComponent: () => import('./app/pages/players/players.component').then(m => m.PlayersComponent) }
+            { path: 'joueurs', loadComponent: () => import('./app/pages/coach-players/coach-players.component').then(m => m.CoachPlayersComponent) }
         ]
     },
 
