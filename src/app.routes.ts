@@ -89,17 +89,6 @@ export const appRoutes: Routes = [
         ]
     },
     {
-        path: 'mon-equipe',
-        component: CoachLayout,
-        canActivate: [AuthGuard],
-        children: [
-            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-            { path: 'dashboard', loadComponent: () => import('./app/pages/coach-dashboard-v2/coach-dashboard-v2.component').then(m => m.CoachDashboardV2Component) },
-            { path: 'matchs', loadComponent: () => import('./app/pages/club-coach-shared/matchs-page/matchs-page.component').then(m => m.MatchsPageComponent) },
-            { path: 'joueurs', loadComponent: () => import('./app/pages/club-coach-shared/joueurs-page/joueurs-page.component').then(m => m.JoueursPageComponent) }
-        ]
-    },
-    {
         path: 'officiel',
         component: OfficialLayout,
         canActivate: [AuthGuard],
