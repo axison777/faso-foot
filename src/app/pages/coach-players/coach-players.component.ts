@@ -11,6 +11,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
+import { PlayerDetailsModalComponent } from './player-details-modal.component';
 
 interface CoachPlayer {
     id: string;
@@ -22,16 +23,48 @@ interface CoachPlayer {
     status: 'ACTIVE' | 'INJURED' | 'SUSPENDED' | 'TIRED';
     contractEndDate: string;
     photo?: string;
+    nationality: string;
+    height: number; // en cm
+    weight: number; // en kg
+    preferredFoot: 'LEFT' | 'RIGHT' | 'BOTH';
     stats: {
         goals: number;
         assists: number;
         yellowCards: number;
         redCards: number;
+        matchesPlayed: number;
+        minutesPlayed: number;
+        shotsOnTarget: number;
+        passAccuracy: number;
+        tackles: number;
+        interceptions: number;
     };
     fitnessLevel: 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR';
     injuryType?: string;
+    injuryStartDate?: string;
+    injuryEndDate?: string;
     suspensionReason?: string;
     suspensionEndDate?: string;
+    contractStatus: 'VALID' | 'EXPIRING' | 'EXPIRED';
+    injuryHistory: Array<{
+        date: string;
+        type: string;
+        duration: number; // en jours
+        status: 'RECOVERED' | 'ONGOING';
+    }>;
+    performanceGoals: {
+        goals: number;
+        assists: number;
+        matches: number;
+        currentGoals: number;
+        currentAssists: number;
+        currentMatches: number;
+    };
+    competitionRanking: {
+        goals: number;
+        assists: number;
+        overall: number;
+    };
 }
 
 @Component({
@@ -39,7 +72,7 @@ interface CoachPlayer {
     standalone: true,
     imports: [
         CommonModule, FormsModule, ButtonModule, InputTextModule, DropdownModule,
-        TagModule, TableModule, MenuModule, DialogModule, ToastModule
+        TagModule, TableModule, MenuModule, DialogModule, ToastModule, PlayerDetailsModalComponent
     ],
     providers: [MessageService],
     template: `
@@ -252,6 +285,14 @@ interface CoachPlayer {
                 </div>
             </div>
         </div>
+
+        <!-- Modal de détails du joueur -->
+        <app-player-details-modal 
+            [(visible)]="showPlayerDetails"
+            [player]="selectedPlayer"
+            (editPlayerEvent)="onEditPlayer($event)"
+            (viewMatchHistoryEvent)="onViewMatchHistory($event)">
+        </app-player-details-modal>
 
         <p-toast></p-toast>
     `,
@@ -863,6 +904,8 @@ export class CoachPlayersComponent implements OnInit {
     
     players: CoachPlayer[] = [];
     filteredPlayers: CoachPlayer[] = [];
+    showPlayerDetails = false;
+    selectedPlayer: CoachPlayer | null = null;
 
     positionOptions = [
         { label: 'Toutes les positions', value: '' },
@@ -897,8 +940,43 @@ export class CoachPlayersComponent implements OnInit {
                 jerseyNumber: 7,
                 status: 'ACTIVE',
                 contractEndDate: '2026-06-30',
+                nationality: 'Burkina Faso',
+                height: 175,
+                weight: 68,
+                preferredFoot: 'RIGHT',
                 fitnessLevel: 'EXCELLENT',
-                stats: { goals: 7, assists: 3, yellowCards: 2, redCards: 0 }
+                injuryType: undefined,
+                injuryStartDate: undefined,
+                injuryEndDate: undefined,
+                suspensionReason: undefined,
+                suspensionEndDate: undefined,
+                contractStatus: 'VALID',
+                stats: { 
+                    goals: 7, 
+                    assists: 3, 
+                    yellowCards: 2, 
+                    redCards: 0,
+                    matchesPlayed: 12,
+                    minutesPlayed: 1080,
+                    shotsOnTarget: 15,
+                    passAccuracy: 85,
+                    tackles: 8,
+                    interceptions: 12
+                },
+                injuryHistory: [],
+                performanceGoals: {
+                    goals: 15,
+                    assists: 8,
+                    matches: 20,
+                    currentGoals: 7,
+                    currentAssists: 3,
+                    currentMatches: 12
+                },
+                competitionRanking: {
+                    goals: 3,
+                    assists: 5,
+                    overall: 4
+                }
             },
             {
                 id: '2',
@@ -909,8 +987,43 @@ export class CoachPlayersComponent implements OnInit {
                 jerseyNumber: 6,
                 status: 'TIRED',
                 contractEndDate: '2025-06-30',
+                nationality: 'Mali',
+                height: 182,
+                weight: 75,
+                preferredFoot: 'RIGHT',
                 fitnessLevel: 'FAIR',
-                stats: { goals: 1, assists: 4, yellowCards: 3, redCards: 0 }
+                injuryType: undefined,
+                injuryStartDate: undefined,
+                injuryEndDate: undefined,
+                suspensionReason: undefined,
+                suspensionEndDate: undefined,
+                contractStatus: 'VALID',
+                stats: { 
+                    goals: 1, 
+                    assists: 4, 
+                    yellowCards: 3, 
+                    redCards: 0,
+                    matchesPlayed: 15,
+                    minutesPlayed: 1350,
+                    shotsOnTarget: 3,
+                    passAccuracy: 92,
+                    tackles: 25,
+                    interceptions: 18
+                },
+                injuryHistory: [],
+                performanceGoals: {
+                    goals: 3,
+                    assists: 6,
+                    matches: 20,
+                    currentGoals: 1,
+                    currentAssists: 4,
+                    currentMatches: 15
+                },
+                competitionRanking: {
+                    goals: 15,
+                    assists: 8,
+                    overall: 7
+                }
             },
             {
                 id: '3',
@@ -921,9 +1034,56 @@ export class CoachPlayersComponent implements OnInit {
                 jerseyNumber: 10,
                 status: 'INJURED',
                 contractEndDate: '2024-12-31',
-                injuryType: 'Entorse cheville',
+                nationality: 'Burkina Faso',
+                height: 170,
+                weight: 65,
+                preferredFoot: 'LEFT',
                 fitnessLevel: 'POOR',
-                stats: { goals: 0, assists: 1, yellowCards: 1, redCards: 0 }
+                injuryType: 'Entorse cheville',
+                injuryStartDate: '2024-11-15',
+                injuryEndDate: '2024-12-15',
+                suspensionReason: undefined,
+                suspensionEndDate: undefined,
+                contractStatus: 'EXPIRING',
+                stats: { 
+                    goals: 0, 
+                    assists: 1, 
+                    yellowCards: 1, 
+                    redCards: 0,
+                    matchesPlayed: 3,
+                    minutesPlayed: 180,
+                    shotsOnTarget: 2,
+                    passAccuracy: 78,
+                    tackles: 2,
+                    interceptions: 3
+                },
+                injuryHistory: [
+                    {
+                        date: '2024-11-15',
+                        type: 'Entorse cheville',
+                        duration: 30,
+                        status: 'ONGOING'
+                    },
+                    {
+                        date: '2024-03-10',
+                        type: 'Claquage musculaire',
+                        duration: 21,
+                        status: 'RECOVERED'
+                    }
+                ],
+                performanceGoals: {
+                    goals: 8,
+                    assists: 5,
+                    matches: 15,
+                    currentGoals: 0,
+                    currentAssists: 1,
+                    currentMatches: 3
+                },
+                competitionRanking: {
+                    goals: 25,
+                    assists: 20,
+                    overall: 18
+                }
             },
             {
                 id: '4',
@@ -934,10 +1094,43 @@ export class CoachPlayersComponent implements OnInit {
                 jerseyNumber: 9,
                 status: 'SUSPENDED',
                 contractEndDate: '2025-06-30',
+                nationality: 'Mali',
+                height: 185,
+                weight: 80,
+                preferredFoot: 'RIGHT',
+                fitnessLevel: 'GOOD',
+                injuryType: undefined,
+                injuryStartDate: undefined,
+                injuryEndDate: undefined,
                 suspensionReason: 'Carton rouge',
                 suspensionEndDate: '2024-12-15',
-                fitnessLevel: 'GOOD',
-                stats: { goals: 12, assists: 2, yellowCards: 4, redCards: 1 }
+                contractStatus: 'VALID',
+                stats: { 
+                    goals: 12, 
+                    assists: 2, 
+                    yellowCards: 4, 
+                    redCards: 1,
+                    matchesPlayed: 14,
+                    minutesPlayed: 1260,
+                    shotsOnTarget: 28,
+                    passAccuracy: 72,
+                    tackles: 5,
+                    interceptions: 7
+                },
+                injuryHistory: [],
+                performanceGoals: {
+                    goals: 20,
+                    assists: 4,
+                    matches: 18,
+                    currentGoals: 12,
+                    currentAssists: 2,
+                    currentMatches: 14
+                },
+                competitionRanking: {
+                    goals: 1,
+                    assists: 12,
+                    overall: 2
+                }
             },
             {
                 id: '5',
@@ -948,8 +1141,43 @@ export class CoachPlayersComponent implements OnInit {
                 jerseyNumber: 8,
                 status: 'ACTIVE',
                 contractEndDate: '2026-06-30',
+                nationality: 'Côte d\'Ivoire',
+                height: 180,
+                weight: 72,
+                preferredFoot: 'RIGHT',
                 fitnessLevel: 'EXCELLENT',
-                stats: { goals: 3, assists: 8, yellowCards: 2, redCards: 0 }
+                injuryType: undefined,
+                injuryStartDate: undefined,
+                injuryEndDate: undefined,
+                suspensionReason: undefined,
+                suspensionEndDate: undefined,
+                contractStatus: 'VALID',
+                stats: { 
+                    goals: 3, 
+                    assists: 8, 
+                    yellowCards: 2, 
+                    redCards: 0,
+                    matchesPlayed: 16,
+                    minutesPlayed: 1440,
+                    shotsOnTarget: 8,
+                    passAccuracy: 89,
+                    tackles: 22,
+                    interceptions: 15
+                },
+                injuryHistory: [],
+                performanceGoals: {
+                    goals: 5,
+                    assists: 10,
+                    matches: 20,
+                    currentGoals: 3,
+                    currentAssists: 8,
+                    currentMatches: 16
+                },
+                competitionRanking: {
+                    goals: 8,
+                    assists: 2,
+                    overall: 3
+                }
             },
             {
                 id: '6',
@@ -960,8 +1188,43 @@ export class CoachPlayersComponent implements OnInit {
                 jerseyNumber: 4,
                 status: 'ACTIVE',
                 contractEndDate: '2024-06-30',
+                nationality: 'Mali',
+                height: 188,
+                weight: 85,
+                preferredFoot: 'RIGHT',
                 fitnessLevel: 'GOOD',
-                stats: { goals: 0, assists: 1, yellowCards: 5, redCards: 0 }
+                injuryType: undefined,
+                injuryStartDate: undefined,
+                injuryEndDate: undefined,
+                suspensionReason: undefined,
+                suspensionEndDate: undefined,
+                contractStatus: 'EXPIRING',
+                stats: { 
+                    goals: 0, 
+                    assists: 1, 
+                    yellowCards: 5, 
+                    redCards: 0,
+                    matchesPlayed: 13,
+                    minutesPlayed: 1170,
+                    shotsOnTarget: 1,
+                    passAccuracy: 87,
+                    tackles: 35,
+                    interceptions: 28
+                },
+                injuryHistory: [],
+                performanceGoals: {
+                    goals: 1,
+                    assists: 2,
+                    matches: 18,
+                    currentGoals: 0,
+                    currentAssists: 1,
+                    currentMatches: 13
+                },
+                competitionRanking: {
+                    goals: 30,
+                    assists: 25,
+                    overall: 6
+                }
             },
             {
                 id: '7',
@@ -972,8 +1235,43 @@ export class CoachPlayersComponent implements OnInit {
                 jerseyNumber: 1,
                 status: 'ACTIVE',
                 contractEndDate: '2027-06-30',
+                nationality: 'Mali',
+                height: 190,
+                weight: 82,
+                preferredFoot: 'RIGHT',
                 fitnessLevel: 'EXCELLENT',
-                stats: { goals: 0, assists: 0, yellowCards: 1, redCards: 0 }
+                injuryType: undefined,
+                injuryStartDate: undefined,
+                injuryEndDate: undefined,
+                suspensionReason: undefined,
+                suspensionEndDate: undefined,
+                contractStatus: 'VALID',
+                stats: { 
+                    goals: 0, 
+                    assists: 0, 
+                    yellowCards: 1, 
+                    redCards: 0,
+                    matchesPlayed: 16,
+                    minutesPlayed: 1440,
+                    shotsOnTarget: 0,
+                    passAccuracy: 65,
+                    tackles: 0,
+                    interceptions: 0
+                },
+                injuryHistory: [],
+                performanceGoals: {
+                    goals: 0,
+                    assists: 1,
+                    matches: 20,
+                    currentGoals: 0,
+                    currentAssists: 0,
+                    currentMatches: 16
+                },
+                competitionRanking: {
+                    goals: 0,
+                    assists: 0,
+                    overall: 5
+                }
             },
             {
                 id: '8',
@@ -984,8 +1282,43 @@ export class CoachPlayersComponent implements OnInit {
                 jerseyNumber: 3,
                 status: 'ACTIVE',
                 contractEndDate: '2025-06-30',
+                nationality: 'Côte d\'Ivoire',
+                height: 175,
+                weight: 70,
+                preferredFoot: 'LEFT',
                 fitnessLevel: 'GOOD',
-                stats: { goals: 1, assists: 3, yellowCards: 2, redCards: 0 }
+                injuryType: undefined,
+                injuryStartDate: undefined,
+                injuryEndDate: undefined,
+                suspensionReason: undefined,
+                suspensionEndDate: undefined,
+                contractStatus: 'VALID',
+                stats: { 
+                    goals: 1, 
+                    assists: 3, 
+                    yellowCards: 2, 
+                    redCards: 0,
+                    matchesPlayed: 14,
+                    minutesPlayed: 1260,
+                    shotsOnTarget: 3,
+                    passAccuracy: 83,
+                    tackles: 18,
+                    interceptions: 12
+                },
+                injuryHistory: [],
+                performanceGoals: {
+                    goals: 2,
+                    assists: 5,
+                    matches: 18,
+                    currentGoals: 1,
+                    currentAssists: 3,
+                    currentMatches: 14
+                },
+                competitionRanking: {
+                    goals: 20,
+                    assists: 15,
+                    overall: 9
+                }
             }
         ];
 
@@ -1135,13 +1468,6 @@ export class CoachPlayersComponent implements OnInit {
         });
     }
 
-    viewPlayerDetails(player: CoachPlayer) {
-        this.messageService.add({
-            severity: 'info',
-            summary: 'Détails du joueur',
-            detail: `Voir les détails de ${player.firstName} ${player.lastName}`
-        });
-    }
 
     exportToSheets() {
         this.messageService.add({
@@ -1158,5 +1484,26 @@ export class CoachPlayersComponent implements OnInit {
             detail: 'Liste des joueurs actualisée'
         });
         this.loadPlayers();
+    }
+
+    viewPlayerDetails(player: CoachPlayer) {
+        this.selectedPlayer = player;
+        this.showPlayerDetails = true;
+    }
+
+    onEditPlayer(player: CoachPlayer) {
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Modifier le joueur',
+            detail: `Modification de ${player.firstName} ${player.lastName}`
+        });
+    }
+
+    onViewMatchHistory(player: CoachPlayer) {
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Historique des matchs',
+            detail: `Historique de ${player.firstName} ${player.lastName}`
+        });
     }
 }
