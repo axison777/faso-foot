@@ -10,42 +10,61 @@
     <p-tabPanel header="Officiels">
       <div class="card">
         <h3>Assignation des officiels</h3>
+
         <div class="assignments">
           <div class="assignment-row">
-            <!-- Select pour sélectionner un officiel -->
-            <p-select [options]="officials" optionLabel="first_name" optionValue="id" [disabled]="isClosed"
-              placeholder="-- Choisir un officiel --" filter="true" [(ngModel)]="selectedOfficialId" name="official">
-              <ng-template let-official pTemplate="item">
-                {{ official.user.first_name }} {{ official.user.last_name }} ({{getOfficialTypeLabel(
-                official.official_type) }})
-                {{getStatusLabel(official.status) || official.status}}
-              </ng-template>
-              <ng-template let-official pTemplate="selectedItem">
-                {{ official.user.first_name }} {{ official.user.last_name }} ({{
-                getOfficialTypeLabel(official.official_type) }})
-              </ng-template>
-            </p-select>
 
-            <!-- Select pour sélectionner un rôle -->
-            <p-select [options]="roles" placeholder="-- Choisir un rôle --" [(ngModel)]="selectedRole"
-              [disabled]="isClosed" name="role">
-            </p-select>
+            <!-- Select RÔLE -->
+            <div class="field">
+              <!-- <label for="role">Rôle</label> -->
+              <p-select inputId="role" [options]="getAvailableRoles()" placeholder="-- Choisir un rôle --"
+                [(ngModel)]="selectedRole" [disabled]="isClosed || getAvailableRoles().length === 0" name="role">
+              </p-select>
 
-            <!-- Bouton pour assigner -->
-            <button class="btn btn-info" type="button" (click)="assignOfficial()"
-              [disabled]="!selectedOfficialId || !selectedRole || isClosed">
-              Assigner
-            </button>
+              <div class="p-text-secondary" *ngIf="getAvailableRoles().length === 0">
+                Tous les rôles ont déjà été assignés.
+              </div>
+            </div>
+
+            <!-- Select OFFICIEL -->
+            <div class="field" *ngIf="selectedRole">
+              <!-- <label for="official">Officiel</label> -->
+              <p-select inputId="official" [options]="getAvailableOfficialsForRole(selectedRole)"
+                optionLabel="user.first_name" optionValue="id" placeholder="-- Choisir un officiel --"
+                [(ngModel)]="selectedOfficialId"
+                [disabled]="isClosed || getAvailableOfficialsForRole(selectedRole).length === 0" name="official"
+                filter="true">
+                <ng-template let-official pTemplate="item">
+                  {{ official.user.first_name }} {{ official.user.last_name }}
+                  ({{ getOfficialTypeLabel(official.official_type) }})
+                  - {{ getStatusLabel(official.status) }}
+                </ng-template>
+                <ng-template let-official pTemplate="selectedItem">
+                  {{ official.user.first_name }} {{ official.user.last_name }}
+                  ({{ getOfficialTypeLabel(official.official_type) }})
+                </ng-template>
+              </p-select>
+            </div>
+
+            <!-- Bouton d'assignation -->
+            <div class="field">
+              <label>&nbsp;</label>
+              <button class="btn btn-info" type="button" (click)="assignOfficial()"
+                [disabled]="!selectedOfficialId || !selectedRole || isClosed">
+                Assigner
+              </button>
+            </div>
           </div>
 
+          <!-- Liste des officiels déjà assignés -->
           <div class="assigned-officials">
             <h4>Officiels déjà assignés</h4>
             <table *ngIf="officialsofmatch.length > 0; else noOfficials" class="custom-table">
               <thead>
                 <tr>
                   <th>Nom - Prénom(s)</th>
-                  <th>Type</th>
-                  <th>Rôle</th>
+                  <th>Type d'officiel</th>
+                  <th>Rôle assigné</th>
                 </tr>
               </thead>
               <tbody>
@@ -69,6 +88,7 @@
       </div>
     </p-tabPanel>
 
+
     <!-- Onglet TEAMS -->
     <!-- Onglets et autres parties omises si tu les as déjà — je fournis uniquement la section TEAMS telle que tu l'as transmise, complète -->
     <p-tabPanel header="Équipes">
@@ -82,6 +102,20 @@
           <p-button (click)="toggleAwayForm()" icon="pi pi-pencil" label="Composition Exterieur" severity="contrast">
 
           </p-button>
+        </div>
+
+        <div class="mt-4 flex gap-3 mb-2 justify-between" style="display:flex;gap:8px;">
+
+          <!-- buttons pour ouvrir le composeur de feuille -->
+            <button pButton type="button" label="Modifier composition (domicile)" (click)="openPitch('home')"></button>
+            <button pButton type="button" label="Modifier composition (extérieur)" (click)="openPitch('away')"></button>
+
+          <!-- PitchSetupComponent -->
+          <app-pitch-setup *ngIf="showPitch" [availablePlayersData]="currentAvailablePlayersPayload"
+            [coachName]="currentCoachName" [teamName]="currentTeamName" (close)="onPitchClose()"
+            (saveSheet)="onReceiveSheet($event)">
+          </app-pitch-setup>
+
         </div>
         <!-- Si aucune donnée (assignedTeams) -->
         <div *ngIf="!assignedTeams">
@@ -101,7 +135,7 @@
             <h4>Titulaires</h4>
             <ul>
               <li *ngFor="let p of getStarters(assignedTeams.team_one_callup.players)">
-                <img [src]="p.photo || 'assets/default-player.png'" alt="Photo" width="32">
+                <img [src]="p.photo || 'assets/images/football-player.png'" alt="Photo" width="32">
                 {{ p.first_name }} {{ p.last_name }} ({{ p.position }}) - #{{ p.jersey_number }}
               </li>
             </ul>
@@ -109,7 +143,7 @@
             <h4>Remplaçants</h4>
             <ul>
               <li *ngFor="let p of getSubstitutes(assignedTeams.team_one_callup.players)">
-                <img [src]="p.photo || 'assets/default-player.png'" alt="Photo" width="32">
+                <img [src]="p.photo || 'assets/images/football-player.png'" alt="Photo" width="32">
                 {{ p.first_name }} {{ p.last_name }} ({{ p.position }}) - #{{ p.jersey_number }}
               </li>
             </ul>
@@ -126,7 +160,7 @@
             <h4>Titulaires</h4>
             <ul>
               <li *ngFor="let p of getStarters(assignedTeams.team_two_callup.players)">
-                <img [src]="p.photo || 'assets/default-player.png'" alt="Photo" width="32">
+                <img [src]="p.photo || 'assets/images/football-player.png'" alt="Photo" width="32">
                 {{ p.first_name }} {{ p.last_name }} ({{ p.position }}) - #{{ p.jersey_number }}
               </li>
             </ul>
@@ -134,7 +168,7 @@
             <h4>Remplaçants</h4>
             <ul>
               <li *ngFor="let p of getSubstitutes(assignedTeams.team_two_callup.players)">
-                <img [src]="p.photo || 'assets/default-player.png'" alt="Photo" width="32">
+                <img [src]="p.photo || 'assets/images/football-player.png'" alt="Photo" width="32">
                 {{ p.first_name }} {{ p.last_name }} ({{ p.position }}) - #{{ p.jersey_number }}
               </li>
             </ul>
@@ -332,8 +366,5 @@
 
 
   </p-tabView>
-
-  <!-- <button (click)="showPitch = true">Ouvrir composition</button>
-  <app-pitch-setup *ngIf="showPitch" (close)="showPitch = false"></app-pitch-setup> -->
 
 </div>

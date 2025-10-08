@@ -189,7 +189,7 @@
                 </small>
             </div>
 
-             <!-- DATE DE NAISSANCE -->
+            <!-- DATE DE NAISSANCE -->
             <div class="form-item">
                 <label>Date de naissance</label>
                 <p-datepicker [style]="{ width: '100%' }" formControlName="date_of_birth" dateFormat="dd/mm/yy"
@@ -200,6 +200,12 @@
             <div class="form-item">
                 <label>Lieu de naissance</label>
                 <input pInputText formControlName="birth_place" placeholder="Lieu" />
+            </div>
+
+            <!-- TÉLÉPHONE -->
+            <div class="form-item">
+                <label>Numéro de téléphone</label>
+                <input pInputText formControlName="phone" placeholder="Contact" />
             </div>
 
             <!-- Email -->
@@ -239,7 +245,7 @@
                 <label>Statut <span class="req">*</span></label>
                 <p-select [options]="statuses" formControlName="status" optionLabel="label" optionValue="value"
                     placeholder="Statut"></p-select>
-            <small class="error" *ngIf="officialForm.get('status')?.invalid && officialForm.get('status')?.touched">
+                <small class="error" *ngIf="officialForm.get('status')?.invalid && officialForm.get('status')?.touched">
                     Le statut est requis
                 </small>
             </div>

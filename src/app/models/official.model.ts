@@ -56,6 +56,7 @@ export interface Official {
     date_of_birth?: Date;
     birth_place?: string;
     nationality?: string;
+    phone?: string;
     official_type: 'REFEREE' | 'COMMISSIONER';
     license_number: string;
     level: 'REGIONAL' | 'NATIONAL' | 'INTERNATIONAL';

@@ -87,6 +87,7 @@ export class OfficialsComponent implements OnInit {
       date_of_birth: [''],
       birth_place: [''],
       nationality: [''],
+      phone: [''],
       official_type: ['', Validators.required],
       license_number: ['', Validators.required],
       level: ['', Validators.required],
@@ -172,6 +173,7 @@ export class OfficialsComponent implements OnInit {
         date_of_birth: this.officialForm.value.date_of_birth,
         birth_place: this.officialForm.value.birth_place,
         nationality: this.officialForm.value.nationality,
+        phone: this.officialForm.value.phone,
       };
 
       const onSuccess = () => {
@@ -233,6 +235,7 @@ export class OfficialsComponent implements OnInit {
       date_of_birth: o.date_of_birth,
       birth_place: o.birth_place,
       nationality: o.nationality,
+      phone: o.phone,
     });
 
     this.editingOfficialId = o.id;

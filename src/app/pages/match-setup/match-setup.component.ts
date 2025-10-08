@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+// match-setup.component.ts (version finalisée)
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,7 +13,7 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { Checkbox } from "primeng/checkbox";
 import { ToastModule } from 'primeng/toast';
-
+import { PitchSetupComponent } from '../pitch-setup/pitch-setup.component';
 
 interface PlayerPoolItem {
   id: string;
@@ -29,7 +30,7 @@ interface PlayerPoolItem {
 }
 
 interface TeamPlayerSelection {
-  playerId: string;         // ✅ string
+  playerId: string;
   jersey_number: number | null;
   position: 'GOALKEEPER' | 'DEFENSE' | 'MIDFIELD' | 'ATTACK';
   isStarter: boolean;
@@ -37,26 +38,35 @@ interface TeamPlayerSelection {
 }
 
 interface TeamSetup {
-  teamId: string;           // ✅ string
-  coachId: string | null;   // ✅ string
+  teamId: string;
+  coachId: string | null;
   formation: '4-4-2' | '4-3-3' | '3-5-2' | '4-2-3-1' | '3-4-3';
-  captainId: string | null; // ✅ string
+  captainId: string | null;
   players: TeamPlayerSelection[];
 }
 
 @Component({
   selector: 'app-match-setup',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectModule, TabViewModule, ButtonModule, DialogModule, Checkbox, ToastModule],
+  imports: [CommonModule, FormsModule, SelectModule, TabViewModule, ButtonModule, DialogModule, Checkbox, ToastModule, PitchSetupComponent],
   templateUrl: './match-setup.component.html',
   styleUrls: ['./match-setup.component.scss']
 })
 export class MatchSetupComponent implements OnInit {
 
+  @ViewChild(PitchSetupComponent) pitchSetup?: PitchSetupComponent;
+
+  // propriétés utiles
   showPitch = false;
+  pitchFor: 'home' | 'away' | null = null;
+
+  // payload passé au composant enfant (respecte le shape attendu par le PitchSetupComponent)
+  currentAvailablePlayersPayload: any = null;
+  currentCoachName: string | undefined = undefined;
+  currentTeamName: string | undefined = undefined;
   matchId!: string;
   match: any;
-  callupId: string | null = null; // ✅ string
+  callupId: string | null = null;
   activeTab: 'officials' | 'teams' = 'officials';
   isClosed = false;
   officials: Official[] = [];
@@ -91,12 +101,11 @@ export class MatchSetupComponent implements OnInit {
   homeCallup: TeamSetup = { teamId: '', formation: '4-4-2', players: [], coachId: null, captainId: null };
   awayCallup: TeamSetup = { teamId: '', formation: '4-3-3', players: [], coachId: null, captainId: null };
 
-  homeCoaches: { id: string; name: string }[] = []; // ✅ string
-  awayCoaches: { id: string; name: string }[] = []; // ✅ string
+  homeCoaches: { id: string; name: string }[] = [];
+  awayCoaches: { id: string; name: string }[] = [];
 
   showHomeForm = false;
   showAwayForm = false;
-
 
   constructor(
     private router: Router,
@@ -117,14 +126,14 @@ export class MatchSetupComponent implements OnInit {
     }
 
     this.homeTeam = {
-      id: String(this.match.team1_id), // ✅ cast en string
+      id: String(this.match.team1_id),
       name: this.match.team1,
       logo: this.match.team1_logo,
       players: []
     };
 
     this.awayTeam = {
-      id: String(this.match.team2_id), // ✅ cast en string
+      id: String(this.match.team2_id),
       name: this.match.team2,
       logo: this.match.team2_logo,
       players: []
@@ -145,7 +154,7 @@ export class MatchSetupComponent implements OnInit {
         const players = res?.data?.available_players || [];
 
         team.players = players.map((p: any) => ({
-          id: String(p.id),                // ✅ string
+          id: String(p.id),
           first_name: p.first_name,
           last_name: p.last_name,
           position: this.mapPreferredPosition(p.preferred_position),
@@ -189,11 +198,7 @@ export class MatchSetupComponent implements OnInit {
         this.officials = res?.data?.officials || res || [];
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Erreur lors du chargement des officiels'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors du chargement des officiels' });
       }
     });
 
@@ -202,11 +207,7 @@ export class MatchSetupComponent implements OnInit {
         this.officialsofmatch = res?.data?.officials || [];
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Erreur lors du chargement des officiels'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors du chargement des officiels' });
       }
     });
 
@@ -215,17 +216,13 @@ export class MatchSetupComponent implements OnInit {
         this.assignedTeams = res?.data?.match_callups || null;
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Erreur lors du chargement des listes assignées des équipes'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors du chargement des listes assignées des équipes' });
       }
     });
   }
 
   getPlayerPhoto(p: any) {
-    return p?.player?.photo || 'assets/default-avatar.png';
+    return p?.player?.photo || 'assets/images/football-player.png';
   }
 
   getStarters(players: any[]) {
@@ -247,10 +244,11 @@ export class MatchSetupComponent implements OnInit {
 
     this.officialService.assign(payload).subscribe({
       next: (response) => {
-        console.log('Officiel assigné avec succès', response);
+        this.messageService.add({ severity: 'success', summary: "Assignation d'officiel", detail: "Officiel assigné avec succès." });
         this.loadData();
       },
       error: (error) => {
+        this.messageService.add({ severity: 'error', summary: "Assignation d'officiel", detail: "Une erreur est survenue lors de l'assignation de l'officiel." });
         console.error('Erreur lors de l\'assignation', error);
       }
     });
@@ -267,15 +265,12 @@ export class MatchSetupComponent implements OnInit {
     const pool = side === 'home' ? this.homePlayersPool : this.awayPlayersPool;
     const callup = side === 'home' ? this.homeCallup : this.awayCallup;
 
-    // nombre de joueurs sélectionnés *hors* le joueur courant
     const otherSelectedCount = pool.filter(p => p.selected && p.id !== player.id).length;
 
     if (selected) {
-      // nouvelle sélection
-      // nextOrder = nombre déjà sélectionnés hors courant + 1
       const nextOrder = otherSelectedCount + 1;
       player.selectionOrder = nextOrder;
-      player.selected = true; // synchronise le modèle si appelé depuis parent click
+      player.selected = true;
 
       if (!callup.players.some(tp => tp.playerId === player.id)) {
         callup.players.push({
@@ -291,9 +286,6 @@ export class MatchSetupComponent implements OnInit {
         tp.substituteOrder = nextOrder > 11 ? (nextOrder - 11) : null;
       }
     } else {
-      // désélection
-      // si appelé depuis checkbox ngModelChange, p.selected a déjà été mis à false par ngModel
-      // si appelé depuis parent click, on s'assure de mettre player.selected = false
       player.selected = false;
       callup.players = callup.players.filter(tp => tp.playerId !== player.id);
       player.selectionOrder = null;
@@ -301,7 +293,6 @@ export class MatchSetupComponent implements OnInit {
     }
   }
 
-  /** Cherche le jersey_number d'un joueur dans les pools (home/away) */
   private findPlayerNumberInPool(teamId: string, playerId: string): number | null {
     const pool = String(this.homeTeam.id) === String(teamId) ? this.homePlayersPool : this.awayPlayersPool;
     const p = pool.find(x => String(x.id) === String(playerId));
@@ -338,7 +329,6 @@ export class MatchSetupComponent implements OnInit {
     if (desired) {
       const starters = team.players.filter(p => p.isStarter).length;
       if (!sel.isStarter && starters >= 11) {
-        window.alert('Nombre maximum de titulaires atteint (11).');
         sel.isStarter = false;
         return;
       }
@@ -356,14 +346,13 @@ export class MatchSetupComponent implements OnInit {
 
   setCoach(teamKey: 'home' | 'away', coachId: string | null | undefined) {
     const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
-    team.coachId = coachId ? String(coachId) : null; // assure null si vide
+    team.coachId = coachId ? String(coachId) : null;
   }
 
   setCaptain(teamKey: 'home' | 'away', captainId: string | null | undefined) {
     const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
-    if (!captainId) { team.captainId = null; return; } // null si vide
+    if (!captainId) { team.captainId = null; return; }
     if (!team.players.some(p => p.playerId === captainId)) {
-      window.alert('Le capitaine doit être sélectionné dans la liste des joueurs.');
       return;
     }
     team.captainId = String(captainId);
@@ -394,7 +383,6 @@ export class MatchSetupComponent implements OnInit {
       captain_id: team.captainId ? String(team.captainId) : null,
       finalize: false,
       players: team.players.map((p) => {
-        // si p.jersey_number est null/undefined, on tente de récupérer depuis le pool
         const jersey = p.jersey_number ?? this.findPlayerNumberInPool(String(team.teamId), p.playerId);
         return {
           player_id: String(p.playerId),
@@ -407,66 +395,11 @@ export class MatchSetupComponent implements OnInit {
     };
   }
 
-  /*   saveCallup(teamKey: 'home' | 'away') {
-      const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
-
-      if (!team.teamId) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Identifiant de l\'équipe manquant.'
-        });
-        return;
-      }
-
-      if (team.players.filter(p => p.isStarter).length < 11) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Il faut au moins 11 titulaires.'
-        });
-        return;
-      }
-
-      const missingNumbers = team.players.filter(p => !p.jersey_number || p.jersey_number <= 0);
-      if (missingNumbers.length > 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: `Renseignez le numéro de maillot pour tous les joueurs sélectionnés (${missingNumbers.length} manquant(s)).`
-        });
-        return;
-      }
-
-      const payload = this.makeTeamPayload(team);
-      console.log('Payload envoyé à createCallup:', payload);
-
-      this.callupService.createCallup(payload).subscribe({
-        next: () => this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: "Composition enregistrée",
-        }),
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors de la sauvegarde.'
-          });
-        }
-      });
-    } */
-
-  ///////////////////////////////////////////////////////////////////////////////////////
-
-  // --- nouvel open/close des formulaires (par équipe) ---
   toggleHomeForm() {
     this.showHomeForm = !this.showHomeForm;
     if (this.showHomeForm) {
-      // si on ouvre, préremplir si des données existent
       this.prefillTeamFromAssigned('home');
     } else {
-      // si on ferme sans sauvegarder, restaurer l'état (selon assignedTeams)
       this.restoreSelectionFromAssigned('home');
     }
   }
@@ -480,23 +413,14 @@ export class MatchSetupComponent implements OnInit {
     }
   }
 
-  /**
-   * Retourne l'id existant de la composition (si présent) pour détecter le mode édition.
-   * On regarde plusieurs champs possibles (id / callup_id) au cas où l'API varie.
-   */
   private getExistingCallupId(teamKey: 'home' | 'away'): string | null {
     if (!this.assignedTeams) return null;
     const callup = teamKey === 'home' ? this.assignedTeams.team_one_callup : this.assignedTeams.team_two_callup;
     return callup?.id ? String(callup.id) : (callup?.callup_id ? String(callup.callup_id) : null);
   }
 
-  /**
-   * Préremplit homeCallup/awayCallup ET met à jour les pools (selected + selectionOrder)
-   * si assignedTeams contient une composition pour l'équipe demandée.
-   */
   private prefillTeamFromAssigned(teamKey: 'home' | 'away') {
     if (!this.assignedTeams) {
-      // rien à préremplir
       return;
     }
 
@@ -505,7 +429,6 @@ export class MatchSetupComponent implements OnInit {
     const target = teamKey === 'home' ? this.homeCallup : this.awayCallup;
 
     if (!callupData) {
-      // pas de composition enregistrée -> reset léger
       pool.forEach(p => { p.selected = false; p.selectionOrder = null; });
       target.players = [];
       target.coachId = null;
@@ -513,13 +436,11 @@ export class MatchSetupComponent implements OnInit {
       return;
     }
 
-    // map fields robustement
     target.teamId = String(callupData.team_id ?? target.teamId ?? (teamKey === 'home' ? this.homeTeam.id : this.awayTeam.id));
     target.formation = (callupData.formation ?? target.formation) as TeamSetup['formation'];
     target.coachId = callupData.coach_id ? String(callupData.coach_id) : null;
     target.captainId = callupData.captain_id ? String(callupData.captain_id) : null;
 
-    // build players list dans le format TeamPlayerSelection
     const playersFromApi = (callupData.players || []) as any[];
     const mappedPlayers: TeamPlayerSelection[] = playersFromApi.map(p => ({
       playerId: String(p.player_id ?? p.playerId ?? p.id),
@@ -531,12 +452,8 @@ export class MatchSetupComponent implements OnInit {
 
     target.players = mappedPlayers;
 
-    // reset pool selections
     pool.forEach(p => { p.selected = false; p.selectionOrder = null; });
 
-    // assign selectionOrder :
-    // - les titulaires conservent un ordre selon leur apparition dans mappedPlayers (où isStarter === true)
-    // - les remplaçants sont ordonnés par substituteOrder si présent, puis viennent après les titulaires
     const starters = mappedPlayers.filter(mp => mp.isStarter);
     starters.forEach((sp, idx) => {
       const poolP = pool.find(pp => String(pp.id) === String(sp.playerId));
@@ -560,10 +477,6 @@ export class MatchSetupComponent implements OnInit {
     });
   }
 
-  /**
-   * Restaurer l'affichage du pool selon assignedTeams (ou clear s'il n'y a rien).
-   * Utilisé quand on ferme le formulaire sans sauvegarder.
-   */
   private restoreSelectionFromAssigned(teamKey: 'home' | 'away') {
     if (this.assignedTeams) {
       this.prefillTeamFromAssigned(teamKey);
@@ -577,9 +490,6 @@ export class MatchSetupComponent implements OnInit {
     }
   }
 
-  /**
-   * Sauvegarde (create ou update selon présence d'une composition existante)
-   */
   saveCallup(teamKey: 'home' | 'away') {
     const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
 
@@ -604,18 +514,14 @@ export class MatchSetupComponent implements OnInit {
     }
 
     const payload = this.makeTeamPayload(team);
-    console.log('Payload envoyé à create/updateCallup:', payload);
 
     const existingCallupId = this.getExistingCallupId(teamKey);
 
     if (existingCallupId) {
-      // mode edition -> utiliser update
       this.callupService.updateCallup(existingCallupId, payload).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Succès', detail: "Composition mise à jour" });
-          // rafraîchir l'état depuis l'API pour garder assignedTeams à jour
           this.loadData();
-          // fermer le formulaire
           if (teamKey === 'home') this.showHomeForm = false; else this.showAwayForm = false;
         },
         error: (err) => {
@@ -624,7 +530,6 @@ export class MatchSetupComponent implements OnInit {
         }
       });
     } else {
-      // création
       this.callupService.createCallup(payload).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Succès', detail: "Composition enregistrée" });
@@ -641,11 +546,9 @@ export class MatchSetupComponent implements OnInit {
 
   getPlayerRingClass(p: any): 'green' | 'yellow' | null {
     if (p.role) {
-      // mode édition : on se base sur role
       if (p.role === 'Titulaire') return 'green';
       if (p.role === 'Remplaçant') return 'yellow';
     } else {
-      // mode création : on se base sur selectionOrder / is_starter
       if (!p.selected) return null;
       return p.selectionOrder && p.selectionOrder <= 11 ? 'green' : 'yellow';
     }
@@ -668,4 +571,131 @@ export class MatchSetupComponent implements OnInit {
       default: return '';
     }
   }
+
+  getAvailableRoles() {
+    const assignedRoles = this.officialsofmatch.map(o => o.matches?.[0]?.pivot?.role);
+    return this.roles.filter(roleObj => !assignedRoles.includes(roleObj.value));
+  }
+
+  getAvailableOfficialsForRole(role: string): Official[] {
+    return this.officials?.filter(o => o.status === 'ACTIVE') || [];
+  }
+
+  openPitch(side: 'home' | 'away') {
+    this.pitchFor = side;
+    this.showPitch = true;
+
+    if (side === 'home') {
+      this.currentAvailablePlayersPayload = { data: { available_players: this.homePlayersPool } };
+      this.currentCoachName = this.homeCoaches?.[0]?.id ? this.homeCoaches[0].name : undefined;
+      this.currentTeamName = this.homeTeam.name;
+    } else {
+      this.currentAvailablePlayersPayload = { data: { available_players: this.awayPlayersPool } };
+      this.currentCoachName = this.awayCoaches?.[0]?.id ? this.awayCoaches[0].name : undefined;
+      this.currentTeamName = this.awayTeam.name;
+    }
+  }
+
+  onPitchClose() {
+    this.showPitch = false;
+    this.pitchFor = null;
+    this.currentAvailablePlayersPayload = null;
+  }
+
+  /**
+   * Handler appelé lorsque l'enfant émet (saveSheet).
+   * Le payload vient de PitchSetupComponent.getFinalPayload()
+   */
+  async onReceiveSheet(payloadFromChild: any) {
+    try {
+
+      if (!Array.isArray(payloadFromChild.players) || payloadFromChild.players.length === 0) {
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Payload invalide : pas de joueurs.' });
+        return;
+      }
+
+      // Compléter champs en fonction de l'équipe courante (pitchFor)
+      const teamId = this.getCurrentTeamId();
+      const coachId = this.getCoachId();
+
+      const completed = {
+        ...payloadFromChild,
+        match_id: String(this.getCurrentMatchId() ?? this.matchId),
+        team_id: teamId ? String(teamId) : undefined,
+        coach_id: payloadFromChild.coach_id ?? (coachId ?? null),
+        finalize: false,
+        submitted_at: (new Date()).toISOString()
+      };
+
+      // si team_id est manquant -> erreur
+      if (!completed.team_id) {
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de déterminer l\'équipe (team_id).' });
+        return;
+      }
+
+      // Détecte si on doit créer OU mettre à jour (si existing callup exists pour cette équipe)
+      const existingId = this.getExistingCallupId(this.pitchFor === 'home' ? 'home' : 'away');
+
+      if (existingId) {
+        // update
+        this.callupService.updateCallup(existingId, completed).subscribe({
+          next: (resp) => {
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Composition mise à jour.' });
+
+            // fermer et rafraîchir
+            this.showPitch = false;
+            this.pitchFor = null;
+            this.currentAvailablePlayersPayload = null;
+            this.loadData();
+          },
+          error: (err) => {
+            console.error('Erreur update via parent', err);
+            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour de la composition.' });
+          }
+        });
+      } else {
+        // create
+        this.callupService.createCallup(completed).subscribe({
+          next: (resp) => {
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Composition enregistrée.' });
+
+            this.showPitch = false;
+            this.pitchFor = null;
+            this.currentAvailablePlayersPayload = null;
+            this.loadData();
+          },
+          error: (err) => {
+            console.error('Erreur create via parent', err);
+            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de l\'enregistrement de la composition.' });
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Erreur enregistrement feuille:', err);
+      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de l’enregistrement. Voir console.' });
+    }
+  }
+
+  // Helpers pour déterminer match/team/coach selon le contexte current (pitchFor)
+  private getCurrentMatchId(): string | undefined {
+    return this.matchId ? String(this.matchId) : undefined;
+  }
+
+  private getCurrentTeamId(): string | undefined {
+    if (this.pitchFor === 'home') return this.homeTeam?.id ?? undefined;
+    if (this.pitchFor === 'away') return this.awayTeam?.id ?? undefined;
+    return undefined;
+  }
+
+  private getCoachId(): string | null {
+    // prefer callup's coachId if set, otherwise take first coach from arrays if present
+    if (this.pitchFor === 'home') {
+      return this.homeCallup?.coachId ?? (this.homeCoaches?.[0]?.id ? String(this.homeCoaches[0].id) : null);
+    }
+    if (this.pitchFor === 'away') {
+      return this.awayCallup?.coachId ?? (this.awayCoaches?.[0]?.id ? String(this.awayCoaches[0].id) : null);
+    }
+    return null;
+  }
 }
+  
