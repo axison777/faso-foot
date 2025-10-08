@@ -28,7 +28,6 @@ export class ClubAppMenu implements OnInit {
                     { label: 'Tableau de bord', icon: 'pi pi-fw pi-chart-line', routerLink: ['/mon-club/dashboard'] },
                     { label: 'Matchs', icon: 'pi pi-fw pi-calendar', routerLink: ['/mon-club/matchs'] },
                     { label: 'Joueurs', icon: 'pi pi-fw pi-users', routerLink: ['/mon-club/joueurs'] },
-                    { label: 'Gestion Club', icon: 'pi pi-fw pi-building', routerLink: ['/mon-club/gestion'] },
                     { label: 'Paramètres', icon: 'pi pi-fw pi-cog', routerLink: ['/mon-club/parametres'] }
                 ]
             }
