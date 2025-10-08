@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -992,6 +992,8 @@ interface CoachMatch {
     `]
 })
 export class CoachMatchesComponent implements OnInit {
+    @Input() teamId?: string;
+    
     groupedMatches$!: Observable<{[key: string]: CoachMatch[]}>;
     selectedStatus = '';
     selectedCompetition = '';

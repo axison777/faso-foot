@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -898,6 +898,8 @@ interface CoachPlayer {
     `]
 })
 export class CoachPlayersComponent implements OnInit {
+    @Input() teamId?: string;
+    
     searchTerm = '';
     selectedFilters: string[] = ['ALL'];
     selectedPosition = '';

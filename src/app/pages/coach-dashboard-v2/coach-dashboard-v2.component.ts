@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EquipeService, Equipe } from '../../service/equipe.service';
 import { TeamDashboardData } from '../club-coach-shared/team-dashboard-card/team-dashboard-card.component';
@@ -11,11 +11,13 @@ import { TeamDashboardData } from '../club-coach-shared/team-dashboard-card/team
   styleUrls: ['./coach-dashboard-v2.component.scss']
 })
 export class CoachDashboardV2Component implements OnInit {
-  private equipeService = inject(EquipeService);
-  
-  team = signal<Equipe | null>(null);
-  teamData = signal<TeamDashboardData | null>(null);
-  loading = false;
+    @Input() teamId?: string;
+    
+    private equipeService = inject(EquipeService);
+    
+    team = signal<Equipe | null>(null);
+    teamData = signal<TeamDashboardData | null>(null);
+    loading = false;
 
   // Données pour les top performers
   topScorers = [
