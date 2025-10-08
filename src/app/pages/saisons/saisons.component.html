@@ -1,0 +1,107 @@
+
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+
+<div class="saisons-container">
+
+  <!-- Header -->
+  <div class="header">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Saisons</h1>
+    <button class="btn-primary" (click)="addSeason()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter saison
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher par nom de saison..."
+    >
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Chargement des saisons...
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && filteredSaisons.length > 0" class="table-container">
+    <table class="saisons-table">
+      <thead>
+        <tr>
+            <th>#</th>
+          <th>Saison</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let saison of filteredSaisons">
+          <td >{{ getOriginalIndex(saison) }}</td>
+          <td class="saison-nom">
+             {{ saison?.league?.name ?  saison?.league?.name  : '' }} {{getParsedDate(saison?.start_date) | date: 'yyyy' }} - {{ getParsedDate(saison?.end_date) | date: 'yyyy' }}
+          </td>
+        <!--   <td class="saison-nom">{{ saison?.league?.name }}</td> -->
+          <td class="actions">
+            <div class="btn-group">
+             <!--  <button class="btn btn-danger" *ngIf="!saison?.calendar_generated"
+                (click)="genererCalendrier(saison)">
+                <i class="me-2 my-1 pi pi-calendar-plus"></i>
+                <span>Générer</span>
+              </button> -->
+<!--               <button class="btn btn-info" *ngIf="saison?.calendar_generated"
+                (click)="voirMatchs(saison)">
+                <i class="me-2 my-1 pi pi-eye"></i>
+                <span>Voir</span>
+              </button> -->
+              <button class="btn btn-info"
+                (click)="voirDetails(saison.id)">
+                <i class=" pi pi-eye"></i>
+               <!--  <span>Voir</span> -->
+              </button>
+              <button class="btn btn-gray"
+                (click)="voirCalendrier(saison)">
+                <i class=" pi pi-calendar"></i>
+               <!--  <span>Voir</span> -->
+              </button>
+
+                 <button class="btn btn-danger" (click)="deleteSeason(saison.id!)"><i class="pi pi-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No results -->
+  <div *ngIf="!loading && searchTerm && filteredSaisons.length === 0" class="no-results">
+    <div class="icon">🔍</div>
+    <p>Aucune saison trouvée pour "{{ searchTerm }}"</p>
+  </div>
+
+</div>
+
+
+ <!-- choix poul -->
+ <p-dialog header="Aller au calendrier" [(visible)]="displayGroupChoiceDialog" [style]="{width: '500px'}" [draggable]="false" [resizable]="false" [modal]="true">
+    <p-select
+        [options]="groupChoices"
+        optionLabel="name"
+        optionValue="id"
+        [formControl]="selectedGroupId"
+        placeholder="Sélectionnez la poule"
+        class="w-full"
+        appendTo="body"
+    ></p-select>
+
+    <ng-template #footer>
+        <p-button [raised]="true" severity="secondary" label="Annuler" icon="pi pi-times" text (click)="displayGroupChoiceDialog = false"  />
+        <p-button [raised]="true" label="OK" icon="pi pi-check" (click)="goToGroupCalendar(selectedGroupId.value)"  [disabled]="selectedGroupId.invalid" />
+    </ng-template>
+
+</p-dialog>

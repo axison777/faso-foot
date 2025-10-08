@@ -1,0 +1,515 @@
+/* Conteneur principal pour les villes */
+.villes-container {
+  padding: 20px;
+  width: 100%;
+  min-width: 0;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+  flex-wrap: wrap;
+  gap: 15px;
+
+  h1 {
+    color: rgb(50,145,87); /* Vert principal */
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .btn-primary {
+    background-color: rgb(50,145,87); /* Vert principal - même que sidebar */
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 120px;
+
+    &:hover {
+      background-color: #0f7a32; /* Vert plus foncé au hover */
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(18, 140, 61, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Formulaire intégré */
+.form-container {
+  animation: slideDown 0.3s ease-out;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 25px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    color: #128c3d; /* Vert principal */
+    margin: 0 0 20px 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #374151;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background-color: #ffffff;
+      color: #1e293b;
+
+      &:focus {
+        outline: none;
+        border-color: #128c3d; /* Vert principal */
+        box-shadow: 0 0 0 3px rgba(18, 140, 61, 0.2);
+      }
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+
+      &.ng-invalid.ng-touched {
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+      }
+    }
+
+    .error-message {
+      color: #dc2626;
+      font-size: 0.85rem;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 120px;
+
+      &.btn-primary {
+        background-color: rgb(255, 255, 255); /* Vert principal */
+        color: #ffffff;
+
+        &:hover:not(:disabled) {
+          background-color:rgb(50,145,87);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(18, 140, 61, 0.3);
+        }
+
+        &:disabled {
+          background-color: #9ca3af;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+      }
+
+      &.btn-secondary {
+        background-color: #6b7280; /* Gris neutre */
+        color: #ffffff;
+
+        &:hover {
+          background-color: #4b5563;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+        }
+      }
+    }
+  }
+}
+
+.search-container {
+  margin-bottom: 25px;
+  width: 100%;
+
+  .search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: 2px solid #128c3d; /* Vert principal */
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.3s ease;
+    background-color: #ffffff;
+    color: #1e293b;
+
+    &:focus {
+      border-color: #0f7a32;
+      box-shadow: 0 0 0 3px rgba(18, 140, 61, 0.2);
+    }
+
+    &::placeholder {
+      color: #64748b;
+    }
+  }
+}
+
+/* Conteneur du tableau - pleine largeur */
+.table-container {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+
+.villes-table {
+  width: 100% !important;
+  table-layout: fixed;
+  border-collapse: collapse;
+
+  thead {
+    background:rgb(22,123,74); /* Vert clair - comme topbar */
+    color: whitesmoke; /* Texte foncé pour contraste */
+
+    th {
+      padding: 16px 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: none;
+      background:rgb(50,145,87); /* Vert clair - comme topbar */
+      color: whitesmoke; /* Texte foncé pour contraste */
+
+        &:first-child {
+        border-top-left-radius: 12px;
+        width: 5%;
+
+
+      }
+      /* child 2 */
+      &:nth-child(2) {
+          width: 65%;
+      }
+
+
+      &:last-child {
+        border-top-right-radius: 12px;
+        text-align: center;
+        width: 30%;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid #e2e8f0;
+
+      &:hover {
+        background-color: #f0fdf4; /* Vert très clair au hover */
+        transform: scale(1.0000002);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: 16px 15px;
+        vertical-align: middle;
+
+        &.ville-nom {
+          font-weight: 600;
+          color: #1e293b; /* Vert principal */
+          font-size: 1.05rem;
+          width: 70%;
+        }
+
+        &.actions {
+          text-align: center;
+          white-space: nowrap;
+          width: 30%;
+        }
+      }
+    }
+  }
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  .btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px; /* Changé de 6px à 8px pour correspondre aux stades */
+    cursor: pointer;
+    font-size: 0.875rem; /* 14px - même taille que les stades */
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 36px;
+
+    &.btn-info {
+      background-color:rgb(50,145,87); /* Bleu cyan - même que les stades */
+      color: #ffffff;
+
+      &:hover {
+        background-color: rgb(50,145,87); /* Même hover que les stades */
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgb(50,145,87);
+      }
+    }
+
+    &.btn-warning {
+      background-color: #f59e0b; /* Orange - même que les stades */
+      color: #ffffff; /* Texte blanc au lieu de foncé */
+
+      &:hover {
+        background-color: #d97706; /* Même hover que les stades */
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+      }
+    }
+
+    &.btn-danger {
+      background-color: #dc2626; /* Rouge - même que les stades */
+      color: #ffffff;
+
+      &:hover {
+        background-color: #b91c1c; /* Même hover que les stades */
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+      }
+    }
+
+    &.btn-details {
+      background-color: #09cf2d; /* Rouge - même que les stades */
+      color: #ffffff;
+
+      &:hover {
+        background-color: #0ce33e; /* Même hover que les stades */
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(38, 220, 120, 0.3);
+      }
+    }
+  }
+}
+
+/* Mise à jour de la responsivité pour correspondre aux stades */
+@media (max-width: 768px) {
+  .btn-group {
+    gap: 4px; /* Changé pour correspondre aux stades */
+
+    .btn {
+      font-size: 0.75rem; /* 12px - même que les stades */
+      padding: 6px 8px; /* Même padding que les stades */
+      min-width: 32px; /* Même largeur minimale que les stades */
+    }
+  }
+}
+
+.loading, .no-results {
+  text-align: center;
+  padding: 60px;
+  color: #64748b;
+  font-size: 1.2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.no-results .icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
+  color: #94a3b8;
+}
+
+.table-info {
+  margin-top: 15px;
+  text-align: right;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Responsivité améliorée */
+@media (max-width: 1024px) {
+  .villes-container {
+    padding: 15px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .villes-container {
+    padding: 10px;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+
+    h1 {
+      font-size: 1.8rem;
+      text-align: center;
+    }
+
+    .btn-primary {
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  }
+
+  .search-input {
+    max-width: 100%;
+  }
+
+  .form-container {
+    padding: 20px;
+    margin: 0 -10px 25px -10px;
+    border-radius: 0;
+
+    .form-actions {
+      .btn {
+        flex: 1;
+        min-width: auto;
+      }
+    }
+  }
+
+  .table-container {
+    margin: 0 -10px;
+    border-radius: 0;
+  }
+
+  .villes-table {
+    font-size: 0.9rem;
+
+    thead th {
+      padding: 12px 8px;
+      font-size: 0.8rem;
+    }
+
+    tbody td {
+      padding: 12px 8px;
+
+      &.ville-nom {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .btn-group {
+    gap: 4px;
+
+    .btn {
+      font-size: 0.75rem;
+      padding: 6px 8px;
+      min-width: 30px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header .btn-primary {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .villes-table {
+    thead th:nth-child(2) {
+      width: 65%;
+    }
+
+    thead th:last-child {
+      width: 35%;
+    }
+  }
+
+  .form-actions {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
+
+
+/* Animation pour le formulaire */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    max-height: 400px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Amélioration de l'accessibilité */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

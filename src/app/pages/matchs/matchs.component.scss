@@ -1,0 +1,217 @@
+/* Pas d'importation de styles.scss, utilisation de valeurs fixes */
+@use 'tailwindcss/tailwind.css' as *;
+
+/* Conteneur principal pour les matchs */
+.matchs-container {
+  padding: 20px;
+  width: 100%;
+  min-width: 0;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+/* En-tête */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+  flex-wrap: wrap;
+  gap: 15px;
+
+  h1 {
+    color: rgb(50, 145, 87); /* Vert principal */
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+/* Conteneur du tableau - pleine largeur */
+.table-container {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+
+/* Style du tableau des matchs */
+.matchs-table {
+  width: 100% !important;
+  table-layout: fixed;
+  border-collapse: collapse;
+
+  thead {
+    background: rgb(50, 145, 87); /* Fond des en-têtes en vert spécifié */
+    color: whitesmoke; /* Texte clair pour contraste avec le fond vert */
+
+    th {
+      padding: 16px 15px;
+      text-align: center; /* Centrage des en-têtes */
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: none;
+      background: rgb(50, 145, 87);
+
+      &:first-child {
+        border-top-left-radius: 12px;
+      }
+
+      &:last-child {
+        border-top-right-radius: 12px;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid #e2e8f0;
+
+      &:hover {
+        background-color: #f0fdf4; /* Vert très clair au hover */
+        transform: scale(1.002);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: 16px 15px;
+        text-align: center; /* Centrage des cellules */
+        vertical-align: middle;
+
+        &.numero {
+          font-weight: 600;
+          color: #1e293b;
+          font-size: 1.05rem;
+        }
+
+        &.stade {
+          color: #1e293b;
+        }
+
+        &.opposition {
+          color: #1e293b;
+        }
+
+        &.heure {
+          color: #1e293b;
+        }
+      }
+    }
+  }
+}
+
+/* Conteneur de la journée */
+.journee-container {
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.journee-header {
+  font-size: 1.25rem; /* équivalent text-xl */
+  font-weight: 600;   /* équivalent font-semibold */
+  margin-bottom: 0.5rem; /* équivalent mb-2 */
+  color: #1e293b;
+}
+
+/* Responsivité améliorée */
+@media (max-width: 1024px) {
+  .matchs-container {
+    padding: 15px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .matchs-container {
+    padding: 10px;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+
+    h1 {
+      font-size: 1.8rem;
+      text-align: center;
+    }
+  }
+
+  .table-container {
+    margin: 0 -10px;
+    border-radius: 0;
+  }
+
+  .matchs-table {
+    font-size: 0.9rem;
+
+    thead th {
+      padding: 12px 8px;
+      font-size: 0.8rem;
+    }
+
+    tbody td {
+      padding: 12px 8px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .matchs-table {
+    thead th:first-child {
+      width: 20%;
+    }
+
+    thead th:nth-child(2) {
+      width: 30%;
+    }
+
+    thead th:nth-child(3) {
+      width: 35%;
+    }
+
+    thead th:last-child {
+      width: 15%;
+    }
+  }
+}
+
+/* Animation pour le formulaire (si nécessaire) */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    max-height: 400px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

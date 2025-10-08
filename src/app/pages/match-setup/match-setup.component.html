@@ -1,0 +1,427 @@
+<p-toast></p-toast>
+<div class="match-setup">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <header class="header">
+        <h1>Préparation du match</h1>
+    </header>
+
+    <p-tabView>
+        <!-- Onglet OFFICIELS -->
+        <p-tabPanel header="Officiels">
+            <div class="card">
+                <h3>Assignation des officiels</h3>
+                <div class="assignments">
+                    <div class="assignment-row">
+                        <!-- Select pour sélectionner un officiel -->
+                        <p-select [options]="officials" optionLabel="first_name" optionValue="id" [disabled]="isClosed"
+                            placeholder="-- Choisir un officiel --" filter="true" [(ngModel)]="selectedOfficialId"
+                            name="official">
+                            <ng-template let-official pTemplate="item">
+                                {{ official.first_name }} {{ official.last_name }} ({{getOfficialTypeLabel( official.official_type) }})
+                                {{getStatusLabel(official.status) || official.status}}
+                            </ng-template>
+                            <ng-template let-official pTemplate="selectedItem">
+                                {{ official.first_name }} {{ official.last_name }} ({{ getOfficialTypeLabel(official.official_type) }})
+                            </ng-template>
+                        </p-select>
+
+                        <!-- Select pour sélectionner un rôle -->
+                        <p-select [options]="roles" placeholder="-- Choisir un rôle --" [(ngModel)]="selectedRole"
+                            [disabled]="isClosed" name="role">
+                        </p-select>
+
+                        <!-- Bouton pour assigner -->
+                        <button class="btn btn-info" type="button" (click)="assignOfficial()"
+                            [disabled]="!selectedOfficialId || !selectedRole || isClosed">
+                            Assigner
+                        </button>
+                    </div>
+
+                    <div class="assigned-officials">
+                        <h4>Officiels déjà assignés</h4>
+                        <table *ngIf="officialsofmatch.length > 0; else noOfficials" class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Nom - Prénom(s)</th>
+                                    <th>Type</th>
+                                    <th>Rôle</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let o of officialsofmatch">
+                                    <td>{{ o.first_name }} {{ o.last_name }}</td>
+                                    <td>{{ getOfficialTypeLabel(o.official_type) }}</td>
+                                    <td>{{ mapRole(o.matches?.[0]?.pivot?.role ?? '') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <ng-template #noOfficials>
+                            <p>Aucun officiel assigné pour l’instant.</p>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </p-tabPanel>
+
+        <!-- Onglet TEAMS -->
+        <!-- Onglets et autres parties omises si tu les as déjà — je fournis uniquement la section TEAMS telle que tu l'as transmise, complète -->
+        <p-tabPanel header="Équipes">
+  <div class="teams-callup-container">
+    <h2>Feuille de match - Listes des équipes</h2>
+     <div class="mt-4 flex gap-3 mb-2 justify-between">
+    <p-button (click)="toggleHomeForm()"
+    icon="pi pi-pencil"
+    label="Composition Domicile"
+    severity="contrast"
+ >
+
+    </p-button>
+
+    <p-button (click)="toggleAwayForm()"
+    icon="pi pi-pencil"
+    label="Composition Exterieur"
+    severity="contrast">
+
+    </p-button>
+  </div>
+    <!-- Si aucune donnée (assignedTeams) -->
+    <div *ngIf="!assignedTeams">
+      <p>Aucune donnée de composition disponible.</p>
+    </div>
+
+    <!-- Si données présentes : cards résumé -->
+    <div *ngIf="assignedTeams" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div *ngIf="assignedTeams.team_one_callup" class="team-card">
+        <h3>{{ assignedTeams.team_one_callup.team_name }}</h3>
+        <img *ngIf="assignedTeams.team_one_callup.team_logo"
+             [src]="assignedTeams.team_one_callup.team_logo" alt="Logo équipe" class="team-logo">
+        <p><strong>Coach :</strong> {{ assignedTeams.team_one_callup.coach_name || 'Non renseigné' }}</p>
+        <p><strong>Formation :</strong> {{ assignedTeams.team_one_callup.formation }}</p>
+        <p><strong>Capitaine :</strong> {{ assignedTeams.team_one_callup.captain_name }}</p>
+
+        <h4>Titulaires</h4>
+        <ul>
+          <li *ngFor="let p of getStarters(assignedTeams.team_one_callup.players)">
+            <img [src]="p.photo || 'assets/default-player.png'" alt="Photo" width="32">
+            {{ p.first_name }} {{ p.last_name }} ({{ p.position }}) - #{{ p.jersey_number }}
+          </li>
+        </ul>
+
+        <h4>Remplaçants</h4>
+        <ul>
+          <li *ngFor="let p of getSubstitutes(assignedTeams.team_one_callup.players)">
+            <img [src]="p.photo || 'assets/default-player.png'" alt="Photo" width="32">
+            {{ p.first_name }} {{ p.last_name }} ({{ p.position }}) - #{{ p.jersey_number }}
+          </li>
+        </ul>
+      </div>
+
+      <div *ngIf="assignedTeams.team_two_callup" class="team-card">
+        <h3>{{ assignedTeams.team_two_callup.team_name }}</h3>
+        <img *ngIf="assignedTeams.team_two_callup.team_logo"
+             [src]="assignedTeams.team_two_callup.team_logo" alt="Logo équipe" class="team-logo">
+        <p><strong>Coach :</strong> {{ assignedTeams.team_two_callup.coach_name || 'Non renseigné' }}</p>
+        <p><strong>Formation :</strong> {{ assignedTeams.team_two_callup.formation }}</p>
+        <p><strong>Capitaine :</strong> {{ assignedTeams.team_two_callup.captain_name }}</p>
+
+        <h4>Titulaires</h4>
+        <ul>
+          <li *ngFor="let p of getStarters(assignedTeams.team_two_callup.players)">
+            <img [src]="p.photo || 'assets/default-player.png'" alt="Photo" width="32">
+            {{ p.first_name }} {{ p.last_name }} ({{ p.position }}) - #{{ p.jersey_number }}
+          </li>
+        </ul>
+
+        <h4>Remplaçants</h4>
+        <ul>
+          <li *ngFor="let p of getSubstitutes(assignedTeams.team_two_callup.players)">
+            <img [src]="p.photo || 'assets/default-player.png'" alt="Photo" width="32">
+            {{ p.first_name }} {{ p.last_name }} ({{ p.position }}) - #{{ p.jersey_number }}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contrôles pour ouvrir les formulaires (par équipe) -->
+
+
+  <div class="teams mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Formulaire Équipe Domicile (affiché seulement si on a cliqué) -->
+<p-dialog
+  [draggable]="false"
+  [modal]="true"
+  [closable]="false"
+  [(visible)]="showHomeForm"
+  [style]="{ width: '1300px', height: '90vw' }"
+  [styleClass]="'team-card'"
+  *ngIf="showHomeForm"
+>
+  <h4>Équipe Domicile</h4>
+  <div class="team-info mb-4">
+    <img [src]="homeTeam.logo" alt="Logo domicile" class="team-logo" />
+    <span>{{ homeTeam.name }}</span>
+  </div>
+  <div class="meta grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+    <div class="field flex flex-col">
+      <label for="formation">Formation</label>
+      <p-select
+        [options]="formations"
+        [(ngModel)]="homeCallup.formation"
+        [disabled]="isClosed"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="-- Choisir formation --"
+      ></p-select>
+    </div>
+    <div class="field flex flex-col">
+      <label for="coach">Coach</label>
+      <p-select
+        [options]="homeCoaches"
+        [(ngModel)]="homeCallup.coachId"
+        [disabled]="isClosed"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="-- Choisir coach --"
+        (ngModelChange)="setCoach('home', $event)"
+      ></p-select>
+    </div>
+    <div class="field flex flex-col">
+      <label for="captain">Capitaine</label>
+      <p-select
+        [options]="homeCallup.players"
+        [(ngModel)]="homeCallup.captainId"
+        [disabled]="isClosed"
+        optionLabel="playerName"
+        optionValue="playerId"
+        [filter]="true"
+        placeholder="-- Choisir capitaine --"
+        (ngModelChange)="setCaptain('home', $event)"
+      >
+        <ng-template let-player pTemplate="item">
+          {{ getPlayerName('home', player.playerId) }}
+        </ng-template>
+        <ng-template let-player pTemplate="selectedItem">
+          {{ getPlayerName('home', player.playerId) }}
+        </ng-template>
+      </p-select>
+    </div>
+  </div>
+  <h5>Joueurs disponibles</h5>
+  <div class="border rounded-md p-4 bg-gray-50 max-h-[370px] overflow-y-auto">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div
+        *ngFor="let p of homePlayersPool"
+        class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
+   [ngClass]="{
+     'ring-yellow-400': getPlayerRingClass(p) === 'yellow',
+    ' ring-green-500':getPlayerRingClass(p) === 'green',
+    'ring-2':p.selected,
+    selected: p.selected
+  }"
+        (click)="onPlayerToggle('home', p, !p.selected)"
+        tabindex="0"
+        role="button"
+        [attr.aria-pressed]="p.selected"
+      >
+        <p-checkbox
+        [binary]="true"
+          [(ngModel)]="p.selected"
+          (ngModelChange)="onPlayerToggle('home', p, $event)"
+          (click)="$event.stopPropagation()"
+          class="absolute top-2 left-2"
+        />
+        <div
+          *ngIf="p.selected"
+          class="absolute top-2 right-2 bg-gray-600 text-white text-xs px-2 py-0.5 rounded-full"
+        >
+          #{{ p.selectionOrder }}
+        </div>
+        <img
+          *ngIf="p.photo_url; else noPhoto"
+          [src]="p.photo_url"
+          alt="Photo joueur"
+          class="w-12 h-12 object-cover rounded-full"
+        />
+        <ng-template #noPhoto>
+          <div
+            class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-sm"
+          >
+            N/A
+          </div>
+        </ng-template>
+        <div class="text-sm font-semibold text-center">
+          {{ p.first_name }} {{ p.last_name }}
+        </div>
+        <div class="text-xs text-gray-500 uppercase">
+          {{ p.position }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+      <ng-template #footer >
+      <div class="flex mt-3 justify-content-between align-items-center gap-5">
+    <div class="p-3 rounded border border-gray-300 bg-gray-50 text-sm text-gray-700">
+      <strong>Légende :</strong>
+      <ul class="mt-2 space-y-1">
+        <li>🟢 <strong>Vert</strong> — Titulaire (dans les 11 premiers sélectionnés)</li>
+        <li>🟡 <strong>Jaune</strong> — Remplaçant (au-delà des 11 premiers)</li>
+      </ul>
+    </div>
+
+    <div class=" pt-[55px]">
+      <p-button
+        [raised]="true"
+        label="Sauvegarder Domicile"
+        class="p-button-primary mr-2"
+        (click)="saveCallup('home')"
+        [disabled]="isClosed"
+      ></p-button>
+      <p-button
+        [raised]="true"
+        label="Annuler"
+        severity="secondary"
+        (click)="toggleHomeForm()"
+      ></p-button>
+    </div>
+  </div>
+      </ng-template>
+</p-dialog>
+
+
+
+
+
+
+
+    <!-- Formulaire Équipe Extérieure (affiché seulement si on a cliqué) -->
+    <p-dialog  [draggable]="false"
+  [modal]="true"
+  [closable]="false"
+  [(visible)]="showAwayForm"
+  [style]="{ width: '1300px', height: '90vw' }"
+  [styleClass]="'team-card'" *ngIf="showAwayForm">
+      <h4>Équipe Extérieure</h4>
+
+      <div class="team-info mb-4">
+        <img [src]="awayTeam.logo" alt="Logo extérieur" class="team-logo" />
+        <span>{{ awayTeam.name }}</span>
+      </div>
+
+<div class="meta grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+  <div class="field flex flex-col">
+    <label for="formation">Formation</label>
+    <p-select
+      [options]="formations"
+      [(ngModel)]="awayCallup.formation"
+      [disabled]="isClosed"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="-- Choisir formation --"
+    ></p-select>
+  </div>
+  <div class="field flex flex-col">
+    <label for="coach">Coach</label>
+    <p-select
+      [options]="awayCoaches"
+      [(ngModel)]="awayCallup.coachId"
+      [disabled]="isClosed"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="-- Choisir coach --"
+      (ngModelChange)="setCoach('away', $event)"
+    ></p-select>
+  </div>
+  <div class="field flex flex-col">
+    <label for="captain">Capitaine</label>
+    <p-select
+      [options]="awayCallup.players"
+      [(ngModel)]="awayCallup.captainId"
+      [disabled]="isClosed"
+      optionLabel="playerName"
+      optionValue="playerId"
+      [filter]="true"
+      placeholder="-- Choisir capitaine --"
+      (ngModelChange)="setCaptain('away', $event)"
+    >
+      <ng-template let-player pTemplate="item">
+        {{ getPlayerName('away', player.playerId) }}
+      </ng-template>
+      <ng-template let-player pTemplate="selectedItem">
+        {{ getPlayerName('away', player.playerId) }}
+      </ng-template>
+    </p-select>
+  </div>
+</div>
+
+      <h5>Joueurs disponibles</h5>
+      <div class="border rounded-md p-4 bg-gray-50 max-h-[370px] overflow-y-auto">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div *ngFor="let p of awayPlayersPool"
+               class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white"
+                [ngClass]="{
+     'ring-yellow-400': getPlayerRingClass(p) === 'yellow',
+    ' ring-green-500':getPlayerRingClass(p) === 'green',
+    'ring-2':p.selected,
+    selected: p.selected
+  }"
+               (click)="onPlayerToggle('away', p, !p.selected)"
+               tabindex="0" role="button" [attr.aria-pressed]="p.selected">
+
+            <p-checkbox
+        [binary]="true" [(ngModel)]="p.selected"
+                   (ngModelChange)="onPlayerToggle('away', p, $event)"
+                   (click)="$event.stopPropagation()" class="absolute top-2 left-2" />
+
+            <div *ngIf="p.selected"
+                 class="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
+              #{{ p.selectionOrder }}
+            </div>
+
+            <img *ngIf="p.photo_url; else noPhotoAway" [src]="p.photo_url" alt="Photo joueur"
+                 class="w-12 h-12 object-cover rounded-full" />
+            <ng-template #noPhotoAway>
+              <div class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-sm">N/A</div>
+            </ng-template>
+
+            <div class="text-sm font-semibold text-center">{{ p.first_name }} {{ p.last_name }}</div>
+            <div class="text-xs text-gray-500 uppercase">{{ p.position }}</div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #footer >
+      <div class="flex mt-3 justify-content-between align-items-center gap-5">
+    <div class="p-3 rounded border border-gray-300 bg-gray-50 text-sm text-gray-700">
+      <strong>Légende :</strong>
+      <ul class="mt-2 space-y-1">
+        <li>🟢 <strong>Vert</strong> — Titulaire (dans les 11 premiers sélectionnés)</li>
+        <li>🟡 <strong>Jaune</strong> — Remplaçant (au-delà des 11 premiers)</li>
+      </ul>
+    </div>
+
+    <div class=" pt-[55px]">
+      <p-button
+        [raised]="true"
+        label="Sauvegarder Extérieur"
+        class="p-button-primary mr-2"
+        (click)="saveCallup('away')"
+        [disabled]="isClosed"
+      ></p-button>
+      <p-button
+        [raised]="true"
+        label="Annuler"
+        severity="secondary"
+        (click)="toggleAwayForm()"
+      ></p-button>
+    </div>
+  </div>
+      </ng-template>
+    </p-dialog>
+  </div>
+</p-tabPanel>
+
+
+    </p-tabView>
+</div>

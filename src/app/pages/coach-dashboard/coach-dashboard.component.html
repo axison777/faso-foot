@@ -1,0 +1,37 @@
+<div class="coach-dashboard">
+  <ng-container *ngIf="team() as t; else loading">
+    <div class="team-banner">
+      <div class="team-info">
+        <img *ngIf="t.logo" [src]="t.logo" alt="logo" class="logo-sm" />
+        <div>
+          <h2 class="team-name">{{ t.name }}</h2>
+          <div class="team-cat">{{ t.category }}</div>
+        </div>
+      </div>
+    </div>
+
+    <app-next-match-card [teamId]="t.id!"></app-next-match-card>
+    <app-team-stats-card [stats]="stats()!"></app-team-stats-card>
+
+    <div class="filters">
+      <app-competition-filter [competitions]="getCompetitionOptions()" [(selectedId)]="selectedComp"></app-competition-filter>
+    </div>
+
+    <app-matches-list [teamId]="t.id!"></app-matches-list>
+
+    <div class="quick-panels">
+      <div class="panel">
+        <h3>Stats récentes</h3>
+        <div class="placeholder">Non disponible</div>
+      </div>
+      <div class="panel">
+        <h3>Buteurs</h3>
+        <div class="placeholder">Non disponible</div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #loading>
+  <div class="empty">Chargement…</div>
+</ng-template>

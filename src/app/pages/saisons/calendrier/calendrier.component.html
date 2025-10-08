@@ -1,0 +1,524 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="page-wrapper">
+
+ <div class="bg-green-top">
+    <div class="flex grid grid-cols-3 items-start ">
+           <div class="layout-header col-start-2">
+  <div class="layout-header-line1 justify-center items-end " [ngClass]="leagueLogo ? 'flex' : ''">
+    <img class="ligue-logo" [src]="leagueLogo" alt="">
+    <span>{{ leagueName }}</span>
+    </div>
+  <div class="layout-header-line2">Calendrier des matchs</div>
+  <div *ngIf="phases[selectedPhaseIndex]" class="layout-header-line3">Saison {{ startDate | date: 'yyyy' }} - {{ endDate | date: 'yyyy' }} ({{poolName}}) </div>
+ </div>
+ <div *ngIf="false" class="col-start-3 justify-self-end max-w-[800px] max-h-[120px] bg-white mr-4 mt-4 border rounded-md p-4 overflow-y-auto">
+    <div class="flex items-center p-1">
+        <span class="pi pi-exclamation-triangle text-red-400 text-xl mr-2"></span>
+        <span class="text-red-500 font-semibold">Le match a vs b est dupliqué .</span>
+    </div>
+    <div class="flex items-center p-1">
+        <span class="pi pi-exclamation-triangle text-red-400 text-xl mr-2"></span>
+        <span class="text-red-500 font-semibold">Le match a vs b est dupliqué.</span>
+    </div>
+    <div class="flex items-center p-1">
+        <span class="pi pi-exclamation-triangle text-red-400 text-xl mr-2"></span>
+        <span class="text-red-500 font-semibold">Le match a vs b est dupliqué.</span>
+    </div>
+    <div class="flex items-center p-1">
+        <span class="pi pi-exclamation-triangle text-red-400 text-xl mr-2"></span>
+        <span class="text-red-500 font-semibold">Le match a vs b est dupliqué.</span>
+    </div>
+    <div class="flex items-center p-1">
+        <span class="pi pi-exclamation-triangle text-red-400 text-xl mr-2"></span>
+        <span class="text-red-500 font-semibold">Le match a vs b est dupliqué.</span>
+    </div>
+    <div class="flex items-center p-1">
+        <span class="pi pi-exclamation-triangle text-red-400 text-xl mr-2"></span>
+        <span class="text-red-500 font-semibold">Le match a vs b est dupliqué.</span>
+    </div>
+    <div class="flex items-center p-1">
+        <span class="pi pi-exclamation-triangle text-red-400 text-xl mr-2"></span>
+        <span class="text-red-500 font-semibold">Le match a vs b est dupliqué.</span>
+    </div>
+    <div class="flex items-center p-1">
+        <span class="pi pi-exclamation-triangle text-red-400 text-xl mr-2"></span>
+        <span class="text-red-500 font-semibold">Le match a vs b est dupliqué.</span>
+    </div>
+    <div class="flex items-center p-1">
+        <span class="pi pi-exclamation-triangle text-red-400 text-xl mr-2"></span>
+        <span class="text-red-500 font-semibold">Le match a vs b est dupliqué.</span>
+    </div>
+</div>
+    </div>
+
+ </div>
+
+ <div class="bg-white-band"></div>
+
+ <div class="page-content">
+  <div class="main-card min-h-[100px]">
+
+<!--     <div *ngIf="groupId" class="flex justify-center">
+        <p-select  optionLabel="name" optionValue="id" appendTo="body" [style]="{width: '100px'}" (onChange)="onGroupChange($event.value)"></p-select>
+    </div>
+ -->
+<div class="flex flex-col md:flex-row justify-center mb-6 position-relative items-center gap-2 mx-1">
+
+  <div *ngIf="loading" class="custom-spinner-overlay">
+    <div class="custom-spinner"></div>
+  </div>
+
+  <button
+    *ngFor="let phase of phases; let i = index"
+    pButton
+    style="font-weight: 700; font-size: 20px"
+    [class.active-phase]="selectedPhaseIndex === i"
+    [class.inactive-phase]="selectedPhaseIndex !== i"
+    (click)="selectedPhaseIndex = i"
+  >
+    {{ phase.name }} ({{ phase?.start | date: 'dd/MM/yyyy' }} au {{ phase.end | date: 'dd/MM/yyyy' }})
+  </button>
+
+  <button *ngIf="phases.length" pButton icon="pi pi-refresh" severity="danger" size="large"  pTooltip="(Ré)Générer la phase retour" tooltipPosition="bottom" (click)="openGenerateDialog()"  ></button>
+
+</div>
+
+<div *ngIf="phases[selectedPhaseIndex] as phase">
+ <p-carousel
+  [value]="phase.matchdays"
+  [numVisible]="2"
+  [numScroll]="2"
+  [circular]="true"
+  [responsiveOptions]="[
+   { breakpoint: '1250px', numVisible: 1, numScroll: 1 }
+  ]"
+  class="custom-carousel"
+ >
+  <ng-template pTemplate="item" let-day>
+   <div class="saison bg-white  min-h-[300px] p-2">
+    <span class="text-lg font-semibold text-green-700 text-center match-day-title hoverable-matchday"
+    (click)="openFormSelectDialog(day)">
+     {{ day.label }}
+    </span>
+
+    <div class="divide-y divide-gray-200 pb-2 match-day-content">
+     <ng-container *ngFor="let group of day.groupedMatchesByDate">
+       <div class="flex justify-between items-center match-day-header px-2 py-1">
+   <span class="text-green-800 font-semibold text-[12px] capitalize text-center">
+    {{ group.date | date: 'EEEE d MMMM y' }}
+   </span>
+   <!-- <span class="text-green-800 font-semibold text-[12px]">
+    {{ group.matches[0].time }}
+   </span> -->
+  </div>
+<table class="table-fixed w-full border-collapse text-sm text-gray-800">
+ <tbody>
+    <ng-container *ngFor="let match of group.matches">
+
+      <!-- Version Desktop -->
+      <tr
+        class="hidden md:table-row match-item"
+        [ngClass]="{
+          'hoverable-match': !match.is_derby && !match.is_rescheduled,
+          'hoverable-derby': match.is_derby && !match.is_rescheduled,
+          'hoverable-rescheduled-derby': match.is_derby && match.is_rescheduled,
+          'hoverable-rescheduled': !match.is_derby && match.is_rescheduled
+        }"
+        [pTooltip]="
+          (match.is_derby ? 'Derby' : '') +
+          (match.is_derby && match.is_rescheduled ? ' ' : '') +
+          (match.is_rescheduled ? 'Reprogrammé' : '')
+        "
+        (click)="openRescheduleDialog(match, group.date, day.match_day_id, day.start_date, day.end_date)"
+      >
+        <!-- Numéro + heure -->
+        <td class="text-center max-w-[5px]">
+          <div class="flex gap-2 items-center mr-4 pr-2">
+            <span class="text-gray-700 text-[12px]">{{ match.number }}</span>
+            <span class="text-gray-500 text-[12px]">{{ match.time }}</span>
+          </div>
+        </td>
+
+        <!-- Équipe 1 -->
+        <td class="w-1/4 max-w-[190px] text-right font-semibold pr-1">
+          <div class="flex items-center justify-end gap-2">
+            <span class="pl-1 truncate w-2/3">{{ match.team1 }}</span>
+            <img class="w-6 h-6 object-contain bg-green-900"
+                 [src]="match.team1_logo || leagueLogo" />
+          </div>
+        </td>
+
+        <!-- VS -->
+        <td class="w-[15px] text-center">
+          <span class="text-[11px] text-gray-500">VS</span>
+        </td>
+
+        <!-- Équipe 2 -->
+        <td class="w-1/4 max-w-[130px] text-left font-semibold pl-1">
+          <div class="flex items-center gap-2 max-w-[130px]">
+            <img [src]="match.team2_logo || leagueLogo"
+
+                 class="w-6 h-6 object-contain bg-green-900" />
+            <span class="truncate max-w-[110px] w-2/3">{{ match.team2 }}</span>
+          </div>
+        </td>
+
+        <!-- Stade -->
+        <td class="w-1/3 min-w-[170px] text-left text-gray-600 text-[12px] truncate"
+            [title]="match.stadium">
+          {{ match.stadium }}
+        </td>
+      </tr>
+
+      <!-- Version Mobile -->
+      <tr
+        class="md:hidden match-item"
+        [ngClass]="{
+          'hoverable-match': !match.is_derby && !match.is_rescheduled,
+          'hoverable-derby': match.is_derby && !match.is_rescheduled,
+          'hoverable-rescheduled-derby': match.is_derby && match.is_rescheduled,
+          'hoverable-rescheduled': !match.is_derby && match.is_rescheduled
+        }"
+        [pTooltip]="
+          (match.is_derby ? 'Derby' : '') +
+          (match.is_derby && match.is_rescheduled ? ' ' : '') +
+          (match.is_rescheduled ? 'Reprogrammé' : '')
+        "
+        (click)="openRescheduleDialog(match, group.date, day.match_day_id, day.start_date, day.end_date)"
+      >
+        <td colspan="5" class="p-2">
+          <div class="grid grid-cols-1 gap-1 text-sm">
+
+            <!-- Ligne 1: numéro + heure -->
+            <div class="flex justify-between text-gray-600 text-xs">
+              <span>{{ match.number }}</span>
+              <span>{{ match.time }}</span>
+            </div>
+
+            <!-- Ligne 2: équipe 1 -->
+<div class="flex items-center justify-between">
+    <div class="flex-none w-8"> <img class="w-8 h-8 object-contain bg-green-900"
+             [src]="match.team1_logo || leagueLogo" />
+    </div>
+
+    <div class="flex-grow text-center">
+        <span class="truncate text-[13px]">{{ match.team1 }}</span>
+    </div>
+
+    <div class="flex-none w-8"></div>
+</div>
+
+            <!-- Ligne 3: VS -->
+            <div class="flex justify-center text-[11px] text-gray-500">
+              VS
+            </div>
+
+            <!-- Ligne 4: équipe 2 -->
+<div class="flex items-center justify-between">
+    <div class="flex-none w-8"> <img class="w-8 h-8 object-contain bg-green-900"
+             [src]="match.team2_logo || leagueLogo" />
+    </div>
+
+    <div class="flex-grow text-center">
+        <span class="truncate text-[13px]">{{ match.team2 }}</span>
+    </div>
+
+    <div class="flex-none w-8"></div>
+</div>
+            <!-- Ligne 5: stade -->
+            <div class="text-gray-500 text-[11px] truncate mt-1 text-center"
+                 [title]="match.stadium">
+              {{ match.stadium }}
+            </div>
+
+          </div>
+        </td>
+      </tr>
+
+    </ng-container>
+  </tbody>
+</table>
+
+     </ng-container>
+    </div>
+   </div>
+  </ng-template>
+ </p-carousel>
+</div>
+
+  </div>
+   <div class="flex justify-center gap-4 mt-6" *ngIf="!loading">
+     <button [disabled]="exportingPdf" (click)="exportCalendarToPdf()" routerLinkActive="router-link-active" class="btn-pdf" >
+
+    <i *ngIf="exportingPdf" class="pi pi-spin pi-spinner"></i>
+
+      Exporter en format PDF</button>
+     <button class="btn-excel" (click)="exportAsExcel(phases[selectedPhaseIndex])">Exporter en format Excel</button>
+    </div>
+ </div>
+
+  <p-dialog *ngIf="phases[selectedPhaseIndex]" header="Reprogrammer / Modifier le match" [(visible)]="displayRescheduleDialog" [modal]="true" [style]="{width: '600px'}" [draggable]="false" [resizable]="false" [closable]="false">
+    <span class="block text-gray-700 text-md font-bold mb-2 text-center">
+        <span class="text-primary">{{ selectedMatch?.team1 }}</span>
+        vs
+        <span class="text-primary">{{ selectedMatch?.team2 }}</span>
+
+        ({{phases[selectedPhaseIndex].name}})</span>
+
+<div class="p-field mb-4 w-full">
+  <label for="matchdaySelect" class="block text-gray-700 text-md font-bold mb-2">
+    Equipes:
+  </label>
+  <div class="flex items-center gap-2 w-full">
+    <p-select
+      class="flex-1"
+      [filter]="true"
+      [filterFields]="['abbreviation', 'name']"
+      [formControl]="newTeam1Control"
+      [options]="filteredTeams"
+      optionLabel="abbreviation"
+      optionValue="id"
+      appendTo="body">
+    </p-select>
+    <span class="font-bold">vs</span>
+    <p-select
+      class="flex-1"
+      [formControl]="newTeam2Control"
+      [filter]="true"
+      [filterFields]="['abbreviation', 'name']"
+      [options]="filteredTeams"
+      optionLabel="abbreviation"
+      optionValue="id"
+      appendTo="body">
+    </p-select>
+  </div>
+</div>
+
+
+   <div class="p-field mb-4 w-full" >
+    <label for="matchdaySelect" class="block text-gray-700 text-md font-bold mb-2">Journée:</label>
+    <p-select id="matchdaySelect" [options]="phases[selectedPhaseIndex].matchdays" optionLabel="label" optionValue="match_day_id" [formControl]="newMatchDayControl" appendTo="body" class="w-full"></p-select>
+   </div>
+
+   <div class="p-field mb-4 w-full" >
+    <label for="matchdaySelect" class="block text-gray-700 text-md font-bold mb-2">Stade:</label>
+    <p-select id="matchdaySelect" [options]="stadiums" optionLabel="name" optionValue="id" [formControl]="newMatchStadiumControl" appendTo="body" class="w-full"></p-select>
+   </div>
+
+      <div class="p-field mb-4 w-full">
+    <label for="datePicker" class="block text-gray-700 text-md font-bold mb-2 w-full" >Heure:</label>
+    <p-datepicker id="timePicker" [formControl]="newMatchTimeControl" [timeOnly]="true" dateFormat="HH:mm" [readonlyInput]="false" appendTo="body" [style]="{width: '100%'}" styleClass="mb-2"></p-datepicker>
+    <small class="text-red-500" *ngIf="newMatchTimeControl.hasError('required') && newMatchTimeControl.touched">L'heure est requise.</small>
+
+
+   </div>
+
+   <div class="p-field mb-4 w-full">
+    <label for="datePicker" class="block text-gray-700 text-md font-bold mb-2 w-full" >Date:</label>
+    <p-datepicker id="datePicker" [formControl]="newMatchDateControl" dateFormat="dd/mm/yy" [readonlyInput]="false" appendTo="body" [style]="{width: '100%'}" styleClass="mb-2"></p-datepicker>
+    <small class="text-red-500" *ngIf="newMatchDateControl.hasError('required') && newMatchDateControl.touched">La date est requise.</small>
+
+    <span  *ngIf="newMatchDateControl.errors?.['dateOutOfRange'] " class=" text-orange-500"><i class="pr-2 pi pi-exclamation-triangle " ></i>Cette date ne fait pas partie de la journée sélectionnée ({{ newMatchDateControl.errors?.['dateOutOfRange']?.min | date:'dd/MM/yyyy' }} au {{ newMatchDateControl.errors?.['dateOutOfRange']?.max | date:'dd/MM/yyyy' }}).</span>
+   </div>
+
+   <div class=" mb-4 flex justify-start gap-4">
+    <label for="is_derby" class="block text-gray-700 text-md font-bold mb-2 " >Derby </label>
+    <p-checkbox [binary]="true" id="is_derby" [formControl]="isDerbyControl"/>
+
+
+
+   </div>
+
+
+  <ng-template pTemplate="footer">
+   <p-button [raised]="true" label="Annuler" severity="secondary" (click)="closeRescheduleDialog()"></p-button>
+   <p-button [loading]="formLoading" [raised]="true" severity="primary" label="Reprogrammer" [disabled]="(!newMatchDateControl.dirty && !newMatchStadiumControl.dirty && !isDerbyControl.dirty && !newMatchTimeControl.dirty
+&& !newTeam1Control.dirty && !newTeam2Control.dirty) || newMatchTimeControl.invalid || newMatchDateControl.hasError('required')"
+    (click)="submitRescheduleForm()"
+   ></p-button>
+  </ng-template>
+ </p-dialog>
+</div>
+
+<p-dialog *ngIf="displayFormSelectDialog" [header]="selectedMatchDay?.label" [(visible)]="displayFormSelectDialog" [modal]="true" [style]="{width: '600px'}" [draggable]="false" [resizable]="false" [closable]="false">
+<p-select
+[options]="formSelectChoices" optionLabel="name" optionValue="value" [formControl]="formSelectControl" appendTo="body" class="w-full"></p-select>
+  <ng-template pTemplate="footer">
+   <p-button [raised]="true" label="Annuler" severity="secondary" (click)="closeFormSelectDialog()"></p-button>
+   <p-button [raised]="true" severity="primary" label="OK" [disabled]="(formSelectControl.invalid)"
+    (click)="submitFormSelect()"
+   ></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog *ngIf="displayMatchDayReplaceDialog" [header]="'Remplacer: '+selectedMatchDay?.label" [(visible)]="displayMatchDayReplaceDialog" [modal]="true" [style]="{width: '600px'}" [draggable]="false" [resizable]="false" [closable]="false">
+
+   <div class="p-field mb-4 w-full" >
+    <label for="matchdaySelect" class="block text-gray-700 text-md font-bold mb-2">Remplacer par:</label>
+  <p-select [filter]="true"
+[options]="allMatchDays" optionLabel="label" optionValue="match_day_id" [formControl]="matchDayToReplaceControl" appendTo="body" class="w-full"></p-select>
+
+   </div>
+
+
+  <ng-template pTemplate="footer">
+   <p-button [raised]="true" label="Annuler" severity="secondary" (click)="closeMatchDayReplaceDialog()"></p-button>
+   <p-button [raised]="true" severity="primary" label="OK" [disabled]="(matchDayToReplaceControl.invalid || matchDayToReplaceControl.value == selectedMatchDay?.match_day_id)" [loading]="formLoading"
+    (click)="submitMatchDayReplaceForm()"
+   ></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog *ngIf="displayMatchDayRescheduleDialog" [header]="'Modifier la période: '+selectedMatchDay?.label" [(visible)]="displayMatchDayRescheduleDialog" [modal]="true" [style]="{width: '600px'}" [draggable]="false" [resizable]="false" [closable]="false">
+
+<!-- 2 datepickers fields on the same line -->
+
+   <div class=" w-full" >
+   <div class="p-field mb-4 w-full">
+    <label for="matchDayStart" class="block text-gray-700 text-md font-bold mb-2 w-full" >Date de début:</label>
+    <p-datepicker id="matchDayStart" [formControl]="matchDayStartControl" dateFormat="dd/mm/yy" [readonlyInput]="false" appendTo="body" [style]="{width: '100%'}" styleClass="mb-2"></p-datepicker>
+    <small class="text-red-500" *ngIf="matchDayStartControl.hasError('required') && matchDayStartControl.touched">La date de début est requise.</small>
+
+   </div>
+
+      <div class="p-field mb-4 w-full">
+    <label for="matchDayEnd" class="block text-gray-700 text-md font-bold mb-2 w-full" >Date de fin:</label>
+    <p-datepicker id="matchDayEnd" [formControl]="matchDayEndControl" dateFormat="dd/mm/yy" [readonlyInput]="false" appendTo="body" [style]="{width: '100%'}" styleClass="mb-2"></p-datepicker>
+    <small class="text-red-500" *ngIf="matchDayEndControl.hasError('required') && newMatchDateControl.touched">La date de fin est requise.</small>
+
+
+   </div>
+   </div>
+
+
+
+  <ng-template pTemplate="footer">
+   <p-button [raised]="true" label="Annuler" severity="secondary" (click)="closeMatchDayRescheduleDialog()"></p-button>
+   <p-button [raised]="true" severity="primary" label="OK" [disabled]="(matchDayStartControl.invalid || matchDayEndControl.invalid || matchDayStartControl.value! > matchDayEndControl.value! )" [loading]="formLoading"
+    (click)="submitMatchDayReplaceForm()"
+   ></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog *ngIf="displayGenerateDialog" header="(Ré)Générer la phase retour" [(visible)]="displayGenerateDialog" [modal]="true" [style]="{width: '900px'}" [draggable]="false" [resizable]="false" [closable]="false">
+  <form [formGroup]="generateForm" class=" flex flex-col gap-6">
+
+
+
+                 <div  class="grid grid-cols-2 gap-4">
+
+         <div >
+          <label class="font-bold block mb-1">Date de début (Phase retour)<span class="text-red-500"> *</span></label>
+          <p-datepicker
+            formControlName="second_leg_start"
+
+            showIcon
+            dateFormat="dd/mm/yy"
+            class="w-full"
+            [style]="{ 'width': '100%' }"
+          />
+           <small class="text-red-500" *ngIf="generateForm.get('second_leg_start')?.hasError('required') && generateForm.get('second_leg_start')?.touched">
+            La date de début (Phase retour) est requise.
+          </small>
+          </div>
+
+         <div >
+          <label class="font-bold block mb-1">Date de fin (Phase retour)<span class="text-red-500"> *</span></label>
+          <p-datepicker
+            formControlName="second_leg_end"
+
+            showIcon
+            dateFormat="dd/mm/yy"
+            class="w-full"
+            [style]="{ 'width': '100%' }"
+          />
+           <small class="text-red-500" *ngIf="generateForm.get('second_leg_end')?.hasError('required') && generateForm.get('second_leg_end')?.touched">
+            La date de fin (Phase retour)  est requise.
+          </small>
+        </div>
+          <!-- Heure de début des matchs -->
+          <div>
+            <label class="font-bold block mb-1">Heure de début<span class="text-red-500">*</span></label>
+            <p-datepicker
+              formControlName="match_start_time"
+              [timeOnly]="true"
+              class="w-full"
+              [style]="{ 'width': '100%' }"
+            />
+            <small class="text-red-500"
+              *ngIf="generateForm.get('match_start_time')?.hasError('required') && generateForm.get('match_start_time')?.touched">
+              L'heure est requise.
+            </small>
+          </div>
+
+          <!-- Intervalle entre deux matchs -->
+          <div>
+            <label class="font-bold block mb-1">Intervalle entre deux matchs (h)<span class="text-red-500">*</span></label>
+            <p-inputNumber formControlName="min_hours_between_team_matches" class="w-full" />
+            <small class="text-red-500"
+              *ngIf="generateForm.get('min_hours_between_team_matches')?.hasError('required') && generateForm.get('min_hours_between_team_matches')?.touched">
+      L’intervalle entre matchs est requis.
+    </small>
+          </div>
+                    <!-- Jours autorisés -->
+          <div class="col-span-2">
+            <label class="font-bold block mb-1">Jours autorisés<span class="text-red-500">*</span></label>
+            <p-multiSelect
+              formControlName="allowed_match_days"
+              [options]="allowedDaysOptions"
+              optionLabel="label"
+              optionValue="value"
+              display="chip"
+              class="w-full"
+              selectedItemsLabel="{0} jour(s) autorisés"
+              [maxSelectedLabels]="8"
+            />
+            <small class="text-red-500"
+              *ngIf="generateForm.get('allowed_match_days')?.hasError('required') && generateForm.get('allowed_match_days')?.touched">
+              Les jours autorisés sont requis.
+            </small>
+          </div>
+  </div>
+
+        <!-- Dates réservées -->
+        <p-card styleClass="w-full shadow-sm rounded-md border border-gray-200 p-1">
+          <div class="flex flex-col md:flex-col gap-3 ju">
+            <label class="font-bold text-center">Dates réservées</label>
+            <div class="flex gap-3   justify-center">
+              <p-datepicker
+              appendTo="body"
+                [formControl]="skipDateControl"
+                [showIcon]="true"
+                placeholder="Choisir une date..."
+                inputClass="w-full md:w-64"
+              ></p-datepicker>
+              <p-button label="Ajouter" icon="pi pi-plus" severity="warn" (click)="addSkipDate()" />
+            </div>
+
+            <div formArrayName="skip_dates" class="flex flex-wrap gap-2 mt-2">
+              <div *ngFor="let control of getSkipDatesArray().controls; let j = index" [formGroupName]="j"
+                class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+                <span class="text-md font-bold">{{ control.value.date | date: 'fullDate' }}</span>
+                <button pButton icon="pi pi-times" class="p-button-rounded p-button-md p-button-text p-button-danger"
+                  (click)="removeSkipDate(j)" type="button"></button>
+              </div>
+            </div>
+          </div>
+        </p-card>
+  </form>
+  <ng-template pTemplate="footer">
+    <p-button [raised]="true" label="Annuler" severity="secondary" (click)="closeGenerateDialog()"></p-button>
+    <p-button [raised]="true" severity="primary" label="OK" [disabled]="generateForm.invalid" [loading]="formLoading"
+      (click)="submitGenerateForm()"></p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- <app-export-match
+  [phase]="phases[selectedPhaseIndex]"
+  #calendarExport
+  style="position: absolute; left: -9999px; top: -9999px;"
+></app-export-match> -->
+
+
+

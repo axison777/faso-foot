@@ -1,0 +1,578 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="team-container">
+  <!-- Header -->
+  <div class="header">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Détails du Joueur</h1>
+
+  </div>
+
+  <!-- Carte équipe -->
+<div class="player-card" *ngIf="player && !loading">
+  <div class="player-info">
+    <div class="flex items-center justify-between ">
+<div>
+          <ng-container *ngIf="player?.photo_url">
+        <img [src]="player.photo_url" [alt]="player.first_name" class="player-photo rounded-full shadow-md" />
+      </ng-container>
+    <div>
+    <div class="inline-flex gap-2">
+  <h2 class="text-xl font-semibold">
+    {{ player.first_name }} {{ player.last_name }}
+  </h2>
+  <p-button
+    icon="pi pi-eye"
+    (click)="showPlayerAllDetails()"
+    class="-translate-y-1">
+  </p-button>
+</div>
+
+        <p class="text-sm text-gray-500">#{{ player.license_number }}</p>
+      </div>
+</div>
+       <div class="meta-grid mt-4 md:grid grid-cols-2 ml-2   mr-5">
+      <div><span class="label">Nationalité:</span> <span class="value"> {{ player.nationality }}</span></div>
+      <div><span class="label">Naissance:</span> <span class="value"> {{ player.date_of_birth | date }}</span></div>
+      <div><span class="label">Lieu:</span> <span class="value"> {{ player.birth_place }}</span></div>
+      <div><span class="label">Position:</span> <span class="value"> {{getPositionLabel(player.preferred_position) }} </span></div>
+      <div><span class="label">Statut:</span> <span class="value"> {{getStatusLabel( player.status) }}</span></div>
+      <div><span class="label">Taille:</span> <span class="value"> {{ player.height }} cm</span></div>
+      <div><span class="label">Poids:</span> <span class="value"> {{ player.weight }} kg</span></div>
+      <div><span class="label">Pied fort:</span> <span class="value"> {{getFootLabel(player.foot_preference) }}</span></div>
+    </div>
+
+
+
+    </div>
+
+    <!-- Quick meta -->
+
+    <!-- Bouton pour voir tout -->
+    <div class="mt-4 text-right">
+
+    </div>
+  </div>
+</div>
+
+  <!-- Tabs équipe -->
+  <p-tabView [(activeIndex)]="activeIndex" class="team-tabs">
+    <!-- TAB JOUEURS -->
+
+
+
+
+    <!-- TAB TROPHEES -->
+    <p-tabPanel *ngIf="0" header="Trophées" leftIcon="pi pi-trophy">
+<!--       <div class="tab-header-actions text-end">
+        <button class="btn-primary" (click)="showTrophyDialog()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un trophée</button>
+      </div><br>
+
+      <div class="table-container" *ngIf="club.trophies?.length; else noTrophies">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nom</th>
+              <th>Compétition</th>
+              <th>Année</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of club.trophies; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="cell-strong">{{ t.name }}</td>
+              <td>{{ t.competition_name }}</td>
+              <td>{{ t.year }}</td>
+              <td class="actions">
+                <div class="btn-group">
+                  <p-button severity="warn" icon="pi pi-pencil" (click)="showTrophyDialog(t)" />
+                  <button class="btn btn-danger" (click)="deleteEntity('trophy', t.id)"><i class="pi pi-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noTrophies>
+        <div class="no-results"><p>Pas de trophées pour le moment.</p></div>
+      </ng-template> -->
+    </p-tabPanel>
+
+    <!-- TAB RESPONSABLE -->
+   <!--  <p-tabPanel *ngIf="0" header="Responsable" leftIcon="pi pi-user">
+      <div class="responsable-card" >
+        <div  class="title">{{ club.manager_first_name }} {{ club.manager_last_name }}</div>
+        <div class="muted">{{ club.manager_role }}</div>
+        <div class="muted">Contact : {{ club.phone }} • {{ club.email }}</div>
+      </div>
+    </p-tabPanel> -->
+
+        <!-- TAB CONTRATS -->
+    <p-tabPanel header="Contrats" leftIcon="pi pi-file ">
+       <div class="tab-header-actions text-end">
+        <button class="btn-primary"  (click)="newContract()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un contrat</button>
+      </div><br>
+
+         <!-- Liste contrats -->
+     <ng-container *ngIf="!showContractForm">
+    <div  class="table-container" *ngIf="player?.contracts?.length; else noContracts">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Equipe</th>
+            <th>Début</th>
+            <th>Fin</th>
+            <th>Salaire</th>
+            <th>Statut</th>
+          <!--   <th>Clauses</th> -->
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of player!.contracts!; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td class="cell-strong">{{ c?.team_name || '—' }}</td>
+            <td>{{ c.start_date | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ c.end_date | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ c.salary_amount | number:'1.0-0':'fr-FR' }} F CFA</td>
+            <td>
+              <span [ngClass]="{
+                'status-active': c.status === 'ACTIVE',
+                'status-inactive': c.status === 'INACTIVE',
+                'status-suspended': c.status === 'SUSPENDED'
+              }">
+                {{getStatusLabel(c.status) || c.status }}
+              </span>
+            </td>
+     <!--        <td>
+              <ul *ngIf="c.clauses?.length; else noClauses">
+                <li *ngFor="let clause of c.clauses">{{ clause.type }} : {{ clause.value }}</li>
+              </ul>
+              <ng-template #noClauses>—</ng-template>
+            </td> -->
+            <td class="actions">
+              <div class="btn-group">
+                <p-button severity="warn" icon="pi pi-pencil" (click)="editContract(c)" />
+                <button class="btn btn-danger" (click)="deleteContract(c.id!)"><i class="pi pi-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </ng-container>
+    <ng-template #noContracts>
+      <div class="no-results"><p>Aucun contrat</p></div>
+    </ng-template>
+
+    </p-tabPanel>
+
+
+  </p-tabView>
+
+  <!-- ========== DIALOG: CREATE / EDIT PLAYER ========== -->
+    <p-dialog [(visible)]="showPlayerForm" [modal]="true" [draggable]="false" [closable]="false"
+              [style]="{ width: '1000px', height: '1400px' }"  [header]="isEditingPlayer ? 'Modifier le joueur' : 'Ajouter un joueur'">
+      <form [formGroup]="playerForm" class="player-form" (ngSubmit)="savePlayer()">
+        <div class="grid">
+          <div class="col-6">
+            <label>Nom <span class="req">*</span></label>
+            <input pInputText formControlName="last_name" placeholder="Nom" />
+          </div>
+          <div class="col-6">
+            <label>Prénom <span class="req">*</span></label>
+            <input pInputText formControlName="first_name" placeholder="Prénom" />
+          </div>
+
+          <div class="col-6">
+            <label>Date de naissance</label>
+            <p-datepicker [style]="{ width: '100%' }" formControlName="date_of_birth" dateFormat="dd/mm/yy" [showIcon]="true"></p-datepicker>
+          </div>
+
+          <div class="col-6">
+            <label>Lieu de naissance</label>
+            <input pInputText formControlName="birth_place" />
+          </div>
+
+          <div class="col-6">
+            <label>Nationalité</label>
+            <input pInputText formControlName="nationality" />
+          </div>
+
+          <div class="col-6">
+            <label>Téléphone</label>
+            <input pInputText formControlName="phone" />
+          </div>
+
+          <div class="col-6">
+            <label>Email</label>
+            <input pInputText formControlName="email" />
+          </div>
+
+          <div class="col-6">
+            <label>N° Licence</label>
+            <input pInputText formControlName="license_number" />
+          </div>
+
+          <div class="col-6">
+            <label>Photo</label>
+            <!-- <input type="file" (change)="onPhotoSelected($event)" accept="image/*" />
+            <div *ngIf="playerForm.get('photo_url')?.value" class="photo-preview">
+              <img [src]="playerForm.get('photo_url')?.value" alt="photo" />
+            </div> -->
+            <div *ngIf="isEditingPlayer && currentPhoto" class="mb-2">
+            <p class="text-gray-600 text-sm mb-1">Photo actuelle :</p>
+            <img [src]="currentPhoto" alt="Photo actuele" class="w-24 h-24 object-contain rounded shadow" />
+          </div>
+            <p-fileupload
+            #fileUploader
+            name="logo"
+            [customUpload]="true"
+            [auto]="false"
+            accept="image/*"
+            maxFileSize="1000000"
+            chooseLabel="Choisir un fichier"
+            chooseIcon="pi pi-upload"
+            (onSelect)="onFileSelect($event)"
+            (onRemove)="selectedFile = null;"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            [mode]="'advanced'"
+          >
+            <ng-template #empty>
+              <div>Glisser le fichier ici</div>
+            </ng-template>
+          </p-fileupload>
+          </div>
+
+          <div class="col-6">
+            <label>Position préférée</label>
+            <p-select [options]="positionOptions" optionLabel="label" optionValue="value" formControlName="preferred_position" placeholder="Position"></p-select>
+          </div>
+
+          <div class="col-6">
+            <label>Positions secondaires</label>
+            <p-multiSelect [options]="positionOptions" optionLabel="label" optionValue="value" formControlName="secondary_positions" placeholder="Positions secondaires"></p-multiSelect>
+          </div>
+
+          <div class="col-3">
+            <label>Taille (cm)</label>
+            <p-inputNumber formControlName="height" [min]="0"></p-inputNumber>
+          </div>
+
+          <div class="col-3">
+            <label>Poids (kg)</label>
+            <p-inputNumber formControlName="weight" [min]="0"></p-inputNumber>
+          </div>
+
+          <div class="col-3">
+            <label>Groupe sanguin</label>
+            <input pInputText formControlName="blood_type" />
+          </div>
+
+          <div class="col-3">
+            <label>Pied</label>
+            <p-select [options]="footOptions" optionLabel="label" optionValue="value" formControlName="foot_preference" placeholder="Pied"></p-select>
+          </div>
+
+          <div class="col-6">
+            <label>Statut</label>
+            <p-select [options]="statusOptions" optionLabel="label" optionValue="value" formControlName="status" placeholder="Statut"></p-select>
+          </div>
+
+          <div class="col-6">
+            <label>Carrière (début - fin)</label>
+            <div class="career-row">
+              <p-datepicker [style]="{ width: '100%' }" formControlName="career_start" dateFormat="dd/mm/yy" [showIcon]="true"></p-datepicker>
+              <p-datepicker [style]="{ width: '100%' }" formControlName="career_end" dateFormat="dd/mm/yy" [showIcon]="true"></p-datepicker>
+            </div>
+          </div>
+
+          <!-- Emergency contacts -->
+          <div class="col-12 emergency">
+            <label>Contacts d'urgence</label>
+            <div formArrayName="emergency_contact">
+              <div *ngFor="let ec of ecControls; let idx = index" [formGroupName]="idx" class="ec-row">
+                <input pInputText formControlName="name" placeholder="Nom" />
+                <input pInputText formControlName="phone" placeholder="Téléphone" />
+                <input pInputText formControlName="email" placeholder="Email" />
+                <input pInputText formControlName="relationship" placeholder="Relation" />
+                <button class="btn btn-danger small" type="button" (click)="removeEmergencyContact(idx)"><i class="pi pi-trash"></i></button>
+              </div>
+            </div>
+            <div class="ec-actions">
+              <button class="btn btn-info small" type="button" (click)="addEmergencyContact()"><i class="pi pi-plus"></i> Ajouter contact</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-footer">
+          <div class="left">
+            <p-button [raised]="true" severity="secondary" type="button" (click)="closePlayerForm()">Annuler</p-button>
+          </div>
+          <div class="right">
+            <p-button [loading]="loadingForm" [raised]="true" type="submit" (click)="savePlayer()">Enregistrer</p-button>
+          </div>
+        </div>
+      </form>
+    </p-dialog>
+
+  <!-- ========== DIALOG: PLAYER DETAILS (read-only quick view) ========== -->
+    <p-dialog [(visible)]="showPlayerDetails" [modal]="true" [draggable]="false" [style]="{ width: '680px' }" [header]="player ? (player.first_name + ' ' + player.last_name) : 'Détails'" [styleClass]="'player-details-dialog'">
+      <div class="details-grid" *ngIf="player">
+        <div class="left-col">
+          <div class="avatar-large" [ngStyle]="{'background-image': player.photo_url ? 'url('+player.photo_url+')' : 'linear-gradient(135deg,#2ecc71,#118c46)'}">
+            <span *ngIf="!player.photo_url">{{ (player.first_name?.charAt(0) || '') + (player.last_name?.charAt(0) || '') }}</span>
+          </div>
+
+          <div class="summary">
+            <h2>{{ player.first_name }} {{ player.last_name }}</h2>
+            <p class="muted">{{ player.nationality || '—' }} • {{ player.birth_place || '—' }}</p>
+
+            <div class="meta-row">
+              <div><strong>Position</strong><div>{{ player.preferred_position || getActiveContract(player)?.position || '—' }}</div></div>
+              <div><strong>Numéro</strong><div>{{ getActiveContract(player)?.number || '—' }}</div></div>
+            </div>
+
+            <div class="meta-row">
+              <div><strong>Taille</strong><div>{{ player.height ? player.height + ' cm' : '—' }}</div></div>
+              <div><strong>Poids</strong><div>{{ player.weight ? player.weight + ' kg' : '—' }}</div></div>
+            </div>
+
+            <div class="meta-row">
+              <div><strong>Pied</strong><div>{{getFootLabel(player.foot_preference) || '—' }}</div></div>
+              <div><strong>Statut</strong><div>{{ getStatusLabel(player.status) || '—' }}</div></div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+
+ <!--      <ng-template #footer>
+        <div class="flex justify-end gap-2">
+          <button class="btn-secondary" type="button" (click)="showPlayerDetails = false">Fermer</button>
+          <button class="btn-primary" type="button" (click)="showPlayerDialog(player || undefined)">Modifier</button>
+        </div>
+      </ng-template> -->
+    </p-dialog>
+
+
+  <!-- ========== DIALOG: CREATE / EDIT CONTRACTS ========== -->
+    <p-dialog [(visible)]="showContractForm" [modal]="true" [draggable]="false" [closable]="false"
+              [style]="{ width: '800px', }"  [header]="isEditingContract ? 'Modifier le contrat' : 'Ajouter un contrat'">
+
+       <!-- Formulaire contrat -->
+    <div  class="form-container mt-4">
+  <h3 class="form-title">
+    {{ isEditingContract ? 'Modifier un contrat' : 'Ajouter un contrat' }}
+  </h3>
+
+  <form [formGroup]="contractForm" class="form-grid">
+
+    <!-- Club -->
+ <!--    <div class="form-item">
+      <label>Club <span class="req">*</span></label>
+      <p-select formControlName="club_id"
+                [options]="teams"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Sélectionner un club"
+                appendTo="body">
+      </p-select>
+      <small class="error" *ngIf="cf['club_id']?.invalid && cf['club_id']?.touched">Requis</small>
+    </div> -->
+
+    <!-- Dates -->
+    <div class="form-item">
+      <label>Début <span class="req">*</span></label>
+      <p-datepicker formControlName="start_date"
+                  dateFormat="dd/mm/yy"
+                  [showIcon]="true"
+                  appendTo="body"></p-datepicker>
+      <small class="error" *ngIf="cf['start_date']?.invalid && cf['start_date']?.touched">Requis</small>
+    </div>
+    <div class="form-item">
+      <label>Fin <span class="req">*</span></label>
+      <p-datepicker formControlName="end_date"
+                  dateFormat="dd/mm/yy"
+                  [showIcon]="true"
+                  appendTo="body"></p-datepicker>
+      <small class="error" *ngIf="cf['end_date']?.invalid && cf['end_date']?.touched">Requis</small>
+    </div>
+
+    <!-- Salaire -->
+    <div class="form-item">
+      <label>Salaire <span class="req">*</span></label>
+      <p-inputNumber value="0" formControlName="salary_amount" mode="currency" currency="XOF" locale="fr-FR"></p-inputNumber>
+      <small class="error" *ngIf="cf['salary_amount']?.invalid && cf['salary_amount']?.touched">Requis</small>
+    </div>
+
+    <!-- Statut -->
+    <div class="form-item">
+      <label>Statut <span class="req">*</span></label>
+      <p-select formControlName="status"
+                [options]="[
+                  {label: 'Actif', value: 'ACTIVE'},
+                  {label: 'Inactif', value: 'INACTIVE'},
+                  {label: 'Suspendu', value: 'SUSPENDED'}
+                ]"
+                placeholder="Sélectionner un statut"
+                appendTo="body">
+      </p-select>
+      <small class="error" *ngIf="cf['status']?.invalid && cf['status']?.touched">Requis</small>
+    </div>
+    <div>
+        <!-- Club -->
+        <div class="form-item">
+          <label>Equipe <span class="req">*</span></label>
+          <p-select formControlName="team_id"
+                    [options]="teams"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Sélectionner un club"
+                    appendTo="body">
+          </p-select>
+          <small class="error" *ngIf="cf['team_id']?.invalid && cf['team_id']?.touched">Requis</small>
+        </div>
+
+
+    </div>
+
+    <!-- Clauses -->
+<!-- <div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
+  <div class="flex justify-between items-center mb-2">
+    <label class="font-semibold">Clauses</label>
+    <p-button variant="outlined" size="small" (click)="addClause()">
+      <i class="pi pi-plus "></i>
+    </p-button>
+  </div>
+
+  <div formArrayName="clauses">
+    <div *ngFor="let clause of clauses.controls; let i = index" [formGroupName]="i"
+         class="clause-item flex items-center gap-2 mb-2 p-2 border rounded w-full">
+      <input pInputText type="text" formControlName="type" placeholder="Nom" class="input flex-1 w-full" />
+      <input pInputText type="text" formControlName="value" placeholder="Contenu" class="input flex-1 w-full" />
+      <p-button icon="pi pi-times" size="small" variant="outlined" severity="danger" (click)="removeClause(i)">
+
+      </p-button>
+    </div>
+  </div>
+</div>
+ -->
+
+  </form>
+
+  <div class="form-actions mt-4 flex justify-end gap-2">
+    <p-button label="Annuler"  [raised]="true" severity="secondary" (click)="cancelContractForm()" />
+    <p-button [loading]="loading" [raised]="true" (click)="saveContract()" label="Enregistrer"  />
+  </div>
+</div>
+
+</p-dialog>
+
+
+
+
+
+
+  <!-- ========== DIALOG: TROPHY FORM ========== -->
+  <p-dialog [draggable]="false" [(visible)]="showTrophyForm" [modal]="true" [style]="{ width: '520px' }"
+            [header]="isEditingTrophy ? 'Modifier un trophée' : 'Ajouter un trophée'" [closable]="false">
+    <ng-template #content>
+      <form [formGroup]="trophyForm" class="form-grid">
+        <div class="form-item">
+          <label>Nom <span class="req">*</span></label>
+          <input pInputText formControlName="name" placeholder="Nom du trophée" />
+<!--           <small class="error" *ngIf="tf.name?.invalid && tf.name?.touched">Requis</small> -->
+        </div>
+        <div class="form-item">
+          <label>Compétition <span class="req">*</span></label>
+          <input pInputText formControlName="competition_name" placeholder="Compétition" />
+        <!--   <small class="error" *ngIf="tf.competition_name?.invalid && tf.competition_name?.touched">Requis</small> -->
+        </div>
+        <div class="form-item">
+          <label>Année <span class="req">*</span></label>
+          <p-inputNumber formControlName="year" [useGrouping]="false" [min]="1800" [max]="2100"></p-inputNumber>
+        <!--   <small class="error" *ngIf="tf.year?.invalid && tf.year?.touched">Requis</small> -->
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button label="Annuler" icon="pi pi-times" [raised]="true" severity="secondary" (click)="closeTrophyForm()" />
+        <p-button [loading]="loading" [raised]="true" (click)="saveTrophy()" label="Enregistrer" icon="pi pi-check" />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+
+
+<!-- DIALOG DETAIL -->
+<p-dialog *ngIf="playerAllDetails" header="Informations complètes du joueur" [(visible)]="playerAllDetails" [modal]="true" [style]="{width: '600px'}" [closable]="true">
+<div class="p-4 space-y-6">
+
+    <!-- Infos générales -->
+    <div>
+      <h3 class="section-title">Informations générales</h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div><span class="label">Nom complet:</span> <span class="value">{{ player.first_name }} {{ player.last_name }}</span></div>
+        <div><span class="label">Date de naissance:</span> <span class="value">{{ player.date_of_birth | date:'dd/MM/yyyy' }}</span></div>
+        <div><span class="label">Lieu de naissance:</span> <span class="value">{{ player.birth_place }}</span></div>
+        <div><span class="label">Nationalité:</span> <span class="value">{{ player.nationality }}</span></div>
+        <div><span class="label">Email:</span> <span class="value">{{ player.email }}</span></div>
+        <div><span class="label">Téléphone:</span> <span class="value">{{ player.phone }}</span></div>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Caractéristiques -->
+    <div>
+      <h3 class="section-title">Caractéristiques</h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div><span class="label">Taille:</span> <span class="value">{{ player.height }} cm</span></div>
+        <div><span class="label">Poids:</span> <span class="value">{{ player.weight }} kg</span></div>
+        <div><span class="label">Groupe sanguin:</span> <span class="value">{{ player.blood_type }}</span></div>
+        <div><span class="label">Pied fort:</span> <span class="value">{{getFootLabel(player.foot_preference) || player.foot_preference }}</span></div>
+        <div><span class="label">Position préférée:</span> <span class="value">{{getPositionLabel(player.preferred_position) || player.preferred_position }}</span></div>
+        <div><span class="label">Positions secondaires:</span> <span *ngFor="let secondary_position of player.secondary_positions index as i" class="value">{{getPositionLabel(secondary_position)}} {{player.secondary_positions!.length - 1 === i ? '' : ', '}}</span></div>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Carrière -->
+    <div>
+      <h3 class="section-title">Carrière</h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div><span class="label">Début carrière:</span> <span class="value">{{ player.career_start | date:'dd/MM/yyyy' }}</span></div>
+        <div><span class="label">Fin carrière:</span> <span class="value">{{ player.career_end ? (player.career_end | date:'dd/MM/yyyy') : 'N/A' }}</span></div>
+        <div><span class="label">Statut:</span> <span class="value">{{ player.status }}</span></div>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Contact d'urgence -->
+    <div>
+      <h3 class="section-title">Contacts d'urgence</h3>
+      <div *ngFor="let contact of player.emergency_contact" class="emergency-card">
+        <p><strong>{{ contact.name }}</strong> ({{ contact.relationship }})</p>
+        <p>Téléphone: {{ contact.phone }}</p>
+        <p>Email: {{ contact.email }}</p>
+      </div>
+    </div>
+
+    <hr />
+
+
+
+  </div>
+</p-dialog>
+

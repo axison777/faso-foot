@@ -1,0 +1,272 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="users-container">
+  <!-- Header -->
+  <div class="header">
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Utilisateurs</h1>
+    <button class="btn-primary" (click)="openCreate()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter un utilisateur
+    </button>
+  </div>
+
+  <!-- Formulaire -->
+  <p-dialog
+    [draggable]="false"
+    [(visible)]="showForm"
+    [style]="{ width: '900px' }"
+    [header]="isEditing ? 'Modifier l\'utilisateur' : 'Ajouter un nouvel utilisateur'"
+    [modal]="true"
+    [closable]="false"
+  >
+    <form [formGroup]="userForm" (ngSubmit)="saveUser()" class="user-form-grid">
+      <!-- Colonne gauche: informations -->
+      <div class="left-col">
+        <div class="form-group">
+          <label class="block font-bold mb-2">Prénom <span class="text-red-500">*</span></label>
+          <input pInputText type="text" formControlName="first_name" placeholder="Prénom" class="w-full" />
+          <small class="text-red-500" *ngIf="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
+            <span *ngIf="userForm.get('first_name')?.errors?.['required']">Le prénom est requis</span>
+            <span *ngIf="userForm.get('first_name')?.errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</span>
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
+          <input pInputText type="text" formControlName="last_name" placeholder="Nom" class="w-full" />
+          <small class="text-red-500" *ngIf="userForm.get('last_name')?.invalid && userForm.get('last_name')?.touched">
+            <span *ngIf="userForm.get('last_name')?.errors?.['required']">Le nom est requis</span>
+            <span *ngIf="userForm.get('last_name')?.errors?.['minlength']">Le nom doit contenir au moins 2 caractères</span>
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="block font-bold mb-2">Email <span class="text-red-500">*</span></label>
+          <input pInputText type="email" formControlName="email" placeholder="Email" class="w-full" />
+          <small class="text-red-500" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+            <span *ngIf="userForm.get('email')?.errors?.['required']">L'email est requis</span>
+            <span *ngIf="userForm.get('email')?.errors?.['email']">Format d'email invalide</span>
+          </small>
+        </div>
+      </div>
+
+      <!-- Colonne droite: rôles avec toggle -->
+     <!-- Colonne droite: rôles avec toggle -->
+<div class="right-col">
+  <label class="block font-bold mb-2">Rôles <span class="text-red-500">*</span></label>
+
+  <div *ngIf="loadingRoles" class="text-center py-3">
+    <i class="pi pi-spin pi-spinner"></i> Chargement des rôles...
+  </div>
+
+  <!-- Switch global -->
+  <div *ngIf="!loadingRoles && availableRoles?.length" class="mb-2 flex items-center">
+    <p-inputSwitch 
+      [(ngModel)]="allRolesSelected" 
+      [ngModelOptions]="{standalone: true}"
+      (onChange)="toggleAllRoles($event.checked)">
+    </p-inputSwitch>
+    <span class="ml-2">Tout sélectionner</span>
+    <span class="ml-2 text-gray-500 text-sm">
+      {{ userForm.get('roles')?.value?.length || 0 }} / {{ availableRoles.length }} sélectionné(s)
+    </span>
+  </div>
+
+  <!-- Liste des rôles -->
+  <div class="roles-list-switch" *ngIf="!loadingRoles && availableRoles?.length; else noRoles">
+    <div class="role-row" *ngFor="let r of availableRoles">
+      <div class="info">
+        <div class="name">{{ r.name }}</div>
+        <div class="slug">{{ r.value }}</div>
+      </div>
+      <p-inputSwitch
+        [ngModel]="(userForm.get('roles')?.value || []).includes(r.value)"
+        [ngModelOptions]="{standalone: true}"
+        (onChange)="onToggleRole(r.value, $event.checked)"
+      ></p-inputSwitch>
+    </div>
+  </div>
+
+  <ng-template #noRoles>
+    <p class="text-sm text-gray-500">Aucun rôle disponible</p>
+  </ng-template>
+
+  <small class="text-red-500" *ngIf="userForm.get('roles')?.invalid && userForm.get('roles')?.touched">
+    Au moins un rôle est requis
+  </small>
+</div>
+
+
+     <div class="form-actions">
+  <div class="left">
+    <button type="button" class="btn btn-secondary" (click)="toggleForm()">
+      <i class="pi pi-times mr-2"></i> Annuler
+    </button>
+  </div>
+  <div class="right">
+    <button 
+      type="submit" 
+      class="btn" 
+      [ngClass]="isEditing ? 'btn-warning' : 'btn-success'" 
+      [disabled]="userForm.invalid"
+    >
+      <i class="pi pi-check mr-2"></i> 
+      {{ isEditing ? 'Modifier' : 'Enregistrer' }}
+    </button>
+  </div>
+</div>
+
+    </form>
+  </p-dialog>
+
+  <!-- Détails utilisateur -->
+<p-dialog [(visible)]="showDetails" [modal]="true" [draggable]="false" 
+          [style]="{ width: '720px' }" [showHeader]="false">
+  <div *ngIf="currentUser" class="user-details-card">
+    
+    <!-- Header -->
+    <div class="card-header">
+      <div class="avatar">
+        <span>{{ (currentUser.last_name || currentUser.first_name || 'U').charAt(0) }}</span>
+      </div>
+      <div class="title">
+        <strong>{{ currentUser.first_name }} {{ currentUser.last_name }}</strong>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body">
+      <div class="row">
+        <span class="label">Nom :</span>
+        <span class="value">{{ currentUser.last_name || '—' }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Prénom :</span>
+        <span class="value">{{ currentUser.first_name || '—' }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Email :</span>
+        <span class="value">{{ currentUser.email || '—' }}</span>
+      </div>
+      <div class="row roles-row">
+        <span class="label">Rôles :</span>
+        <span class="value badges">
+          <span *ngFor="let role of currentUser.roles" 
+                [class]="'badge ' + getRoleClasses(role)">
+            {{ getRoleLabel(role) }}
+          </span>
+          <span *ngIf="!currentUser.roles || currentUser.roles.length === 0" class="muted">
+            Aucun rôle
+          </span>
+        </span>
+      </div>
+      <div class="row">
+        <span class="label">Statut :</span>
+        <span class="value">
+          <span *ngIf="currentUser.is_active" class="badge bg-success">Actif</span>
+          <span *ngIf="!currentUser.is_active" class="badge bg-danger">Inactif</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      <button class="btn btn-secondary" type="button" (click)="closeDetails()">
+        Fermer
+      </button>
+      <button class="btn btn-primary" type="button" (click)="editFromDetails()">
+        Modifier
+      </button>
+    </div>
+
+  </div>
+</p-dialog>
+
+  <!-- Search -->
+  <div class="search-container mt-4 mb-3">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher par prénom, nom, email ou rôle..."
+    />
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    <p>Chargement des utilisateurs...</p>
+  </div>
+
+  <!-- Table des utilisateurs -->
+  <div *ngIf="!loading && filteredUsers.length > 0" class="table-container">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Nom complet</th>
+          <th>Email</th>
+          <th>Rôles</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers">
+          <td class="user-nom">{{ user.first_name }} {{ user.last_name }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <div class="roles-container">
+              <span 
+                *ngFor="let role of user.roles; let i = index" 
+                [class]="'role-badge ' + getRoleClasses(role)"
+              >
+                {{ getRoleLabel(role) }}
+              </span>
+              <span *ngIf="!user.roles || user.roles.length === 0" class="no-role">
+                Aucun rôle
+              </span>
+            </div>
+          </td>
+          <td class="actions">
+            <div class="btn-group">
+              <button 
+                class="btn btn-info" 
+                (click)="viewUser(user)"
+                title="Voir les détails"
+              >
+                <i class="pi pi-eye"></i>
+              </button>
+              <button 
+                class="btn btn-danger" 
+                (click)="deleteUser(user.slug!)"
+                title="Supprimer l'utilisateur"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Aucun résultat -->
+  <div *ngIf="!loading && filteredUsers.length === 0 && searchTerm && users.length > 0" class="no-results">
+    <div class="icon">🔍</div>
+    <p>Aucun utilisateur trouvé pour "{{ searchTerm }}"</p>
+  </div>
+
+  <!-- Aucun utilisateur -->
+  <div *ngIf="!loading && users.length === 0" class="no-results">
+    <div class="icon">👥</div>
+    <p>Aucun utilisateur enregistré</p>
+    <button class="btn-primary mt-3" (click)="toggleForm()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter le premier utilisateur
+    </button>
+  </div>
+
+  <!-- Info sur le nombre d'utilisateurs -->
+  <div *ngIf="!loading && users.length > 0" class="table-info">
+    {{ filteredUsers.length }} utilisateur(s) affiché(s) sur {{ users.length }}
+  </div>
+</div>

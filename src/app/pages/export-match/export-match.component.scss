@@ -1,0 +1,157 @@
+.dody {
+    font-family: Arial, sans-serif;
+    width: 210mm;
+
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Bandeau principal */
+.div1 {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    background-color: #3EB489;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.div1_1 {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.div1_1 img {
+    width: 60px;
+    height: 60px;
+}
+
+.div1_2 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00463c;
+    margin-bottom: 4px;
+}
+
+.div1_3 {
+    font-size: 14px;
+    color: #00463c;
+}
+
+/* Conteneur des cartes */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+/* Carte */
+.card {
+    flex: 1 1 calc(48%);
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+}
+
+/* Titre de la carte (journée) */
+.card_title {
+    height: 35px;
+    background-color: #00463C;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 6px 12px;
+    clip-path: polygon(0 0, 85% 0, 100% 100%, 0% 100%);
+}
+
+/* Match */
+.card_infos {
+    border-top: 1px solid #ccc;
+    padding: 8px 12px;
+    background-color: #ffffff;
+}
+
+.card_infos_head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: bold;
+    background-color: #D8E6D5;
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.card_infos_details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 2px 8px;
+    color: #333;
+}
+
+.card_infos_details p {
+    margin: 0;
+}
+
+.card_infos_separateur {
+    margin-top: 4px;
+    border-top: 1px dashed #aaa;
+}
+
+/* Responsive */
+@media print {
+    .dody {
+        box-shadow: none;
+        border: none;
+        margin: 0;
+    }
+
+    .container {
+        gap: 10px;
+    }
+
+    .card {
+        page-break-inside: avoid;
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        flex: 1 1 100%;
+    }
+
+    .div1_1 {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .card_infos_details {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .card_infos_head {
+        flex-direction: column;
+        gap: 2px;
+    }
+}
+
+.page-break-avoid {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}

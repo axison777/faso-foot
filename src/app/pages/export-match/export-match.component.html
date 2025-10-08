@@ -1,0 +1,45 @@
+<div #calendarRef>
+  <div class="dody" *ngIf="phase">
+    <div class="div1">
+      <div class="div1_1">
+        <img src="assets/images/Ligue1.png" />
+        <div style="height: 70px; padding-top: 28px">LIGUE 1</div>
+      </div>
+      <div class="div1_2">Calendrier des matchs</div>
+      <div class="div1_3">
+        Saison {{ phase.start | date: 'yyyy' }} - {{ phase.end | date: 'yyyy' }} ({{phase.name}})
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="card" *ngFor="let day of phase?.matchdays">
+        <div class="card_title">{{ day.label }}</div>
+
+        <!-- Regroupement par date -->
+        <div class="card_date_group" *ngFor="let group of day.groupedMatchesByDate">
+          <!-- Affichage date + heure dans même ligne avec fond vert -->
+          <div class="card_infos_head" style="margin-top: 1rem;">
+            <p style="margin: 0">{{ group.date | date: 'dd/MM/yyyy' }}</p>
+            <span style="margin-left: auto">{{ group.matches[0]?.time }}</span>
+          </div>
+
+          <div
+            class="card_infos page-break-avoid"
+            *ngFor="let match of group.matches"
+          >
+            <div class="card_infos_details">
+              <p>
+                {{ match.team1 }}
+                <span style="font-size: 11px; color: green">VS</span>
+                {{ match.team2 }}
+              </p>
+              <span class="text-right">{{ match.stadium }}</span>
+            </div>
+
+            <div class="card_infos_separateur"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

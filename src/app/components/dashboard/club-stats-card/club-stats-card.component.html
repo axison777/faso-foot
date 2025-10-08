@@ -1,0 +1,10 @@
+<p-card>
+  <div class="grid">
+    <div class="kpi"><div class="label">Matchs joués</div><div class="value">{{ stats?.played || 0 }}</div></div>
+    <div class="kpi"><div class="label">Victoires</div><div class="value">{{ stats?.wins || 0 }}</div></div>
+    <div class="kpi"><div class="label">Nuls</div><div class="value">{{ stats?.draws || 0 }}</div></div>
+    <div class="kpi"><div class="label">Défaites</div><div class="value">{{ stats?.losses || 0 }}</div></div>
+    <div class="kpi"><div class="label">Buts marqués</div><div class="value">{{ stats?.goals_for || 0 }}</div></div>
+    <div class="kpi"><div class="label">Buts encaissés</div><div class="value">{{ stats?.goals_against || 0 }}</div></div>
+  </div>
+</p-card>

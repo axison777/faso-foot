@@ -1,0 +1,93 @@
+<p-toast></p-toast>
+<div class="login-container">
+  <section class="login-section">
+    <!-- Left side -->
+    <div class="logo-side">
+      <div class="logo-content">
+        <div class="logo-header">
+          <div class="logo-wrapper">
+            <div class="logo-item">
+              <img src="assets/images/Logo-FBF.png" alt="Logo FBF" class="logo-image" />
+              <span class="app-title">FÉDÉRATION BURKINABÈ DE FOOTBALL</span>
+            </div>
+          </div>
+          <div class="logo-title">
+            Bienvenue sur l'espace numérique de gestion des championnats burkinabès de football.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side -->
+    <div class="form-side">
+      <div class="form-container card">
+        <h4 class="form-title">Identifiez-vous</h4>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <!-- Email -->
+          <div class="mb-4">
+            <label for="email" class="block font-bold mb-2">Email</label>
+            <p-iconfield>
+              <p-inputicon class="pi pi-envelope" />
+              <input
+                type="email"
+                id="email"
+                pInputText
+                formControlName="email"
+                class="w-full"
+                placeholder="Adresse email"
+              />
+            </p-iconfield>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-4">
+            <label for="password" class="block font-bold mb-2">Mot de passe</label>
+            <p-iconfield>
+              <p-inputicon class="pi pi-lock" />
+              <input
+                pInputText
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Mot de passe"
+                class="w-full"
+              />
+              <p-inputicon
+                [class.pi-eye]="!showPassword"
+                [class.pi-eye-slash]="showPassword"
+                class="cursor-pointer pi"
+                (click)="togglePasswordVisibility()"
+              ></p-inputicon>
+            </p-iconfield>
+          </div>
+
+          <!-- Démo -->
+          <div class="demo-credentials">
+            <p class="demo-title">Identifiants de démonstration :</p>
+            <div class="demo-list">
+              <p class="text-primary" *ngFor="let cred of defaultCredentials">
+                {{ cred.email }} / {{ cred.password }}
+              </p>
+            </div>
+          </div>
+          <!-- Mot de passe oublié -->
+          <div class="forgot-password mb-3">
+            <a routerLink="/forgot-password" class="forgot-link">
+              Mot de passe oublié ?
+            </a>
+          </div>
+          <!-- Bouton -->
+          <button
+            type="submit"
+            [disabled]="loading || loginForm.invalid"
+            class="login-button"
+          >
+            <span *ngIf="loading" class="loading-spinner"></span>
+            <span *ngIf="loading">Connexion en cours...</span>
+            <span *ngIf="!loading">Se connecter</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>

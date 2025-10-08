@@ -1,0 +1,185 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="stades-container">
+  <!-- Header -->
+  <div class="header">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Stades</h1>
+    <button class="btn-primary" (click)="toggleForm()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter stade
+    </button>
+  </div>
+
+
+  <p-dialog
+[draggable]="false" [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le stade' : 'Ajouter un nouveau stade'" [modal]="true" [closable]="false">
+    <ng-template #content>
+<form [formGroup]="stadiumForm" (ngSubmit)="saveStadium()" class="flex flex-col gap-6">
+
+
+    <div>
+    <label for="name" class="block font-bold mb-2">Nom du stade <span class="text-red-500">*</span></label>
+    <input
+      pInputText
+      type="text"
+      id="name"
+      formControlName="name"
+      placeholder="Entrez le nom du stade"
+      class="w-full"
+    />
+    <small class="text-red-500" *ngIf="stadiumForm.get('name')?.invalid && stadiumForm.get('name')?.touched">
+      Le nom  est requis.
+    </small>
+  </div>
+
+    <div>
+    <label for="name" class="block font-bold mb-2">Abréviation du stade </label>
+    <input
+      pInputText
+      type="text"
+      id="abbreviation"
+      formControlName="abbreviation"
+      placeholder="Entrez l'abréviation du stade"
+      class="w-full"
+    />
+    <small class="text-red-500" *ngIf="stadiumForm.get('abbreviation')?.invalid && stadiumForm.get('abbreviation')?.touched">
+      L'abréviation est requise.
+    </small>
+  </div>
+
+
+
+  <div >
+    <label for="ville" class="block font-bold mb-2">Ville <span class="text-red-500">*</span></label>
+    <p-select
+      id="ville"
+      formControlName="city_id"
+      [options]="villes"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Sélectionnez une ville"
+
+      class="w-full"
+      appendTo="body"
+    ></p-select>
+    <small class="text-red-500" *ngIf="stadiumForm.get('city_id')?.invalid && stadiumForm.get('city_id')?.touched">
+      La ville est requise.
+    </small>
+  </div>
+<!--     <div>
+        <label for="max_matches_per_day" class="block font-bold mb-2">Matchs maximum par jour <span class="text-red-500">*</span></label>
+        <p-inputnumber
+        id="max_matches_per_day"
+        formControlName="max_matches_per_day"
+        placeholder="Entrez le nombre de matchs maximum par jour"
+        class="w-full"
+        ></p-inputnumber>
+        <small class="text-red-500" *ngIf="stadiumForm.get('max_matches_per_day')?.invalid && stadiumForm.get('max_matches_per_day')?.touched">
+        Le nombre de matchs maximum par jour est requis.
+        </small>
+    </div> -->
+    <div>
+      <label for="type_of_field" class="block font-bold mb-2">Type de stade </label>
+      <p-select
+        id="type_of_field"
+        formControlName="type_of_field"
+        [options]="stadiumTypes"
+        optionLabel="name"
+        optionValue="value"
+        placeholder="Sélectionnez le type de stade"
+        class="w-full"
+        appendTo="body"
+      ></p-select>
+      <small class="text-red-500" *ngIf="stadiumForm.get('type_of_field')?.invalid && stadiumForm.get('type_of_field')?.touched">
+        Le type de stade est requis.
+      </small>
+    </div>
+</form>
+
+    </ng-template>
+
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button
+          label="Annuler"
+          icon="pi pi-times"
+          [raised]="true"
+          severity="secondary"
+          (click)="toggleForm()"
+        />
+        <p-button
+
+        [loading]="loading"
+        [raised]="true"
+        (click)="saveStadium()"
+          [label]="isEditing ? 'Modifier' : 'Enregistrer'"
+          icon="pi pi-check"
+          type="submit"
+          form="stadeForm"
+        />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Search -->
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher par nom de stade..."
+    >
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Chargement des stades...
+  </div>
+
+  <!-- Detail du stade -->
+  <p-dialog
+    [draggable]="false" [modal]="true" header="Détails du Stade" [(visible)]="displayDialog" [style]="{ width: '500px' }" [styleClass]="'custom-dialog'">
+    <h3>{{ stadeDetails.name }}</h3>
+    <p> Abbreviation: {{ stadeDetails.abbreviation }}</p>
+    <p> Ville: {{ stadeDetails.city }}</p>
+<!--     <p>Match maximun par jour: {{ stadeDetails.max_matches_per_day }}</p> -->
+    <p>Type de terrain: {{ stadeDetails.type_of_field }}</p>
+
+  </p-dialog>
+
+  <!-- Table -->
+  <div *ngIf="!loading && filteredStadiums.length > 0" class="table-container">
+    <table class="stades-table">
+      <thead>
+        <tr>
+            <th>#</th>
+          <th>Nom du Stade</th>
+
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let stadium of filteredStadiums ">
+          <td>{{getOriginalIndex(stadium)}}</td>
+          <td class="stade-nom">{{ stadium.name }}</td>
+
+          <td class="actions">
+            <div class="btn-group">
+              <p-button severity="warn" icon="pi pi-pencil"  (click)="editStadium(stadium)"/>
+              <button class="btn btn-info" (click)="showDialog(stadium)"><i class="pi pi-eye"></i></button>
+              <button class="btn btn-danger" (click)="deleteStadium(stadium.id!)"><i class="pi pi-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No results -->
+  <div *ngIf="!loading && filteredStadiums.length === 0 && searchTerm && stadiums.length > 0" class="no-results">
+    <div class="icon">🔍</div>
+    <p>Aucun stade trouvé pour "{{ searchTerm }}"</p>
+  </div>
+</div>
+

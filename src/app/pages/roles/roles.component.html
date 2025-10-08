@@ -1,0 +1,225 @@
+<!-- src/app/pages/roles/roles.component.html -->
+<div class="roles-container">
+  <p-toast></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+  <!-- Header -->
+  <div class="header">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Rôles</h1>
+    <div class="header-actions">
+      <button class="btn btn-info" (click)="openCreate()">
+        <i class="pi pi-plus-circle mr-2"></i>Ajouter un rôle
+      </button>
+    </div>
+  </div>
+
+  <!-- Recherche -->
+  <input pInputText 
+         type="text" 
+         class="search-input mb-5" 
+         (input)="applyFilterGlobal($event)" 
+         placeholder="Rechercher un rôle (nom)..." />
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">Chargement des rôles...</div>
+
+  <!-- Table -->
+  <div *ngIf="!loading" class="table-container">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th class="text-center">Nom du Rôle</th>
+          <th>Permissions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let role of roles; let i = index; trackBy: trackBySlug">
+          <td>{{ i + 1 }}</td>
+          <td class="role-cell">
+            <div class="role-meta">
+              <div class="name">{{ role.name }}</div>
+            </div>
+          </td>
+          <td>
+            <span class="badge">{{ role.permissions?.length || 0 }} permission(s)</span>
+          </td>
+          <td class="actions">
+            <div class="btn-group">
+              <button class="btn btn-info" title="Détails" (click)="openDetails(role)">
+                <i class="pi pi-eye"></i>
+              </button>
+              <button class="btn btn-warning" title="Modifier" (click)="openEdit(role)">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn btn-danger" title="Supprimer" (click)="confirmDelete(role)">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="roles.length === 0" class="no-results">
+      <div class="icon">🔍</div>
+      <p>Aucun rôle trouvé</p>
+    </div>
+  </div>
+
+  <!-- ROLE FORM DIALOG -->
+  <p-dialog [(visible)]="showForm" 
+            [modal]="true" 
+            [draggable]="false" 
+            [closable]="false"
+            [style]="{ width: '900px', height: 'auto' }"  
+            [header]="isEditing ? 'Modifier le rôle' : 'Ajouter un rôle'">
+    
+    <form [formGroup]="roleForm" class="role-form" (ngSubmit)="saveRole()">
+      <div class="grid two-cols">
+        <!-- Colonne gauche: Nom du rôle -->
+        <div class="col left-col">
+          <label>Nom du rôle <span class="req">*</span></label>
+          <input pInputText 
+                 formControlName="name" 
+                 placeholder="Nom du rôle"
+                 [class.error-input]="roleForm.get('name')?.invalid && roleForm.get('name')?.touched" />
+          <small class="error-message" 
+                 *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched">
+            Le nom du rôle est obligatoire
+          </small>
+        </div>
+
+        <!-- Colonne droite: Permissions avec toggle -->
+        <div class="col right-col">
+          <label>Permissions <span class="req">*</span></label>
+          <div class="permissions-list-switch" *ngIf="allPermissions?.length; else noPerms">
+                    
+    <!-- Switch global Tout sélectionner -->
+    <div class="permissions-header">
+  <p-inputSwitch
+   [(ngModel)]="allSelected"
+    [ngModelOptions]="{standalone: true}"
+    (onChange)="toggleAllPermissions($event.checked)"
+  ></p-inputSwitch>
+  <span class="ml-2">Tout sélectionner</span>
+  <span class="ml-4 text-gray-500">
+    {{ roleForm.get('permissions')?.value?.length || 0 }} / {{ allPermissions.length }} sélectionnées
+  </span>
+</div>
+
+            <!-- Groupe Administration -->
+            <h4 class="group-title" *ngIf="permissionsAdmin.length">Administration</h4>
+            <div class="group-grid" *ngIf="permissionsAdmin.length">
+              <div class="permission-row" *ngFor="let p of permissionsAdmin; trackBy: trackPermission">
+                <div class="info">
+                  <div class="name">{{ p.name }}</div>
+                </div>
+                <p-inputSwitch 
+                  [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
+                  [ngModelOptions]="{standalone: true}"
+                  (onChange)="togglePermission(p.slug, $event.checked)"
+                  [disabled]="isSubmitting">
+                </p-inputSwitch>
+              </div>
+            </div>
+
+
+            <!-- Groupe Match & Clubs -->
+            <h4 class="group-title" *ngIf="permissionsMatch.length">Match & Clubs</h4>
+            <div class="group-grid" *ngIf="permissionsMatch.length">
+              <div class="permission-row" *ngFor="let p of permissionsMatch; trackBy: trackPermission">
+                <div class="info">
+                  <div class="name">{{ p.name }}</div>
+                </div>
+                <p-inputSwitch 
+                  [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
+                  [ngModelOptions]="{standalone: true}"
+                  (onChange)="togglePermission(p.slug, $event.checked)"
+                  [disabled]="isSubmitting">
+                </p-inputSwitch>
+              </div>
+            </div>
+
+            <!-- Groupe Autres -->
+            <h4 class="group-title" *ngIf="permissionsOther.length">Autres</h4>
+            <div class="group-grid" *ngIf="permissionsOther.length">
+              <div class="permission-row" *ngFor="let p of permissionsOther; trackBy: trackPermission">
+                <div class="info">
+                  <div class="name">{{ p.name }}</div>
+                </div>
+                <p-inputSwitch 
+                  [ngModel]="(roleForm.get('permissions')?.value || []).includes(p.slug)"
+                  [ngModelOptions]="{standalone: true}"
+                  (onChange)="togglePermission(p.slug, $event.checked)"
+                  [disabled]="isSubmitting">
+                </p-inputSwitch>
+              </div>
+            </div>
+          </div>
+          <ng-template #noPerms>
+            <p class="empty">Aucune permission disponible</p>
+          </ng-template>
+          <small class="error-message" 
+                 *ngIf="roleForm.get('permissions')?.invalid && roleForm.get('permissions')?.touched">
+            Au moins une permission doit être sélectionnée
+          </small>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <div class="left">
+          <button type="button" 
+                  class="btn btn-secondary" 
+                  (click)="cancelForm()">
+            Annuler
+          </button>
+        </div>
+        <div class="right">
+         <button type="submit" 
+        [ngClass]="isEditing ? 'btn btn-update' : 'btn btn-create'" 
+        [disabled]="roleForm.invalid || isSubmitting">
+          <span *ngIf="isSubmitting">Enregistrement...</span>
+          <span *ngIf="!isSubmitting">{{ isEditing ? 'Modifier' : 'Créer' }}</span>
+        </button>
+
+        </div>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- ROLE DETAILS DIALOG -->
+  <p-dialog [(visible)]="showDetails" 
+            [modal]="true" 
+            [draggable]="false" 
+            [style]="{ width: '720px' }" 
+            [showHeader]="false" 
+            [styleClass]="'role-details-dialog'">
+    
+    <div class="user-details-card" *ngIf="currentRole">
+      <div class="card-header">
+        <div class="avatar">
+          <span>{{ (currentRole.name || 'R').charAt(0) }}</span>
+        </div>
+        <div class="title"><strong>{{ currentRole.name }}</strong></div>
+      </div>
+      <div class="card-body">
+        <div class="row"><span class="label">Nom du rôle :</span><span class="value">{{ currentRole.name }}</span></div>
+        <div class="row"><span class="label">Permissions :</span><span class="value">{{ currentRole.permissions?.length || 0 }}</span></div>
+        <div class="row roles-row">
+          <span class="label">Permissions accordées :</span>
+          <span class="value badges">
+            <span *ngFor="let slug of currentRole.permissions" [class]="'badge ' + getPermissionBadgeClass(slug)">{{ getPermissionName(slug) }}</span>
+            <span *ngIf="!currentRole.permissions || currentRole.permissions.length === 0" class="muted">Aucune permission</span>
+          </span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-flat" type="button" (click)="closeDetails()">Fermer</button>
+        <button class="btn btn-warning" type="button" (click)="editFromDetails()">Modifier</button>
+      </div>
+    </div>
+  </p-dialog>
+</div>

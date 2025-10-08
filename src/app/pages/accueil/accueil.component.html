@@ -1,0 +1,40 @@
+<div class="dashboard-container">
+  <h2 class="dashboard-title">Tableau de bord</h2>
+
+  <div class="cards-grid">
+    <!-- Colonne de gauche -->
+    <div class="card-column">
+      <div class="card-item">
+        <i class="pi pi-users card-icon"></i>
+        <div>
+          <p class="card-title">Équipes inscrites</p>
+          <h3 class="card-value">{{ totalEquipes }}</h3>
+        </div>
+      </div>
+      <div class="card-item">
+        <i class="pi pi-building card-icon"></i>
+        <div>
+          <p class="card-title">Stades enregistrés</p>
+          <h3 class="card-value">{{ totalStades }}</h3>
+        </div>
+      </div>
+    </div>
+    <!-- Colonne de droite -->
+    <div class="card-column">
+      <div class="card-item">
+        <i class="pi pi-flag card-icon"></i>
+        <div>
+          <p class="card-title">Ligues disponibles</p>
+          <h3 class="card-value">{{ totalLigues }}</h3>
+        </div>
+      </div>
+      <div class="card-item">
+        <i class="pi pi-calendar card-icon"></i>
+        <div>
+          <p class="card-title">Saisons enregistrées</p>
+          <h3 class="card-value">{{ totalSaisons }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

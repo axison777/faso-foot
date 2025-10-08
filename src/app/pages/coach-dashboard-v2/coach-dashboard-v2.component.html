@@ -1,0 +1,202 @@
+<div class="coach-dashboard-v2">
+  <div class="page-header">
+    <h1>Tableau de bord</h1>
+    <p *ngIf="team() as t">{{ t.name }} - {{ t.category }}</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">Chargement...</div>
+
+  <div *ngIf="!loading && teamData() as data" class="dashboard-container">
+    
+    <!-- Zone Prioritaire : Le Prochain Défi -->
+    <div class="priority-zone">
+      <div class="next-match-card">
+        <div class="match-header">
+          <div class="competition-badge">
+            <i class="pi pi-trophy"></i>
+            <span>{{ data.nextMatch?.competition }}</span>
+          </div>
+          <div class="match-date">
+            <i class="pi pi-calendar"></i>
+            <span>{{ data.nextMatch?.date | date:'EEEE d MMMM y':'':'fr' }}</span>
+            <span class="time">{{ data.nextMatch?.date | date:'HH:mm':'':'fr' }}</span>
+          </div>
+        </div>
+        
+        <div class="match-vs">
+          <div class="team-logo">
+            <img [src]="data.kit?.photo" alt="Mon équipe" />
+          </div>
+          <div class="vs-section">
+            <div class="vs-text">VS</div>
+            <div class="opponent-name">{{ data.nextMatch?.opponent }}</div>
+            <div class="stadium">
+              <i class="pi pi-map-marker"></i>
+              <span>Stade Municipal</span>
+            </div>
+          </div>
+          <div class="opponent-logo">
+            <div class="opponent-placeholder">
+              <i class="pi pi-users"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="opponent-stats">
+          <div class="opponent-form">
+            <span class="label">Forme (5 derniers)</span>
+            <div class="form-icons">
+              <span class="result win">W</span>
+              <span class="result loss">L</span>
+              <span class="result draw">D</span>
+              <span class="result win">W</span>
+              <span class="result win">W</span>
+            </div>
+          </div>
+          <div class="opponent-ranking">
+            <span class="label">Classement</span>
+            <span class="rank">5ème</span>
+          </div>
+        </div>
+
+        <div class="match-actions">
+          <button class="primary-action-btn">
+            <i class="pi pi-cog"></i>
+            Préparer la Composition
+          </button>
+          <button class="secondary-action-btn">
+            <i class="pi pi-eye"></i>
+            Match Central
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone Secondaire : État de l'Équipe -->
+    <div class="team-state-zone">
+      <div class="team-overview">
+        <div class="squad-card">
+          <div class="squad-header">
+            <h3>Effectif</h3>
+            <div class="squad-ratio">
+              <span class="active">{{ data.playerCount }}</span>
+              <span class="separator">/</span>
+              <span class="total">{{ data.totalPlayers }}</span>
+            </div>
+          </div>
+          <div class="squad-chart">
+            <div class="circular-progress">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="8" 
+                        [style.stroke-dasharray]="getSquadPercentage() + ' ' + (100 - getSquadPercentage())"
+                        stroke-dashoffset="25"/>
+              </svg>
+              <div class="percentage">{{ getSquadPercentage() }}%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alerts-card">
+          <div class="alert-header">
+            <h3>Infirmerie</h3>
+            <i class="pi pi-exclamation-triangle"></i>
+          </div>
+          <div class="alert-items">
+            <div class="alert-item injured">
+              <i class="pi pi-heart"></i>
+              <span class="count">2</span>
+              <span class="label">Blessés</span>
+            </div>
+            <div class="alert-item suspended">
+              <i class="pi pi-ban"></i>
+              <span class="count">1</span>
+              <span class="label">Suspendus</span>
+            </div>
+            <div class="alert-item recovery">
+              <i class="pi pi-refresh"></i>
+              <span class="count">3</span>
+              <span class="label">En Reprise</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ranking-card">
+          <div class="ranking-header">
+            <h3>Classement</h3>
+            <div class="rank-badge" [ngClass]="getRankClass(data.standing?.rank)">
+              {{ data.standing?.rank }}ème
+            </div>
+          </div>
+          <div class="ranking-stats">
+            <div class="stat">
+              <span class="value">{{ data.standing?.points }}</span>
+              <span class="label">Points</span>
+            </div>
+            <div class="stat">
+              <span class="value">{{ data.standing?.played }}</span>
+              <span class="label">Joués</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone de Performance : Tendances et Focus -->
+    <div class="performance-zone">
+      <div class="top-performers">
+        <h3>Top 4 - Meilleurs Performers</h3>
+        <div class="performers-grid">
+          <div class="performers-column">
+            <h4>TOP Buteurs</h4>
+            <div class="performer-list">
+              <div class="performer-item" *ngFor="let scorer of topScorers">
+                <div class="performer-info">
+                  <span class="name">{{ scorer.name }}</span>
+                  <span class="position">{{ scorer.position }}</span>
+                </div>
+                <div class="performer-stats">
+                  <span class="goals">{{ scorer.goals }}</span>
+                  <span class="label">buts</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="performers-column">
+            <h4>TOP Passeurs Décisifs</h4>
+            <div class="performer-list">
+              <div class="performer-item" *ngFor="let assister of topAssisters">
+                <div class="performer-info">
+                  <span class="name">{{ assister.name }}</span>
+                  <span class="position">{{ assister.position }}</span>
+                </div>
+                <div class="performer-stats">
+                  <span class="assists">{{ assister.assists }}</span>
+                  <span class="label">passes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="team-form">
+        <h3>Forme de l'Équipe</h3>
+        <div class="form-results">
+          <div class="result-icon" *ngFor="let result of teamForm" [ngClass]="result">
+            <i class="pi" [ngClass]="getFormIcon(result)"></i>
+          </div>
+        </div>
+        <div class="form-summary">
+          <span class="form-text">{{ getFormSummary() }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="!loading && !teamData()" class="empty">
+    Aucune équipe disponible
+  </div>
+</div>

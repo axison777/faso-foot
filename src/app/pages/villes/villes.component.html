@@ -1,0 +1,127 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="villes-container">
+  <!-- Header -->
+  <div class="header">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <h1>Villes</h1>
+    <button class="btn-primary" (click)="toggleForm()">
+      <i class="pi pi-plus-circle mr-2"></i> Ajouter ville
+    </button>
+  </div>
+
+  <!-- Formulaire intégré -->
+  <p-dialog
+[draggable]="false" [(visible)]="showForm" [style]="{ width: '800px' }" [header]="isEditing ? 'Modifier la ville' : 'Ajouter une nouvelle ville'" [modal]="true" [closable]="false">
+    <ng-template #content>
+      <form id="cityForm" [formGroup]="cityForm" (ngSubmit)="saveCity()" class="flex flex-col gap-6">
+        <!-- Nom -->
+        <div>
+          <label for="name" class="block font-bold mb-2">Nom de la ville <span class="text-red-500">*</span></label>
+          <input
+            pInputText
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Entrez le nom de la ville"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="cityForm.get('name')?.invalid && cityForm.get('name')?.touched">
+            Le nom est requis.
+          </small>
+        </div>
+
+        <!-- Localisation -->
+<!--         <div>
+          <label for="location" class="block font-bold mb-2">Localisation de la ville <span class="text-red-500">*</span></label>
+          <input
+            pInputText
+            type="text"
+            id="location"
+            formControlName="location"
+            placeholder="Entrez la localisation de la ville"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="cityForm.get('location')?.invalid && cityForm.get('location')?.touched">
+            La localisation est requise.
+          </small>
+        </div> -->
+      </form>
+    </ng-template>
+
+    <ng-template #footer>
+      <div class="flex justify-end gap-2">
+        <p-button
+          label="Annuler"
+          icon="pi pi-times"
+          [raised]="true"
+          severity="secondary"
+          (click)="toggleForm()"
+        />
+        <p-button
+        [loading]="loading"
+          (click)="saveCity()"
+          [label]="isEditing ? 'Modifier' : 'Enregistrer'"
+          icon="pi pi-check"
+          type="submit"
+          form="cityForm"
+        />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Search -->
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher par nom de ville..."
+    >
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Chargement des villes...
+  </div>
+
+  <!-- Detail de la ville -->
+  <p-dialog
+    [draggable]="false" [modal]="true" header="Détails de la Ville" [(visible)]="displayDialog" [style]="{ width: '500px' }" [styleClass]="'custom-dialog'">
+    <h3>{{ cityDetails.name }}</h3>
+    <p>Localisation: {{ cityDetails.location }}</p>
+  </p-dialog>
+  <!-- Table -->
+  <div *ngIf="!loading && filteredCitys.length > 0" class="table-container">
+    <table class="villes-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom de la Ville</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let city of filteredCitys">
+          <td>{{getOriginalIndex(city)}}</td>
+          <td class="ville-nom" >{{ city.name }}</td>
+          <td class="actions">
+            <div class="btn-group">
+              <!-- <button class="btn btn-info"><i class="pi pi-eye"></i></button> -->
+              <button class="btn btn-warning" (click)="editCity(city)"><i class="pi pi-pencil"></i></button>
+           <!--    <button class="btn btn-info" (click)="showDialog(city)"><i class="pi pi-eye"></i></button> -->
+              <button class="btn btn-danger" (click)="deleteCity(city.id!)"><i class="pi pi-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No results -->
+  <div *ngIf="!loading && filteredCitys.length === 0 && searchTerm && citys.length > 0" class="no-results">
+    <div class="icon">🔍</div>
+    <p>Aucune ville trouvée pour "{{ searchTerm }}"</p>
+  </div>
+</div>
