@@ -10,8 +10,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ClubService, MyClub } from '../../service/club.service';
 import { CoachDashboardV2Component } from '../coach-dashboard-v2/coach-dashboard-v2.component';
-import { CoachMatchesComponent } from '../coach-matches/coach-matches.component';
-import { CoachPlayersComponent } from '../coach-players/coach-players.component';
 
 interface ClubTeam {
     id: string;
@@ -47,8 +45,7 @@ interface ClubManager {
   standalone: true,
   imports: [
     CommonModule, FormsModule, ButtonModule, DropdownModule, CardModule,
-    TabViewModule, DividerModule, ToastModule, CoachDashboardV2Component,
-    CoachMatchesComponent, CoachPlayersComponent
+    TabViewModule, DividerModule, ToastModule, CoachDashboardV2Component
   ],
   providers: [MessageService],
   templateUrl: './club-dashboard-v2.component.html',
@@ -164,6 +161,16 @@ export class ClubDashboardV2Component implements OnInit {
       }
 
       this.loadClubSettings();
+    });
+  }
+
+  selectTeam(teamId: string) {
+    this.selectedTeamId = teamId;
+    this.loadTeamSettings();
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Équipe sélectionnée',
+      detail: `Affichage des données de ${this.selectedTeam()?.name}`
     });
   }
 

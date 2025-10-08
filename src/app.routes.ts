@@ -83,8 +83,8 @@ export const appRoutes: Routes = [
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', loadComponent: () => import('./app/pages/club-dashboard-v2/club-dashboard-v2.component').then(m => m.ClubDashboardV2Component) },
-            { path: 'matchs', loadComponent: () => import('./app/pages/club-coach-shared/matchs-page/matchs-page.component').then(m => m.MatchsPageComponent) },
-            { path: 'joueurs', loadComponent: () => import('./app/pages/club-coach-shared/joueurs-page/joueurs-page.component').then(m => m.JoueursPageComponent) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/club-matches/club-matches.component').then(m => m.ClubMatchesComponent) },
+            { path: 'joueurs', loadComponent: () => import('./app/pages/club-players/club-players.component').then(m => m.ClubPlayersComponent) },
             { path: 'parametres', loadComponent: () => import('./app/pages/club-coach-shared/parametres-page/parametres-page.component').then(m => m.ParametresPageComponent) }
         ]
     },

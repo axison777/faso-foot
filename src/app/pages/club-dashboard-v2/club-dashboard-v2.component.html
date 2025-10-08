@@ -1,218 +1,91 @@
 <div class="club-manager-page">
-    <!-- En-tête avec sélection d'équipe -->
+    <!-- En-tête du club -->
     <div class="page-header">
         <div class="header-content">
             <div class="header-main">
                 <h1>Gestion du Club</h1>
                 <p>{{ manager()?.club?.name }}</p>
             </div>
-            <div class="team-selector">
-                <label for="teamSelect">Équipe sélectionnée :</label>
-                <p-dropdown 
-                    [options]="teamOptions" 
-                    [(ngModel)]="selectedTeamId" 
-                    (onChange)="onTeamChange()"
-                    placeholder="Sélectionner une équipe"
-                    optionLabel="name"
-                    optionValue="id"
-                    class="team-dropdown">
-                </p-dropdown>
+        </div>
+    </div>
+
+    <!-- Liste des équipes -->
+    <div class="teams-container">
+        <h2>Équipes du Club</h2>
+        <div class="teams-grid">
+            <div 
+                *ngFor="let team of manager()?.teams" 
+                class="team-card"
+                [ngClass]="{ 'active': selectedTeamId === team.id }"
+                (click)="selectTeam(team.id)">
+                <div class="team-logo">
+                    <img *ngIf="team.logo" [src]="team.logo" [alt]="team.name">
+                    <div *ngIf="!team.logo" class="logo-placeholder">
+                        {{ getInitials(team.name) }}
+                    </div>
+                </div>
+                <div class="team-info">
+                    <h3>{{ team.name }}</h3>
+                    <p class="team-category">{{ team.category }}</p>
+                    <div class="team-stats">
+                        <span class="stat-item">
+                            <i class="pi pi-users"></i>
+                            {{ team.players }} joueurs
+                        </span>
+                        <span class="stat-item" [ngClass]="team.status === 'ACTIVE' ? 'status-active' : 'status-inactive'">
+                            <i class="pi" [ngClass]="team.status === 'ACTIVE' ? 'pi-check-circle' : 'pi-times-circle'"></i>
+                            {{ team.status === 'ACTIVE' ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Navigation par onglets -->
-    <div class="tabs-container">
-        <p-tabView [(activeIndex)]="activeTabIndex">
-            <!-- Onglet Dashboard -->
-            <p-tabPanel header="Tableau de Bord">
-                <div class="tab-content">
-                    <div class="team-info-card" *ngIf="selectedTeam() as team">
-                        <div class="team-header">
-                            <div class="team-logo">
-                                <img *ngIf="team.logo" [src]="team.logo" [alt]="team.name">
-                                <div *ngIf="!team.logo" class="logo-placeholder">
-                                    {{ getInitials(team.name) }}
-                                </div>
-                            </div>
-                            <div class="team-details">
-                                <h2>{{ team.name }}</h2>
-                                <p class="team-category">{{ team.category }}</p>
-                                <div class="team-stats">
-                                    <span class="stat-item">
-                                        <i class="pi pi-users"></i>
-                                        {{ team.players }} joueurs
-                                    </span>
-                                    <span class="stat-item">
-                                        <i class="pi pi-user"></i>
-                                        Coach: {{ team.coach.name }}
-                                    </span>
-                                    <span class="stat-item" [ngClass]="team.status === 'ACTIVE' ? 'status-active' : 'status-inactive'">
-                                        <i class="pi" [ngClass]="team.status === 'ACTIVE' ? 'pi-check-circle' : 'pi-times-circle'"></i>
-                                        {{ team.status === 'ACTIVE' ? 'Active' : 'Inactive' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Dashboard de l'équipe sélectionnée -->
-                    <app-coach-dashboard-v2 
-                        *ngIf="selectedTeam()" 
-                        [teamId]="selectedTeamId">
-                    </app-coach-dashboard-v2>
-                </div>
-            </p-tabPanel>
-
-            <!-- Onglet Matchs -->
-            <p-tabPanel header="Matchs">
-                <div class="tab-content">
-                    <div class="team-info-header" *ngIf="selectedTeam() as team">
-                        <h3>Matchs - {{ team.name }}</h3>
-                        <p>Gérez les matchs de l'équipe {{ team.category }}</p>
-                    </div>
-                    <app-coach-matches 
-                        *ngIf="selectedTeamId" 
-                        [teamId]="selectedTeamId">
-                    </app-coach-matches>
-                </div>
-            </p-tabPanel>
-
-            <!-- Onglet Joueurs -->
-            <p-tabPanel header="Joueurs">
-                <div class="tab-content">
-                    <div class="team-info-header" *ngIf="selectedTeam() as team">
-                        <h3>Effectif - {{ team.name }}</h3>
-                        <p>Gérez les joueurs de l'équipe {{ team.category }}</p>
-                    </div>
-                    <app-coach-players 
-                        *ngIf="selectedTeamId" 
-                        [teamId]="selectedTeamId">
-                    </app-coach-players>
-                </div>
-            </p-tabPanel>
-
-            <!-- Onglet Paramètres -->
-            <p-tabPanel header="Paramètres">
-                <div class="tab-content">
-                    <div class="settings-container">
-                        <!-- Paramètres du Club -->
-                        <div class="settings-section">
-                            <h3>Informations du Club</h3>
-                            <div class="settings-form">
-                                <div class="form-group">
-                                    <label>Nom du Club</label>
-                                    <input type="text" [(ngModel)]="clubSettings.name" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label>Adresse</label>
-                                    <textarea [(ngModel)]="clubSettings.address" class="form-control" rows="3"></textarea>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label>Téléphone</label>
-                                        <input type="tel" [(ngModel)]="clubSettings.phone" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Email</label>
-                                        <input type="email" [(ngModel)]="clubSettings.email" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Logo du Club</label>
-                                    <div class="file-upload">
-                                        <input type="file" accept="image/*" (change)="onLogoChange($event)" class="file-input">
-                                        <button type="button" class="upload-btn">
-                                            <i class="pi pi-upload"></i>
-                                            Choisir un logo
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Paramètres de l'Équipe Sélectionnée -->
-                        <div class="settings-section" *ngIf="selectedTeam() as team">
-                            <h3>Paramètres - {{ team.name }}</h3>
-                            <div class="settings-form">
-                                <div class="form-group">
-                                    <label>Nom de l'Équipe</label>
-                                    <input type="text" [(ngModel)]="teamSettings.name" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label>Catégorie</label>
-                                    <p-dropdown 
-                                        [options]="categoryOptions" 
-                                        [(ngModel)]="teamSettings.category"
-                                        placeholder="Sélectionner une catégorie"
-                                        class="form-control">
-                                    </p-dropdown>
-                                </div>
-                                <div class="form-group">
-                                    <label>Coach Principal</label>
-                                    <p-dropdown 
-                                        [options]="coachOptions" 
-                                        [(ngModel)]="teamSettings.coachId"
-                                        placeholder="Sélectionner un coach"
-                                        class="form-control">
-                                    </p-dropdown>
-                                </div>
-                                <div class="form-group">
-                                    <label>Statut</label>
-                                    <p-dropdown 
-                                        [options]="statusOptions" 
-                                        [(ngModel)]="teamSettings.status"
-                                        placeholder="Sélectionner un statut"
-                                        class="form-control">
-                                    </p-dropdown>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Paramètres de Notifications -->
-                        <div class="settings-section">
-                            <h3>Notifications</h3>
-                            <div class="settings-form">
-                                <div class="checkbox-group">
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" [(ngModel)]="notificationSettings.matchReminders">
-                                        <span class="checkmark"></span>
-                                        Rappels de matchs
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" [(ngModel)]="notificationSettings.teamSheetDeadlines">
-                                        <span class="checkmark"></span>
-                                        Échéances feuilles de match
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" [(ngModel)]="notificationSettings.playerInjuries">
-                                        <span class="checkmark"></span>
-                                        Blessures de joueurs
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" [(ngModel)]="notificationSettings.contractExpirations">
-                                        <span class="checkmark"></span>
-                                        Expiration de contrats
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="settings-actions">
-                            <button class="btn-primary" (click)="saveSettings()">
-                                <i class="pi pi-save"></i>
-                                Sauvegarder
-                            </button>
-                            <button class="btn-secondary" (click)="resetSettings()">
-                                <i class="pi pi-refresh"></i>
-                                Réinitialiser
-                            </button>
-                        </div>
+    <!-- Contenu de l'équipe sélectionnée -->
+    <div *ngIf="selectedTeam() as team" class="selected-team-content">
+        <div class="team-info-card">
+            <div class="team-header">
+                <div class="team-logo">
+                    <img *ngIf="team.logo" [src]="team.logo" [alt]="team.name">
+                    <div *ngIf="!team.logo" class="logo-placeholder">
+                        {{ getInitials(team.name) }}
                     </div>
                 </div>
-            </p-tabPanel>
-        </p-tabView>
+                <div class="team-details">
+                    <h2>{{ team.name }}</h2>
+                    <p class="team-category">{{ team.category }}</p>
+                    <div class="team-stats">
+                        <span class="stat-item">
+                            <i class="pi pi-users"></i>
+                            {{ team.players }} joueurs
+                        </span>
+                        <span class="stat-item">
+                            <i class="pi pi-user"></i>
+                            Coach: {{ team.coach.name }}
+                        </span>
+                        <span class="stat-item" [ngClass]="team.status === 'ACTIVE' ? 'status-active' : 'status-inactive'">
+                            <i class="pi" [ngClass]="team.status === 'ACTIVE' ? 'pi-check-circle' : 'pi-times-circle'"></i>
+                            {{ team.status === 'ACTIVE' ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard de l'équipe sélectionnée -->
+        <app-coach-dashboard-v2 
+            [teamId]="selectedTeamId">
+        </app-coach-dashboard-v2>
+    </div>
+
+    <!-- Message si aucune équipe sélectionnée -->
+    <div *ngIf="!selectedTeam()" class="no-team-selected">
+        <div class="no-team-content">
+            <i class="pi pi-info-circle"></i>
+            <h3>Sélectionnez une équipe</h3>
+            <p>Cliquez sur une équipe ci-dessus pour voir ses informations et son dashboard</p>
+        </div>
     </div>
 </div>
 
