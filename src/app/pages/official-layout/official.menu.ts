@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayoutService } from '../../layout/service/layout.service';
-import { ClubAppMenu } from './club-app-menu';
+import { OfficialAppMenu } from './official-app-menu';
 
 @Component({
-    selector: 'club-menu',
+    selector: 'official-menu',
     standalone: true,
-    imports: [CommonModule, ClubAppMenu],
+    imports: [CommonModule, OfficialAppMenu],
     template: `
         <div class="layout-sidebar" [class.sidebar-visible]="isSidebarVisible">
             <div class="sidebar-logo">
@@ -15,9 +15,9 @@ import { ClubAppMenu } from './club-app-menu';
                         <img src="assets/images/Logo-FBF.png" alt="Logo FBF" class="logo-image" />
                     </div>
                 </div>
-                <span class="logo-text">Mon<br/>Club</span>
+                <span class="logo-text">Dashboard<br/>Officiel</span>
             </div>
-            <club-app-menu></club-app-menu>
+            <official-app-menu></official-app-menu>
         </div>
         <!-- Overlay pour mobile -->
         <div
@@ -146,12 +146,12 @@ import { ClubAppMenu } from './club-app-menu';
         }
     `]
 })
-export class ClubMenuComponent implements OnInit {
+export class OfficialMenuComponent implements OnInit {
 
     constructor(public layoutService: LayoutService) { }
 
     ngOnInit() {
-        // Le menu est géré par ClubAppMenu
+        // Le menu est géré par OfficialAppMenu
     }
 
     get isSidebarVisible(): boolean {

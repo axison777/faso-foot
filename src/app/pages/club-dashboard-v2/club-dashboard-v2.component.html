@@ -1,18 +1,92 @@
-<div class="club-dashboard-v2">
-  <div class="page-header">
-    <h1>Tableau de bord</h1>
-    <p *ngIf="club() as c">{{ c.name }} - {{ c.teams?.length || 0 }} équipes</p>
-  </div>
+<div class="club-manager-page">
+    <!-- En-tête du club -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-main">
+                <h1>Gestion du Club</h1>
+                <p>{{ manager()?.club?.name }}</p>
+            </div>
+        </div>
+    </div>
 
-  <div *ngIf="loading" class="loading">Chargement...</div>
+    <!-- Liste des équipes -->
+    <div class="teams-container">
+        <h2>Équipes du Club</h2>
+        <div class="teams-grid">
+            <div 
+                *ngFor="let team of manager()?.teams" 
+                class="team-card"
+                [ngClass]="{ 'active': selectedTeamId === team.id }"
+                (click)="selectTeam(team.id)">
+                <div class="team-logo">
+                    <img *ngIf="team.logo" [src]="team.logo" [alt]="team.name">
+                    <div *ngIf="!team.logo" class="logo-placeholder">
+                        {{ getInitials(team.name) }}
+                    </div>
+                </div>
+                <div class="team-info">
+                    <h3>{{ team.name }}</h3>
+                    <p class="team-category">{{ team.category }}</p>
+                    <div class="team-stats">
+                        <span class="stat-item">
+                            <i class="pi pi-users"></i>
+                            {{ team.players }} joueurs
+                        </span>
+                        <span class="stat-item" [ngClass]="team.status === 'ACTIVE' ? 'status-active' : 'status-inactive'">
+                            <i class="pi" [ngClass]="team.status === 'ACTIVE' ? 'pi-check-circle' : 'pi-times-circle'"></i>
+                            {{ team.status === 'ACTIVE' ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <p-tabView *ngIf="!loading && teamsData().length">
-    <p-tabPanel *ngFor="let team of teamsData()" [header]="team.name">
-      <app-team-dashboard-card [team]="team"></app-team-dashboard-card>
-    </p-tabPanel>
-  </p-tabView>
+    <!-- Contenu de l'équipe sélectionnée -->
+    <div *ngIf="selectedTeam() as team" class="selected-team-content">
+        <div class="team-info-card">
+            <div class="team-header">
+                <div class="team-logo">
+                    <img *ngIf="team.logo" [src]="team.logo" [alt]="team.name">
+                    <div *ngIf="!team.logo" class="logo-placeholder">
+                        {{ getInitials(team.name) }}
+                    </div>
+                </div>
+                <div class="team-details">
+                    <h2>{{ team.name }}</h2>
+                    <p class="team-category">{{ team.category }}</p>
+                    <div class="team-stats">
+                        <span class="stat-item">
+                            <i class="pi pi-users"></i>
+                            {{ team.players }} joueurs
+                        </span>
+                        <span class="stat-item">
+                            <i class="pi pi-user"></i>
+                            Coach: {{ team.coach.name }}
+                        </span>
+                        <span class="stat-item" [ngClass]="team.status === 'ACTIVE' ? 'status-active' : 'status-inactive'">
+                            <i class="pi" [ngClass]="team.status === 'ACTIVE' ? 'pi-check-circle' : 'pi-times-circle'"></i>
+                            {{ team.status === 'ACTIVE' ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard de l'équipe sélectionnée -->
+        <app-coach-dashboard-v2 
+            [teamId]="selectedTeamId">
+        </app-coach-dashboard-v2>
+    </div>
 
-  <div *ngIf="!loading && !teamsData().length" class="empty">
-    Aucune équipe disponible
-  </div>
+    <!-- Message si aucune équipe sélectionnée -->
+    <div *ngIf="!selectedTeam()" class="no-team-selected">
+        <div class="no-team-content">
+            <i class="pi pi-info-circle"></i>
+            <h3>Sélectionnez une équipe</h3>
+            <p>Cliquez sur une équipe ci-dessus pour voir ses informations et son dashboard</p>
+        </div>
+    </div>
 </div>
+
+<p-toast></p-toast>
