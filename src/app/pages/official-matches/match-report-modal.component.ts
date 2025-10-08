@@ -307,22 +307,17 @@ interface EvaluationOfficiel {
                 <!-- Step 4: Évaluation des Officiels (Commissaire seulement) -->
                 <div *ngIf="shouldShowEvaluationStep" class="step-content">
                     <h3>Évaluation des Officiels</h3>
-                    <!-- Debug info -->
-                    <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; font-size: 12px;">
-                        <strong>Debug:</strong> isCommissioner={{ isCommissioner }}, currentStep={{ currentStep }}, 
-                        evaluationsOfficiels.length={{ reportData.evaluationsOfficiels.length }}
-                    </div>
                     <div class="officials-evaluation">
-                        <div class="evaluation-card" *ngFor="let evaluation of reportData.evaluationsOfficiels; let i = index">
+                        <div class="evaluation-card" *ngFor="let evaluation of reportData.evaluationsOfficiels; let i = index; trackBy: trackByEvaluation">
                             <h4>{{ evaluation.officielName }} - {{ getRoleLabel(evaluation.role) }}</h4>
                             <div class="evaluation-criteria">
-                                <div class="criterion" *ngFor="let critere of getCriteresForRole(evaluation.role); let j = index">
+                                <div class="criterion" *ngFor="let critere of getCriteresForRole(evaluation.role); let j = index; trackBy: trackByCriteres">
                                     <label>{{ critere.label }}</label>
                                     <div class="rating-input">
                                         <input type="number" 
                                                [(ngModel)]="evaluation.criteres[critere.key].note"
                                                min="0" max="10" step="0.1"
-                                               (ngModelChange)="calculateTotal(i)"
+                                               (ngModelChange)="onNoteChange(i)"
                                                class="note-input">
                                         <span class="multiplier">x{{ critere.multiplicateur }}</span>
                                         <span class="total">= {{ (evaluation.criteres[critere.key].note * critere.multiplicateur).toFixed(1) }}/{{ critere.max }}</span>
@@ -828,26 +823,36 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
     }
 
     getCriteresForRole(role: string): any[] {
+        // Vérifier le cache d'abord
+        if (this.criteresCache.has(role)) {
+            return this.criteresCache.get(role)!;
+        }
+        
+        let criteres: any[] = [];
+        
         if (role === 'CENTRAL_REFEREE') {
-            return [
+            criteres = [
                 { key: 'controleMatch', label: 'A1. Contrôle du match & Interprétation des lois du jeu', multiplicateur: 5, max: 50 },
                 { key: 'conditionPhysique', label: 'A2. Condition physique', multiplicateur: 3, max: 30 },
                 { key: 'personnalite', label: 'B1. Personnalité', multiplicateur: 1, max: 10 },
                 { key: 'collaboration', label: 'B2. Collaboration', multiplicateur: 1, max: 10 }
             ];
         } else if (role === 'ASSISTANT_REFEREE_1' || role === 'ASSISTANT_REFEREE_2') {
-            return [
+            criteres = [
                 { key: 'interpretationLois', label: 'A. Interprétations et application des lois du jeu', multiplicateur: 5, max: 50 },
                 { key: 'conditionPhysique', label: 'B. Condition Physique', multiplicateur: 3, max: 30 },
                 { key: 'collaboration', label: 'C. Collaboration', multiplicateur: 2, max: 20 }
             ];
         } else if (role === 'FOURTH_OFFICIAL') {
-            return [
+            criteres = [
                 { key: 'controleSurfaces', label: 'Contrôle des surfaces techniques et Assistance dans le contrôle du match', multiplicateur: 3, max: 30 },
                 { key: 'gestionRemplacements', label: 'Gestion des remplacements, gestion du temps additionnel', multiplicateur: 2, max: 20 }
             ];
         }
-        return [];
+        
+        // Mettre en cache
+        this.criteresCache.set(role, criteres);
+        return criteres;
     }
 
     addAvertissement() {
@@ -882,20 +887,51 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         this.reportData.expulsions.splice(index, 1);
     }
 
+    private calculateTimeout: any;
+    private criteresCache: Map<string, any[]> = new Map();
+
+    onNoteChange(index: number) {
+        // Annuler le timeout précédent s'il existe
+        if (this.calculateTimeout) {
+            clearTimeout(this.calculateTimeout);
+        }
+        
+        // Programmer le calcul avec un délai de 100ms
+        this.calculateTimeout = setTimeout(() => {
+            this.calculateTotal(index);
+        }, 100);
+    }
+
     calculateTotal(index: number) {
+        if (!this.reportData.evaluationsOfficiels || index >= this.reportData.evaluationsOfficiels.length) {
+            return;
+        }
+        
         const evaluation = this.reportData.evaluationsOfficiels[index];
+        if (!evaluation || !evaluation.criteres) {
+            return;
+        }
+        
         const criteres = this.getCriteresForRole(evaluation.role);
+        if (!criteres || criteres.length === 0) {
+            return;
+        }
         
         let total = 0;
         let totalMax = 0;
         
         criteres.forEach(critere => {
-            const note = evaluation.criteres[critere.key].note || 0;
+            const note = evaluation.criteres[critere.key]?.note || 0;
             total += note * critere.multiplicateur;
             totalMax += critere.max;
         });
         
-        evaluation.total = total / (totalMax / 10);
+        // Éviter la division par zéro
+        if (totalMax > 0) {
+            evaluation.total = total / (totalMax / 10);
+        } else {
+            evaluation.total = 0;
+        }
     }
 
     getNoteLevel(total: number): string {
@@ -925,6 +961,14 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
             case 'COMMISSIONER': return 'Commissaire';
             default: return role;
         }
+    }
+
+    trackByEvaluation(index: number, evaluation: any): any {
+        return evaluation.officielId || index;
+    }
+
+    trackByCriteres(index: number, critere: any): any {
+        return critere.key || index;
     }
 
     nextStep() {
