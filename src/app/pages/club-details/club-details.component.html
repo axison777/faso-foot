@@ -105,12 +105,20 @@
     <!-- TAB MAILLOTS -->
     <p-tabPanel header="Maillots" leftIcon="pi pi-palette">
       <div class="tab-header-actions text-end">
+<<<<<<< HEAD
         <button class="btn-primary" (click)="showKitDialog()"><i class="mr-2 pi pi-plus-circle"></i> Ajouter un maillot</button>
+=======
+        <button class="btn-primary" (click)="showKitDialog()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un maillot</button>
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
       </div>
 
       <div *ngIf="!loadingKits">
         <ng-container *ngIf="club?.kits?.length; else noKits">
+<<<<<<< HEAD
           <div class="p-4 bg-white border rounded-lg shadow-sm kit-carousel">
+=======
+          <div class="kit-carousel border rounded-lg p-4 shadow-sm bg-white">
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
             <div class="flex items-center justify-between mb-3">
               <button class="btn btn-danger" (click)="deleteEntity('maillot', selectedKit?.id!)" [disabled]="!selectedKit?.id"><i class="pi pi-trash"></i></button>
               <div class="text-lg font-bold">{{ getKitLabel(selectedKit?.type!) }} ({{ selectedKitIndex + 1 }}/{{ club?.kits?.length || 0 }})</div>
@@ -120,8 +128,13 @@
               </div>
             </div>
 
+<<<<<<< HEAD
             <div class="grid items-center grid-cols-2 gap-4">
               <div class="flex items-center justify-center">
+=======
+            <div class="grid grid-cols-2 gap-4 items-center">
+              <div class="flex justify-center items-center">
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
                 <app-kit-viewer
                   [shirtColor]="editorForm.value.primary_color"
                   [shortColor]="editorForm.value.secondary_color"
@@ -133,6 +146,7 @@
               </div>
 
               <form [formGroup]="editorForm" class="flex flex-col gap-3">
+<<<<<<< HEAD
                 <div class="flex items-center gap-2 colors-row">
                   <span class="text-sm text-gray-600 w-28">Maillot</span>
                   <input type="color" formControlName="primary_color" (input)="$event.stopPropagation()" />
@@ -145,16 +159,39 @@
                 </div>
                 <div class="flex items-center gap-2 colors-row">
                   <span class="text-sm text-gray-600 w-28">Chaussettes</span>
+=======
+                <div class="colors-row flex items-center gap-2">
+                  <span class="w-28 text-sm text-gray-600">Maillot</span>
+                  <input type="color" formControlName="primary_color" (input)="$event.stopPropagation()" />
+                  <span class="ml-2 text-xs">{{ editorForm.value.primary_color }}</span>
+                </div>
+                <div class="colors-row flex items-center gap-2">
+                  <span class="w-28 text-sm text-gray-600">Short</span>
+                  <input type="color" formControlName="secondary_color" (input)="$event.stopPropagation()" />
+                  <span class="ml-2 text-xs">{{ editorForm.value.secondary_color }}</span>
+                </div>
+                <div class="colors-row flex items-center gap-2">
+                  <span class="w-28 text-sm text-gray-600">Chaussettes</span>
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
                   <input type="color" formControlName="tertiary_color" (input)="$event.stopPropagation()" />
                   <span class="ml-2 text-xs">{{ editorForm.value.tertiary_color }}</span>
                 </div>
 
+<<<<<<< HEAD
                 <div class="flex justify-end gap-2 mt-3">
                   <button class="btn-primary" type="button" (click)="saveSelectedKit()" [disabled]="!hasEditorChanges || loadingForm">
                     <i class="mr-2 pi pi-check"></i> Sauvegarder
                   </button>
                   <button class="btn" type="button" (click)="patchEditorFromSelected()" [disabled]="!hasEditorChanges">
                     <i class="mr-2 pi pi-refresh"></i> Réinitialiser
+=======
+                <div class="mt-3 flex gap-2 justify-end">
+                  <button class="btn-primary" type="button" (click)="saveSelectedKit()" [disabled]="!hasEditorChanges || loadingForm">
+                    <i class="pi pi-check mr-2"></i> Sauvegarder
+                  </button>
+                  <button class="btn" type="button" (click)="patchEditorFromSelected()" [disabled]="!hasEditorChanges">
+                    <i class="pi pi-refresh mr-2"></i> Réinitialiser
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
                   </button>
                 </div>
               </form>
@@ -809,8 +846,13 @@
   [header]="isEditingKit ? 'Modifier un maillot' : 'Ajouter un maillot'" [closable]="false">
   <ng-template #content>
   <form [formGroup]="kitForm" class="p-3">
+<<<<<<< HEAD
         <div class="grid items-center grid-cols-2 gap-4">
   <div class="flex items-center justify-center">
+=======
+        <div class="grid grid-cols-2 gap-4 items-center">
+  <div class="flex justify-center items-center">
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
     <app-kit-viewer
      [shirtColor]="kitForm.value.primary_color"
         [shortColor]="kitForm.value.secondary_color"
@@ -826,17 +868,29 @@
         <p-select formControlName="type" [options]="kitTypes" optionLabel="label" optionValue="value" placeholder="Type" appendTo="body"></p-select>
             </div>
       <div class="flex items-center gap-2">
+<<<<<<< HEAD
         <span class="text-sm text-gray-600 w-28">Maillot</span>
+=======
+        <span class="w-28 text-sm text-gray-600">Maillot</span>
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
         <input type="color" formControlName="primary_color" />
           <span class="ml-2 text-xs">{{ kitForm.value.primary_color }}</span>
           </div>
           <div class="flex items-center gap-2">
+<<<<<<< HEAD
           <span class="text-sm text-gray-600 w-28">Short</span>
+=======
+          <span class="w-28 text-sm text-gray-600">Short</span>
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
         <input type="color" formControlName="secondary_color" />
         <span class="ml-2 text-xs">{{ kitForm.value.secondary_color }}</span>
         </div>
           <div class="flex items-center gap-2">
+<<<<<<< HEAD
               <span class="text-sm text-gray-600 w-28">Chaussettes</span>
+=======
+              <span class="w-28 text-sm text-gray-600">Chaussettes</span>
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
               <input type="color" formControlName="tertiary_color" />
               <span class="ml-2 text-xs">{{ kitForm.value.tertiary_color }}</span>
             </div>

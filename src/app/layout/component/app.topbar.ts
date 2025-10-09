@@ -6,8 +6,6 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { LayoutService } from '../service/layout.service';
 import { MenuModule } from 'primeng/menu';
 import { TieredMenuModule } from 'primeng/tieredmenu';
-// import { MenuItem } from 'primeng/api';
-// import { AuthService } from '../../service/auth.service';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -275,6 +273,34 @@ export class AppTopbar {
       complete: () => { this.loading = false; }
     });
   }
+
+//   openChangePassword(): void {
+//     this.showProfile = false;
+//     this.showChangePass = true;
+//   }
+
+//   submitChangePassword(): void {
+//     if (this.changePassForm.invalid) {
+//       this.changePassForm.markAllAsTouched();
+//       this.messageService.add({ severity: 'warn', summary: 'Formulaire invalide', detail: 'Veuillez corriger les erreurs.' });
+//       return;
+//     }
+//     const { current_password, new_password, new_password_confirmation } = this.changePassForm.value as any;
+//     const token = this.authService.token || '';
+//     this.loading = true;
+//     this.userService.resetPassword({ token, current_password, new_password, new_password_confirmation }).subscribe({
+//       next: (res) => {
+//         this.messageService.add({ severity: 'success', summary: 'Succès', detail: res.message || 'Mot de passe changé avec succès.' });
+//         this.showChangePass = false;
+//         this.changePassForm.reset();
+//       },
+//       error: (err) => {
+//         const msg = err?.error?.message || 'Erreur lors du changement de mot de passe.';
+//         this.messageService.add({ severity: 'error', summary: 'Erreur', detail: msg });
+//       },
+//       complete: () => { this.loading = false; }
+//     });
+//   }
 
   logout(): void {
     // log out logic (à adapter)

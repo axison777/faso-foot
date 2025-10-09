@@ -325,6 +325,21 @@ availableReasons: any[]|undefined;
     name: ['', Validators.required],
     competition_name: ['', Validators.required],
     year: [new Date().getFullYear(), Validators.required],
+<<<<<<< HEAD
+    });
+
+    // Formulaire d'édition live des couleurs du kit sélectionné
+    this.editorForm = this.fb.group({
+      primary_color: [null],
+      secondary_color: [null],
+      tertiary_color: [null],
+    });
+
+    // Suivre les changements pour activer/désactiver les boutons
+    this.editorForm.valueChanges.subscribe(() => {
+      this.hasEditorChanges = !this.colorsEqualToBaseline();
+=======
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
     });
 
     // Formulaire d'édition live des couleurs du kit sélectionné
@@ -338,7 +353,7 @@ availableReasons: any[]|undefined;
     this.editorForm.valueChanges.subscribe(() => {
       this.hasEditorChanges = !this.colorsEqualToBaseline();
     });
-
+ 
        this.suspensionForm = this.fb.group({
       effective_from: [null],
       effective_until: [null],

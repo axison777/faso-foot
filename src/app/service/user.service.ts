@@ -194,4 +194,8 @@ export class UserService {
     const url = `${environment.apiUrl}/users/reset-password`;
     return this.http.post<ApiResponse<string>>(url, payload);
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 47a5e782a289a65caa5a5d3473f498a421b9fdb5
