@@ -1,7 +1,8 @@
-// src/app/services/stade.service.ts
+// src/app/services/player.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 
@@ -9,31 +10,43 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class PlayerService {
-    apiUrl=environment.apiUrl+'/players'
+    apiUrl = environment.apiUrl + '/v1/players';
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+    return this.http.get<any>(this.apiUrl).pipe(
+      map((res: any) => res?.data?.players || [])
+    );
   }
 
-  create(stade: Partial<any>): Observable<any> {
-    return this.http.post<any>(this.apiUrl, stade);
+  create(player: Partial<any>): Observable<any> {
+    return this.http.post<any>(this.apiUrl, player).pipe(
+      map((res: any) => res?.data || res)
+    );
   }
 
-  update(id?: string, stade?: Partial<any>): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/${id}`, stade);
+  update(id: string, player: Partial<any>): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, player).pipe(
+      map((res: any) => res?.data || res)
+    );
   }
 
-  delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
+  delete(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/delete/${id}`).pipe(
+      map((res: any) => res?.data || res)
+    );
   }
 
-  getByTeamId(teamId?: string): Observable<any> {
-    return this.http.get<any>(`${environment.apiUrl}/teams/${teamId}/players`);
+  getByTeamId(teamId: string): Observable<any[]> {
+    return this.http.get<any>(`${environment.apiUrl}/v1/teams/${teamId}/players`).pipe(
+      map((res: any) => res?.data?.players || [])
+    );
   }
 
   show(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/show/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/show/${id}`).pipe(
+      map((res: any) => res?.data || res)
+    );
   }
 }

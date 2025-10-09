@@ -342,6 +342,7 @@ activationMailDialog = false;
 
   loadPlayers() {
     this.loadingPlayers = true;
+    if (!this.team_id) return;
     this.playerService.getByTeamId(this.team_id).subscribe({
       next: (res: any) => {
         this.players = res?.data?.players || [];

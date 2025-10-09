@@ -20,24 +20,38 @@ export interface TeamStats {
   providedIn: 'root'
 })
 export class EquipeService {
-  apiUrl = environment.apiUrl + '/teams';
+  apiUrl = environment.apiUrl + '/v1/teams';
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl + '/all');
+    return this.http.get<any>(this.apiUrl + '/all').pipe(
+      map((res: any) => res?.data?.teams || [])
+    );
   }
 
   create(equipe: Partial<any>): Observable<any> {
-    return this.http.post<any>(this.apiUrl, equipe);
+    return this.http.post<any>(this.apiUrl, equipe).pipe(
+      map((res: any) => res?.data || res)
+    );
   }
 
   update(id?: string, equipe?: Partial<any>): Observable<any> {
-    return this.http.post<Equipe>(`${this.apiUrl}/${id}`, equipe);
+    return this.http.put<any>(`${this.apiUrl}/${id}`, equipe).pipe(
+      map((res: any) => res?.data || res)
+    );
   }
 
   delete(id?: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<any>(`${this.apiUrl}/${id}`).pipe(
+      map((res: any) => res?.data || res)
+    );
+  }
+
+  getTeamPlayers(teamId: string): Observable<any[]> {
+    return this.http.get<any>(`${this.apiUrl}/${teamId}/players`).pipe(
+      map((res: any) => res?.data?.players || [])
+    );
   }
 
   // Nouvelle méthode pour changer la ligue d'une équipe

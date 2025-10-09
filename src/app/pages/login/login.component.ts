@@ -52,8 +52,18 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: ['', Validators.required]
     });
 
-     if (this.authService.isAuthenticated())
+    // Si l'utilisateur est déjà connecté, le rediriger vers son dashboard
+    if (this.authService.isAuthenticated()) {
+      const user = this.authService.currentUser;
+      
+      if (user?.is_official === true) {
+        this.router.navigate(['/officiel/dashboard']);
+      } else if (user?.is_coach === true || user?.is_coach === 1) {
+        this.router.navigate(['/mon-equipe/dashboard']);
+      } else {
         this.router.navigate(['/']);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -79,12 +89,30 @@ export class LoginComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-            this.loading = false;
-          this.messageService.add({ severity: 'success', summary: 'Connexion reussie' });
-          this.router.navigate(['/']);
+          this.loading = false;
+          this.messageService.add({ severity: 'success', summary: 'Connexion réussie' });
+          
+          // Récupérer l'utilisateur connecté pour déterminer la redirection
+          const user = this.authService.currentUser;
+          
+          // Redirection basée sur le type d'utilisateur
+          if (user?.is_official === true) {
+            // Rediriger vers le dashboard des officiels
+            this.router.navigate(['/officiel/dashboard']);
+          } else if (user?.is_coach === true || user?.is_coach === 1) {
+            // Rediriger vers le dashboard des coachs
+            this.router.navigate(['/mon-equipe/dashboard']);
+          } else {
+            // Redirection par défaut (admin ou autre)
+            this.router.navigate(['/']);
+          }
         },
         error: (err) => {
-         this.messageService.add({ severity: 'error', summary: 'Connexion echouée', detail: err.error.message });
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Connexion échouée', 
+            detail: err.error?.message || 'Identifiants incorrects' 
+          });
           this.loading = false;
         }
       });

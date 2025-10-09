@@ -13,12 +13,14 @@ export interface ClubStats { played: number; wins: number; draws: number; losses
   providedIn: 'root'
 })
 export class ClubService {
-  apiUrl = environment.apiUrl + '/clubs';
+  apiUrl = environment.apiUrl + '/v1/clubs';
 
   constructor(private http: HttpClient) {}
 
   getById(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map((res: any) => res?.data || res)
+    );
   }
 
   getAll(): Observable<any[]> {
