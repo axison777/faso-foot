@@ -14,7 +14,7 @@ export interface UserRole {
 // Interface utilisateur mise à jour pour correspondre au backend
 export interface User {
   id?: string;
-  slug?: string;
+  slug?: string | null;
   email?: string;
   first_name?: string;
   last_name?: string;
@@ -22,6 +22,8 @@ export interface User {
   club_id?: string; // ID du club pour les managers
   team_id?: string; // ID de l'équipe pour les coaches
   is_active?: boolean;
+  is_official?: boolean; // Indicateur pour les officiels
+  is_coach?: boolean | number; // Indicateur pour les coachs (peut être boolean ou 0/1)
   created_at?: string;
   updated_at?: string;
 }
