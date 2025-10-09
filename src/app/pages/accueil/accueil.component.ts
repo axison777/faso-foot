@@ -6,7 +6,7 @@ import { TableModule } from 'primeng/table';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 
-// 🥇 Interfaces
+
 interface RankingTeam {
   position: number;
   team_name: string;
@@ -95,35 +95,35 @@ export class AccueilComponent implements OnInit {
     }
   ];
 
-  // 🔽 Sélections utilisateur
+  
   selectedLigue?: Ligue;
   selectedSaison?: Saison;
   selectedPoule?: Poule;
 
-  // 📌 Stats globales
+  
   totalMatchsJoues = 0;
   totalMatchsReportes = 0;
   totalMatchsAnnuels = 0;
   totalMatchs = 0;
 
-  // 🏆 Classement
+  
   ranking: RankingTeam[] = [];
 
-  // ⚽️ Top buteurs
+  
   topScorers: TopScorer[] = [
     { position: 1, player_name: 'Joueur 1', team_name: 'Équipe A', goals: 18, assists: 5, matches_played: 20, minutes_played: 1750 },
     { position: 2, player_name: 'Joueur 2', team_name: 'Équipe B', goals: 15, assists: 7, matches_played: 20, minutes_played: 1680 },
     { position: 3, player_name: 'Joueur 3', team_name: 'Équipe C', goals: 13, assists: 4, matches_played: 19, minutes_played: 1600 }
   ];
 
-  // 📅 Prochains matchs
+  
   upcomingMatches: UpcomingMatch[] = [
     { date: '2025-10-01', time: '18:00', home_team: 'Équipe A', away_team: 'Équipe B', stadium: 'Stade National', status: 'À venir' },
     { date: '2025-10-03', time: '20:30', home_team: 'Équipe C', away_team: 'Équipe D', stadium: 'Stade Municipal', status: 'À venir' },
     { date: '2025-10-05', time: '17:00', home_team: 'Équipe E', away_team: 'Équipe F', stadium: 'Stade Olympique', status: 'Reporté' }
   ];
 
-  // 📊 Graphiques
+  
   public pieChartOptions: ChartConfiguration<'pie'>['options'] = { responsive: true };
   public pieChartData: ChartConfiguration<'pie'>['data'] = {
     labels: ['Joués', 'Reportés', 'Annulés'],
@@ -148,7 +148,7 @@ export class AccueilComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  // 🔁 Sélections
+  
   onLigueChange(): void {
     this.selectedSaison = undefined;
     this.selectedPoule = undefined;
@@ -164,7 +164,7 @@ export class AccueilComponent implements OnInit {
     this.updateDashboard();
   }
 
-  // 📊 Dashboard
+  
   resetDashboard(): void {
     this.totalMatchsJoues = this.totalMatchsReportes = this.totalMatchsAnnuels = this.totalMatchs = 0;
     this.ranking = [];
@@ -197,7 +197,7 @@ export class AccueilComponent implements OnInit {
     this.lineChartData.datasets[0].data = [10, 15, 20, 25, 30];
   }
 
-  // 🏅 Label spécial pour les positions
+  
   getPositionLabel(position: number): string {
     if (position === 1) return '🥇';
     if (position === 2) return '🥈';
@@ -205,7 +205,7 @@ export class AccueilComponent implements OnInit {
     return position.toString();
   }
 
-  // 🟢 Pastilles de résultats récents
+  
   getResultColor(result: string): string {
     return result === 'W' ? 'bg-green-500' : result === 'D' ? 'bg-yellow-500' : 'bg-red-500';
   }
