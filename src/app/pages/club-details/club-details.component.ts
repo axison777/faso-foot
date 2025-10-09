@@ -356,7 +356,7 @@ availableReasons: any[]|undefined;
     this.loading = true;
     this.clubService.getById(id).subscribe({
       next: (res: any) => {
-        this.club = res?.data.club;
+        this.club = res?.club || res?.data?.club;
         this.club?.teams?.forEach((team: Team) => {
           team.full_name= team?.abbreviation + ' ' + (team?.category?.name || '');
       })
