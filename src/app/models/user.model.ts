@@ -13,6 +13,7 @@ export interface UserRole {
 
 // Interface utilisateur mise à jour pour correspondre au backend
 export interface User {
+  id?: string;
   slug?: string;
   email?: string;
   first_name?: string;
