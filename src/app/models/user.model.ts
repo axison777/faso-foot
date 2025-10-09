@@ -19,6 +19,8 @@ export interface User {
   first_name?: string;
   last_name?: string;
   roles?: UserRole[]; // Changé de string[] vers UserRole[]
+  club_id?: string; // ID du club pour les managers
+  team_id?: string; // ID de l'équipe pour les coaches
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
