@@ -4,7 +4,7 @@
       <h2 class="team-name">{{ team.name }}</h2>
       <div class="coach" *ngIf="team.coach">
         <i class="pi pi-user"></i>
-        <span>Coach: {{ team.coach?.name }}</span>
+        <span>Coach: {{ team.coach.name }}</span>
       </div>
     </div>
     <div class="kit" *ngIf="team.kit?.photo">

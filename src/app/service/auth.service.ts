@@ -68,6 +68,10 @@ export class AuthService {
     if (!user?.roles?.length) return false;
     // Bypass for admin role
     const isAdmin = user.roles.some(r => (r.slug || '').toLowerCase() === 'admin');
+    if (isAdmin) return true;
+    return user.roles.some(role =>
+      role.permissions?.some(p => p.slug === slug) || false
+    );
   }
 
   hasAnyPermission(slugs: string[]): boolean {

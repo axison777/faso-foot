@@ -269,35 +269,6 @@ import { CommonModule } from '@angular/common';
     /* Responsive pour mobile */
     @media (max-width: 991px) {
       .logo-image {
-        height: 50px; /* Plus petit sur mobile */
-      }
-
-      .logo-divider {
-        height: 35px;
-      }
-
-      .logo-text {
-        font-size: 0.9rem;
-      }
-
-      .logo-container {
-        gap: 0.5rem;
-      }
-    }
-
-    /* Très petits écrans */
-    @media (max-width: 480px) {
-      .logo-image {
-        height: 45px;
-      }
-
-      .logo-divider {
-        height: 30px;
-      }
-
-    /* Responsive */
-    @media (max-width: 991px) {
-      .logo-image {
         height: 55px;
       }
       .logo-text {
@@ -305,6 +276,7 @@ import { CommonModule } from '@angular/common';
       }
     }
 
+    /* Très petits écrans */
     @media (max-width: 480px) {
       .logo-image {
         height: 50px;

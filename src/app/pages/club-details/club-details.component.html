@@ -113,7 +113,7 @@
           <div class="p-4 bg-white border rounded-lg shadow-sm kit-carousel">
             <div class="flex items-center justify-between mb-3">
               <button class="btn btn-danger" (click)="deleteEntity('maillot', selectedKit?.id!)" [disabled]="!selectedKit?.id"><i class="pi pi-trash"></i></button>
-              <div class="text-lg font-bold">{{ getKitLabel(selectedKit?.type!) }} ({{ selectedKitIndex + 1 }}/{{ club?.kits?.length || 0 }})</div>
+              <div class="text-lg font-bold">{{ getKitLabel(selectedKit?.type!) }} ({{ selectedKitIndex + 1 }}/{{ (club.kits?.length || 0) }})</div>
               <div class="flex gap-2">
                 <button class="btn btn-gray" (click)="prevKit()"><i class="pi pi-chevron-left"></i></button>
                 <button class="btn btn-gray" (click)="nextKit()"><i class="pi pi-chevron-right"></i></button>
