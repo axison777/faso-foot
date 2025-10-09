@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, computed, effect, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { User } from '../models/user.model';
+import { User, Permission as UserPermission } from '../models/user.model';
 import { environment } from '../../environments/environment';
+
 interface LoginResponse {
     data: {
         user: User;
@@ -12,7 +13,7 @@ interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  apiUrl=environment.apiUrl + '/auth/';
+  apiUrl = environment.apiUrl + '/auth/';
   private _user = signal<User | null>(null);
   readonly user = computed(() => this._user());
   readonly isAuthenticated = computed(() => this._user() !== null);
@@ -39,12 +40,10 @@ export class AuthService {
   }
 
   login(credentials: { email: string; password: string }): Observable<LoginResponse> {
-    /* this._user.set({email: credentials.email, first_name: 'Ahmed', last_name: 'Koné', id: 0, role: 'Admin'}); // Temporary user object */
-    return this.http.post<LoginResponse>(this.apiUrl+'login', credentials).pipe(
+    return this.http.post<LoginResponse>(this.apiUrl + 'login', credentials).pipe(
       tap(response => {
         this._user.set(response?.data?.user);
         localStorage.setItem('token', response?.data?.access_token);
-        console.log(this.token)
       })
     );
   }
@@ -61,5 +60,21 @@ export class AuthService {
 
   get token(): string | null {
     return localStorage.getItem('token');
+  }
+
+  // Permissions helpers
+  hasPermission(slug: string): boolean {
+    const user = this._user();
+    if (!user?.roles?.length) return false;
+    // Bypass for admin role
+    const isAdmin = user.roles.some(r => (r.slug || '').toLowerCase() === 'admin');
+  }
+
+  hasAnyPermission(slugs: string[]): boolean {
+    const user = this._user();
+    if (!user?.roles?.length) return false;
+    const isAdmin = user.roles.some(r => (r.slug || '').toLowerCase() === 'admin');
+    if (isAdmin) return true;
+    return slugs.some(s => this.hasPermission(s));
   }
 }

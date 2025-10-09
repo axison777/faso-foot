@@ -1,0 +1,47 @@
+<div class="club-dashboard">
+  <div class="header" *ngIf="club() as c">
+    <div class="info">
+      <img *ngIf="c.logo" [src]="c.logo" alt="logo" class="logo" />
+      <div>
+        <h2 class="name">{{ c.name }}</h2>
+        <div class="summary">{{ c.teams?.length || 0 }} équipes</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <app-club-stats-card [stats]="clubStats()!"></app-club-stats-card>
+  </div>
+
+  <p-tabView *ngIf="club()?.teams?.length; else loadingClub">
+    <p-tabPanel *ngFor="let t of club()!.teams" [header]="t.name">
+      <div class="team-banner">
+        <div class="team-info">
+          <img *ngIf="t.logo" [src]="t.logo" alt="logo" class="logo-sm" />
+          <div>
+            <div class="team-name">{{ t.name }}</div>
+            <div class="team-cat">{{ t.category }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-cards">
+        <div class="next">
+          <app-next-match-card [teamId]="t.id"></app-next-match-card>
+        </div>
+        <div class="stats-team">
+          <app-team-stats-card [stats]="{played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0}"></app-team-stats-card>
+        </div>
+      </div>
+
+      <div class="filters">
+        <app-competition-filter [competitions]="getCompetitionOptions()" [selectedId]="selectedComp(t.id)" (selectedIdChange)="onCompChange(t.id, $event)"></app-competition-filter>
+      </div>
+
+      <app-matches-list [teamId]="t.id"></app-matches-list>
+    </p-tabPanel>
+  </p-tabView>
+  <ng-template #loadingClub>
+    <div class="empty">Chargement…</div>
+  </ng-template>
+</div>

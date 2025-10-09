@@ -9,7 +9,7 @@
     <h1>Rôles</h1>
     <div class="header-actions">
       <button class="btn btn-info" (click)="openCreate()">
-        <i class="pi pi-plus-circle mr-2"></i>Ajouter un rôle
+        <i class="mr-2 pi pi-plus-circle"></i>Ajouter un rôle
       </button>
     </div>
   </div>
@@ -17,7 +17,7 @@
   <!-- Recherche -->
   <input pInputText
          type="text"
-         class="search-input mb-5"
+         class="mb-5 search-input"
          (input)="applyFilterGlobal($event)"
          placeholder="Rechercher un rôle (nom)..." />
 
@@ -44,7 +44,7 @@
             </div>
           </td>
           <td>
-            <span class="badge">{{ role?.permissions?.length || 0 }} permission(s)</span>
+            <span class="badge">{{ role.permissions?.length || 0 }} permission(s)</span>
           </td>
           <td class="actions">
             <div class="btn-group">
@@ -98,17 +98,18 @@
           <div class="permissions-list-switch" *ngIf="allPermissions?.length; else noPerms">
 
     <!-- Switch global Tout sélectionner -->
-    <div class="select-all">
-      <p-inputSwitch
-        [(ngModel)]="allSelected"
-        [ngModelOptions]="{standalone: true}"
-        (onChange)="toggleAllPermissions($event.checked)">
-      </p-inputSwitch>
-      <span class="ml-2">Tout sélectionner</span>
-      <span class="ml-3 text-sm text-gray-500">
-        {{ roleForm.value.permissions?.length || 0 }} / {{ allPermissions.length }} sélectionnées
-      </span>
-    </div>
+    <div class="permissions-header">
+  <p-inputSwitch
+   [(ngModel)]="allSelected"
+    [ngModelOptions]="{standalone: true}"
+    (onChange)="toggleAllPermissions($event.checked)"
+  ></p-inputSwitch>
+  <span class="ml-2">Tout sélectionner</span>
+  <span class="ml-4 text-gray-500">
+    {{ roleForm.get('permissions')?.value?.length || 0 }} / {{ allPermissions.length }} sélectionnées
+  </span>
+</div>
+
             <!-- Groupe Administration -->
             <h4 class="group-title" *ngIf="permissionsAdmin.length">Administration</h4>
             <div class="group-grid" *ngIf="permissionsAdmin.length">
@@ -206,7 +207,7 @@
       </div>
       <div class="card-body">
         <div class="row"><span class="label">Nom du rôle :</span><span class="value">{{ currentRole.name }}</span></div>
-        <div class="row"><span class="label">Permissions :</span><span class="value">{{ currentRole.permissions.length || 0 }}</span></div>
+        <div class="row"><span class="label">Permissions :</span><span class="value">{{ currentRole.permissions?.length || 0 }}</span></div>
         <div class="row roles-row">
           <span class="label">Permissions accordées :</span>
           <span class="value badges">

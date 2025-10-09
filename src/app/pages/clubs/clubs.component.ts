@@ -431,7 +431,6 @@ updateGlobalSelection() {
     this.clubService.getAll().subscribe({
       next: (res: any) => {
         this.clubs = res?.data.clubs || [];
-
         this.loading = false;
       },
       error: () => {

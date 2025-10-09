@@ -19,7 +19,8 @@
         <div class="meta-grid">
           <div><span class="label">Abr: </span><span class="value">{{ club.abbreviation }}</span></div>
           <!--  <div><span class="label">Téléphone responsable: </span><span class="value">{{ club.phone }} </span></div> -->
-          <div><span class="label">Ville: </span><span class="value">{{ club.city }}</span></div>
+          <!-- <div><span class="label">Ville: </span><span class="value">{{ club.city }}</span></div> -->
+          <div><span class="label">Ville: </span><span class="value">{{ club.city?.name }}</span></div>
           <!-- <div><span class="label">Compétition: </span><span class="value">{{ club.league?.name }}</span></div> -->
            <!-- <div><span class="label">Email responsable: </span><span class="value"> {{ club.email }}</span></div>
           <div><span class="label">Ligue: </span><span class="value">{{ club.league?.name }}</span></div> -->
@@ -35,16 +36,16 @@
     <!-- TAB JOUEURS -->
     <p-tabPanel *ngIf="0" header="Joueurs" leftIcon="custom-icon player">
       <!-- Search -->
-      <div class="search-container flex align-items-end">
+      <div class="flex search-container align-items-end">
         <input
           type="text"
           class="search-input"
           [(ngModel)]="searchPlayer"
           placeholder="Rechercher un joueur (nom, prénom)..."
         />
-                  <div class="header-actions ml-auto mt-auto">
+                  <div class="mt-auto ml-auto header-actions">
       <button class="btn-primary" (click)="showPlayerDialog()">
-        <i class="pi pi-plus-circle mr-2"></i> Ajouter un joueur
+        <i class="mr-2 pi pi-plus-circle"></i> Ajouter un joueur
       </button>
     </div>
       </div>
@@ -104,152 +105,73 @@
     <!-- TAB MAILLOTS -->
     <p-tabPanel header="Maillots" leftIcon="pi pi-palette">
       <div class="tab-header-actions text-end">
-        <button class="btn-primary" (click)="showKitDialog()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un maillot</button>
-      </div><br>
-        <ng-container  *ngIf="!loadingKits">
-            <div  class="kit-card grid grid-cols-2 gap-4 items-center p-4 border rounded-lg shadow-sm bg-red" *ngFor="let kit of club.kits; let i = index">
-  <div>
-    <h4 class="font-bold text-lg">
-       <span >({{ getKitLabel(kit.type!) }})</span>
-    </h4>
-
-<!--     <div class="colors-row flex items-center gap-2 my-2">
-      <span class="label w-20 text-sm text-gray-600">Maillot</span>
-      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.shirt_color_1" [title]="kit.shirt_color_1"></div>
-      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.shirt_color_2" [title]="kit.shirt_color_2"></div>
-    </div> -->
-
-        <div class="colors-row flex items-center gap-2 my-2">
-      <span class="label w-20 text-sm text-gray-600">Maillot</span>
-      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.primary_color" [title]="kit.primary_color"></div>
-    </div>
-    <div class="colors-row flex items-center gap-2 my-2">
-      <span class="label w-20 text-sm text-gray-600">Short</span>
-      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.secondary_color" [title]="kit.secondary_color"></div>
-    </div>
-
-    <div class="colors-row flex items-center gap-2 my-2 ">
-      <span class="label w-20 text-sm text-gray-600">Chaussettes</span>
-      <div class="w-6 h-6 border rounded-sm" [style.background-color]="kit.tertiary_color" [title]="kit.tertiary_color"></div>
-    </div>
-  </div>
-
-  <div class="flex justify-center items-center">
-<!--         <svg width="120" height="150" viewBox="0 0 120 150">
-      <defs>
-        <pattern id="stripesShirt{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
-          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.shirt_color_1" />
-          <path d="M-2,2 l4,-4 M0,10 l10,-10 M8,12 l4,-4" [attr.stroke]="kit.shirt_color_2" stroke-width="3"/>
-        </pattern>
-        <pattern id="checksShirt{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
-          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.shirt_color_1" />
-          <rect x="0" y="0" width="5" height="5" [attr.fill]="kit.shirt_color_2" />
-          <rect x="5" y="5" width="5" height="5" [attr.fill]="kit.shirt_color_2" />
-        </pattern>
-
-        <pattern id="stripesShorts{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
-          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.shorts_color_1" />
-          <path d="M-2,2 l4,-4 M0,10 l10,-10 M8,12 l4,-4" [attr.stroke]="kit.shorts_color_2" stroke-width="3"/>
-        </pattern>
-        <pattern id="checksShorts{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
-          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.shorts_color_1" />
-          <rect x="0" y="0" width="5" height="5" [attr.fill]="kit.shorts_color_2" />
-          <rect x="5" y="5" width="5" height="5" [attr.fill]="kit.shorts_color_2" />
-        </pattern>
-      </defs>
-      <g stroke="rgba(0,0,0,0.2)" stroke-width="1">
-        <path d="M30 20 C 30 10, 30 60, 20 75 L 100 75 C 90 60, 90 10, 90 20 L 65 20 C 60 28, 60 28, 55 20 L 30 20 Z"
-              [attr.fill]="kit.shirt_color_2 && kit.shirt_color_2 !== 'transparent' ? 'url(#stripesShirt' + i + ')' : kit.shirt_color_1" />
-
-        <path d="M 30 22 L 8 45 L 20 50 L 30 40 Z" [attr.fill]="kit.shirt_color_2 || kit.shirt_color_1" />
-        <path d="M 90 22 L 112 45 L 100 50 L 90 40 Z" [attr.fill]="kit.shirt_color_2 || kit.shirt_color_1" />
-
-        <path d="M55 20 L 65 20 C 62 25, 58 25, 55 20 Z" [attr.fill]="kit.shirt_color_2 || kit.shirt_color_1" />
-
-        <path d="M28 75 L 92 75 L 85 110 L 60 105 L 35 110 Z"
-              [attr.fill]="kit.shorts_color_2 && kit.shorts_color_2 !== 'transparent' ? 'url(#checksShorts' + i + ')' : kit.shorts_color_1" />
-
-         <ng-container *ngIf="!kit.shorts_color_2 || kit.shorts_color_2 === 'transparent'">
-            <path d="M28 75 L 32 75 L 38 108 L 35 110 Z" [attr.fill]="kit.shorts_color_2" />
-            <path d="M92 75 L 88 75 L 82 108 L 85 110 Z" [attr.fill]="kit.shorts_color_2" />
-        </ng-container>
-
-        <rect x="38" y="112" width="15" height="35" rx="2" [attr.fill]="kit.socks_color" />
-        <rect x="67" y="112" width="15" height="35" rx="2" [attr.fill]="kit.socks_color" />
-
-        <rect x="38" y="112" width="15" height="8" rx="2" [attr.fill]="kit.socks_color" />
-        <rect x="67" y="112" width="15" height="8" rx="2" [attr.fill]="kit.socks_color" />
-      </g>
-    </svg> -->
-    <svg width="120" height="150" viewBox="0 0 120 150">
-      <defs>
-        <pattern id="stripesShirt{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
-          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.primary_color" />
-          <path d="M-2,2 l4,-4 M0,10 l10,-10 M8,12 l4,-4" [attr.stroke]="kit.shirt_color_2" stroke-width="3"/>
-        </pattern>
-        <pattern id="checksShirt{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
-          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.primary_color" />
-          <rect x="0" y="0" width="5" height="5" [attr.fill]="kit.shirt_color_2" />
-          <rect x="5" y="5" width="5" height="5" [attr.fill]="kit.shirt_color_2" />
-        </pattern>
-
-        <pattern id="stripesShorts{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
-          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.secondary_color" />
-          <path d="M-2,2 l4,-4 M0,10 l10,-10 M8,12 l4,-4" [attr.stroke]="kit.shorts_color_2" stroke-width="3"/>
-        </pattern>
-        <pattern id="checksShorts{{i}}" patternUnits="userSpaceOnUse" width="10" height="10">
-          <rect x="0" y="0" width="10" height="10" [attr.fill]="kit.secondary_color" />
-          <rect x="0" y="0" width="5" height="5" [attr.fill]="kit.shorts_color_2" />
-          <rect x="5" y="5" width="5" height="5" [attr.fill]="kit.shorts_color_2" />
-        </pattern>
-      </defs>
-      <g stroke="rgba(0,0,0,0.2)" stroke-width="1">
-        <path d="M30 20 C 30 10, 30 60, 20 75 L 100 75 C 90 60, 90 10, 90 20 L 65 20 C 60 28, 60 28, 55 20 L 30 20 Z"
-              [attr.fill]="kit.shirt_color_2 && kit.shirt_color_2 !== 'transparent' ? 'url(#stripesShirt' + i + ')' : kit.primary_color" />
-
-        <path d="M 30 22 L 8 45 L 20 50 L 30 40 Z" [attr.fill]="kit.shirt_color_2 || kit.primary_color" />
-        <path d="M 90 22 L 112 45 L 100 50 L 90 40 Z" [attr.fill]="kit.shirt_color_2 || kit.primary_color" />
-
-        <path d="M55 20 L 65 20 C 62 25, 58 25, 55 20 Z" [attr.fill]="kit.shirt_color_2 || kit.primary_color" />
-
-        <path d="M28 75 L 92 75 L 85 110 L 60 105 L 35 110 Z"
-              [attr.fill]="kit.shorts_color_2 && kit.shorts_color_2 !== 'transparent' ? 'url(#checksShorts' + i + ')' : kit.secondary_color" />
-
-       <!--  <ng-container *ngIf="!kit.shorts_color_2 || kit.shorts_color_2 === 'transparent'">
-            <path d="M28 75 L 32 75 L 38 108 L 35 110 Z" [attr.fill]="kit.shorts_color_2" />
-            <path d="M92 75 L 88 75 L 82 108 L 85 110 Z" [attr.fill]="kit.shorts_color_2" />
-        </ng-container> -->
-
-        <rect x="38" y="112" width="15" height="35" rx="2" [attr.fill]="kit.tertiary_color" />
-        <rect x="67" y="112" width="15" height="35" rx="2" [attr.fill]="kit.tertiary_color" />
-
-        <rect x="38" y="112" width="15" height="8" rx="2" [attr.fill]="kit.tertiary_color" />
-        <rect x="67" y="112" width="15" height="8" rx="2" [attr.fill]="kit.tertiary_color" />
-      </g>
-    </svg>
-    <div class="card-actions">
-      <p-button severity="warn" icon="pi pi-pencil" (click)="showKitDialog(kit)" />
-       <button class="btn btn-danger" (click)="deleteEntity('maillot', kit.id!)">
-        <i class="pi pi-trash"></i>
-      </button>
-    </div>
-  </div>
-</div>
-        </ng-container>
-      <div  class="cards-grid" *ngIf="club?.kits?.length ; else noKits">
-
-
+        <button class="btn-primary" (click)="showKitDialog()"><i class="mr-2 pi pi-plus-circle"></i> Ajouter un maillot</button>
       </div>
 
-      <ng-template #noKits>
-        <div class="no-results"><p>Pas de maillots enregistrés.</p></div>
-      </ng-template>
+      <div *ngIf="!loadingKits">
+        <ng-container *ngIf="club?.kits?.length; else noKits">
+          <div class="p-4 bg-white border rounded-lg shadow-sm kit-carousel">
+            <div class="flex items-center justify-between mb-3">
+              <button class="btn btn-danger" (click)="deleteEntity('maillot', selectedKit?.id!)" [disabled]="!selectedKit?.id"><i class="pi pi-trash"></i></button>
+              <div class="text-lg font-bold">{{ getKitLabel(selectedKit?.type!) }} ({{ selectedKitIndex + 1 }}/{{ club?.kits?.length || 0 }})</div>
+              <div class="flex gap-2">
+                <button class="btn btn-gray" (click)="prevKit()"><i class="pi pi-chevron-left"></i></button>
+                <button class="btn btn-gray" (click)="nextKit()"><i class="pi pi-chevron-right"></i></button>
+              </div>
+            </div>
+
+            <div class="grid items-center grid-cols-2 gap-4">
+              <div class="flex items-center justify-center">
+                <app-kit-viewer
+                  [shirtColor]="editorForm.value.primary_color"
+                  [shortColor]="editorForm.value.secondary_color"
+                  [socksColor]="editorForm.value.tertiary_color"
+                  [width]="180"
+                  [height]="220"
+                  [autoRotate]="true"
+                ></app-kit-viewer>
+              </div>
+
+              <form [formGroup]="editorForm" class="flex flex-col gap-3">
+                <div class="flex items-center gap-2 colors-row">
+                  <span class="text-sm text-gray-600 w-28">Maillot</span>
+                  <input type="color" formControlName="primary_color" (input)="$event.stopPropagation()" />
+                  <span class="ml-2 text-xs">{{ editorForm.value.primary_color }}</span>
+                </div>
+                <div class="flex items-center gap-2 colors-row">
+                  <span class="text-sm text-gray-600 w-28">Short</span>
+                  <input type="color" formControlName="secondary_color" (input)="$event.stopPropagation()" />
+                  <span class="ml-2 text-xs">{{ editorForm.value.secondary_color }}</span>
+                </div>
+                <div class="flex items-center gap-2 colors-row">
+                  <span class="text-sm text-gray-600 w-28">Chaussettes</span>
+                  <input type="color" formControlName="tertiary_color" (input)="$event.stopPropagation()" />
+                  <span class="ml-2 text-xs">{{ editorForm.value.tertiary_color }}</span>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-3">
+                  <button class="btn-primary" type="button" (click)="saveSelectedKit()" [disabled]="!hasEditorChanges || loadingForm">
+                    <i class="mr-2 pi pi-check"></i> Sauvegarder
+                  </button>
+                  <button class="btn" type="button" (click)="patchEditorFromSelected()" [disabled]="!hasEditorChanges">
+                    <i class="mr-2 pi pi-refresh"></i> Réinitialiser
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noKits>
+          <div class="no-results"><p>Pas de maillots enregistrés.</p></div>
+        </ng-template>
+      </div>
     </p-tabPanel>
 
     <!-- TAB TROPHEES -->
     <p-tabPanel *ngIf="0" header="Trophées" leftIcon="pi pi-trophy">
 <!--       <div class="tab-header-actions text-end">
-        <button class="btn-primary" (click)="showTrophyDialog()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un trophée</button>
+        <button class="btn-primary" (click)="showTrophyDialog()"><i class="mr-2 pi pi-plus-circle"></i> Ajouter un trophée</button>
       </div><br>
 
       <div class="table-container" *ngIf="club.trophies?.length; else noTrophies">
@@ -298,20 +220,20 @@
             <form  class="flex flex-col gap-6 px-4">
   <!-- Barre de recherche -->
 
-   <div class="flex  justify-between">
+   <div class="flex justify-between">
     <div class="w-1/2">
-          <label class="font-bold block mb-1">Rechercher une équipe</label>
+          <label class="block mb-1 font-bold">Rechercher une équipe</label>
     <input
       pInputText
       type="text"
       [formControl]="teamSearchControl"
-      placeholder="Catégorie "
+      placeholder="Nom ou abréviation "
       class="w-full"
 
     />
     </div>
-        <button class="btn-primary self-end" (click)="toggleTeamForm()">
-        <i class="pi pi-plus-circle mr-2"></i> Ajouter une équipe
+        <button class="self-end btn-primary" (click)="toggleTeamForm()">
+        <i class="mr-2 pi pi-plus-circle"></i> Ajouter une équipe
       </button>
 
   </div>
@@ -360,6 +282,51 @@
 
 <!-- ✅ Conteneur scrollable -->
 <!-- ---------- -->
+<div class="p-4 overflow-y-auto border rounded-md bg-gray-50">
+  <div *ngIf="club?.teams" class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-2">
+    <ng-container *ngIf=" club?.teams!.length > 0">
+      <div
+        *ngFor="let team of filteredTeams; let i = index; "
+        class="relative flex flex-col items-center gap-2 p-4 transition-shadow bg-white border rounded-lg shadow-sm cursor-pointer hover:bg-green-50 "
+        (click)="goToTeamDetails(team.id!)"
+      >
+<!--         <p-checkbox
+          binary="true"
+          [formControl]="teamSelectionControls[i]"
+          class="absolute top-2 left-2"
+          [id]="'team-' + team.id"
+          (onChange)="updateGlobalSelection()"
+        ></p-checkbox> -->
+
+         <!-- ✅ Image ou fallback -->
+        <img
+          *ngIf="team.logo; else noLogo"
+          [src]="team.logo"
+          alt="Logo"
+          class=" h-[80px] object-contain"
+        />
+        <ng-template #noLogo>
+          <!-- Icône ou texte par défaut -->
+          <div class="h-[80px] w-[80px] flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-md font-bold">
+            N/A
+          </div>
+        </ng-template>
+
+        <!-- ✅ Abréviation avec style conditionnel -->
+        <div
+          class="text-base font-bold"
+        >
+          {{ team?.name }}
+        </div>
+
+        <!-- ✅ Nom de l’équipe -->
+        <div *ngIf="team?.player_count" class="text-base text-center text-gray-500">{{ team?.player_count }} joueurs</div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!club?.teams?.length"><p>Aucune equipe n'appartient à ce club</p></ng-container>
+  </div>
+</div>
 <!--   <span class="text-red-500"
     *ngIf="!selectedTeamObjects.length && teamsForm.get('club_id')?.touched  ">
     Veuillez sélectionner les équipes.
@@ -376,13 +343,13 @@
 
   <!-- Équipes sélectionnées -->
 <!--   <div *ngIf="selectedTeamObjects.length" class="mt-4">
-    <label class="font-bold block mb-2">Équipes sélectionnées ({{ selectedTeamObjects.length }})</label>
+    <label class="block mb-2 font-bold">Équipes sélectionnées ({{ selectedTeamObjects.length }})</label>
     <div class="flex flex-wrap gap-2">
 
 
-            <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-         <img *ngIf="team.logo" [src]="team.logo" alt="Logo" class="w-10 object-contain" />
-                <span class="text-md font-bold">{{ team.abbreviation }}</span>
+            <div *ngFor="let team of selectedTeamObjects" class="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full">
+         <img *ngIf="team.logo" [src]="team.logo" alt="Logo" class="object-contain w-10" />
+                <span class="font-bold text-md">{{ team.abbreviation }}</span>
         <button
           pButton
           icon="pi pi-times"
@@ -399,15 +366,15 @@
 <p-tabPanel header="Suspensions" leftIcon="pi pi-ban">
 
   <!-- Bouton d'action selon le statut du club -->
-  <div *ngIf="club" class="tab-header-actions text-end mb-3">
+  <div *ngIf="club" class="mb-3 tab-header-actions text-end">
     <ng-container *ngIf="club.status === 'ACTIVE'">
-      <button class="btn btn-danger" (click)="showSuspensionDialog()">
-        <i class="pi pi-minus-circle mr-2"></i> Suspendre le club
+      <button class="btn-danger" (click)="showSuspensionDialog()">
+        <i class="mr-2 pi pi-minus-circle"></i> Suspendre le club
       </button>
     </ng-container>
     <ng-container *ngIf="club.status === 'SUSPENDED'">
-      <button class="btn btn-primary" (click)="showReactivationDialog()">
-        <i class="pi pi-check-circle mr-2"></i> Réactiver le club
+      <button class="btn-primary" (click)="showReactivationDialog()">
+        <i class="mr-2 pi pi-check-circle"></i> Réactiver le club
       </button>
     </ng-container>
   </div>
@@ -500,8 +467,8 @@
               <img [src]="playerForm.get('photo_url')?.value" alt="photo" />
             </div> -->
             <div *ngIf="isEditingPlayer && currentPhoto" class="mb-2">
-            <p class="text-gray-600 text-sm mb-1">Photo actuelle :</p>
-            <img [src]="currentPhoto" alt="Photo actuele" class="w-24 h-24 object-contain rounded shadow" />
+            <p class="mb-1 text-sm text-gray-600">Photo actuelle :</p>
+            <img [src]="currentPhoto" alt="Photo actuele" class="object-contain w-24 h-24 rounded shadow" />
           </div>
             <p-fileupload
             #fileUploader
@@ -645,7 +612,7 @@
   <ng-template #content>
 
     <!-- Formulaire contrat -->
-    <div *ngIf="showContractForm" class="form-container mt-4">
+    <div *ngIf="showContractForm" class="mt-4 form-container">
   <h3 class="form-title">
     {{ isEditingContract ? 'Modifier un contrat' : 'Ajouter un contrat' }}
   </h3>
@@ -707,8 +674,8 @@
     <div></div>
 
     <!-- Clauses -->
-<div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
-  <div class="flex justify-between items-center mb-2">
+<div class="w-full p-4 mt-4 bg-white border rounded-lg shadow-sm clauses-block">
+  <div class="flex items-center justify-between mb-2">
     <label class="font-semibold">Clauses</label>
     <p-button variant="outlined" size="small" (click)="addClause()">
       <i class="pi pi-plus "></i>
@@ -717,9 +684,9 @@
 
   <div formArrayName="clauses">
     <div *ngFor="let clause of clauses.controls; let i = index" [formGroupName]="i"
-         class="clause-item flex items-center gap-2 mb-2 p-2 border rounded w-full">
-      <input pInputText type="text" formControlName="type" placeholder="Nom" class="input flex-1 w-full" />
-      <input pInputText type="text" formControlName="value" placeholder="Contenu" class="input flex-1 w-full" />
+         class="flex items-center w-full gap-2 p-2 mb-2 border rounded clause-item">
+      <input pInputText type="text" formControlName="type" placeholder="Nom" class="flex-1 w-full input" />
+      <input pInputText type="text" formControlName="value" placeholder="Contenu" class="flex-1 w-full input" />
       <p-button icon="pi pi-times" size="small" variant="outlined" severity="danger" (click)="removeClause(i)">
 
       </p-button>
@@ -730,7 +697,7 @@
 
   </form>
 
-  <div class="form-actions mt-4 flex justify-end gap-2">
+  <div class="flex justify-end gap-2 mt-4 form-actions">
     <p-button label="Annuler"  [raised]="true" severity="secondary" (click)="cancelContractForm()" />
     <p-button [loading]="loading" [raised]="true" (click)="saveContract()" label="Enregistrer"  />
   </div>
@@ -739,7 +706,7 @@
 
     <!-- Bouton ajout -->
     <div class="flex justify-end mt-3">
-      <p-button [disabled]="showContractForm" (click)="newContract()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un contrat</p-button>
+      <p-button [disabled]="showContractForm" (click)="newContract()"><i class="mr-2 pi pi-plus-circle"></i> Ajouter un contrat</p-button>
     </div><br>
 
     <!-- Liste contrats -->
@@ -838,29 +805,43 @@
   </p-dialog>
 
   <!-- ========== DIALOG: KIT FORM ========== -->
-  <p-dialog [draggable]="false" [(visible)]="showKitForm" [modal]="true" [style]="{ width: '520px' }"
-            [header]="isEditingKit ? 'Modifier un maillot' : 'Ajouter un maillot'" [closable]="false">
-    <ng-template #content>
-      <form [formGroup]="kitForm" class="form-grid">
-<!--         <div class="form-item">
-          <label>Nom <span class="req">*</span></label>
-          <input pInputText formControlName="name" placeholder="Nom du maillot" />
-           <small class="error" *ngIf="kf.name?.invalid && kf.name?.touched">Requis</small>
-        </div> -->
-        <div class="form-item">
-          <label>Type <span class="req">*</span></label>
-          <p-select formControlName="type" [options]="kitTypes" optionLabel="label" optionValue="value" placeholder="Type" appendTo="body"></p-select>
- <!--          <small class="error" *ngIf="kf.type?.invalid && kf.type?.touched">Requis</small> -->
+  <p-dialog [draggable]="false" [(visible)]="showKitForm" [modal]="true" [style]="{ width: '720px' }"
+  [header]="isEditingKit ? 'Modifier un maillot' : 'Ajouter un maillot'" [closable]="false">
+  <ng-template #content>
+  <form [formGroup]="kitForm" class="p-3">
+        <div class="grid items-center grid-cols-2 gap-4">
+  <div class="flex items-center justify-center">
+    <app-kit-viewer
+     [shirtColor]="kitForm.value.primary_color"
+        [shortColor]="kitForm.value.secondary_color"
+        [socksColor]="kitForm.value.tertiary_color"
+      [width]="180"
+      [height]="220"
+               [autoRotate]="true"
+      ></app-kit-viewer>
+    </div>
+    <div class="flex flex-col gap-3">
+      <div>
+        <label>Type <span class="req">*</span></label>
+        <p-select formControlName="type" [options]="kitTypes" optionLabel="label" optionValue="value" placeholder="Type" appendTo="body"></p-select>
+            </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-gray-600 w-28">Maillot</span>
+        <input type="color" formControlName="primary_color" />
+          <span class="ml-2 text-xs">{{ kitForm.value.primary_color }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-600 w-28">Short</span>
+        <input type="color" formControlName="secondary_color" />
+        <span class="ml-2 text-xs">{{ kitForm.value.secondary_color }}</span>
         </div>
-        <!-- <div class="form-item"><label>Maillot 1</label><input type="color" formControlName="shirt_color_1" /></div>
-        <div class="form-item"><label>Maillot 2</label><input type="color" formControlName="shirt_color_2" /></div>
-        <div class="form-item"><label>Short 1</label><input type="color" formControlName="shorts_color_1" /></div>
-        <div class="form-item"><label>Short 2</label><input type="color" value="" formControlName="shorts_color_2" /></div>
-        <div class="form-item"><label>Chaussettes</label><input type="color" formControlName="socks_color" /></div> -->
-
-        <div class="form-item"><label>Maillot</label><input type="color" formControlName="primary_color" /></div>
-        <div class="form-item"><label>Short 1</label><input type="color" formControlName="secondary_color" /></div>
-        <div class="form-item"><label>Chaussettes</label><input type="color" formControlName="tertiary_color" /></div>
+          <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-600 w-28">Chaussettes</span>
+              <input type="color" formControlName="tertiary_color" />
+              <span class="ml-2 text-xs">{{ kitForm.value.tertiary_color }}</span>
+            </div>
+          </div>
+        </div>
       </form>
     </ng-template>
     <ng-template #footer>
@@ -880,6 +861,7 @@
           <label>Nom <span class="req">*</span></label>
           <input pInputText formControlName="name" placeholder="Nom du trophée" />
 <!--           <small class="error" *ngIf="tf.name?.invalid && tf.name?.touched">Requis</small> -->
+<!-- <small class="error" *ngIf="tf.name?.invalid && tf.name?.touched">Requis</small> -->
         </div>
         <div class="form-item">
           <label>Compétition <span class="req">*</span></label>
@@ -922,19 +904,17 @@
 
       <div class="form-item">
   <label>Raisons <span class="req">*</span></label>
-  <div *ngFor="let r of reasonsArray.controls; let i = index" class="reason-item flex gap-2 mb-1">
+  <div *ngFor="let r of reasonsArray.controls; let i = index" class="flex gap-2 mb-1 reason-item">
   <input pInputText [formControl]="r" placeholder="Saisir une raison" class="flex-1"/>
   <button type="button" class="btn btn-danger" (click)="removeReason(i)">
     <i class="pi pi-trash"></i>
   </button>
 </div>
 
-  <button type="button" class="btn btn-primary mt-2" (click)="addReason()">
+  <button type="button" class="mt-2 btn btn-primary" (click)="addReason()">
     <i class="pi pi-plus"></i> Ajouter une raison
   </button>
 </div>
-
-
     </form>
   </ng-template>
 
@@ -960,12 +940,12 @@
     <form [formGroup]="teamForm" (ngSubmit)="saveTeam()" class="flex flex-col gap-6">
       <!-- ✅ Section ÉQUIPE -->
       <div>
-        <h3 class="text-lg font-bold border-b pb-1 text-green-700">Equipe</h3>
+        <h3 class="pb-1 text-lg font-bold text-green-700 border-b">Equipe</h3>
       </div>
       <div class="flex gap-4">
         <!-- Nom -->
         <div class="w-1/2">
-          <label for="name" class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
+          <label for="name" class="block mb-2 font-bold">Nom <span class="text-red-500">*</span></label>
           <input
             pInputText
             type="text"
@@ -980,7 +960,7 @@
         </div>
         <!-- Abréviation -->
         <div class="w-1/2">
-          <label for="abbreviation" class="block font-bold mb-2">Abréviation</label>
+          <label for="abbreviation" class="block mb-2 font-bold">Abréviation</label>
           <input
             pInputText
             type="text"
@@ -997,7 +977,7 @@
 
       <!-- Ville -->
       <div class="w-full">
-        <label for="ville" class="block font-bold mb-2">Ville <span class="text-red-500">*</span></label>
+        <label for="ville" class="block mb-2 font-bold">Ville <span class="text-red-500">*</span></label>
         <p-select
           id="ville"
           formControlName="city_id"
@@ -1015,10 +995,10 @@
 
       <!-- Logo -->
       <div class="w-full">
-        <label for="logo" class="block font-bold mb-2">Logo</label>
+        <label for="logo" class="block mb-2 font-bold">Logo</label>
         <div *ngIf="isEditingTeam && currentLogo" class="mb-2">
-          <p class="text-gray-600 text-sm mb-1">Logo actuel :</p>
-          <img [src]="currentLogo" alt="Logo actuel" class="w-16 h-16 object-cover rounded shadow" />
+          <p class="mb-1 text-sm text-gray-600">Logo actuel :</p>
+          <img [src]="currentLogo" alt="Logo actuel" class="object-cover w-16 h-16 rounded shadow" />
         </div>
         <p-fileupload
           name="logo"
@@ -1042,7 +1022,7 @@
 
         <!-- Catégorie -->
         <div class="w-full">
-          <label for="category" class="block font-bold mb-2">Catégorie </label>
+          <label for="category" class="block mb-2 font-bold">Catégorie </label>
           <p-select
             id="category"
             formControlName="category_id"
@@ -1062,7 +1042,7 @@
 
         <!-- Club -->
         <!--          <div class="w-full">
-          <label for="category" class="block font-bold mb-2">Club </label>
+          <label for="category" class="block mb-2 font-bold">Club </label>
           <p-select
             id="club"
             formControlName="club_id"
@@ -1083,12 +1063,12 @@
 
       <!-- ✅ Section RESPONSABLE -->
       <div>
-        <h3 class="text-lg font-bold border-b pb-1 text-green-700">Responsable de l'équipe</h3>
+        <h3 class="pb-1 text-lg font-bold text-green-700 border-b">Responsable de l'équipe</h3>
       </div>
       <div class="flex gap-4">
         <!-- Prénom -->
         <div class="w-1/2">
-          <label for="manager_first_name" class="block font-bold mb-2">Prénom</label>
+          <label for="manager_first_name" class="block mb-2 font-bold">Prénom</label>
           <input
             pInputText
             type="text"
@@ -1103,7 +1083,7 @@
         </div>
         <!-- Nom -->
         <div class="w-1/2">
-          <label for="manager_last_name" class="block font-bold mb-2">Nom</label>
+          <label for="manager_last_name" class="block mb-2 font-bold">Nom</label>
           <input
             pInputText
             type="text"
@@ -1120,7 +1100,7 @@
       <div class="flex gap-4">
         <!-- Téléphone -->
         <div class="w-1/2">
-          <label for="phone" class="block font-bold mb-2">Téléphone</label>
+          <label for="phone" class="block mb-2 font-bold">Téléphone</label>
           <input
             pInputText
             type="tel"
@@ -1135,7 +1115,7 @@
         </div>
         <!-- Email -->
         <div class="w-1/2">
-          <label for="email" class="block font-bold mb-2">Email</label>
+          <label for="email" class="block mb-2 font-bold">Email</label>
           <input
             pInputText
             type="email"
@@ -1155,7 +1135,7 @@
 
       <!-- Poste du responsable -->
       <div class="w-full">
-        <label for="role" class="block font-bold mb-2">Poste</label>
+        <label for="role" class="block mb-2 font-bold">Poste</label>
         <input
           pInputText
           type="text"

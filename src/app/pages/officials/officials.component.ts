@@ -76,7 +76,7 @@ export class OfficialsComponent implements OnInit {
       /*
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      
+
       email: ['', [Validators.required, Validators.email]],
       */
 

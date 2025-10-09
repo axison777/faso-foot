@@ -1,0 +1,13 @@
+.next-match-card {
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; }
+  .title { font-weight: 600; font-size: 1.1rem; }
+  .content { display: grid; gap: .35rem; }
+  .row { display: flex; gap: .75rem; }
+  .label { width: 90px; color: #6b7280; }
+  .value { font-weight: 500; }
+  .opponent .name { margin-left: .5rem; font-weight: 600; }
+  .badge { padding: .15rem .5rem; border-radius: .25rem; font-size: .75rem; background: #eef2ff; color: #3730a3; }
+  .badge.home { background: #ecfeff; color: #155e75; }
+  .badge.away { background: #fef2f2; color: #991b1b; }
+}
+.empty { color: #6b7280; font-style: italic; }

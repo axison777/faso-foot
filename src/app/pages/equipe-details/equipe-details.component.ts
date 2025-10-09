@@ -121,7 +121,6 @@ export class EquipeDetailsComponent implements OnInit {
     manager_role: 'Entraîneur-chef',
     player_count: 22,
     staff_members: [
-
     ],
     kits: [
       { id: 'kit-1', name: 'Maillot Domicile', type: 'home',

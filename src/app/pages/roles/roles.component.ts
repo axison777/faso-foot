@@ -48,7 +48,7 @@ export class RolesComponent implements OnInit {
   currentRole: Role | null = null;
 
   roleForm!: FormGroup;
-  allSelected = false; // Pour le switch "Tout sélectionner"
+  allSelected = false; // Switch "Tout sélectionner"
 
   constructor(
     private fb: FormBuilder,
@@ -108,14 +108,26 @@ export class RolesComponent implements OnInit {
     this.isEditing = false;
     this.currentRole = null;
     this.roleForm.reset({ name: '', permissions: [] });
+    this.allSelected = false;
     this.showForm = true;
   }
 
   openEdit(role: Role): void {
     this.isEditing = true;
     this.currentRole = { ...role };
-    const permissionSlugs = (role.permissions ?? []).map((p: any) => (typeof p === 'string' ? p : p.slug)).filter(Boolean);
-    this.roleForm.reset({ name: role.name || '', permissions: permissionSlugs });
+
+    const permissionSlugs = (role.permissions ?? []).map((p: any) =>
+      typeof p === 'string' ? p : p.slug
+    ).filter(Boolean);
+
+    this.roleForm.reset({
+      name: role.name || '',
+      permissions: permissionSlugs
+    });
+
+    // Vérifier si toutes les permissions sont cochées
+    this.updateAllSelected();
+
     this.showForm = true;
   }
 
@@ -143,7 +155,7 @@ export class RolesComponent implements OnInit {
       this.showForm = false;
       await this.loadInitialData();
     } catch (error) {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Échec de l\'enregistrement.' });
+      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Un rôle avec ce nom existe deja.' });
     } finally {
       this.isSubmitting = false;
     }
@@ -188,6 +200,7 @@ export class RolesComponent implements OnInit {
     this.showForm = false;
     this.roleForm.reset();
     this.currentRole = null;
+    this.allSelected = false;
   }
 
   applyFilterGlobal(event: Event): void {
@@ -216,21 +229,41 @@ export class RolesComponent implements OnInit {
   togglePermission(slug: string, checked: boolean): void {
     const control = this.roleForm.get('permissions');
     if (!control) return;
+
     const current: string[] = control.value || [];
+
     if (checked && !current.includes(slug)) {
       control.setValue([...current, slug]);
     } else if (!checked && current.includes(slug)) {
       control.setValue(current.filter(s => s !== slug));
     }
+
     control.markAsDirty();
+
+    // Met à jour le switch global
+    this.updateAllSelected();
   }
 
   toggleAllPermissions(checked: boolean): void {
     const control = this.roleForm.get('permissions');
     if (!control) return;
-    this.allSelected = checked;
-    control.setValue(checked ? this.allPermissions.map(p => p.slug) : []);
+
+    if (checked) {
+      control.setValue(this.allPermissions.map(p => p.slug));
+    } else {
+      control.setValue([]);
+    }
+
     control.markAsDirty();
+    this.allSelected = checked;
+  }
+
+  private updateAllSelected(): void {
+    const control = this.roleForm.get('permissions');
+    if (!control) return;
+
+    this.allSelected =
+      control.value?.length === this.allPermissions.length;
   }
 
   trackBySlug(index: number, item: Role): any {

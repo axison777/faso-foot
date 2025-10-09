@@ -413,12 +413,11 @@ form {
   outline-offset: 2px;
 }
 
-/* Nouvelles classes pour les logos */
+/* Centrer uniquement le logo FBF */
 .logo-wrapper {
   display: flex;
-  align-items: flex-start;
   justify-content: center;
-  gap: 1rem; /* Réduit de 1.5rem à 1rem */
+  align-items: center;
   width: 100%;
 }
 
@@ -426,36 +425,22 @@ form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 1;
-  max-width: 45%;
+  text-align: center;
 }
 
 .logo-image {
-  height: 100px;
+  height: 120px;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
-  @media (min-width: 768px) {
-    height: 120px;
-  }
 }
 
-/* Styles spécifiques pour chaque logo */
-.logo-image[alt="Logo FBF"] {
-  transform: scale(1.1);
-}
-
-.logo-image[alt="Logo LFP"] {
-  transform: scale(1);
-}
-
-.logo-divider {
-  width: 2px;
-  height: 60px;
-  background-color: #ffffff80;
-  margin-top: 10px; /* Réduit de 20px à 10px */
-  @media (min-width: 768px) {
-    height: 80px;
-    margin-top: 15px; /* Réduit de 20px à 15px */
-  }
+.app-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-top: 1rem;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.05em;
 }

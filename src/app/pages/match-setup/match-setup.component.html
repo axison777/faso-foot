@@ -94,7 +94,7 @@
     <p-tabPanel header="Équipes">
       <div class="teams-callup-container">
         <h2>Feuille de match - Listes des équipes</h2>
-        <div class="mt-4 flex gap-3 mb-2 justify-between">
+        <div class="flex justify-between gap-3 mt-4 mb-2">
           <p-button (click)="toggleHomeForm()" icon="pi pi-pencil" label="Composition Domicile" severity="contrast">
 
           </p-button>
@@ -104,7 +104,7 @@
           </p-button>
         </div>
 
-        <div class="mt-4 flex gap-3 mb-2 justify-between" style="display:flex;gap:8px;">
+        <div class="flex justify-between gap-3 mt-4 mb-2" style="display:flex;gap:8px;">
 
           <!-- buttons pour ouvrir le composeur de feuille -->
             <button pButton type="button" label="Modifier composition (domicile)" (click)="openPitch('home')"></button>
@@ -123,7 +123,7 @@
         </div>
 
         <!-- Si données présentes : cards résumé -->
-        <div *ngIf="assignedTeams" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div *ngIf="assignedTeams" class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div *ngIf="assignedTeams.team_one_callup" class="team-card">
             <h3>{{ assignedTeams.team_one_callup.team_name }}</h3>
             <img *ngIf="assignedTeams.team_one_callup.team_logo" [src]="assignedTeams.team_one_callup.team_logo"
@@ -179,28 +179,28 @@
       <!-- Contrôles pour ouvrir les formulaires (par équipe) -->
 
 
-      <div class="teams mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 gap-6 mt-6 teams md:grid-cols-2">
         <!-- Formulaire Équipe Domicile (affiché seulement si on a cliqué) -->
         <p-dialog [draggable]="false" [modal]="true" [closable]="false" [(visible)]="showHomeForm"
           [style]="{ width: '1300px', height: '90vw' }" [styleClass]="'team-card'" *ngIf="showHomeForm">
           <h4>Équipe Domicile</h4>
-          <div class="team-info mb-4">
+          <div class="mb-4 team-info">
             <img [src]="homeTeam.logo" alt="Logo domicile" class="team-logo" />
             <span>{{ homeTeam.name }}</span>
           </div>
-          <div class="meta grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="field flex flex-col">
+          <div class="grid grid-cols-1 gap-4 mb-4 meta md:grid-cols-3">
+            <div class="flex flex-col field">
               <label for="formation">Formation</label>
               <p-select [options]="formations" [(ngModel)]="homeCallup.formation" [disabled]="isClosed"
                 optionLabel="label" optionValue="value" placeholder="-- Choisir formation --"></p-select>
             </div>
-            <div class="field flex flex-col">
+            <div class="flex flex-col field">
               <label for="coach">Coach</label>
               <p-select [options]="homeCoaches" [(ngModel)]="homeCallup.coachId" [disabled]="isClosed"
                 optionLabel="name" optionValue="id" placeholder="-- Choisir coach --"
                 (ngModelChange)="setCoach('home', $event)"></p-select>
             </div>
-            <div class="field flex flex-col">
+            <div class="flex flex-col field">
               <label for="captain">Capitaine</label>
               <p-select [options]="homeCallup.players" [(ngModel)]="homeCallup.captainId" [disabled]="isClosed"
                 optionLabel="playerName" optionValue="playerId" [filter]="true" placeholder="-- Choisir capitaine --"
@@ -216,9 +216,9 @@
           </div>
           <h5>Joueurs disponibles</h5>
           <div class="border rounded-md p-4 bg-gray-50 max-h-[370px] overflow-y-auto">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               <div *ngFor="let p of homePlayersPool"
-                class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white" [ngClass]="{
+                class="relative flex flex-col items-center gap-2 p-4 bg-white border rounded-lg shadow-sm" [ngClass]="{
      'ring-yellow-400': getPlayerRingClass(p) === 'yellow',
     ' ring-green-500':getPlayerRingClass(p) === 'green',
     'ring-2':p.selected,
@@ -231,10 +231,10 @@
                   #{{ p.selectionOrder }}
                 </div>
                 <img *ngIf="p.photo_url; else noPhoto" [src]="p.photo_url" alt="Photo joueur"
-                  class="w-12 h-12 object-cover rounded-full" />
+                  class="object-cover w-12 h-12 rounded-full" />
                 <ng-template #noPhoto>
                   <div
-                    class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-sm">
+                    class="flex items-center justify-center w-12 h-12 text-sm text-gray-500 bg-gray-200 rounded-full">
                     N/A
                   </div>
                 </ng-template>
@@ -249,8 +249,8 @@
           </div>
 
           <ng-template #footer>
-            <div class="flex mt-3 justify-content-between align-items-center gap-5">
-              <div class="p-3 rounded border border-gray-300 bg-gray-50 text-sm text-gray-700">
+            <div class="flex gap-5 mt-3 justify-content-between align-items-center">
+              <div class="p-3 text-sm text-gray-700 border border-gray-300 rounded bg-gray-50">
                 <strong>Légende :</strong>
                 <ul class="mt-2 space-y-1">
                   <li>🟢 <strong>Vert</strong> — Titulaire (dans les 11 premiers sélectionnés)</li>
@@ -259,7 +259,7 @@
               </div>
 
               <div class=" pt-[55px]">
-                <p-button [raised]="true" label="Sauvegarder Domicile" class="p-button-primary mr-2"
+                <p-button [raised]="true" label="Sauvegarder Domicile" class="mr-2 p-button-primary"
                   (click)="saveCallup('home')" [disabled]="isClosed"></p-button>
                 <p-button [raised]="true" label="Annuler" severity="secondary" (click)="toggleHomeForm()"></p-button>
               </div>
@@ -278,24 +278,24 @@
           [style]="{ width: '1300px', height: '90vw' }" [styleClass]="'team-card'" *ngIf="showAwayForm">
           <h4>Équipe Extérieure</h4>
 
-          <div class="team-info mb-4">
+          <div class="mb-4 team-info">
             <img [src]="awayTeam.logo" alt="Logo extérieur" class="team-logo" />
             <span>{{ awayTeam.name }}</span>
           </div>
 
-          <div class="meta grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="field flex flex-col">
+          <div class="grid grid-cols-1 gap-4 mb-4 meta md:grid-cols-3">
+            <div class="flex flex-col field">
               <label for="formation">Formation</label>
               <p-select [options]="formations" [(ngModel)]="awayCallup.formation" [disabled]="isClosed"
                 optionLabel="label" optionValue="value" placeholder="-- Choisir formation --"></p-select>
             </div>
-            <div class="field flex flex-col">
+            <div class="flex flex-col field">
               <label for="coach">Coach</label>
               <p-select [options]="awayCoaches" [(ngModel)]="awayCallup.coachId" [disabled]="isClosed"
                 optionLabel="name" optionValue="id" placeholder="-- Choisir coach --"
                 (ngModelChange)="setCoach('away', $event)"></p-select>
             </div>
-            <div class="field flex flex-col">
+            <div class="flex flex-col field">
               <label for="captain">Capitaine</label>
               <p-select [options]="awayCallup.players" [(ngModel)]="awayCallup.captainId" [disabled]="isClosed"
                 optionLabel="playerName" optionValue="playerId" [filter]="true" placeholder="-- Choisir capitaine --"
@@ -312,9 +312,9 @@
 
           <h5>Joueurs disponibles</h5>
           <div class="border rounded-md p-4 bg-gray-50 max-h-[370px] overflow-y-auto">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               <div *ngFor="let p of awayPlayersPool"
-                class="relative border rounded-lg p-4 shadow-sm flex flex-col items-center gap-2 bg-white" [ngClass]="{
+                class="relative flex flex-col items-center gap-2 p-4 bg-white border rounded-lg shadow-sm" [ngClass]="{
      'ring-yellow-400': getPlayerRingClass(p) === 'yellow',
     ' ring-green-500':getPlayerRingClass(p) === 'green',
     'ring-2':p.selected,
@@ -330,10 +330,10 @@
                 </div>
 
                 <img *ngIf="p.photo_url; else noPhotoAway" [src]="p.photo_url" alt="Photo joueur"
-                  class="w-12 h-12 object-cover rounded-full" />
+                  class="object-cover w-12 h-12 rounded-full" />
                 <ng-template #noPhotoAway>
                   <div
-                    class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-sm">
+                    class="flex items-center justify-center w-12 h-12 text-sm text-gray-500 bg-gray-200 rounded-full">
                     N/A</div>
                 </ng-template>
 
@@ -344,8 +344,8 @@
           </div>
 
           <ng-template #footer>
-            <div class="flex mt-3 justify-content-between align-items-center gap-5">
-              <div class="p-3 rounded border border-gray-300 bg-gray-50 text-sm text-gray-700">
+            <div class="flex gap-5 mt-3 justify-content-between align-items-center">
+              <div class="p-3 text-sm text-gray-700 border border-gray-300 rounded bg-gray-50">
                 <strong>Légende :</strong>
                 <ul class="mt-2 space-y-1">
                   <li>🟢 <strong>Vert</strong> — Titulaire (dans les 11 premiers sélectionnés)</li>
@@ -354,7 +354,7 @@
               </div>
 
               <div class=" pt-[55px]">
-                <p-button [raised]="true" label="Sauvegarder Extérieur" class="p-button-primary mr-2"
+                <p-button [raised]="true" label="Sauvegarder Extérieur" class="mr-2 p-button-primary"
                   (click)="saveCallup('away')" [disabled]="isClosed"></p-button>
                 <p-button [raised]="true" label="Annuler" severity="secondary" (click)="toggleAwayForm()"></p-button>
               </div>

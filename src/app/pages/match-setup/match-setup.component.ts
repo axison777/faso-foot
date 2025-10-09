@@ -383,6 +383,7 @@ export class MatchSetupComponent implements OnInit {
       captain_id: team.captainId ? String(team.captainId) : null,
       finalize: false,
       players: team.players.map((p) => {
+        // si p.jersey_number est null/undefined, on tente de récupérer depuis le pool
         const jersey = p.jersey_number ?? this.findPlayerNumberInPool(String(team.teamId), p.playerId);
         return {
           player_id: String(p.playerId),
@@ -413,14 +414,23 @@ export class MatchSetupComponent implements OnInit {
     }
   }
 
+  /**
+   * Retourne l'id existant de la composition (si présent) pour détecter le mode édition.
+   * On regarde plusieurs champs possibles (id / callup_id) au cas où l'API varie.
+   */
   private getExistingCallupId(teamKey: 'home' | 'away'): string | null {
     if (!this.assignedTeams) return null;
     const callup = teamKey === 'home' ? this.assignedTeams.team_one_callup : this.assignedTeams.team_two_callup;
     return callup?.id ? String(callup.id) : (callup?.callup_id ? String(callup.callup_id) : null);
   }
 
+  /**
+   * Préremplit homeCallup/awayCallup ET met à jour les pools (selected + selectionOrder)
+   * si assignedTeams contient une composition pour l'équipe demandée.
+   */
   private prefillTeamFromAssigned(teamKey: 'home' | 'away') {
     if (!this.assignedTeams) {
+      // rien à préremplir
       return;
     }
 
@@ -429,6 +439,7 @@ export class MatchSetupComponent implements OnInit {
     const target = teamKey === 'home' ? this.homeCallup : this.awayCallup;
 
     if (!callupData) {
+      // pas de composition enregistrée -> reset léger
       pool.forEach(p => { p.selected = false; p.selectionOrder = null; });
       target.players = [];
       target.coachId = null;
@@ -436,11 +447,13 @@ export class MatchSetupComponent implements OnInit {
       return;
     }
 
+    // map fields robustement
     target.teamId = String(callupData.team_id ?? target.teamId ?? (teamKey === 'home' ? this.homeTeam.id : this.awayTeam.id));
     target.formation = (callupData.formation ?? target.formation) as TeamSetup['formation'];
     target.coachId = callupData.coach_id ? String(callupData.coach_id) : null;
     target.captainId = callupData.captain_id ? String(callupData.captain_id) : null;
 
+    // build players list dans le format TeamPlayerSelection
     const playersFromApi = (callupData.players || []) as any[];
     const mappedPlayers: TeamPlayerSelection[] = playersFromApi.map(p => ({
       playerId: String(p.player_id ?? p.playerId ?? p.id),
@@ -452,8 +465,12 @@ export class MatchSetupComponent implements OnInit {
 
     target.players = mappedPlayers;
 
+    // reset pool selections
     pool.forEach(p => { p.selected = false; p.selectionOrder = null; });
 
+    // assign selectionOrder :
+    // - les titulaires conservent un ordre selon leur apparition dans mappedPlayers (où isStarter === true)
+    // - les remplaçants sont ordonnés par substituteOrder si présent, puis viennent après les titulaires
     const starters = mappedPlayers.filter(mp => mp.isStarter);
     starters.forEach((sp, idx) => {
       const poolP = pool.find(pp => String(pp.id) === String(sp.playerId));
@@ -490,6 +507,9 @@ export class MatchSetupComponent implements OnInit {
     }
   }
 
+  /**
+   * Sauvegarde (create ou update selon présence d'une composition existante)
+   */
   saveCallup(teamKey: 'home' | 'away') {
     const team = teamKey === 'home' ? this.homeCallup : this.awayCallup;
 
@@ -514,6 +534,7 @@ export class MatchSetupComponent implements OnInit {
     }
 
     const payload = this.makeTeamPayload(team);
+    console.log('Payload envoyé à create/updateCallup:', payload);
 
     const existingCallupId = this.getExistingCallupId(teamKey);
 
@@ -698,4 +719,4 @@ export class MatchSetupComponent implements OnInit {
     return null;
   }
 }
-  
+

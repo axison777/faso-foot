@@ -9,7 +9,7 @@
         <h1>Gestion des Officiels</h1>
         <div class="header-actions">
             <button class="btn btn-info" (click)="toggleForm()">
-                <i class="pi pi-plus-circle mr-2"></i>Ajouter un officiel
+                <i class="mr-2 pi pi-plus-circle"></i>Ajouter un officiel
             </button>
         </div>
     </div>
@@ -19,7 +19,7 @@
         <!-- TAB ARBITRES -->
         <p-tabPanel header="Arbitres" leftIcon="pi pi-flag">
             <!-- Search -->
-            <div class="search-container flex align-items-end">
+            <div class="flex search-container align-items-end">
                 <input type="text" class="search-input" [(ngModel)]="searchTerm"
                     placeholder="Rechercher un arbitre (nom, prénom, licence)..." />
             </div>
@@ -90,9 +90,14 @@
         <!-- TAB COMMISSAIRES -->
         <p-tabPanel header="Commissaires" leftIcon="pi pi-briefcase">
             <!-- Search -->
-            <div class="search-container flex align-items-end">
+            <div class="flex search-container align-items-end">
                 <input type="text" class="search-input" [(ngModel)]="searchTerm"
                     placeholder="Rechercher un commissaire (nom, prénom, licence)..." />
+                <!-- <div class="mt-auto ml-auto header-actions">
+                    <button class="btn-info" (click)="toggleForm()">
+                        <i class="mr-2 pi pi-plus-circle"></i> Ajouter un commissaire
+                    </button>
+                </div> -->
             </div>
 
             <!-- Loading -->
@@ -107,6 +112,7 @@
                             <th>Nom</th>
                             <th>Prénom</th>
                             <th>N° Licence</th>
+                            <!-- <th>N° Licence</th> -->
                             <th>Niveau</th>
                             <th>Structure</th>
                             <th>Statut</th>
@@ -123,26 +129,27 @@
                             <td class="cell-strong">{{ o?.user?.last_name }}</td>
                             <td>{{ o?.user?.first_name }}</td>
                             <td>{{ o.license_number }}</td>
+                            <td class="cell-strong">{{ o.last_name }}</td>
+                            <td>{{ o.first_name }}</td>
+                            <!-- <td>{{ o.license_number }}</td> -->
                             <td>{{ o.level }}</td>
                             <td>{{ o.structure || '—' }}</td>
                             <td>
                                 <span class="badge" [ngClass]="{
-                                    'status-active': o.status === 'ACTIVE',
-                                    'status-suspended': o.status === 'SUSPENDED',
-                                    'status-retired': o.status === 'RETIRED'
-                                }">
+                    'status-active': o.status === 'ACTIVE',
+                    'status-suspended': o.status === 'SUSPENDED',
+                    'status-retired': o.status === 'RETIRED'
+                    }">
                                     {{ o.status }}
                                 </span>
                             </td>
                             <td class="actions">
                                 <div class="btn-group">
                                     <p-button severity="warn" icon="pi pi-pencil" (click)="editOfficial(o)" />
-                                    <button class="btn btn-info" (click)="viewOfficialDetails(o)">
-                                        <i class="pi pi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-danger" (click)="deleteOfficial(o.id!)">
-                                        <i class="pi pi-trash"></i>
-                                    </button>
+                                    <button class="btn btn-info" (click)="viewOfficialDetails(o)"><i
+                                            class="pi pi-eye"></i></button>
+                                    <button class="btn btn-danger" (click)="deleteOfficial(o.id!)"><i
+                                            class="pi pi-trash"></i></button>
                                 </div>
                             </td>
                         </tr>
@@ -251,10 +258,10 @@
             </div>
 
             <!-- NATIONALITÉ -->
-            <div class="form-item">
+            <!-- <div class="form-item">
                 <label>Nationalité</label>
                 <input pInputText formControlName="nationality" placeholder="Nationalité" />
-            </div>
+            </div> -->
 
             <!-- LICENCE -->
             <div class="form-item">

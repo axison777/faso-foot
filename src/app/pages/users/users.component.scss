@@ -555,8 +555,8 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    .title { 
-      font-size: 1.2rem; 
+    .title {
+      font-size: 1.2rem;
       font-weight: 600;
     }
   }
@@ -576,10 +576,10 @@
       .value { color: #1f2937; font-weight: 500; }
       .muted { color: #9ca3af; font-style: italic; }
 
-      &.roles-row .badges { 
-        display: flex; 
-        gap: 8px; 
-        flex-wrap: wrap; 
+      &.roles-row .badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
       }
 
       /* --- Badges rôles --- */
@@ -728,4 +728,70 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+
+
+/* Tablette en mode portrait */
+@media screen and (min-width: 600px) and (max-width: 1024px) and (orientation: portrait) {
+  .roles-container {
+    padding: 12px;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    .btn-info {
+      width: 100%;
+      max-width: 350px;
+    }
+  }
+
+  .search-input {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .role-form .two-cols {
+    grid-template-columns: 1fr; /* sur une seule colonne en portrait */
+  }
+
+  .permissions-list-switch .group-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablette en mode paysage */
+@media screen and (min-width: 600px) and (max-width: 1024px) and (orientation: landscape) {
+  .roles-container {
+    padding: 20px;
+  }
+
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .btn-info {
+      min-width: 150px;
+    }
+  }
+
+  .role-form .two-cols {
+    grid-template-columns: 1fr 1fr; /* deux colonnes possible en paysage */
+    gap: 24px;
+  }
+
+  .permissions-list-switch .group-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

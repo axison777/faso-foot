@@ -44,13 +44,20 @@ import { CommonModule } from '@angular/common';
       --surface-hover: #004d40;
     }
 
-    /* Sidebar de base */
+    /* Sidebar de base  confilt*/
+    // .layout-sidebar {
+    //   position: fixed;
+    //   top: 0px; /* sous le topbar */
+    //   left: 0;
+    //   width: 280px;
+    //   height: calc(100vh );
+    /* Sidebar */
     .layout-sidebar {
       position: fixed;
-      top: 0px; /* sous le topbar */
+      top: 0;
       left: 0;
       width: 280px;
-      height: calc(100vh );
+      height: 100vh;
       background-color: var(--surface-overlay);
       color: var(--text-color);
       display: flex;
@@ -84,14 +91,21 @@ import { CommonModule } from '@angular/common';
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Container pour les logos avec séparateur */
+    /* Container pour les logos avec séparateur  conflit*/
+    // .logo-container {
+    //   display: flex;
+    //   align-items: center;
+    //   justify-content: center;
+    //   gap: 0.75rem;
+    //   margin-bottom: 1rem;
+    //   width: 100%;
+    /* Container uniquement pour FBF */
     .logo-container {
       display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
+      align-items: center;
       width: 100%;
+      margin-bottom: 1rem;
     }
 
     .logo-item {
@@ -103,7 +117,7 @@ import { CommonModule } from '@angular/common';
 
     .logo-image {
       width: auto;
-      height: 60px; /* Réduit de 90px à 60px */
+      height: 70px;
       object-fit: contain;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
       transition: transform 0.3s ease;
@@ -281,6 +295,20 @@ import { CommonModule } from '@angular/common';
         height: 30px;
       }
 
+    /* Responsive */
+    @media (max-width: 991px) {
+      .logo-image {
+        height: 55px;
+      }
+      .logo-text {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo-image {
+        height: 50px;
+      }
       .logo-text {
         font-size: 0.85rem;
         line-height: 1.2;

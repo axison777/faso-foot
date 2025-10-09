@@ -9,10 +9,10 @@
       <h1>Joueurs</h1>
       <div class="header-actions">
 
-        <button class="btn btn-info" (click)="showPlayerDialog()"><i class="pi pi-plus-circle mr-2"></i>Ajouter un joueur</button>
+        <button class="btn btn-info" (click)="showPlayerDialog()"><i class="mr-2 pi pi-plus-circle"></i>Ajouter un joueur</button>
       </div>
     </div>
-     <input pInputText    type="text" class="search-input mb-5" [(ngModel)]="searchPlayer" placeholder="Rechercher un joueur (nom, prénom)..." />
+     <input pInputText    type="text" class="mb-5 search-input" [(ngModel)]="searchPlayer" placeholder="Rechercher un joueur (nom, prénom)..." />
 
     <!-- Loading -->
     <div *ngIf="loading" class="loading">Chargement des joueurs...</div>
@@ -36,7 +36,7 @@
           <tr *ngFor="let p of filteredPlayers; let i = index">
             <td>{{ i + 1 }}</td>
             <td class="player-cell">
-              <div class="avatar hidden lg:block" [ngStyle]="{'background-image': p.photo_url ? 'url('+p.photo_url+')' : 'linear-gradient(135deg,#118c46,#118c46)'}">
+              <div class="hidden avatar lg:block" [ngStyle]="{'background-image': p.photo_url ? 'url('+p.photo_url+')' : 'linear-gradient(135deg,#118c46,#118c46)'}">
                 <span *ngIf="!p.photo_url">{{ (p.first_name?.charAt(0) || '') + (p.last_name?.charAt(0) || '') }}</span>
               </div>
               <div class="player-meta">
@@ -132,9 +132,9 @@
         </div>
 
         <!-- PHOTO / Position + Taille/Poids -->
-<div class="col-12 md:col-6 grid grid-cols-12 gap-4 items-center">
+<div class="grid items-center grid-cols-12 gap-4 col-12 md:col-6">
   <!-- Input / Upload à gauche -->
-  <div class="col-6 flex flex-col gap-2">
+  <div class="flex flex-col gap-2 col-6">
     <label>Photo</label>
     <p-fileUpload
       #fileUploader
@@ -159,9 +159,9 @@
   </div>
 
   <!-- Photo actuelle à droite -->
-  <div class="col-6 flex flex-col items-center gap-1" *ngIf="isEditingPlayer && currentPhoto">
-    <p class="text-gray-600 text-sm mb-1">Photo actuelle :</p>
-    <img [src]="currentPhoto" alt="Photo actuelle" class="w-32 h-32 object-contain rounded shadow" />
+  <div class="flex flex-col items-center gap-1 col-6" *ngIf="isEditingPlayer && currentPhoto">
+    <p class="mb-1 text-sm text-gray-600">Photo actuelle :</p>
+    <img [src]="currentPhoto" alt="Photo actuelle" class="object-contain w-32 h-32 rounded shadow" />
   </div>
 </div>
 
@@ -187,7 +187,7 @@
           </div>
 
             <!-- Ligne 2 : Taille + Poids -->
-            <div class="col-12 grid gap-2">
+            <div class="grid gap-2 col-12">
               <div class="col-3">
                 <label>Taille (cm)</label>
                 <p-inputNumber formControlName="height" [min]="0" class="w-full"></p-inputNumber>
@@ -207,7 +207,7 @@
             </div>
 
             <!-- Ligne 3 : Groupe sanguin / Pied -->
-         <!--    <div class="col-12 grid gap-2">
+         <!--    <div class="grid gap-2 col-12">
 
             </div> -->
           </div>
@@ -221,7 +221,7 @@
 
         <div class="col-12 md:col-6">
           <label>Carrière (début - fin)</label>
-          <div class="career-row flex gap-2">
+          <div class="flex gap-2 career-row">
             <p-datepicker formControlName="career_start" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"></p-datepicker>
             <p-datepicker formControlName="career_end" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"></p-datepicker>
           </div>
@@ -231,7 +231,7 @@
         <div class="col-12 emergency">
           <label>Contacts d'urgence</label>
           <div formArrayName="emergency_contact">
-            <div *ngFor="let ec of ecControls; let idx = index" [formGroupName]="idx" class="ec-row flex gap-2 mb-2">
+            <div *ngFor="let ec of ecControls; let idx = index" [formGroupName]="idx" class="flex gap-2 mb-2 ec-row">
               <input pInputText formControlName="name" placeholder="Nom" class="flex-1" />
               <input pInputText formControlName="phone" placeholder="Téléphone" class="flex-1" />
               <input pInputText formControlName="email" placeholder="Email" class="flex-1" />
@@ -239,7 +239,7 @@
               <button class="btn btn-danger small" type="button" (click)="removeEmergencyContact(idx)"><i class="pi pi-trash"></i></button>
             </div>
           </div>
-          <div class="ec-actions mt-2">
+          <div class="mt-2 ec-actions">
             <button class="btn btn-info small" type="button" (click)="addEmergencyContact()"><i class="pi pi-plus"></i> Ajouter contact</button>
           </div>
         </div>
@@ -278,70 +278,6 @@
             </div>
 
             <div class="meta-row">
-              <div><strong>Taille</strong><div>{{ currentPlayer.height ? currentPlayer.height + ' cm' : '—' }}</div></div>
-              <div><strong>Poids</strong><div>{{ currentPlayer.weight ? currentPlayer.weight + ' kg' : '—' }}</div></div>
-            </div>
-
-            <div class="meta-row">
-              <div><strong>Pied</strong><div>{{getFootLabel(currentPlayer.foot_preference) || '—' }}</div></div>
-              <div><strong>Statut</strong><div>{{ getStatusLabel(currentPlayer.status) || '—' }}</div></div>
-            </div>
-          </div>
-        </div>
-
- <!--        <div class="right-col">
-          <section>
-            <h3>Contrats</h3>
-            <div *ngIf="currentPlayer.contracts?.length; else noContracts">
-              <ul class="contracts-list">
-                <li *ngFor="let c of (currentPlayer.contracts )" class="contract-item">
-                  <div class="left">
-                    <div class="type">{{ c.type || '—' }}</div>
-                    <div class="pos">{{ c.position || '—' }}</div>
-                  </div>
-                  <div class="right">
-                    <div class="period">{{ c.start_date | date:'dd/MM/yyyy' }} → {{ c.end_date | date:'dd/MM/yyyy' }}</div>
-                    <div class="actions">
-                      <button class="btn small" (click)="editContract(c)"><i class="pi pi-pencil"></i></button>
-                      <button class="btn btn-danger small" (click)="deleteContractConfirm(c.id!)"><i class="pi pi-trash"></i></button>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <ng-template #noContracts>
-              <p class="empty">Aucun contrat</p>
-            </ng-template>
-
-            <div class="mt-3 flex-end">
-              <button class="btn-primary" (click)="newContract()"><i class="pi pi-plus-circle mr-2"></i>Ajouter contrat</button>
-            </div>
-          </section>
-
-          <section class="mt-4">
-            <h3>Contacts d'urgence</h3>
-            <div *ngIf="currentPlayer.emergency_contact?.length; else noEC">
-              <ul class="ec-list">
-                <li *ngFor="let e of currentPlayer.emergency_contact">
-                  <div><strong>{{ e.name }}</strong> — {{ e.relationship || '—' }}</div>
-                  <div class="muted">{{ e.phone || '—' }} • {{ e.email || '—' }}</div>
-                </li>
-              </ul>
-            </div>
-            <ng-template #noEC>
-              <p class="empty">Aucun contact d'urgence</p>
-            </ng-template>
-          </section>
-
-        </div> -->
-      </div>
-
- <!--      <ng-template #footer>
-        <div class="flex justify-end gap-2">
-          <button class="btn-secondary" type="button" (click)="showPlayerDetails = false">Fermer</button>
-          <button class="btn-primary" type="button" (click)="showPlayerDialog(currentPlayer || undefined)">Modifier</button>
-        </div>
-      </ng-template> -->
     </p-dialog>
 
     <!-- CONTRACTS DIALOG -->
@@ -351,7 +287,7 @@
   <ng-template #content>
 
     <!-- Formulaire contrat -->
-    <div *ngIf="showContractForm" class="form-container mt-4">
+    <div *ngIf="showContractForm" class="mt-4 form-container">
   <h3 class="form-title">
     {{ isEditingContract ? 'Modifier un contrat' : 'Ajouter un contrat' }}
   </h3>
@@ -413,8 +349,8 @@
     <div></div>
 
     <!-- Clauses -->
-<div class="clauses-block mt-4 p-4 border rounded-lg shadow-sm bg-white w-full">
-  <div class="flex justify-between items-center mb-2">
+<div class="w-full p-4 mt-4 bg-white border rounded-lg shadow-sm clauses-block">
+  <div class="flex items-center justify-between mb-2">
     <label class="font-semibold">Clauses</label>
     <p-button variant="outlined" size="small" (click)="addClause()">
       <i class="pi pi-plus "></i>
@@ -423,9 +359,9 @@
 
   <div formArrayName="clauses">
     <div *ngFor="let clause of clauses.controls; let i = index" [formGroupName]="i"
-         class="clause-item flex items-center gap-2 mb-2 p-2 border rounded w-full">
-      <input pInputText type="text" formControlName="type" placeholder="Nom" class="input flex-1 w-full" />
-      <textarea pTextarea  type="text" formControlName="value" placeholder="Contenu" class="input flex-1 w-full" ></textarea>
+         class="flex items-center w-full gap-2 p-2 mb-2 border rounded clause-item">
+      <input pInputText type="text" formControlName="type" placeholder="Nom" class="flex-1 w-full input" />
+      <textarea pTextarea  type="text" formControlName="value" placeholder="Contenu" class="flex-1 w-full input" ></textarea>
       <p-button icon="pi pi-times" size="small" variant="outlined" severity="danger" (click)="removeClause(i)">
 
       </p-button>
@@ -436,7 +372,7 @@
 
   </form>
 
-  <div class="form-actions mt-4 flex justify-end gap-2">
+  <div class="flex justify-end gap-2 mt-4 form-actions">
     <p-button label="Annuler"  [raised]="true" severity="secondary" (click)="cancelContractForm()" />
     <p-button [loading]="loading" [raised]="true" (click)="saveContract()" label="Enregistrer"  />
   </div>
@@ -445,7 +381,7 @@
 
     <!-- Bouton ajout -->
     <div class="flex justify-end mt-3">
-      <p-button [disabled]="showContractForm" (click)="newContract()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un contrat</p-button>
+      <p-button [disabled]="showContractForm" (click)="newContract()"><i class="mr-2 pi pi-plus-circle"></i> Ajouter un contrat</p-button>
     </div><br>
 
     <!-- Liste contrats -->

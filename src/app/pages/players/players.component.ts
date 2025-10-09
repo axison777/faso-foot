@@ -312,10 +312,7 @@ export class PlayersComponent implements OnInit {
   const v = this.playerForm.value;
   const formData = new FormData();
 
-  // Champs simples
   if (v.first_name) formData.append('first_name', v.first_name);
-  if (v.last_name) formData.append('last_name', v.last_name);
-  if (v.date_of_birth) formData.append('date_of_birth', this.toISO(v.date_of_birth)!);
   if (v.birth_place) formData.append('birth_place', v.birth_place);
   if (v.nationality) formData.append('nationality', v.nationality);
   if (v.phone) formData.append('phone', v.phone);

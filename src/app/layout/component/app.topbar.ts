@@ -1,12 +1,21 @@
 import { Component } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { StyleClassModule } from 'primeng/styleclass';
 import { LayoutService } from '../service/layout.service';
 import { MenuModule } from 'primeng/menu';
 import { TieredMenuModule } from 'primeng/tieredmenu';
-import { MenuItem } from 'primeng/api';
+// import { MenuItem } from 'primeng/api';
+// import { AuthService } from '../../service/auth.service';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { MenuItem, MessageService } from 'primeng/api';
 import { AuthService } from '../../service/auth.service';
+import { UserService } from '../../service/user.service';
 
 @Component({
   selector: 'app-topbar',
@@ -16,8 +25,17 @@ import { AuthService } from '../../service/auth.service';
     CommonModule,
     StyleClassModule,
     MenuModule,
-    TieredMenuModule
+//     TieredMenuModule
+//   ],
+    TieredMenuModule,
+    DialogModule,
+    InputTextModule,
+    PasswordModule,
+    ButtonModule,
+    ToastModule,
+    ReactiveFormsModule
   ],
+  providers: [MessageService],
   template: `
     <div class="layout-topbar" [class.sidebar-visible]="isSidebarVisible">
       <!-- Bouton burger (toggle sidebar) -->
@@ -50,6 +68,43 @@ import { AuthService } from '../../service/auth.service';
         ></p-tieredMenu>
       </div>
     </div>
+
+    <p-toast></p-toast>
+
+    <!-- Profil -->
+    <p-dialog [(visible)]="showProfile" [modal]="true" [draggable]="false" [style]="{width:'520px'}" [header]="'Profil'">
+      <div class="profile-body">
+        <div class="row"><span class="label">Nom :</span><span class="value">{{ user?.last_name }}</span></div>
+        <div class="row"><span class="label">Prénom :</span><span class="value">{{ user?.first_name }}</span></div>
+        <div class="row"><span class="label">Email :</span><span class="value">{{ user?.email }}</span></div>
+      </div>
+      <ng-template pTemplate="footer">
+        <button pButton type="button" label="Fermer" class="p-button-text" (click)="showProfile=false"></button>
+        <button pButton type="button" label="Modifier le mot de passe" class="p-button-warning" (click)="openChangePassword()"></button>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Changer mot de passe -->
+    <p-dialog [(visible)]="showChangePass" [modal]="true" [draggable]="false" [style]="{width:'520px'}" [header]="'Modifier le mot de passe'">
+      <form [formGroup]="changePassForm" (ngSubmit)="submitChangePassword()" class="flex flex-col gap-3">
+        <div>
+          <label>Mot de passe actuel</label>
+          <input pInputText type="password" formControlName="current_password" class="w-full" />
+        </div>
+        <div>
+          <label>Nouveau mot de passe</label>
+          <input pInputText type="password" formControlName="new_password" class="w-full" />
+        </div>
+        <div>
+          <label>Confirmation</label>
+          <input pInputText type="password" formControlName="new_password_confirmation" class="w-full" />
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button pButton type="button" label="Annuler" class="p-button-text" (click)="showChangePass=false"></button>
+          <button pButton type="submit" label="Valider" class="p-button-success" [disabled]="changePassForm.invalid || loading"></button>
+        </div>
+      </form>
+    </p-dialog>
   `,
   styles: [`
     :host {
@@ -156,20 +211,34 @@ export class AppTopbar {
 
   profileMenuItems: MenuItem[] = [];
   isProfileMenuOpen = false;
+  showProfile = false;
+  showChangePass = false;
+  loading = false;
+  user: any = null;
+  changePassForm: any;
+
   constructor(
     public layoutService: LayoutService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private fb: FormBuilder,
+    private messageService: MessageService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
+    this.user = this.authService.currentUser;
+    this.changePassForm = this.fb.group({
+      current_password: ['', Validators.required],
+      new_password: ['', [Validators.required, Validators.minLength(6)]],
+      new_password_confirmation: ['', Validators.required]
+    });
     this.profileMenuItems = [
-/*       {
-        label: 'Changer de mot de passe',
-        icon: 'pi pi-key',
-        command: () => this.router.navigate(['/changer-mot-de-passe'])
-      }, */
-
+      {
+        label: 'Profil',
+        icon: 'pi pi-id-card',
+        command: () => { this.user = this.authService.currentUser; this.showProfile = true; }
+      },
       {
         label: 'Se déconnecter',
         icon: 'pi pi-sign-out',
@@ -177,6 +246,34 @@ export class AppTopbar {
       }
     ];
 
+  }
+
+  openChangePassword(): void {
+    this.showProfile = false;
+    this.showChangePass = true;
+  }
+
+  submitChangePassword(): void {
+    if (this.changePassForm.invalid) {
+      this.changePassForm.markAllAsTouched();
+      this.messageService.add({ severity: 'warn', summary: 'Formulaire invalide', detail: 'Veuillez corriger les erreurs.' });
+      return;
+    }
+    const { current_password, new_password, new_password_confirmation } = this.changePassForm.value as any;
+    const token = this.authService.token || '';
+    this.loading = true;
+    this.userService.resetPassword({ token, current_password, new_password, new_password_confirmation }).subscribe({
+      next: (res) => {
+        this.messageService.add({ severity: 'success', summary: 'Succès', detail: res.message || 'Mot de passe changé avec succès.' });
+        this.showChangePass = false;
+        this.changePassForm.reset();
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Erreur lors du changement de mot de passe.';
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: msg });
+      },
+      complete: () => { this.loading = false; }
+    });
   }
 
   logout(): void {

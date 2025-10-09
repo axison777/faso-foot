@@ -49,7 +49,7 @@ export class UsersComponent implements OnInit {
   showDetails: boolean = false;
   currentUser: User | null = null;
   userForm!: FormGroup;
-  
+
   // Rôles chargés depuis le backend
   availableRoles: { name: string; value: string }[] = [];
 
@@ -94,7 +94,7 @@ export class UsersComponent implements OnInit {
       next: (response) => {
         console.log('Réponse rôles du backend:', response);
         if (response.status && response.data) {
-          this.availableRoles = Array.isArray(response.data) 
+          this.availableRoles = Array.isArray(response.data)
             ? response.data.map((role: Role) => ({
                 name: role.name,
                 value: role.slug ?? ''
@@ -173,14 +173,14 @@ export class UsersComponent implements OnInit {
   openEdit(user: User): void {
     console.log('=== OUVERTURE ÉDITION UTILISATEUR ===');
     console.log('Utilisateur à éditer:', user);
-    
+
     this.isEditing = true;
     this.editingUserSlug = user.slug || null;
-    
+
     // Extraire les slugs des rôles pour le formulaire
     const rolesSlugs = this.extractRoleSlugs(user.roles || []);
     console.log('Rôles extraits pour le formulaire:', rolesSlugs);
-    
+
     this.userForm.reset({
       first_name: user.first_name || '',
       last_name: user.last_name || '',
@@ -189,7 +189,7 @@ export class UsersComponent implements OnInit {
     });
 
     this.updateAllRolesSelected(); // maj du switch global
-    
+
     this.showForm = true;
   }
 
@@ -207,7 +207,7 @@ export class UsersComponent implements OnInit {
     if (this.userForm.valid) {
       const userPayload = {
         last_name: this.userForm.get('last_name')?.value?.trim(),
-        first_name: this.userForm.get('first_name')?.value?.trim(), 
+        first_name: this.userForm.get('first_name')?.value?.trim(),
         email: this.userForm.get('email')?.value?.trim().toLowerCase(),
         roles: this.userForm.get('roles')?.value || []
       };
@@ -265,11 +265,12 @@ export class UsersComponent implements OnInit {
     }
   }
 
+  // MÉTHODE CORRIGÉE POUR AFFICHER LES DÉTAILS
   viewUser(user: User): void {
     console.log('=== AFFICHAGE DÉTAILS UTILISATEUR ===');
     console.log('Utilisateur sélectionné:', user);
     console.log('Slug à utiliser:', user.slug);
-    
+
     if (!user.slug) {
       this.messageService.add({
         severity: 'error',
@@ -279,13 +280,30 @@ export class UsersComponent implements OnInit {
       });
       return;
     }
-    
+
+    // Debug de l'URL qui sera appelée
+    console.log('URL qui sera appelée:', `${this.userService['apiUrl']}/${user.slug}`);
+
     this.userService.getBySlug(user.slug).subscribe({
       next: (response) => {
+        console.log('=== RÉPONSE DU BACKEND ===');
+        console.log('Réponse complète:', response);
+        console.log('Status:', response?.status);
+        console.log('Data:', response?.data);
+        console.log('Message:', response?.message);
+
         if (response && response.status && response.data) {
-          this.currentUser = response.data;
+          // CORRECTION : Gérer la structure data.user du backend
+          const userData = (response.data as any).user || response.data;
+
+          console.log('=== DONNÉES UTILISATEUR EXTRAITES ===');
+          console.log('Données utilisateur:', userData);
+          console.log('Rôles de l\'utilisateur:', userData.roles);
+
+          this.currentUser = userData;
           this.showDetails = true;
         } else {
+          console.error('Structure de réponse inattendue:', response);
           this.messageService.add({
             severity: 'warn',
             summary: 'Attention',
@@ -295,6 +313,12 @@ export class UsersComponent implements OnInit {
         }
       },
       error: (error) => {
+        console.error('=== ERREUR RÉCUPÉRATION UTILISATEUR ===');
+        console.error('Erreur complète:', error);
+        console.error('Status:', error.status);
+        console.error('URL:', error.url);
+        console.error('Message:', error.message);
+
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
@@ -384,7 +408,7 @@ export class UsersComponent implements OnInit {
     if (typeof role === 'object' && role !== null) {
       return role.name || role.slug || 'Rôle inconnu';
     }
-    
+
     const availableRole = this.availableRoles.find(r => r.value === role);
     return availableRole ? availableRole.name : role;
   }
@@ -399,7 +423,7 @@ export class UsersComponent implements OnInit {
 
   getRoleClasses(role: string | UserRole): string {
     const roleSlug = typeof role === 'object' ? (role.slug || '') : role;
-    
+
     if (roleSlug && typeof roleSlug === 'string') {
       const slug = roleSlug.toLowerCase();
       if (slug.includes('admin')) return 'role-admin';
@@ -411,19 +435,19 @@ export class UsersComponent implements OnInit {
   onToggleRole(value: string, checked: boolean): void {
     const control = this.userForm.get('roles');
     if (!control) return;
-    
+
     const current: string[] = (control.value || []) as string[];
     const exists = current.includes(value);
-    
+
     if (checked && !exists) {
       control.setValue([...current, value]);
     } else if (!checked && exists) {
       control.setValue(current.filter(v => v !== value));
     }
-    
+
     control.markAsDirty();
     control.markAsTouched();
-    
+
     this.updateAllRolesSelected();
   }
 

@@ -1,12 +1,15 @@
 // src/app/services/ligue.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 export interface Ligue {
   id?: string;
   nom: string;
 }
+
+export interface StandingItem { teamId: string; rank: number; points: number; played: number; wins: number; draws: number; losses: number; gf: number; ga: number; gd: number; }
 
 @Injectable({
   providedIn: 'root'
@@ -34,5 +37,14 @@ export class LigueService {
 
   setTeams(ligueId: string,leagueName: string, teamIds: string[]): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${ligueId}`,  {name:leagueName,teams:teamIds});
+  }
+
+  getStanding(leagueId: string, opts?: { teamId?: string }): Observable<StandingItem[]> {
+    const url = `${this.apiUrl}/${leagueId}/standing`;
+    const params: any = { ...(opts?.teamId && { team_id: opts.teamId }) };
+    return this.http.get<any>(url, { params }).pipe(
+      map(res => (res?.data?.items as StandingItem[]) || []),
+      catchError(() => of([] as StandingItem[]))
+    );
   }
 }

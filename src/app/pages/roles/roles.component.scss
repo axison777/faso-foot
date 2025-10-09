@@ -246,13 +246,13 @@ table.custom-table {
     color: white;
     font-weight: 600;
     border-radius: 10px;
-    
- 
-    
+
+
+
     .p-dialog-title {
       font-size: 1.2rem;
-     
-      
+
+
     }
   }
 }
@@ -422,7 +422,7 @@ table.custom-table {
       border: 2px solid #128c3d;
       border-radius: 8px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      
+
       .p-multiselect-header {
         background: linear-gradient(135deg, #f8fafc, #f1f5f9);
         border-bottom: 1px solid #e2e8f0;
@@ -461,7 +461,7 @@ table.custom-table {
       }
     }
   }
-  
+
 
   .permission-item {
     display: flex;
@@ -631,7 +631,7 @@ table.custom-table {
   padding: 14px 28px;
   font-size: 1rem;
   font-weight: 600;
-  border-radius: 50px; /* arrondi pill */
+  border-radius: 8px; /* arrondi pill */
   transition: all 0.3s ease;
   min-width: 140px;
 }
@@ -662,7 +662,7 @@ table.custom-table {
   &:hover {
     background: #4b5563;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    
+
   }
 }
 
@@ -695,3 +695,68 @@ table.custom-table {
 .select-all .ml-2 { margin-left: 8px; }
 .select-all .ml-3 { margin-left: 12px; color: #64748b; font-size: 0.9rem; }
 
+
+
+/* Tablette en mode portrait */
+@media screen and (min-width: 600px) and (max-width: 1024px) and (orientation: portrait) {
+  .roles-container {
+    padding: 12px;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    .btn-info {
+      width: 100%;
+      max-width: 350px;
+    }
+  }
+
+  .search-input {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .role-form .two-cols {
+    grid-template-columns: 1fr; /* sur une seule colonne en portrait */
+  }
+
+  .permissions-list-switch .group-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablette en mode paysage */
+@media screen and (min-width: 600px) and (max-width: 1024px) and (orientation: landscape) {
+  .roles-container {
+    padding: 20px;
+  }
+
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .btn-info {
+      min-width: 150px;
+    }
+  }
+
+  .role-form .two-cols {
+    grid-template-columns: 1fr 1fr; /* deux colonnes possible en paysage */
+    gap: 24px;
+  }
+
+  .permissions-list-switch .group-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

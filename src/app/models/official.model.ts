@@ -53,10 +53,16 @@ export interface Official {
     id?: string;
     user: User;
 
+    // date_of_birth?: Date;
+    // birth_place?: string;
+    // nationality?: string;
+    phone?: string;
+    first_name: string;
+    last_name: string;
     date_of_birth?: Date;
     birth_place?: string;
     nationality?: string;
-    phone?: string;
+
     official_type: 'REFEREE' | 'COMMISSIONER';
     license_number: string;
     level: 'REGIONAL' | 'NATIONAL' | 'INTERNATIONAL';
@@ -66,6 +72,7 @@ export interface Official {
     certification_expiry?: Date;
     structure?: string;
     experience?: number;
+
     specializations?: Specialization[];
     assignments?: MatchAssignment[];
     reports?: OfficialReport[];

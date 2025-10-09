@@ -33,21 +33,23 @@ import { TeamCategory } from '../../models/team-category.model';
 import { TeamCategoryService } from '../../service/team-category.service';
 import { VilleService } from '../../service/ville.service';
 import { City } from '../../models/city.model';
+import { KitViewerComponent } from '../../components/kit-viewer/kit-viewer.component';
 
 @Component({
-  selector: 'app-club-details',
-  standalone: true,
-  imports: [
-    CommonModule, FormsModule, ReactiveFormsModule,
-    DialogModule, ButtonModule, InputTextModule, InputNumberModule
-    , ConfirmDialogModule, ToastModule, TabViewModule, SelectModule,
-    DatePickerModule, MultiSelectModule, FileUploadModule
-  ],
+selector: 'app-club-details',
+standalone: true,
+imports: [
+CommonModule, FormsModule, ReactiveFormsModule,
+DialogModule, ButtonModule, InputTextModule, InputNumberModule
+, ConfirmDialogModule, ToastModule, TabViewModule, SelectModule,
+  DatePickerModule, MultiSelectModule, FileUploadModule,
+  KitViewerComponent
+],
   templateUrl: './club-details.component.html',
-  styleUrls: ['./club-details.component.scss'],
+styleUrls: ['./club-details.component.scss'],
 
-  providers: [MessageService, ConfirmationService]
-})
+   providers: [MessageService, ConfirmationService]
+ })
 export class ClubDetailsComponent implements OnInit {
 
 showSuspensionForm: boolean = false;
@@ -90,6 +92,12 @@ availableReasons: any[]|undefined;
   showKitForm = false;
   isEditingKit = false;
   kitForm!: FormGroup;
+
+   // Visionneuse unique (carrousel)
+   selectedKitIndex: number = 0;
+   editorForm!: FormGroup; // édition live des couleurs
+   editorBaseline: { primary_color: string | null; secondary_color: string | null; tertiary_color: string | null } = { primary_color: null, secondary_color: null, tertiary_color: null };
+   hasEditorChanges = false;
 
   showTrophyForm = false;
   isEditingTrophy = false;
@@ -313,10 +321,22 @@ availableReasons: any[]|undefined;
     });
 
     this.trophyForm = this.fb.group({
-      id: [''],
-      name: ['', Validators.required],
-      competition_name: ['', Validators.required],
-      year: [new Date().getFullYear(), Validators.required],
+    id: [''],
+    name: ['', Validators.required],
+    competition_name: ['', Validators.required],
+    year: [new Date().getFullYear(), Validators.required],
+    });
+
+    // Formulaire d'édition live des couleurs du kit sélectionné
+    this.editorForm = this.fb.group({
+      primary_color: [null],
+      secondary_color: [null],
+      tertiary_color: [null],
+    });
+
+    // Suivre les changements pour activer/désactiver les boutons
+    this.editorForm.valueChanges.subscribe(() => {
+      this.hasEditorChanges = !this.colorsEqualToBaseline();
     });
 
        this.suspensionForm = this.fb.group({
@@ -359,6 +379,13 @@ availableReasons: any[]|undefined;
       next: (res: any) => {
         this.club.kits = res?.data.jerseys || [];
         this.loadingKits = false;
+        // Init carrousel
+        if ((this.club.kits?.length || 0) > 0) {
+          if (this.selectedKitIndex >= (this.club.kits!.length)) {
+            this.selectedKitIndex = 0;
+          }
+          this.patchEditorFromSelected();
+        }
       },
       error: () => {
         this.loadingKits = false;
@@ -369,6 +396,84 @@ availableReasons: any[]|undefined;
         });
       }
     });
+  }
+
+  get selectedKit(): TeamKit | undefined {
+    return this.club?.kits?.[this.selectedKitIndex];
+  }
+
+  patchEditorFromSelected() {
+    const k = this.selectedKit;
+    if (!k) return;
+    const prim = k.primary_color ?? k.shirt_color_1 ?? null;
+    const sec = k.secondary_color ?? k.shorts_color_1 ?? null;
+    const ter = k.tertiary_color ?? k.socks_color ?? null;
+
+    this.editorBaseline = {
+      primary_color: prim,
+      secondary_color: sec,
+      tertiary_color: ter,
+    };
+
+    this.editorForm.patchValue({
+      primary_color: prim,
+      secondary_color: sec,
+      tertiary_color: ter,
+    }, { emitEvent: false });
+    this.editorForm.markAsPristine();
+    this.hasEditorChanges = false;
+  }
+
+  prevKit() {
+    if (!this.club?.kits?.length) return;
+    this.selectedKitIndex = (this.selectedKitIndex - 1 + this.club.kits.length) % this.club.kits.length;
+    this.patchEditorFromSelected();
+  }
+
+  nextKit() {
+    if (!this.club?.kits?.length) return;
+    this.selectedKitIndex = (this.selectedKitIndex + 1) % this.club.kits.length;
+    this.patchEditorFromSelected();
+  }
+
+  private normalizeHex(h?: string | null): string {
+    if (!h) return '';
+    return h.trim().toLowerCase();
+  }
+
+  private colorsEqualToBaseline(): boolean {
+    const v = this.editorForm.value;
+    return this.normalizeHex(v.primary_color) === this.normalizeHex(this.editorBaseline.primary_color)
+      && this.normalizeHex(v.secondary_color) === this.normalizeHex(this.editorBaseline.secondary_color)
+      && this.normalizeHex(v.tertiary_color) === this.normalizeHex(this.editorBaseline.tertiary_color);
+  }
+
+  saveSelectedKit() {
+    const k = this.selectedKit;
+    if (!k?.id) return;
+    const v = this.editorForm.value;
+    const payload: Partial<TeamKit> = {
+      primary_color: v.primary_color,
+      secondary_color: v.secondary_color,
+      tertiary_color: v.tertiary_color,
+    };
+    this.loadingForm = true;
+    this.tkService.update(k.id, payload).subscribe({
+      next: () => {
+        // mettre à jour localement
+        Object.assign(k, payload);
+        // réinitialiser la baseline et l'état de modification
+        this.editorBaseline = { ...payload } as any;
+        this.editorForm.markAsPristine();
+        this.hasEditorChanges = false;
+        this.loadingForm = false;
+        this.toast.add({ severity: 'success', summary: 'Maillot mis à jour', detail: `${this.getKitLabel(k.type!)}` });
+      },
+      error: () => {
+        this.loadingForm = false;
+        this.toast.add({ severity: 'error', summary: 'Erreur', detail: 'Échec de la mise à jour du maillot' });
+      }
+    })
   }
 
   loadPlayers() {
@@ -749,10 +854,22 @@ availableReasons: any[]|undefined;
 
   // ---------- KITS ----------
   showKitDialog(kit?: TeamKit) {
+    // Utilisé pour la création (édition en live est faite dans la visionneuse)
     this.isEditingKit = !!kit?.id;
     this.showKitForm = true;
     this.kitForm.reset();
-    if (kit) this.kitForm.patchValue(kit);
+    if (kit) {
+      // si jamais on veut réutiliser le dialog pour édition plus tard
+      this.kitForm.patchValue(kit);
+    } else {
+      // valeurs initiales pour la création
+      this.kitForm.patchValue({
+        type: 'home',
+        primary_color: '#ffffff',
+        secondary_color: '#ffffff',
+        tertiary_color: '#ffffff'
+      });
+    }
   }
   closeKitForm() { this.showKitForm = false; }
 
@@ -878,6 +995,10 @@ loadTeams() {
   if (!this.club.teams) return [];
   return this.club.teams.filter(team =>
     team?.category?.name?.toLowerCase().includes(term)
+//   if (!this.club.teams) return [];
+//   return this.club.teams.filter(team =>
+//     team.name?.toLowerCase().includes(term) ||
+//     team.abbreviation?.toLowerCase().includes(term)
   );
 }
 goToTeamDetails(teamId: string): void {

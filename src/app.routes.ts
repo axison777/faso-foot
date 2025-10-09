@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
+import { ClubLayout } from './app/pages/club-layout/club.layout';
+import { CoachLayout } from './app/pages/club-layout/coach.layout';
+import { OfficialLayout } from './app/pages/official-layout/official.layout';
 //import { Dashboard } from './app/pages/dashboard/dashboard';
 //import { Documentation } from './app/pages/documentation/documentation';
 //import { Landing } from './app/pages/landing/landing';
@@ -35,6 +38,8 @@ export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'activation-compte', loadComponent: () => import('./app/pages/activation-compte/activation-compte.component').then(m => m.ActivationCompteComponent) },
     { path: 'lien-expire', loadComponent: () => import('./app/pages/lien-expire/lien-expire.component').then(m => m.LienExpireComponent) },
+    { path: 'forgot-password', loadComponent: () => import('./app/pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
+    { path: 'change-forgotpassword', loadComponent: () => import('./app/pages/change-forgotpassword/change-forgotpassword.component').then(m => m.ChangeForgotPasswordComponent) },
     {path:'export-pdf',component:ExportMatchComponent, canActivate: [AuthGuard] },
     {
         path: '',
@@ -65,13 +70,47 @@ export const appRoutes: Routes = [
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
 
-
-          /*    {path: 'calendar', component:CalendarComponent}, */
-
             {path: 'officiels', component: OfficialsComponent, canActivate: [AuthGuard] },
             {path: 'officiel-details/:id', component: OfficialDetailsComponent, canActivate: [AuthGuard] },
-            {path: 'match-setup/:id', component: MatchSetupComponent, canActivate: [AuthGuard] },
+                {path: 'match-setup/:id', component: MatchSetupComponent, canActivate: [AuthGuard] },
 
+        ]
+    },
+    {
+        path: 'mon-club',
+        component: ClubLayout,
+        canActivate: [AuthGuard],
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/club-dashboard-v2/club-dashboard-v2.component').then(m => m.ClubDashboardV2Component) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/club-matches/club-matches.component').then(m => m.ClubMatchesComponent) },
+            { path: 'joueurs', loadComponent: () => import('./app/pages/club-players/club-players.component').then(m => m.ClubPlayersComponent) },
+            { path: 'parametres', loadComponent: () => import('./app/pages/club-coach-shared/parametres-page/parametres-page.component').then(m => m.ParametresPageComponent) }
+        ]
+    },
+    {
+        path: 'officiel',
+        component: OfficialLayout,
+        canActivate: [AuthGuard],
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/official-dashboard/official-dashboard.component').then(m => m.OfficialDashboardComponent) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/official-matches/official-matches.component').then(m => m.OfficialMatchesComponent) },
+            { path: 'match-details/:id', loadComponent: () => import('./app/pages/official-match-details/official-match-details.component').then(m => m.OfficialMatchDetailsComponent) },
+            { path: 'match-report/:id', loadComponent: () => import('./app/pages/official-match-report/official-match-report.component').then(m => m.OfficialMatchReportComponent) },
+            { path: 'rapports', loadComponent: () => import('./app/pages/official-match-report/official-match-report.component').then(m => m.OfficialMatchReportComponent) },
+            { path: 'notifications', loadComponent: () => import('./app/pages/official-notifications/official-notifications.component').then(m => m.OfficialNotificationsComponent) }
+        ]
+    },
+    {
+        path: 'mon-equipe',
+        component: CoachLayout,
+        canActivate: [AuthGuard],
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/coach-dashboard-v2/coach-dashboard-v2.component').then(m => m.CoachDashboardV2Component) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/coach-matches/coach-matches.component').then(m => m.CoachMatchesComponent) },
+            { path: 'joueurs', loadComponent: () => import('./app/pages/coach-players/coach-players.component').then(m => m.CoachPlayersComponent) }
         ]
     },
 

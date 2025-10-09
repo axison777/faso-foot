@@ -11,9 +11,13 @@ export interface StaffMember {
     team?: any;
     //hire_date?: string;
     //contract_end?: string;
-    role?: string;
+    // role?: string;
     //status?: string;
     contract?: Contract[];
     contracts?: Contract[];
+    hire_date?: string;
+    contract_end?: string;
+    role?: string;
+    status?: string;
 
 }
