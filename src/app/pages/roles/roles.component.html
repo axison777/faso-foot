@@ -44,7 +44,7 @@
             </div>
           </td>
           <td>
-            <span class="badge">{{ role.permissions?.length || 0 }} permission(s)</span>
+            <span class="badge">{{ role.permissions.length || 0 }} permission(s)</span>
           </td>
           <td class="actions">
             <div class="btn-group">
@@ -207,7 +207,7 @@
       </div>
       <div class="card-body">
         <div class="row"><span class="label">Nom du rôle :</span><span class="value">{{ currentRole.name }}</span></div>
-        <div class="row"><span class="label">Permissions :</span><span class="value">{{ currentRole.permissions?.length || 0 }}</span></div>
+        <div class="row"><span class="label">Permissions :</span><span class="value">{{ currentRole.permissions.length || 0 }}</span></div>
         <div class="row roles-row">
           <span class="label">Permissions accordées :</span>
           <span class="value badges">
