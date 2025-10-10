@@ -120,7 +120,7 @@ export interface OfficialReport {
   providedIn: 'root'
 })
 export class OfficialReportService {
-  private apiUrl = `${environment.apiUrl}/v1`;
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
