@@ -103,7 +103,7 @@ import { MatchDetailsModalComponent } from './match-details-modal.component';
                             Voir détails
                         </button>
                         <button class="action-button secondary" 
-                                *ngIf="!match?.matchClosed && !match?.reportSubmitted"
+                                *ngIf="!match?.reportSubmitted"
                                 (click)="openReportModal(match)" type="button">
                             <i class="pi pi-file-text"></i>
                             Saisir rapport

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -8,7 +8,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { OfficialMatch } from '../../service/official-match.service';
+import { OfficialMatch, OfficialMatchService } from '../../service/official-match.service';
 
 interface Player {
     id: string;
@@ -270,10 +270,10 @@ interface TeamSheet {
                 </div>
 
                 <!-- Officiels assignés -->
-                <div class="officials-section" *ngIf="match.otherOfficials">
-                    <h3>Officiels Assignés</h3>
+                <div class="officials-section" *ngIf="matchOfficials.length > 0">
+                    <h3>Officiels Assignés ({{ matchOfficials.length }})</h3>
                     <div class="officials-grid">
-                        <div class="official-item" *ngFor="let official of match.otherOfficials">
+                        <div class="official-item" *ngFor="let official of matchOfficials">
                             <div class="official-role">{{ getRoleLabel(official.role) }}</div>
                             <div class="official-name">{{ official.name }}</div>
                         </div>
@@ -750,7 +750,7 @@ interface TeamSheet {
         }
     `]
 })
-export class MatchDetailsModalComponent implements OnInit {
+export class MatchDetailsModalComponent implements OnInit, OnChanges {
     @Input() visible = false;
     @Input() match: OfficialMatch | null = null;
     @Output() visibleChange = new EventEmitter<boolean>();
@@ -762,11 +762,36 @@ export class MatchDetailsModalComponent implements OnInit {
 
     homeTeamSheet: TeamSheet | null = null;
     awayTeamSheet: TeamSheet | null = null;
+    matchOfficials: any[] = [];
 
-    constructor(private messageService: MessageService) {}
+    constructor(
+        private messageService: MessageService,
+        private officialMatchService: OfficialMatchService
+    ) {}
 
     ngOnInit() {
         this.initializeTeamSheets();
+        this.loadMatchOfficials();
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['match'] && this.match) {
+            this.loadMatchOfficials();
+        }
+    }
+
+    loadMatchOfficials() {
+        if (this.match?.id) {
+            this.officialMatchService.getMatchOfficials(this.match.id).subscribe({
+                next: (officials) => {
+                    this.matchOfficials = officials;
+                },
+                error: (err) => {
+                    console.error('Erreur chargement officiels:', err);
+                    this.matchOfficials = [];
+                }
+            });
+        }
     }
 
     initializeTeamSheets() {
