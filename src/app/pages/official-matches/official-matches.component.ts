@@ -550,11 +550,13 @@ export class OfficialMatchesComponent implements OnInit {
         this.filterMatches();
     }
 
-    getStatusClass(status: string): string {
+    getStatusClass(status: string | null): string {
+        if (!status) return 'status-upcoming'; // Par défaut si status est null
         return `status-${status.toLowerCase()}`;
     }
 
-    getStatusLabel(status: string): string {
+    getStatusLabel(status: string | null): string {
+        if (!status) return 'À venir'; // Par défaut si status est null
         switch (status) {
             case 'UPCOMING':
                 return 'À venir';
@@ -571,7 +573,8 @@ export class OfficialMatchesComponent implements OnInit {
         }
     }
 
-    getRoleClass(role: string): string {
+    getRoleClass(role: string | undefined): string {
+        if (!role) return 'role-referee';
         switch (role) {
             case 'CENTRAL_REFEREE':
                 return 'role-referee';

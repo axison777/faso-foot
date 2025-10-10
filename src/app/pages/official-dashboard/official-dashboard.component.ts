@@ -108,8 +108,8 @@ import { Observable } from 'rxjs';
                     </a>
                 </div>
                 <div class="matches-grid" *ngIf="upcomingMatches$ | async as matches; else loadingMatches">
-                    <!-- DEBUG: Afficher les données brutes -->
-                    <pre *ngIf="true" style="background: #f0f0f0; padding: 10px; font-size: 10px; overflow: auto; max-height: 300px;">
+                    <!-- DEBUG: Désactivé - données OK -->
+                    <pre *ngIf="false" style="background: #f0f0f0; padding: 10px; font-size: 10px; overflow: auto; max-height: 300px;">
                         {{ matches | json }}
                     </pre>
                     
@@ -710,8 +710,8 @@ export class OfficialDashboardComponent implements OnInit {
     refereeRating: number | null = null;
 
     constructor(private officialMatchService: OfficialMatchService) {
-        // Temporairement: afficher TOUS les matchs pour debug
-        this.upcomingMatches$ = this.officialMatchService.getAssignedMatches();
+        // Afficher les matchs à venir (non clôturés)
+        this.upcomingMatches$ = this.officialMatchService.getAssignedMatches({ status: 'UPCOMING' });
         this.notifications$ = this.officialMatchService.getNotifications();
         this.officialInfo$ = this.officialMatchService.getOfficialInfo();
     }
