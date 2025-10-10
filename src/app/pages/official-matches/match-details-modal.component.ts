@@ -750,7 +750,7 @@ interface TeamSheet {
         }
     `]
 })
-export class MatchDetailsModalComponent implements OnInit, OnChanges {
+export class MatchDetailsModalComponent implements OnInit {
     @Input() visible = false;
     @Input() match: OfficialMatch | null = null;
     @Output() visibleChange = new EventEmitter<boolean>();
