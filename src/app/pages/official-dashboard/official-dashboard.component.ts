@@ -710,8 +710,8 @@ export class OfficialDashboardComponent implements OnInit {
     refereeRating: number | null = null;
 
     constructor(private officialMatchService: OfficialMatchService) {
-        // Temporairement: afficher TOUS les matchs pour debug
-        this.upcomingMatches$ = this.officialMatchService.getAssignedMatches();
+        // Afficher les matchs à venir (non clôturés)
+        this.upcomingMatches$ = this.officialMatchService.getAssignedMatches({ status: 'UPCOMING' });
         this.notifications$ = this.officialMatchService.getNotifications();
         this.officialInfo$ = this.officialMatchService.getOfficialInfo();
     }
