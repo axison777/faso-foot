@@ -74,8 +74,8 @@ interface TeamSheet {
                         </div>
                         <div class="info-item">
                             <label>Statut</label>
-                            <span class="status-badge" [ngClass]="getStatusClass(match.status)">
-                                {{ getStatusLabel(match.status) }}
+                            <span class="status-badge" [ngClass]="getStatusClass(match?.status)">
+                                {{ getStatusLabel(match?.status) }}
                             </span>
                         </div>
                         <div class="info-item" *ngIf="match.score">
@@ -880,11 +880,13 @@ export class MatchDetailsModalComponent implements OnInit {
         }
     }
 
-    getStatusClass(status: string): string {
+    getStatusClass(status: string | null | undefined): string {
+        if (!status) return 'status-upcoming'; // Par défaut si status est null/undefined
         return `status-${status.toLowerCase()}`;
     }
 
-    getStatusLabel(status: string): string {
+    getStatusLabel(status: string | null | undefined): string {
+        if (!status) return 'À venir'; // Par défaut si status est null/undefined
         switch (status) {
             case 'UPCOMING': return 'À venir';
             case 'IN_PROGRESS': return 'En cours';
