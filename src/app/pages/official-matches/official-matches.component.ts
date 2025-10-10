@@ -550,11 +550,13 @@ export class OfficialMatchesComponent implements OnInit {
         this.filterMatches();
     }
 
-    getStatusClass(status: string): string {
+    getStatusClass(status: string | null): string {
+        if (!status) return 'status-upcoming'; // Par défaut si status est null
         return `status-${status.toLowerCase()}`;
     }
 
-    getStatusLabel(status: string): string {
+    getStatusLabel(status: string | null): string {
+        if (!status) return 'À venir'; // Par défaut si status est null
         switch (status) {
             case 'UPCOMING':
                 return 'À venir';

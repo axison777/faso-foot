@@ -108,8 +108,8 @@ import { Observable } from 'rxjs';
                     </a>
                 </div>
                 <div class="matches-grid" *ngIf="upcomingMatches$ | async as matches; else loadingMatches">
-                    <!-- DEBUG: Afficher les données brutes -->
-                    <pre *ngIf="true" style="background: #f0f0f0; padding: 10px; font-size: 10px; overflow: auto; max-height: 300px;">
+                    <!-- DEBUG: Désactivé - données OK -->
+                    <pre *ngIf="false" style="background: #f0f0f0; padding: 10px; font-size: 10px; overflow: auto; max-height: 300px;">
                         {{ matches | json }}
                     </pre>
                     
