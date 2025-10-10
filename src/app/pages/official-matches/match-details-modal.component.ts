@@ -270,12 +270,14 @@ interface TeamSheet {
                 </div>
 
                 <!-- Officiels assignés -->
-                <div class="officials-section" *ngIf="matchOfficials.length > 0">
-                    <h3>Officiels Assignés ({{ matchOfficials.length }})</h3>
+                <div class="officials-section" *ngIf="match && match.otherOfficials && match.otherOfficials.length > 0">
+                    <h3>Officiels Assignés ({{ match.otherOfficials.length }})</h3>
                     <div class="officials-grid">
-                        <div class="official-item" *ngFor="let official of matchOfficials">
-                            <div class="official-role">{{ getRoleLabel(official.role) }}</div>
-                            <div class="official-name">{{ official.name }}</div>
+                        <div class="official-item" *ngFor="let official of match.otherOfficials; let i = index">
+                            <div class="official-info">
+                                <div class="official-role">{{ getRoleLabel(official?.role || '') }}</div>
+                                <div class="official-name">{{ official?.name || 'Nom non disponible' }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -923,10 +925,14 @@ export class MatchDetailsModalComponent implements OnInit {
     }
 
     getRoleLabel(role: string): string {
-        switch (role) {
-            case 'CENTRAL_REFEREE': return 'Arbitre Central';
-            case 'ASSISTANT_REFEREE_1': return 'Assistant 1';
-            case 'ASSISTANT_REFEREE_2': return 'Assistant 2';
+        if (!role) return 'Officiel';
+        switch (role.toUpperCase()) {
+            case 'CENTRAL_REFEREE':
+            case 'MAIN_REFEREE': return 'Arbitre Central';
+            case 'ASSISTANT_REFEREE_1':
+            case 'ASSISTANT_1': return 'Assistant 1';
+            case 'ASSISTANT_REFEREE_2':
+            case 'ASSISTANT_2': return 'Assistant 2';
             case 'FOURTH_OFFICIAL': return '4ème Arbitre';
             case 'COMMISSIONER': return 'Commissaire';
             default: return role;
