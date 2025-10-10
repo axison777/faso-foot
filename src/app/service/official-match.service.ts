@@ -152,9 +152,17 @@ export class OfficialMatchService {
                 
                 // Appliquer les filtres côté client si nécessaire
                 if (filters?.status) {
+                    const now = new Date();
                     if (filters.status === 'UPCOMING') {
-                        // Matchs à venir = non clôturés ET date future
-                        matches = matches.filter((m: any) => !m.matchClosed);
+                        // Matchs à venir = non clôturés ET date future/présent
+                        matches = matches.filter((m: any) => {
+                            const matchDate = new Date(m.scheduledAt);
+                            return !m.matchClosed && matchDate >= now;
+                        });
+                        // Trier par date croissante (les plus proches en premier)
+                        matches.sort((a: any, b: any) => {
+                            return new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime();
+                        });
                     } else if (filters.status === 'COMPLETED') {
                         // Matchs terminés = clôturés
                         matches = matches.filter((m: any) => m.matchClosed);

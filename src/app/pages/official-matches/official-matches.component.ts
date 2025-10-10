@@ -98,17 +98,17 @@ import { MatchDetailsModalComponent } from './match-details-modal.component';
 
                     <!-- Actions -->
                     <div class="match-actions">
-                        <button class="action-button primary" (click)="openMatchDetails(match)">
+                        <button class="action-button primary" (click)="openMatchDetails(match)" type="button">
                             <i class="pi pi-eye"></i>
                             Voir détails
                         </button>
-                        <button class="action-button" 
-                                *ngIf="match.canSubmitReport && !match.reportSubmitted"
-                                (click)="openReportModal(match)">
+                        <button class="action-button secondary" 
+                                *ngIf="!match?.matchClosed && !match?.reportSubmitted"
+                                (click)="openReportModal(match)" type="button">
                             <i class="pi pi-file-text"></i>
                             Saisir rapport
                         </button>
-                        <div class="report-status" *ngIf="match.reportSubmitted">
+                        <div class="report-status" *ngIf="match?.reportSubmitted">
                             <i class="pi pi-check-circle"></i>
                             <span>Rapport soumis</span>
                         </div>
@@ -606,6 +606,7 @@ export class OfficialMatchesComponent implements OnInit {
     }
 
     openMatchDetails(match: OfficialMatch) {
+        console.log('Opening match details:', match);
         this.selectedMatch = match;
         this.showMatchDetails = true;
     }
