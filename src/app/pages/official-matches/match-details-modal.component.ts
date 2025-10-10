@@ -8,7 +8,8 @@ import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { OfficialMatch, OfficialMatchService } from '../../service/official-match.service';
+import { OfficialMatch } from '../../service/official-match.service';
+import { MatchCallupService, TeamCallup, CallupPlayer } from '../../service/match-callup.service';
 
 interface Player {
     id: string;
@@ -94,8 +95,8 @@ interface TeamSheet {
                             <div class="team-header" (click)="selectTeam('home')">
                                 <div class="team-info">
                                     <h4>{{ match?.homeTeam?.name || 'Équipe Domicile' }}</h4>
-                                    <div class="team-status" [ngClass]="getTeamSheetStatusClass('home')">
-                                        {{ getTeamSheetStatusLabel('home') }}
+                                    <div class="team-status" *ngIf="homeTeamCallup">
+                                        {{ homeTeamCallup.total_players }} joueurs
                                     </div>
                                 </div>
                                 <div class="team-actions">
@@ -108,70 +109,40 @@ interface TeamSheet {
                                 <div class="team-sheet-info">
                                     <div class="sheet-header">
                                         <h5>Feuille de Match</h5>
-                                        <div class="sheet-status" [ngClass]="getTeamSheetStatusClass('home')">
-                                            {{ getTeamSheetStatusLabel('home') }}
-                                        </div>
                                     </div>
                                     
-                                    <div class="coach-info" *ngIf="homeTeamSheet">
+                                    <div class="coach-info" *ngIf="homeTeamCallup">
                                         <div class="coach-item">
                                             <label>Entraîneur</label>
-                                            <span>{{ homeTeamSheet.coach.name }}</span>
+                                            <span>{{ homeTeamCallup.coach_name }}</span>
                                         </div>
-                                        <div class="coach-item">
-                                            <label>N° Licence</label>
-                                            <span>{{ homeTeamSheet.coach.license }}</span>
+                                        <div class="coach-item" *ngIf="homeTeamCallup.captain_name">
+                                            <label>Capitaine</label>
+                                            <span>{{ homeTeamCallup.captain_name }} (N°{{ homeTeamCallup.captain_jersey_number }})</span>
                                         </div>
-                                        <div class="coach-item">
-                                            <label>Soumis le</label>
-                                            <span>{{ homeTeamSheet.submittedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                                        <div class="coach-item" *ngIf="homeTeamCallup.formation">
+                                            <label>Formation</label>
+                                            <span>{{ homeTeamCallup.formation }}</span>
                                         </div>
                                     </div>
 
                                     <!-- Liste des joueurs -->
-                                    <div class="players-section" *ngIf="homeTeamSheet">
-                                        <h6>Joueurs ({{ homeTeamSheet.players.length }})</h6>
+                                    <div class="players-section" *ngIf="homeTeamCallup && homeTeamCallup.players">
+                                        <h6>Joueurs ({{ homeTeamCallup.players.length }})</h6>
                                         <div class="players-grid">
-                                            <div class="player-card" *ngFor="let player of homeTeamSheet.players">
+                                            <div class="player-card" *ngFor="let player of homeTeamCallup.players">
                                                 <div class="player-info">
-                                                    <div class="player-number">{{ player.jerseyNumber }}</div>
+                                                    <div class="player-number">{{ player.jersey_number }}</div>
                                                     <div class="player-details">
-                                                        <div class="player-name">{{ player.name }}</div>
+                                                        <div class="player-name">{{ player.first_name }} {{ player.last_name }}</div>
                                                         <div class="player-position">{{ player.position }}</div>
                                                     </div>
                                                 </div>
                                                 <div class="player-badges">
-                                                    <span class="badge starter" *ngIf="player.isStarter">Titulaire</span>
-                                                    <span class="badge captain" *ngIf="player.isCaptain">Capitaine</span>
-                                                    <span class="badge goalkeeper" *ngIf="player.isGoalkeeper">Gardien</span>
+                                                    <span class="badge starter" *ngIf="player.is_starter === true || player.is_starter === '1'">Titulaire</span>
+                                                    <span class="badge captain" *ngIf="player.player_id === homeTeamCallup.captain_id">Capitaine</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Actions de validation -->
-                                    <div class="validation-actions" *ngIf="homeTeamSheet && homeTeamSheet.status === 'PENDING'">
-                                        <div class="rejection-reason" *ngIf="showRejectionForm === 'home'">
-                                            <label>Raison du rejet</label>
-                                            <textarea [(ngModel)]="rejectionReasons.home" 
-                                                      placeholder="Expliquez pourquoi la feuille de match est rejetée"
-                                                      rows="3"></textarea>
-                                        </div>
-                                        <div class="action-buttons">
-                                            <button class="btn-approve" (click)="approveTeamSheet('home')">
-                                                <i class="pi pi-check"></i>
-                                                Valider
-                                            </button>
-                                            <button class="btn-reject" (click)="toggleRejectionForm('home')">
-                                                <i class="pi pi-times"></i>
-                                                Rejeter
-                                            </button>
-                                            <button class="btn-confirm-reject" 
-                                                    *ngIf="showRejectionForm === 'home'"
-                                                    (click)="rejectTeamSheet('home')"
-                                                    [disabled]="!rejectionReasons.home">
-                                                Confirmer le rejet
-                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -764,36 +735,42 @@ export class MatchDetailsModalComponent implements OnInit {
 
     homeTeamSheet: TeamSheet | null = null;
     awayTeamSheet: TeamSheet | null = null;
-    matchOfficials: any[] = [];
+    homeTeamCallup: TeamCallup | null = null;
+    awayTeamCallup: TeamCallup | null = null;
+    loadingCallups = false;
 
     constructor(
         private messageService: MessageService,
-        private officialMatchService: OfficialMatchService
+        private callupService: MatchCallupService
     ) {}
 
     ngOnInit() {
-        this.initializeTeamSheets();
-        this.loadMatchOfficials();
+        this.loadMatchCallups();
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['match'] && this.match) {
-            this.loadMatchOfficials();
+    ngOnChanges(changes: any) {
+        if (changes['match'] && this.match?.id) {
+            this.loadMatchCallups();
         }
     }
 
-    loadMatchOfficials() {
-        if (this.match?.id) {
-            this.officialMatchService.getMatchOfficials(this.match.id).subscribe({
-                next: (officials) => {
-                    this.matchOfficials = officials;
-                },
-                error: (err) => {
-                    console.error('Erreur chargement officiels:', err);
-                    this.matchOfficials = [];
+    loadMatchCallups() {
+        if (!this.match?.id) return;
+        
+        this.loadingCallups = true;
+        this.callupService.getMatchCallups(this.match.id).subscribe({
+            next: (callups) => {
+                if (callups) {
+                    this.homeTeamCallup = callups.team_one_callup;
+                    this.awayTeamCallup = callups.team_two_callup;
                 }
-            });
-        }
+                this.loadingCallups = false;
+            },
+            error: (err) => {
+                console.error('Erreur chargement feuilles de match:', err);
+                this.loadingCallups = false;
+            }
+        });
     }
 
     initializeTeamSheets() {
