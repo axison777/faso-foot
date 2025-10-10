@@ -108,42 +108,48 @@ import { Observable } from 'rxjs';
                     </a>
                 </div>
                 <div class="matches-grid" *ngIf="upcomingMatches$ | async as matches; else loadingMatches">
+                    <!-- DEBUG: Afficher les données brutes -->
+                    <pre *ngIf="true" style="background: #f0f0f0; padding: 10px; font-size: 10px; overflow: auto; max-height: 300px;">
+                        {{ matches | json }}
+                    </pre>
+                    
                     <div class="match-card" *ngFor="let match of matches.slice(0, 3)">
                         <div class="match-header">
-                            <div class="competition-badge" [ngClass]="getCompetitionClass(match.competition.type)">
-                                {{ match.competition.name }}
+                            <div class="competition-badge" [ngClass]="getCompetitionClass(match?.competition?.type || 'LEAGUE')">
+                                {{ match?.competition?.name || 'Compétition' }}
+                                <span *ngIf="match?.number" style="margin-left: 8px;">J{{ match.number }}</span>
                             </div>
                         </div>
                         <div class="match-content">
                             <div class="teams">
                                 <div class="team">
                                     <span class="team-icon">⚽</span>
-                                    <span class="team-name">{{ match.homeTeam.name }}</span>
+                                    <span class="team-name">{{ match?.homeTeam?.name || 'Équipe Domicile' }}</span>
                                 </div>
                                 <div class="vs">vs</div>
                                 <div class="team">
                                     <span class="team-icon">⚽</span>
-                                    <span class="team-name">{{ match.awayTeam.name }}</span>
+                                    <span class="team-name">{{ match?.awayTeam?.name || 'Équipe Extérieur' }}</span>
                                 </div>
                             </div>
                             <div class="match-details">
                                 <div class="detail-item">
                                     <i class="pi pi-calendar"></i>
-                                    <span>{{ match.scheduledAt | date:'dd/MM/yyyy' }}</span>
+                                    <span>{{ match?.scheduledAt | date:'dd/MM/yyyy' }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="pi pi-clock"></i>
-                                    <span>{{ match.scheduledAt | date:'HH:mm' }}</span>
+                                    <span>{{ match?.scheduledAt | date:'HH:mm' }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="pi pi-map-marker"></i>
-                                    <span>{{ match.stadium.name }}</span>
+                                    <span>{{ match?.stadium?.name || 'Stade' }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="match-footer">
-                            <span class="role-badge" [ngClass]="getRoleClass(match.officialRole)">
-                                {{ getRoleLabel(match.officialRole) }}
+                            <span class="role-badge" [ngClass]="getRoleClass(match?.officialRole || '')">
+                                {{ getRoleLabel(match?.officialRole || '') }}
                             </span>
                         </div>
                     </div>
@@ -704,7 +710,8 @@ export class OfficialDashboardComponent implements OnInit {
     refereeRating: number | null = null;
 
     constructor(private officialMatchService: OfficialMatchService) {
-        this.upcomingMatches$ = this.officialMatchService.getAssignedMatches({ status: 'UPCOMING' });
+        // Temporairement: afficher TOUS les matchs pour debug
+        this.upcomingMatches$ = this.officialMatchService.getAssignedMatches();
         this.notifications$ = this.officialMatchService.getNotifications();
         this.officialInfo$ = this.officialMatchService.getOfficialInfo();
     }
