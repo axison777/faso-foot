@@ -134,8 +134,9 @@ import { MatchDetailsModalComponent } from './match-details-modal.component';
 
         <!-- Modale de détails du match -->
         <app-match-details-modal 
+            *ngIf="selectedMatch"
             [(visible)]="showMatchDetails"
-            [match]="selectedMatch"
+            [match]="selectedMatch!"
             (submitReport)="onSubmitReportFromDetails($event)">
         </app-match-details-modal>
 
