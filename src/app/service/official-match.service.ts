@@ -99,7 +99,9 @@ export class OfficialMatchService {
             return of(null);
         }
 
-        return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
+        // Essayer différents endpoints possibles
+        // Option 1: /officials/{id}/matches
+        return this.http.get<any>(`${this.baseUrl}/officials/${currentUser.official_id}/matches`).pipe(
             map(res => {
                 // Extraire les infos de l'officiel depuis data.officials[0]
                 const official = res?.data?.officials?.[0];
@@ -139,7 +141,9 @@ export class OfficialMatchService {
             return of([]);
         }
 
-        return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
+        // Essayer différents endpoints possibles
+        // Option 1: /officials/{id}/matches
+        return this.http.get<any>(`${this.baseUrl}/officials/${currentUser.official_id}/matches`).pipe(
             map(res => {
                 // Extraire les matchs depuis data.officials[0].matches
                 const official = res?.data?.officials?.[0];
@@ -238,10 +242,14 @@ export class OfficialMatchService {
 
     // Récupérer les notifications de l'officiel
     getNotifications(): Observable<any[]> {
-        return this.http.get<any>(`${this.baseUrl}/officials/notifications`).pipe(
-            map(res => (res?.data?.notifications) || []),
-            catchError(() => of([]))
-        );
+        // Temporairement désactivé - endpoint 404
+        // TODO: Vérifier le bon endpoint avec le backend
+        return of([]);
+        
+        // return this.http.get<any>(`${this.baseUrl}/officials/notifications`).pipe(
+        //     map(res => (res?.data?.notifications) || []),
+        //     catchError(() => of([]))
+        // );
     }
 
     // Marquer une notification comme lue
