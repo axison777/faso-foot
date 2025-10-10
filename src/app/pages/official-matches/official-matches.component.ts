@@ -573,7 +573,8 @@ export class OfficialMatchesComponent implements OnInit {
         }
     }
 
-    getRoleClass(role: string): string {
+    getRoleClass(role: string | undefined): string {
+        if (!role) return 'role-referee';
         switch (role) {
             case 'CENTRAL_REFEREE':
                 return 'role-referee';

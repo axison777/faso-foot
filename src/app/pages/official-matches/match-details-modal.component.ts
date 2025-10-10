@@ -93,7 +93,7 @@ interface TeamSheet {
                         <div class="team-card" [class.selected]="selectedTeam === 'home'">
                             <div class="team-header" (click)="selectTeam('home')">
                                 <div class="team-info">
-                                    <h4>{{ match.homeTeam.name }}</h4>
+                                    <h4>{{ match?.homeTeam?.name || 'Équipe Domicile' }}</h4>
                                     <div class="team-status" [ngClass]="getTeamSheetStatusClass('home')">
                                         {{ getTeamSheetStatusLabel('home') }}
                                     </div>
