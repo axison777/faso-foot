@@ -99,12 +99,11 @@ export class OfficialMatchService {
             return of(null);
         }
 
-        // Essayer différents endpoints possibles
-        // Option 1: /officials/{id}/matches
-        return this.http.get<any>(`${this.baseUrl}/officials/${currentUser.official_id}/matches`).pipe(
+        // Endpoint correct : GET /Official/officialMatchs/{officialId}
+        return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
             map(res => {
-                // Extraire les infos de l'officiel depuis data.officials[0]
-                const official = res?.data?.officials?.[0];
+                // Extraire les infos de l'officiel depuis data.official (singulier !)
+                const official = res?.data?.official;
                 if (!official) return null;
                 
                 return {
@@ -141,50 +140,28 @@ export class OfficialMatchService {
             return of([]);
         }
 
-        // Essayer différents endpoints possibles
-        // Option 1: /officials/{id}/matches
-        return this.http.get<any>(`${this.baseUrl}/officials/${currentUser.official_id}/matches`).pipe(
+        // Endpoint correct : GET /Official/officialMatchs/{officialId}
+        return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
             map(res => {
-                // Extraire les matchs depuis data.officials[0].matches
-                const official = res?.data?.officials?.[0];
+                // Extraire les matchs depuis data.official.matches (singulier !)
+                const official = res?.data?.official;
                 let matches = official?.matches || [];
                 
-                // Mapper les matchs au format attendu
-                matches = matches.map((match: any) => ({
-                    id: match.id,
-                    homeTeam: {
-                        id: match.team_one_id || match.home_club_id,
-                        name: match.home_team?.name || 'Équipe Domicile',
-                        logo: match.home_team?.logo
-                    },
-                    awayTeam: {
-                        id: match.team_two_id || match.away_club_id,
-                        name: match.away_team?.name || 'Équipe Extérieur',
-                        logo: match.away_team?.logo
-                    },
-                    stadium: {
-                        id: match.stadium_id,
-                        name: match.stadium?.name || 'Stade',
-                        address: match.stadium?.address
-                    },
-                    scheduledAt: match.scheduled_at,
-                    status: match.status || 'UPCOMING',
-                    officialRole: match.pivot?.role || 'MAIN_REFEREE',
-                    assignedAt: match.pivot?.created_at || match.created_at,
-                    competition: {
-                        id: match.competition_id || match.pool_id,
-                        name: match.competition?.name || 'Compétition',
-                        type: match.competition?.type || 'LEAGUE'
-                    },
-                    seasonId: match.season_id,
-                    canSubmitReport: true,
-                    reportSubmitted: false,
-                    matchClosed: false
-                }));
+                // Le backend renvoie déjà le bon format ! Pas besoin de mapper
+                // Les matchs ont déjà: id, homeTeam, awayTeam, stadium, competition, etc.
                 
                 // Appliquer les filtres côté client si nécessaire
                 if (filters?.status) {
-                    matches = matches.filter((m: any) => m.status === filters.status);
+                    if (filters.status === 'UPCOMING') {
+                        // Matchs à venir = non clôturés ET date future
+                        matches = matches.filter((m: any) => !m.matchClosed);
+                    } else if (filters.status === 'COMPLETED') {
+                        // Matchs terminés = clôturés
+                        matches = matches.filter((m: any) => m.matchClosed);
+                    } else {
+                        // Autres statuts
+                        matches = matches.filter((m: any) => m.status === filters.status);
+                    }
                 }
                 if (filters?.competitionId) {
                     matches = matches.filter((m: any) => m.competition.id === filters.competitionId);
