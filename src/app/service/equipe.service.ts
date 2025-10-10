@@ -20,7 +20,7 @@ export interface TeamStats {
   providedIn: 'root'
 })
 export class EquipeService {
-  apiUrl = environment.apiUrl + '/v1/teams';
+  apiUrl = environment.apiUrl + '/teams';
 
   constructor(private http: HttpClient) {}
 

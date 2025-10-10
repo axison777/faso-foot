@@ -67,7 +67,7 @@ export interface OfficialMatch {
 })
 export class OfficialMatchService {
     baseUrl = environment.apiUrl;
-    apiUrl = environment.apiUrl + '/v1/Official';
+    apiUrl = environment.apiUrl + '/Official';
 
     constructor(
         private http: HttpClient,
@@ -83,11 +83,11 @@ export class OfficialMatchService {
         dateTo?: string;
     }): Observable<OfficialMatch[]> {
         const currentUser = this.authService.currentUser;
-        if (!currentUser?.id) {
+        if (!currentUser?.official_id) {
             return of([]);
         }
 
-        return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.id}`).pipe(
+        return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
             map(res => {
                 let matches = (res?.data?.matches as OfficialMatch[]) || [];
                 
@@ -151,7 +151,7 @@ export class OfficialMatchService {
 
     // Récupérer les notifications de l'officiel
     getNotifications(): Observable<any[]> {
-        return this.http.get<any>(`${this.baseUrl}/v1/officials/notifications`).pipe(
+        return this.http.get<any>(`${this.baseUrl}/officials/notifications`).pipe(
             map(res => (res?.data?.notifications) || []),
             catchError(() => of([]))
         );
@@ -159,7 +159,7 @@ export class OfficialMatchService {
 
     // Marquer une notification comme lue
     markNotificationAsRead(notificationId: string): Observable<any> {
-        return this.http.put<any>(`${this.baseUrl}/v1/officials/notifications/${notificationId}/read`, {}).pipe(
+        return this.http.put<any>(`${this.baseUrl}/officials/notifications/${notificationId}/read`, {}).pipe(
             catchError(() => of({ success: true }))
         );
     }

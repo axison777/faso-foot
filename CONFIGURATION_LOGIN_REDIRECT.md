@@ -109,6 +109,23 @@ ngOnInit(): void {
 }
 ```
 
+## 🔧 Corrections Appliquées
+
+### Problèmes résolus :
+1. ✅ **Double `/v1/v1/`** dans les URLs - Corrigé
+   - **Avant :** `apiUrl = environment.apiUrl + '/v1/Official'`
+   - **Après :** `apiUrl = environment.apiUrl + '/Official'`
+   - Car `environment.apiUrl` contient déjà `/api/v1`
+
+2. ✅ **Utilisation de `user.id` au lieu de `official_id`** - Corrigé
+   - **Avant :** `currentUser.id`
+   - **Après :** `currentUser.official_id`
+   - Car l'API attend l'ID de l'officiel, pas l'ID de l'utilisateur
+
+### Services corrigés :
+- ✅ `official-match.service.ts`
+- ✅ `official-report.service.ts`
+
 ## 📊 Structure de données attendue du Backend
 
 ### Réponse de l'API de login :
