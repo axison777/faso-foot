@@ -75,15 +75,6 @@ import { Observable } from 'rxjs';
                         <div class="stat-label">Rapports en attente</div>
                     </div>
                 </div>
-                <div class="stat-card" data-stat="notifications">
-                    <div class="stat-icon">
-                        <i class="pi pi-bell"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ unreadNotificationsCount }}</div>
-                        <div class="stat-label">Notifications</div>
-                    </div>
-                </div>
                 <!-- Carte de note d'arbitre -->
                 <div class="stat-card" data-stat="rating" *ngIf="refereeRating">
                     <div class="stat-icon">
@@ -827,7 +818,7 @@ export class OfficialDashboardComponent implements OnInit {
             case 'ASSISTANT_REFEREE':
                 return 'Arbitre Assistant';
             default:
-                return type;
+                return type || 'Officiel';
         }
     }
 }
