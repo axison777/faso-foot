@@ -194,6 +194,18 @@ export class TeamCategoriesComponent implements OnInit {
     );
   }
 
+  getGenderLabel(gender?: string): string {
+    switch (gender) {
+      case 'MALE':
+        return 'Homme';
+      case 'FEMALE':
+        return 'Femme';
+      case 'MIXED':
+        return 'Mixte';
+      default:
+        return '';
+    }
+    }
   //Afficher et faire disparaitre les details de la categorie
   showDialog(category: any) {
     this.categoryDetails = {
@@ -240,4 +252,3 @@ export class TeamCategoriesComponent implements OnInit {
     this.router.navigate(['/equipe-details', teamId]);
   }
 }
-      

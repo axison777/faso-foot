@@ -217,7 +217,7 @@ export class EquipesComponent implements OnInit {
     this.loading = true;
     this.equipeService.getAll().subscribe({
       next: (res: any) => {
-        this.teams = res?.data.teams || [];
+        this.teams = res || [];
         this.teams?.forEach((team: Team) => {
           team.full_name= (team?.name?.length! <= 15 ? team?.name : team?.abbreviation) + ' ' + (team?.category?.name || '');
       })
