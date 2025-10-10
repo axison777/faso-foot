@@ -192,6 +192,14 @@ export class OfficialMatchService {
         );
     }
 
+    // Récupérer les officiels assignés à un match
+    getMatchOfficials(matchId: string): Observable<any[]> {
+        return this.http.get<any>(`${this.apiUrl}/matchOfficials/${matchId}`).pipe(
+            map(res => res?.data?.officials || []),
+            catchError(() => of([]))
+        );
+    }
+
     // Soumettre un rapport de match
     submitMatchReport(report: MatchReport): Observable<any> {
         return this.http.post<any>(`${this.apiUrl}/${report.matchId}/reports`, report).pipe(
