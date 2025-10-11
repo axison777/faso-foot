@@ -153,34 +153,6 @@ import { Observable } from 'rxjs';
                 </ng-template>
             </div>
 
-            <!-- Notifications récentes -->
-            <div class="notifications-section">
-                <div class="section-header">
-                    <h2 class="section-title">Notifications récentes</h2>
-                    <a routerLink="/officiel/notifications" class="view-all-link">
-                        Voir toutes <i class="pi pi-arrow-right"></i>
-                    </a>
-                </div>
-                <div class="notifications-list" *ngIf="notifications$ | async as notifications; else loadingNotifications">
-                    <div class="notification-item" *ngFor="let notification of notifications.slice(0, 4)">
-                        <div class="notification-icon">
-                            <i class="pi" [ngClass]="getNotificationIcon(notification.type)"></i>
-                        </div>
-                        <div class="notification-content">
-                            <div class="notification-title">{{ notification.title }}</div>
-                            <div class="notification-message">{{ notification.message }}</div>
-                            <div class="notification-time">{{ notification.createdAt | date:'dd/MM HH:mm' }}</div>
-                        </div>
-                    </div>
-                </div>
-                <ng-template #loadingNotifications>
-                    <div class="loading-state">
-                        <i class="pi pi-spin pi-spinner"></i>
-                        <p>Chargement des notifications...</p>
-                    </div>
-                </ng-template>
-            </div>
-
         </div>
     `,
     styles: [`
@@ -238,10 +210,6 @@ import { Observable } from 'rxjs';
             background: linear-gradient(135deg, #fff3e0 0%, #fff8f0 100%);
         }
 
-        .stat-card[data-stat="notifications"] {
-            background: linear-gradient(135deg, #f3e5f5 0%, #faf5ff 100%);
-        }
-
         .stat-icon {
             font-size: 2.5rem;
             margin-bottom: 1rem;
@@ -258,10 +226,6 @@ import { Observable } from 'rxjs';
 
         .stat-card[data-stat="reports"] .stat-icon {
             color: #ff9800;
-        }
-
-        .stat-card[data-stat="notifications"] .stat-icon {
-            color: #9c27b0;
         }
 
         .stat-card[data-stat="rating"] {
@@ -306,7 +270,7 @@ import { Observable } from 'rxjs';
         }
 
         /* Sections principales */
-        .matches-section, .notifications-section {
+        .matches-section {
             background: white;
             border-radius: 12px;
             padding: 1.5rem;
@@ -486,65 +450,6 @@ import { Observable } from 'rxjs';
             color: #c2410c;
         }
 
-        /* Notifications */
-        .notifications-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .notification-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem;
-            background: #f9fafb;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            transition: all 0.2s;
-        }
-
-        .notification-item:hover {
-            background: #f3f4f6;
-        }
-
-        .notification-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #e3f2fd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .notification-icon i {
-            color: #2196f3;
-            font-size: 1.1rem;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-title {
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 0.25rem;
-        }
-
-        .notification-message {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .notification-time {
-            color: #9ca3af;
-            font-size: 0.75rem;
-        }
-
         .loading-state {
             text-align: center;
             padding: 3rem;
@@ -691,19 +596,16 @@ import { Observable } from 'rxjs';
 })
 export class OfficialDashboardComponent implements OnInit {
     upcomingMatches$: Observable<OfficialMatch[]>;
-    notifications$: Observable<any[]>;
     officialInfo$: Observable<OfficialInfo | null>;
     
     upcomingMatchesCount = 0;
     completedMatchesCount = 0;
     pendingReportsCount = 0;
-    unreadNotificationsCount = 0;
     refereeRating: number | null = null;
 
     constructor(private officialMatchService: OfficialMatchService) {
         // Afficher les matchs à venir (non clôturés)
         this.upcomingMatches$ = this.officialMatchService.getAssignedMatches({ status: 'UPCOMING' });
-        this.notifications$ = this.officialMatchService.getNotifications();
         this.officialInfo$ = this.officialMatchService.getOfficialInfo();
     }
 
@@ -720,10 +622,6 @@ export class OfficialDashboardComponent implements OnInit {
         this.officialMatchService.getAssignedMatches({ status: 'COMPLETED' }).subscribe(matches => {
             this.completedMatchesCount = matches.length;
             this.pendingReportsCount = matches.filter(m => !m.reportSubmitted).length;
-        });
-
-        this.officialMatchService.getNotifications().subscribe(notifications => {
-            this.unreadNotificationsCount = notifications.filter(n => !n.read).length;
         });
 
         // Simuler une note d'arbitre (à remplacer par un appel API réel)
@@ -771,19 +669,6 @@ export class OfficialDashboardComponent implements OnInit {
                 return 'Commissaire';
             default:
                 return role;
-        }
-    }
-
-    getNotificationIcon(type: string): string {
-        switch (type) {
-            case 'MATCH_REMINDER':
-                return 'pi-calendar';
-            case 'REPORT_SUBMITTED':
-                return 'pi-file-text';
-            case 'INCIDENT_REPORTED':
-                return 'pi-exclamation-triangle';
-            default:
-                return 'pi-info-circle';
         }
     }
 
