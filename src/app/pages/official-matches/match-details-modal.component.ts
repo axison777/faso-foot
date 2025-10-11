@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -9,6 +9,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { OfficialMatch } from '../../service/official-match.service';
+import { MatchCallupService, TeamCallup, CallupPlayer } from '../../service/match-callup.service';
 
 interface Player {
     id: string;
@@ -74,8 +75,8 @@ interface TeamSheet {
                         </div>
                         <div class="info-item">
                             <label>Statut</label>
-                            <span class="status-badge" [ngClass]="getStatusClass(match.status)">
-                                {{ getStatusLabel(match.status) }}
+                            <span class="status-badge" [ngClass]="getStatusClass(match?.status)">
+                                {{ getStatusLabel(match?.status) }}
                             </span>
                         </div>
                         <div class="info-item" *ngIf="match.score">
@@ -93,9 +94,9 @@ interface TeamSheet {
                         <div class="team-card" [class.selected]="selectedTeam === 'home'">
                             <div class="team-header" (click)="selectTeam('home')">
                                 <div class="team-info">
-                                    <h4>{{ match.homeTeam.name }}</h4>
-                                    <div class="team-status" [ngClass]="getTeamSheetStatusClass('home')">
-                                        {{ getTeamSheetStatusLabel('home') }}
+                                    <h4>{{ match?.homeTeam?.name || 'Équipe Domicile' }}</h4>
+                                    <div class="team-status" *ngIf="homeTeamCallup">
+                                        {{ homeTeamCallup.total_players }} joueurs
                                     </div>
                                 </div>
                                 <div class="team-actions">
@@ -108,70 +109,40 @@ interface TeamSheet {
                                 <div class="team-sheet-info">
                                     <div class="sheet-header">
                                         <h5>Feuille de Match</h5>
-                                        <div class="sheet-status" [ngClass]="getTeamSheetStatusClass('home')">
-                                            {{ getTeamSheetStatusLabel('home') }}
-                                        </div>
                                     </div>
                                     
-                                    <div class="coach-info" *ngIf="homeTeamSheet">
+                                    <div class="coach-info" *ngIf="homeTeamCallup">
                                         <div class="coach-item">
                                             <label>Entraîneur</label>
-                                            <span>{{ homeTeamSheet.coach.name }}</span>
+                                            <span>{{ homeTeamCallup.coach_name }}</span>
                                         </div>
-                                        <div class="coach-item">
-                                            <label>N° Licence</label>
-                                            <span>{{ homeTeamSheet.coach.license }}</span>
+                                        <div class="coach-item" *ngIf="homeTeamCallup.captain_name">
+                                            <label>Capitaine</label>
+                                            <span>{{ homeTeamCallup.captain_name }} (N°{{ homeTeamCallup.captain_jersey_number }})</span>
                                         </div>
-                                        <div class="coach-item">
-                                            <label>Soumis le</label>
-                                            <span>{{ homeTeamSheet.submittedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                                        <div class="coach-item" *ngIf="homeTeamCallup.formation">
+                                            <label>Formation</label>
+                                            <span>{{ homeTeamCallup.formation }}</span>
                                         </div>
                                     </div>
 
                                     <!-- Liste des joueurs -->
-                                    <div class="players-section" *ngIf="homeTeamSheet">
-                                        <h6>Joueurs ({{ homeTeamSheet.players.length }})</h6>
+                                    <div class="players-section" *ngIf="homeTeamCallup && homeTeamCallup.players">
+                                        <h6>Joueurs ({{ homeTeamCallup.players.length }})</h6>
                                         <div class="players-grid">
-                                            <div class="player-card" *ngFor="let player of homeTeamSheet.players">
+                                            <div class="player-card" *ngFor="let player of homeTeamCallup.players">
                                                 <div class="player-info">
-                                                    <div class="player-number">{{ player.jerseyNumber }}</div>
+                                                    <div class="player-number">{{ player.jersey_number }}</div>
                                                     <div class="player-details">
-                                                        <div class="player-name">{{ player.name }}</div>
+                                                        <div class="player-name">{{ player.first_name }} {{ player.last_name }}</div>
                                                         <div class="player-position">{{ player.position }}</div>
                                                     </div>
                                                 </div>
                                                 <div class="player-badges">
-                                                    <span class="badge starter" *ngIf="player.isStarter">Titulaire</span>
-                                                    <span class="badge captain" *ngIf="player.isCaptain">Capitaine</span>
-                                                    <span class="badge goalkeeper" *ngIf="player.isGoalkeeper">Gardien</span>
+                                                    <span class="badge starter" *ngIf="player.is_starter === true || player.is_starter === '1'">Titulaire</span>
+                                                    <span class="badge captain" *ngIf="player.player_id === homeTeamCallup.captain_id">Capitaine</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Actions de validation -->
-                                    <div class="validation-actions" *ngIf="homeTeamSheet && homeTeamSheet.status === 'PENDING'">
-                                        <div class="rejection-reason" *ngIf="showRejectionForm === 'home'">
-                                            <label>Raison du rejet</label>
-                                            <textarea [(ngModel)]="rejectionReasons.home" 
-                                                      placeholder="Expliquez pourquoi la feuille de match est rejetée"
-                                                      rows="3"></textarea>
-                                        </div>
-                                        <div class="action-buttons">
-                                            <button class="btn-approve" (click)="approveTeamSheet('home')">
-                                                <i class="pi pi-check"></i>
-                                                Valider
-                                            </button>
-                                            <button class="btn-reject" (click)="toggleRejectionForm('home')">
-                                                <i class="pi pi-times"></i>
-                                                Rejeter
-                                            </button>
-                                            <button class="btn-confirm-reject" 
-                                                    *ngIf="showRejectionForm === 'home'"
-                                                    (click)="rejectTeamSheet('home')"
-                                                    [disabled]="!rejectionReasons.home">
-                                                Confirmer le rejet
-                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -270,12 +241,14 @@ interface TeamSheet {
                 </div>
 
                 <!-- Officiels assignés -->
-                <div class="officials-section" *ngIf="match.otherOfficials">
-                    <h3>Officiels Assignés</h3>
+                <div class="officials-section" *ngIf="match && match.otherOfficials && match.otherOfficials.length > 0">
+                    <h3>Officiels Assignés ({{ match.otherOfficials.length }})</h3>
                     <div class="officials-grid">
-                        <div class="official-item" *ngFor="let official of match.otherOfficials">
-                            <div class="official-role">{{ getRoleLabel(official.role) }}</div>
-                            <div class="official-name">{{ official.name }}</div>
+                        <div class="official-item" *ngFor="let official of match.otherOfficials; let i = index">
+                            <div class="official-info">
+                                <div class="official-role">{{ getRoleLabel(official?.role || '') }}</div>
+                                <div class="official-name">{{ official?.name || 'Nom non disponible' }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -762,11 +735,42 @@ export class MatchDetailsModalComponent implements OnInit {
 
     homeTeamSheet: TeamSheet | null = null;
     awayTeamSheet: TeamSheet | null = null;
+    homeTeamCallup: TeamCallup | null = null;
+    awayTeamCallup: TeamCallup | null = null;
+    loadingCallups = false;
 
-    constructor(private messageService: MessageService) {}
+    constructor(
+        private messageService: MessageService,
+        private callupService: MatchCallupService
+    ) {}
 
     ngOnInit() {
-        this.initializeTeamSheets();
+        this.loadMatchCallups();
+    }
+
+    ngOnChanges(changes: any) {
+        if (changes['match'] && this.match?.id) {
+            this.loadMatchCallups();
+        }
+    }
+
+    loadMatchCallups() {
+        if (!this.match?.id) return;
+        
+        this.loadingCallups = true;
+        this.callupService.getMatchCallups(this.match.id).subscribe({
+            next: (callups) => {
+                if (callups) {
+                    this.homeTeamCallup = callups.team_one_callup;
+                    this.awayTeamCallup = callups.team_two_callup;
+                }
+                this.loadingCallups = false;
+            },
+            error: (err) => {
+                console.error('Erreur chargement feuilles de match:', err);
+                this.loadingCallups = false;
+            }
+        });
     }
 
     initializeTeamSheets() {
@@ -880,11 +884,13 @@ export class MatchDetailsModalComponent implements OnInit {
         }
     }
 
-    getStatusClass(status: string): string {
+    getStatusClass(status: string | null | undefined): string {
+        if (!status) return 'status-upcoming'; // Par défaut si status est null/undefined
         return `status-${status.toLowerCase()}`;
     }
 
-    getStatusLabel(status: string): string {
+    getStatusLabel(status: string | null | undefined): string {
+        if (!status) return 'À venir'; // Par défaut si status est null/undefined
         switch (status) {
             case 'UPCOMING': return 'À venir';
             case 'IN_PROGRESS': return 'En cours';
@@ -896,10 +902,14 @@ export class MatchDetailsModalComponent implements OnInit {
     }
 
     getRoleLabel(role: string): string {
-        switch (role) {
-            case 'CENTRAL_REFEREE': return 'Arbitre Central';
-            case 'ASSISTANT_REFEREE_1': return 'Assistant 1';
-            case 'ASSISTANT_REFEREE_2': return 'Assistant 2';
+        if (!role) return 'Officiel';
+        switch (role.toUpperCase()) {
+            case 'CENTRAL_REFEREE':
+            case 'MAIN_REFEREE': return 'Arbitre Central';
+            case 'ASSISTANT_REFEREE_1':
+            case 'ASSISTANT_1': return 'Assistant 1';
+            case 'ASSISTANT_REFEREE_2':
+            case 'ASSISTANT_2': return 'Assistant 2';
             case 'FOURTH_OFFICIAL': return '4ème Arbitre';
             case 'COMMISSIONER': return 'Commissaire';
             default: return role;

@@ -13,7 +13,7 @@ export interface ClubStats { played: number; wins: number; draws: number; losses
   providedIn: 'root'
 })
 export class ClubService {
-  apiUrl = environment.apiUrl + '/v1/clubs';
+  apiUrl = environment.apiUrl + '/clubs';
 
   constructor(private http: HttpClient) {}
 

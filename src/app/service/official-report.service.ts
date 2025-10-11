@@ -120,7 +120,7 @@ export interface OfficialReport {
   providedIn: 'root'
 })
 export class OfficialReportService {
-  private apiUrl = `${environment.apiUrl}/v1`;
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -174,6 +174,15 @@ export class OfficialReportService {
    */
   updateReport(reportId: string, payload: Partial<OfficialReportPayload>): Observable<{ report: OfficialReport }> {
     return this.http.put<any>(`${this.apiUrl}/official-reports/${reportId}`, payload).pipe(
+      map(res => res?.data?.report || res?.data || res)
+    );
+  }
+
+  /**
+   * Supprimer un rapport brouillon
+   */
+  deleteReport(reportId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/official-reports/${reportId}`).pipe(
       map(res => res?.data || res)
     );
   }

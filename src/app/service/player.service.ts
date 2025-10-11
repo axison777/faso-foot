@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class PlayerService {
-    apiUrl = environment.apiUrl + '/v1/players';
+    apiUrl = environment.apiUrl + '/players';
 
   constructor(private http: HttpClient) {}
 
@@ -39,7 +39,7 @@ export class PlayerService {
   }
 
   getByTeamId(teamId: string): Observable<any[]> {
-    return this.http.get<any>(`${environment.apiUrl}/v1/teams/${teamId}/players`).pipe(
+    return this.http.get<any>(`${environment.apiUrl}/teams/${teamId}/players`).pipe(
       map((res: any) => res?.data?.players || [])
     );
   }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { OfficialMatchService, OfficialMatch } from '../../service/official-match.service';
+import { OfficialMatchService, OfficialMatch, OfficialInfo } from '../../service/official-match.service';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -10,6 +10,37 @@ import { Observable } from 'rxjs';
     imports: [CommonModule, RouterModule],
     template: `
         <div class="dashboard-container">
+            <!-- Profil de l'officiel -->
+            <div class="official-profile-card" *ngIf="officialInfo$ | async as official">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="pi pi-user"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name">{{ official.first_name }} {{ official.last_name }}</h2>
+                        <div class="profile-details">
+                            <span class="badge badge-type">{{ getOfficialTypeLabel(official.official_type) }}</span>
+                            <span class="badge badge-level">{{ official.level }}</span>
+                            <span class="badge badge-status" [ngClass]="{'active': official.status === 'ACTIVE'}">{{ official.status }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-meta">
+                    <div class="meta-item">
+                        <i class="pi pi-id-card"></i>
+                        <span>Licence: {{ official.license_number }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="official.certification_date">
+                        <i class="pi pi-calendar"></i>
+                        <span>Certifié depuis: {{ official.certification_date | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="official.nationality">
+                        <i class="pi pi-globe"></i>
+                        <span>{{ official.nationality }}</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Titre principal -->
             <div class="dashboard-header">
                 <h1 class="dashboard-title">Vue d'ensemble</h1>
@@ -44,15 +75,6 @@ import { Observable } from 'rxjs';
                         <div class="stat-label">Rapports en attente</div>
                     </div>
                 </div>
-                <div class="stat-card" data-stat="notifications">
-                    <div class="stat-icon">
-                        <i class="pi pi-bell"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ unreadNotificationsCount }}</div>
-                        <div class="stat-label">Notifications</div>
-                    </div>
-                </div>
                 <!-- Carte de note d'arbitre -->
                 <div class="stat-card" data-stat="rating" *ngIf="refereeRating">
                     <div class="stat-icon">
@@ -77,42 +99,48 @@ import { Observable } from 'rxjs';
                     </a>
                 </div>
                 <div class="matches-grid" *ngIf="upcomingMatches$ | async as matches; else loadingMatches">
+                    <!-- DEBUG: Désactivé - données OK -->
+                    <pre *ngIf="false" style="background: #f0f0f0; padding: 10px; font-size: 10px; overflow: auto; max-height: 300px;">
+                        {{ matches | json }}
+                    </pre>
+                    
                     <div class="match-card" *ngFor="let match of matches.slice(0, 3)">
                         <div class="match-header">
-                            <div class="competition-badge" [ngClass]="getCompetitionClass(match.competition.type)">
-                                {{ match.competition.name }}
+                            <div class="competition-badge" [ngClass]="getCompetitionClass(match?.competition?.type || 'LEAGUE')">
+                                {{ match?.competition?.name || 'Compétition' }}
+                                <span *ngIf="match?.number" style="margin-left: 8px;">J{{ match.number }}</span>
                             </div>
                         </div>
                         <div class="match-content">
                             <div class="teams">
                                 <div class="team">
                                     <span class="team-icon">⚽</span>
-                                    <span class="team-name">{{ match.homeTeam.name }}</span>
+                                    <span class="team-name">{{ match?.homeTeam?.name || 'Équipe Domicile' }}</span>
                                 </div>
                                 <div class="vs">vs</div>
                                 <div class="team">
                                     <span class="team-icon">⚽</span>
-                                    <span class="team-name">{{ match.awayTeam.name }}</span>
+                                    <span class="team-name">{{ match?.awayTeam?.name || 'Équipe Extérieur' }}</span>
                                 </div>
                             </div>
                             <div class="match-details">
                                 <div class="detail-item">
                                     <i class="pi pi-calendar"></i>
-                                    <span>{{ match.scheduledAt | date:'dd/MM/yyyy' }}</span>
+                                    <span>{{ match?.scheduledAt | date:'dd/MM/yyyy' }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="pi pi-clock"></i>
-                                    <span>{{ match.scheduledAt | date:'HH:mm' }}</span>
+                                    <span>{{ match?.scheduledAt | date:'HH:mm' }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="pi pi-map-marker"></i>
-                                    <span>{{ match.stadium.name }}</span>
+                                    <span>{{ match?.stadium?.name || 'Stade' }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="match-footer">
-                            <span class="role-badge" [ngClass]="getRoleClass(match.officialRole)">
-                                {{ getRoleLabel(match.officialRole) }}
+                            <span class="role-badge" [ngClass]="getRoleClass(match?.officialRole || '')">
+                                {{ getRoleLabel(match?.officialRole || '') }}
                             </span>
                         </div>
                     </div>
@@ -529,10 +557,119 @@ import { Observable } from 'rxjs';
             display: block;
         }
 
+        /* Profil de l'officiel */
+        .official-profile-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 0.75rem 0;
+            color: white;
+        }
+
+        .profile-details {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-type {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+
+        .badge-level {
+            background: rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+        }
+
+        .badge-status {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .badge-status.active {
+            background: rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        .profile-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .meta-item i {
+            opacity: 0.8;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .dashboard-container {
                 padding: 1rem;
+            }
+
+            .official-profile-card {
+                padding: 1.5rem;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-meta {
+                flex-direction: column;
+                gap: 0.75rem;
             }
 
             .stats-grid {
@@ -555,6 +692,7 @@ import { Observable } from 'rxjs';
 export class OfficialDashboardComponent implements OnInit {
     upcomingMatches$: Observable<OfficialMatch[]>;
     notifications$: Observable<any[]>;
+    officialInfo$: Observable<OfficialInfo | null>;
     
     upcomingMatchesCount = 0;
     completedMatchesCount = 0;
@@ -563,8 +701,10 @@ export class OfficialDashboardComponent implements OnInit {
     refereeRating: number | null = null;
 
     constructor(private officialMatchService: OfficialMatchService) {
+        // Afficher les matchs à venir (non clôturés)
         this.upcomingMatches$ = this.officialMatchService.getAssignedMatches({ status: 'UPCOMING' });
         this.notifications$ = this.officialMatchService.getNotifications();
+        this.officialInfo$ = this.officialMatchService.getOfficialInfo();
     }
 
     ngOnInit() {
@@ -667,5 +807,18 @@ export class OfficialDashboardComponent implements OnInit {
 
     refreshData() {
         this.loadStatistics();
+    }
+
+    getOfficialTypeLabel(type: string): string {
+        switch (type?.toUpperCase()) {
+            case 'COMMISSIONER':
+                return 'Commissaire';
+            case 'REFEREE':
+                return 'Arbitre';
+            case 'ASSISTANT_REFEREE':
+                return 'Arbitre Assistant';
+            default:
+                return type || 'Officiel';
+        }
     }
 }

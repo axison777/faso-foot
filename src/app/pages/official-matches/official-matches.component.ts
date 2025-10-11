@@ -98,17 +98,17 @@ import { MatchDetailsModalComponent } from './match-details-modal.component';
 
                     <!-- Actions -->
                     <div class="match-actions">
-                        <button class="action-button primary" (click)="openMatchDetails(match)">
+                        <button class="action-button primary" (click)="openMatchDetails(match)" type="button">
                             <i class="pi pi-eye"></i>
                             Voir détails
                         </button>
-                        <button class="action-button" 
-                                *ngIf="match.canSubmitReport && !match.reportSubmitted"
-                                (click)="openReportModal(match)">
+                        <button class="action-button secondary" 
+                                *ngIf="!match?.reportSubmitted"
+                                (click)="openReportModal(match)" type="button">
                             <i class="pi pi-file-text"></i>
                             Saisir rapport
                         </button>
-                        <div class="report-status" *ngIf="match.reportSubmitted">
+                        <div class="report-status" *ngIf="match?.reportSubmitted">
                             <i class="pi pi-check-circle"></i>
                             <span>Rapport soumis</span>
                         </div>
@@ -134,8 +134,9 @@ import { MatchDetailsModalComponent } from './match-details-modal.component';
 
         <!-- Modale de détails du match -->
         <app-match-details-modal 
+            *ngIf="selectedMatch"
             [(visible)]="showMatchDetails"
-            [match]="selectedMatch"
+            [match]="selectedMatch!"
             (submitReport)="onSubmitReportFromDetails($event)">
         </app-match-details-modal>
 
@@ -550,11 +551,13 @@ export class OfficialMatchesComponent implements OnInit {
         this.filterMatches();
     }
 
-    getStatusClass(status: string): string {
+    getStatusClass(status: string | null): string {
+        if (!status) return 'status-upcoming'; // Par défaut si status est null
         return `status-${status.toLowerCase()}`;
     }
 
-    getStatusLabel(status: string): string {
+    getStatusLabel(status: string | null): string {
+        if (!status) return 'À venir'; // Par défaut si status est null
         switch (status) {
             case 'UPCOMING':
                 return 'À venir';
@@ -571,7 +574,8 @@ export class OfficialMatchesComponent implements OnInit {
         }
     }
 
-    getRoleClass(role: string): string {
+    getRoleClass(role: string | undefined): string {
+        if (!role) return 'role-referee';
         switch (role) {
             case 'CENTRAL_REFEREE':
                 return 'role-referee';
@@ -603,6 +607,7 @@ export class OfficialMatchesComponent implements OnInit {
     }
 
     openMatchDetails(match: OfficialMatch) {
+        console.log('Opening match details:', match);
         this.selectedMatch = match;
         this.showMatchDetails = true;
     }

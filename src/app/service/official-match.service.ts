@@ -6,6 +6,24 @@ import { catchError, map } from 'rxjs/operators';
 import { MatchReport, MatchIncident, RefereeEvaluation } from '../models/match-report.model';
 import { AuthService } from './auth.service';
 
+// Interface pour les informations de l'officiel
+export interface OfficialInfo {
+    id: string;
+    first_name: string;
+    last_name: string;
+    level: string; // NATIONAL, INTERNATIONAL, etc.
+    license_number: string;
+    official_type: string; // COMMISSIONER, REFEREE, etc.
+    status: string; // ACTIVE, INACTIVE
+    date_of_birth?: string;
+    birth_place?: string;
+    nationality?: string;
+    experience?: string;
+    structure?: string;
+    certification_date?: string;
+    certification_expiry?: string;
+}
+
 export interface OfficialMatch {
     id: string;
     number?: number;
@@ -67,12 +85,47 @@ export interface OfficialMatch {
 })
 export class OfficialMatchService {
     baseUrl = environment.apiUrl;
-    apiUrl = environment.apiUrl + '/v1/Official';
+    apiUrl = environment.apiUrl + '/Official';
 
     constructor(
         private http: HttpClient,
         private authService: AuthService
     ) {}
+
+    // Récupérer les informations de l'officiel connecté
+    getOfficialInfo(): Observable<OfficialInfo | null> {
+        const currentUser = this.authService.currentUser;
+        if (!currentUser?.official_id) {
+            return of(null);
+        }
+
+        // Endpoint correct : GET /Official/officialMatchs/{officialId}
+        return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
+            map(res => {
+                // Extraire les infos de l'officiel depuis data.official (singulier !)
+                const official = res?.data?.official;
+                if (!official) return null;
+                
+                return {
+                    id: official.id,
+                    first_name: official.first_name,
+                    last_name: official.last_name,
+                    level: official.level,
+                    license_number: official.license_number,
+                    official_type: official.official_type,
+                    status: official.status,
+                    date_of_birth: official.date_of_birth,
+                    birth_place: official.birth_place,
+                    nationality: official.nationality,
+                    experience: official.experience,
+                    structure: official.structure,
+                    certification_date: official.certification_date,
+                    certification_expiry: official.certification_expiry
+                } as OfficialInfo;
+            }),
+            catchError(() => of(null))
+        );
+    }
 
     // Récupérer les matchs assignés à l'officiel connecté
     getAssignedMatches(filters?: {
@@ -83,23 +136,46 @@ export class OfficialMatchService {
         dateTo?: string;
     }): Observable<OfficialMatch[]> {
         const currentUser = this.authService.currentUser;
-        if (!currentUser?.id) {
+        if (!currentUser?.official_id) {
             return of([]);
         }
 
-        return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.id}`).pipe(
+        // Endpoint correct : GET /Official/officialMatchs/{officialId}
+        return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
             map(res => {
-                let matches = (res?.data?.matches as OfficialMatch[]) || [];
+                // Extraire les matchs depuis data.official.matches (singulier !)
+                const official = res?.data?.official;
+                let matches = official?.matches || [];
+                
+                // Le backend renvoie déjà le bon format ! Pas besoin de mapper
+                // Les matchs ont déjà: id, homeTeam, awayTeam, stadium, competition, etc.
                 
                 // Appliquer les filtres côté client si nécessaire
                 if (filters?.status) {
-                    matches = matches.filter(m => m.status === filters.status);
+                    const now = new Date();
+                    if (filters.status === 'UPCOMING') {
+                        // Matchs à venir = non clôturés ET date future/présent
+                        matches = matches.filter((m: any) => {
+                            const matchDate = new Date(m.scheduledAt);
+                            return !m.matchClosed && matchDate >= now;
+                        });
+                        // Trier par date croissante (les plus proches en premier)
+                        matches.sort((a: any, b: any) => {
+                            return new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime();
+                        });
+                    } else if (filters.status === 'COMPLETED') {
+                        // Matchs terminés = clôturés
+                        matches = matches.filter((m: any) => m.matchClosed);
+                    } else {
+                        // Autres statuts
+                        matches = matches.filter((m: any) => m.status === filters.status);
+                    }
                 }
                 if (filters?.competitionId) {
-                    matches = matches.filter(m => m.competition.id === filters.competitionId);
+                    matches = matches.filter((m: any) => m.competition.id === filters.competitionId);
                 }
                 if (filters?.seasonId) {
-                    matches = matches.filter(m => m.seasonId === filters.seasonId);
+                    matches = matches.filter((m: any) => m.seasonId === filters.seasonId);
                 }
                 
                 return matches;
@@ -113,6 +189,14 @@ export class OfficialMatchService {
         return this.http.get<any>(`${this.apiUrl}/matchOfficials/${matchId}`).pipe(
             map(res => (res?.data?.match as OfficialMatch) || null),
             catchError(() => of(null))
+        );
+    }
+
+    // Récupérer les officiels assignés à un match
+    getMatchOfficials(matchId: string): Observable<any[]> {
+        return this.http.get<any>(`${this.apiUrl}/matchOfficials/${matchId}`).pipe(
+            map(res => res?.data?.officials || []),
+            catchError(() => of([]))
         );
     }
 
@@ -151,15 +235,19 @@ export class OfficialMatchService {
 
     // Récupérer les notifications de l'officiel
     getNotifications(): Observable<any[]> {
-        return this.http.get<any>(`${this.baseUrl}/v1/officials/notifications`).pipe(
-            map(res => (res?.data?.notifications) || []),
-            catchError(() => of([]))
-        );
+        // Temporairement désactivé - endpoint 404
+        // TODO: Vérifier le bon endpoint avec le backend
+        return of([]);
+        
+        // return this.http.get<any>(`${this.baseUrl}/officials/notifications`).pipe(
+        //     map(res => (res?.data?.notifications) || []),
+        //     catchError(() => of([]))
+        // );
     }
 
     // Marquer une notification comme lue
     markNotificationAsRead(notificationId: string): Observable<any> {
-        return this.http.put<any>(`${this.baseUrl}/v1/officials/notifications/${notificationId}/read`, {}).pipe(
+        return this.http.put<any>(`${this.baseUrl}/officials/notifications/${notificationId}/read`, {}).pipe(
             catchError(() => of({ success: true }))
         );
     }

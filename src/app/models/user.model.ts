@@ -21,6 +21,8 @@ export interface User {
   roles?: UserRole[]; // Changé de string[] vers UserRole[]
   club_id?: string; // ID du club pour les managers
   team_id?: string; // ID de l'équipe pour les coaches
+  official_id?: string; // ✅ ID de l'officiel (différent de l'ID utilisateur)
+  coach_id?: string | null; // ✅ ID du coach (différent de l'ID utilisateur)
   is_active?: boolean;
   is_official?: boolean; // Indicateur pour les officiels
   is_coach?: boolean | number; // Indicateur pour les coachs (peut être boolean ou 0/1)
