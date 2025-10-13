@@ -73,10 +73,34 @@ export class MatchCallupService {
    * Obtenir les appels d'un match (feuilles de match)
    */
   getMatchCallups(matchId: string): Observable<MatchCallups | null> {
+    console.log(`[MatchCallupService] Récupération des callups pour le match: ${matchId}`);
+    console.log(`[MatchCallupService] URL complète: ${this.apiUrl}/callups/match/${matchId}`);
+    
     return this.http.get<any>(`${this.apiUrl}/callups/match/${matchId}`).pipe(
-      map(res => res?.data?.match_callups || null),
+      map(res => {
+        console.log('[MatchCallupService] Réponse API reçue:', res);
+        const callups = res?.data?.match_callups;
+        
+        if (callups) {
+          console.log('[MatchCallupService] Callups trouvés:', {
+            team_one: callups.team_one_callup?.team_name,
+            team_one_players: callups.team_one_callup?.players?.length || 0,
+            team_two: callups.team_two_callup?.team_name,
+            team_two_players: callups.team_two_callup?.players?.length || 0
+          });
+        } else {
+          console.warn('[MatchCallupService] Aucun callup trouvé dans la réponse');
+        }
+        
+        return callups || null;
+      }),
       catchError((error) => {
-        console.error('Erreur chargement callups:', error);
+        console.error('[MatchCallupService] Erreur lors du chargement des callups:', {
+          message: error.message,
+          status: error.status,
+          url: error.url,
+          error: error
+        });
         return of(null);
       })
     );

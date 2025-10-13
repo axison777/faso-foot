@@ -98,7 +98,7 @@ import { MatchDetailsModalComponent } from './match-details-modal.component';
 
                     <!-- Actions -->
                     <div class="match-actions">
-                        <button class="action-button primary" (click)="openMatchDetails(match)" type="button">
+                        <button class="action-button primary" [routerLink]="['/officiel/match-details', match.id]" type="button">
                             <i class="pi pi-eye"></i>
                             Voir détails
                         </button>

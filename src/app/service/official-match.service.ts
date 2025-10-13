@@ -186,9 +186,20 @@ export class OfficialMatchService {
 
     // Récupérer les détails d'un match spécifique
     getMatchDetails(matchId: string): Observable<OfficialMatch | null> {
+        console.log('[OfficialMatchService] Récupération détails match:', matchId);
+        console.log('[OfficialMatchService] URL:', `${this.apiUrl}/matchOfficials/${matchId}`);
+        
         return this.http.get<any>(`${this.apiUrl}/matchOfficials/${matchId}`).pipe(
-            map(res => (res?.data?.match as OfficialMatch) || null),
-            catchError(() => of(null))
+            map(res => {
+                console.log('[OfficialMatchService] Réponse API match details:', res);
+                const match = res?.data?.match as OfficialMatch;
+                console.log('[OfficialMatchService] Match extrait:', match);
+                return match || null;
+            }),
+            catchError((error) => {
+                console.error('[OfficialMatchService] Erreur récupération match:', error);
+                return of(null);
+            })
         );
     }
 

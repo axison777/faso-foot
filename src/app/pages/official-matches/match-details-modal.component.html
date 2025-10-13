@@ -1,0 +1,442 @@
+<p-dialog 
+    [(visible)]="visible" 
+    [modal]="true" 
+    [style]="{width: '95vw', maxWidth: '1600px', height: '90vh'}" 
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [dismissableMask]="true">
+    
+    <ng-template pTemplate="header">
+        <div class="dialog-custom-header">
+            <div class="header-title">
+                <h2>Détails du Match - {{ match?.competition?.name || '' }}</h2>
+                <p class="header-subtitle">{{ match?.phase || 'Poule unique' }}</p>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="modal-content" *ngIf="match">
+        <!-- BANDE D'INFORMATION CLÉ -->
+        <div class="info-band">
+            <div class="info-item">
+                <i class="pi pi-calendar"></i>
+                <div class="info-content">
+                    <span class="info-label">Date</span>
+                    <span class="info-value">{{ match.scheduledAt | date:'dd/MM/yyyy' }}</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="pi pi-clock"></i>
+                <div class="info-content">
+                    <span class="info-label">Heure</span>
+                    <span class="info-value">{{ match.scheduledAt | date:'HH:mm' }}</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="pi pi-map-marker"></i>
+                <div class="info-content">
+                    <span class="info-label">Stade</span>
+                    <span class="info-value">{{ match.stadium.name }}</span>
+                </div>
+            </div>
+            <div class="info-item status-item">
+                <i class="pi pi-info-circle"></i>
+                <div class="info-content">
+                    <span class="info-label">Statut</span>
+                    <span class="badge" [ngClass]="getStatusClass(match.status)">
+                        {{ getStatusLabel(match.status) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEUILLE DE MATCH -->
+        <div class="match-sheet-section" *ngIf="homeTeamCallup && awayTeamCallup; else noCallups">
+            <div class="sheet-columns">
+                <!-- ÉQUIPE GAUCHE (DOMICILE) -->
+                <div class="team-column team-home">
+                    <div class="team-header">
+                        <div class="team-identity">
+                            <img *ngIf="homeTeamCallup.team_logo" 
+                                 [src]="homeTeamCallup.team_logo" 
+                                 [alt]="homeTeamCallup.team_name"
+                                 class="team-logo">
+                            <div class="team-badge-placeholder" *ngIf="!homeTeamCallup.team_logo">
+                                <i class="pi pi-shield"></i>
+                            </div>
+                            <div class="team-info">
+                                <h3 class="team-name">{{ homeTeamCallup.team_name }}</h3>
+                                <p class="team-type">Équipe Domicile</p>
+                                <p class="team-players-count">{{ homeTeamCallup.total_players || (homeTeamCallup.players?.length || 0) }} JOUEURS</p>
+                            </div>
+                        </div>
+                        <button class="btn-formation" (click)="toggleFormationView('team1')">
+                            <i class="pi" [ngClass]="showFormationView === 'team1' ? 'pi-list' : 'pi-table'"></i>
+                            {{ showFormationView === 'team1' ? 'Voir la Liste' : 'Voir le Terrain' }}
+                        </button>
+                    </div>
+
+                    <!-- VUE LISTE (Par défaut) -->
+                    <div class="team-details" *ngIf="showFormationView !== 'team1'">
+                        <!-- Informations d'encadrement -->
+                        <div class="staff-info">
+                            <div class="staff-item" *ngIf="homeTeamCallup.coach_name">
+                                <i class="pi pi-user"></i>
+                                <div>
+                                    <span class="staff-label">Entraîneur</span>
+                                    <span class="staff-value">{{ homeTeamCallup.coach_name }}</span>
+                                </div>
+                            </div>
+                            <div class="staff-item" *ngIf="homeTeamCallup.captain_name">
+                                <i class="pi pi-star-fill"></i>
+                                <div>
+                                    <span class="staff-label">Capitaine</span>
+                                    <span class="staff-value">{{ homeTeamCallup.captain_name }} (#{{ homeTeamCallup.captain_jersey_number }})</span>
+                                </div>
+                            </div>
+                            <div class="staff-item" *ngIf="homeTeamCallup.formation">
+                                <i class="pi pi-sitemap"></i>
+                                <div>
+                                    <span class="staff-label">Formation</span>
+                                    <span class="staff-value">{{ homeTeamCallup.formation }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Liste des joueurs -->
+                        <div class="players-accordion">
+                            <!-- Titulaires -->
+                            <details class="players-group" open>
+                                <summary class="group-header">
+                                    <span class="group-title">
+                                        <i class="pi pi-users"></i>
+                                        Titulaires
+                                    </span>
+                                    <span class="group-count">{{ homeTeamCallup.starters_count || getStarters(homeTeamCallup.players).length }}</span>
+                                </summary>
+                                <div class="players-list">
+                                    <div class="player-card" 
+                                         *ngFor="let player of getStarters(homeTeamCallup.players)"
+                                         (mouseenter)="onPlayerHover(player.id)"
+                                         (mouseleave)="onPlayerHover(null)"
+                                         [class.hovered]="hoveredPlayerId === player.id">
+                                        <div class="player-number">#{{ player.jersey_number }}</div>
+                                        <img *ngIf="player.photo" 
+                                             [src]="player.photo" 
+                                             [alt]="player.first_name + ' ' + player.last_name"
+                                             class="player-photo">
+                                        <div class="player-photo-placeholder" *ngIf="!player.photo">
+                                            <i class="pi pi-user"></i>
+                                        </div>
+                                        <div class="player-info">
+                                            <div class="player-name">{{ player.first_name }} {{ player.last_name }}</div>
+                                            <div class="player-position">{{ player.position || player.preferred_position }}</div>
+                                        </div>
+                                        <i class="pi pi-star-fill captain-icon" *ngIf="player.id === homeTeamCallup.captain_id"></i>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Remplaçants -->
+                            <details class="players-group">
+                                <summary class="group-header">
+                                    <span class="group-title">
+                                        <i class="pi pi-users"></i>
+                                        Remplaçants
+                                    </span>
+                                    <span class="group-count">{{ homeTeamCallup.substitutes_count || getSubstitutes(homeTeamCallup.players).length }}</span>
+                                </summary>
+                                <div class="players-list">
+                                    <div class="player-card" 
+                                         *ngFor="let player of getSubstitutes(homeTeamCallup.players)"
+                                         (mouseenter)="onPlayerHover(player.id)"
+                                         (mouseleave)="onPlayerHover(null)"
+                                         [class.hovered]="hoveredPlayerId === player.id">
+                                        <div class="player-number">#{{ player.jersey_number }}</div>
+                                        <img *ngIf="player.photo" 
+                                             [src]="player.photo" 
+                                             [alt]="player.first_name + ' ' + player.last_name"
+                                             class="player-photo">
+                                        <div class="player-photo-placeholder" *ngIf="!player.photo">
+                                            <i class="pi pi-user"></i>
+                                        </div>
+                                        <div class="player-info">
+                                            <div class="player-name">{{ player.first_name }} {{ player.last_name }}</div>
+                                            <div class="player-position">{{ player.position || player.preferred_position }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+
+                    <!-- VUE TERRAIN -->
+                    <div class="field-view" *ngIf="showFormationView === 'team1'">
+                        <div class="pitch-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 74" class="pitch-svg">
+                                <defs>
+                                    <pattern id="grass-stripes-home" patternUnits="userSpaceOnUse" width="6" height="74">
+                                        <rect width="3" height="74" fill="#00a000"></rect>
+                                        <rect x="3" width="3" height="74" fill="#009000"></rect>
+                                    </pattern>
+                                </defs>
+                                <rect width="111" height="74" fill="url(#grass-stripes-home)"></rect>
+                                <g fill="none" stroke="#fff" stroke-width="0.5" transform="rotate(90, 53, 55.5)">
+                                    <path d="M 0 0 h 68 v 105 h -68 Z"></path>
+                                    <path d="M 0 52.5 h 68"></path>
+                                    <circle r="9.15" cx="34" cy="52.5"></circle>
+                                    <circle r="0.75" cx="34" cy="52.5" fill="#fff" stroke="none"></circle>
+                                    <g id="PenaltyArea">
+                                        <path d="M 13.84 0 v 16.5 h 40.32 v -16.5"></path>
+                                        <path d="M 24.84 0 v 5.5 h 18.32 v -5.5"></path>
+                                        <circle r="0.75" cx="34" cy="10.94" fill="#fff" stroke="none"></circle>
+                                        <path d="M 26.733027 16.5 a 9.15 9.15 0 0 0 14.533946 0"></path>
+                                    </g>
+                                    <use href="#PenaltyArea" transform="rotate(180,34,52.5)"></use>
+                                    <path d="M 0 2 a 2 2 0 0 0 2 -2 M 66 0 a 2 2 0 0 0 2 2 M 68 103 a 2 2 0 0 0 -2 2 M 2 105 a 2 2 0 0 0 -2 -2"></path>
+                                </g>
+                            </svg>
+
+                            <!-- Joueurs sur le terrain -->
+                            <div class="player-pin" 
+                                 *ngFor="let player of getStarters(homeTeamCallup.players)"
+                                 [style.left.%]="getPlayerPosition(player, homeTeamCallup.formation || '4-4-2').x"
+                                 [style.top.%]="getPlayerPosition(player, homeTeamCallup.formation || '4-4-2').y"
+                                 [class.hovered]="hoveredPlayerId === player.id"
+                                 (mouseenter)="onPlayerHover(player.id)"
+                                 (mouseleave)="onPlayerHover(null)">
+                                <div class="pin-avatar">
+                                    <img *ngIf="player.photo" [src]="player.photo" [alt]="player.first_name">
+                                    <span *ngIf="!player.photo" class="pin-initials">
+                                        {{ (player.first_name?.charAt(0) || '') + (player.last_name?.charAt(0) || '') }}
+                                    </span>
+                                </div>
+                                <div class="pin-name">{{ player.first_name }} {{ player.last_name }}</div>
+                                <div class="pin-number">#{{ player.jersey_number }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLONNE CENTRALE - OFFICIELS -->
+                <div class="center-column officials-column">
+                    <div class="officials-card">
+                        <h4 class="officials-title">
+                            <i class="pi pi-users"></i>
+                            Officiels Assignés
+                        </h4>
+                        <div class="officials-list" *ngIf="match.otherOfficials && match.otherOfficials.length > 0; else noOfficials">
+                            <div class="official-item" *ngFor="let official of match.otherOfficials">
+                                <div class="official-icon">
+                                    <i [ngClass]="getRoleIcon(official.role)"></i>
+                                </div>
+                                <div class="official-info">
+                                    <div class="official-name">{{ official.name }}</div>
+                                    <div class="official-role">{{ getRoleLabel(official.role) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <ng-template #noOfficials>
+                            <p class="no-data">Aucun autre officiel assigné</p>
+                        </ng-template>
+
+                        <!-- Score si match complété -->
+                        <div class="score-display" *ngIf="match.status === 'COMPLETED' && match.score">
+                            <div class="score-label">Score Final</div>
+                            <div class="score-value">
+                                <span class="score-home">{{ match.score.home }}</span>
+                                <span class="score-separator">-</span>
+                                <span class="score-away">{{ match.score.away }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÉQUIPE DROITE (EXTÉRIEUR) -->
+                <div class="team-column team-away">
+                    <div class="team-header">
+                        <div class="team-identity">
+                            <img *ngIf="awayTeamCallup.team_logo" 
+                                 [src]="awayTeamCallup.team_logo" 
+                                 [alt]="awayTeamCallup.team_name"
+                                 class="team-logo">
+                            <div class="team-badge-placeholder" *ngIf="!awayTeamCallup.team_logo">
+                                <i class="pi pi-shield"></i>
+                            </div>
+                            <div class="team-info">
+                                <h3 class="team-name">{{ awayTeamCallup.team_name }}</h3>
+                                <p class="team-type">Équipe Extérieur</p>
+                                <p class="team-players-count">{{ awayTeamCallup.total_players || (awayTeamCallup.players?.length || 0) }} JOUEURS</p>
+                            </div>
+                        </div>
+                        <button class="btn-formation" (click)="toggleFormationView('team2')">
+                            <i class="pi" [ngClass]="showFormationView === 'team2' ? 'pi-list' : 'pi-table'"></i>
+                            {{ showFormationView === 'team2' ? 'Voir la Liste' : 'Voir le Terrain' }}
+                        </button>
+                    </div>
+
+                    <!-- VUE LISTE (Par défaut) -->
+                    <div class="team-details" *ngIf="showFormationView !== 'team2'">
+                        <!-- Informations d'encadrement -->
+                        <div class="staff-info">
+                            <div class="staff-item" *ngIf="awayTeamCallup.coach_name">
+                                <i class="pi pi-user"></i>
+                                <div>
+                                    <span class="staff-label">Entraîneur</span>
+                                    <span class="staff-value">{{ awayTeamCallup.coach_name }}</span>
+                                </div>
+                            </div>
+                            <div class="staff-item" *ngIf="awayTeamCallup.captain_name">
+                                <i class="pi pi-star-fill"></i>
+                                <div>
+                                    <span class="staff-label">Capitaine</span>
+                                    <span class="staff-value">{{ awayTeamCallup.captain_name }} (#{{ awayTeamCallup.captain_jersey_number }})</span>
+                                </div>
+                            </div>
+                            <div class="staff-item" *ngIf="awayTeamCallup.formation">
+                                <i class="pi pi-sitemap"></i>
+                                <div>
+                                    <span class="staff-label">Formation</span>
+                                    <span class="staff-value">{{ awayTeamCallup.formation }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Liste des joueurs -->
+                        <div class="players-accordion">
+                            <!-- Titulaires -->
+                            <details class="players-group" open>
+                                <summary class="group-header">
+                                    <span class="group-title">
+                                        <i class="pi pi-users"></i>
+                                        Titulaires
+                                    </span>
+                                    <span class="group-count">{{ awayTeamCallup.starters_count || getStarters(awayTeamCallup.players).length }}</span>
+                                </summary>
+                                <div class="players-list">
+                                    <div class="player-card" 
+                                         *ngFor="let player of getStarters(awayTeamCallup.players)"
+                                         (mouseenter)="onPlayerHover(player.id)"
+                                         (mouseleave)="onPlayerHover(null)"
+                                         [class.hovered]="hoveredPlayerId === player.id">
+                                        <div class="player-number">#{{ player.jersey_number }}</div>
+                                        <img *ngIf="player.photo" 
+                                             [src]="player.photo" 
+                                             [alt]="player.first_name + ' ' + player.last_name"
+                                             class="player-photo">
+                                        <div class="player-photo-placeholder" *ngIf="!player.photo">
+                                            <i class="pi pi-user"></i>
+                                        </div>
+                                        <div class="player-info">
+                                            <div class="player-name">{{ player.first_name }} {{ player.last_name }}</div>
+                                            <div class="player-position">{{ player.position || player.preferred_position }}</div>
+                                        </div>
+                                        <i class="pi pi-star-fill captain-icon" *ngIf="player.id === awayTeamCallup.captain_id"></i>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Remplaçants -->
+                            <details class="players-group">
+                                <summary class="group-header">
+                                    <span class="group-title">
+                                        <i class="pi pi-users"></i>
+                                        Remplaçants
+                                    </span>
+                                    <span class="group-count">{{ awayTeamCallup.substitutes_count || getSubstitutes(awayTeamCallup.players).length }}</span>
+                                </summary>
+                                <div class="players-list">
+                                    <div class="player-card" 
+                                         *ngFor="let player of getSubstitutes(awayTeamCallup.players)"
+                                         (mouseenter)="onPlayerHover(player.id)"
+                                         (mouseleave)="onPlayerHover(null)"
+                                         [class.hovered]="hoveredPlayerId === player.id">
+                                        <div class="player-number">#{{ player.jersey_number }}</div>
+                                        <img *ngIf="player.photo" 
+                                             [src]="player.photo" 
+                                             [alt]="player.first_name + ' ' + player.last_name"
+                                             class="player-photo">
+                                        <div class="player-photo-placeholder" *ngIf="!player.photo">
+                                            <i class="pi pi-user"></i>
+                                        </div>
+                                        <div class="player-info">
+                                            <div class="player-name">{{ player.first_name }} {{ player.last_name }}</div>
+                                            <div class="player-position">{{ player.position || player.preferred_position }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+
+                    <!-- VUE TERRAIN -->
+                    <div class="field-view" *ngIf="showFormationView === 'team2'">
+                        <div class="pitch-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 74" class="pitch-svg">
+                                <defs>
+                                    <pattern id="grass-stripes-away" patternUnits="userSpaceOnUse" width="6" height="74">
+                                        <rect width="3" height="74" fill="#00a000"></rect>
+                                        <rect x="3" width="3" height="74" fill="#009000"></rect>
+                                    </pattern>
+                                </defs>
+                                <rect width="111" height="74" fill="url(#grass-stripes-away)"></rect>
+                                <g fill="none" stroke="#fff" stroke-width="0.5" transform="rotate(90, 53, 55.5)">
+                                    <path d="M 0 0 h 68 v 105 h -68 Z"></path>
+                                    <path d="M 0 52.5 h 68"></path>
+                                    <circle r="9.15" cx="34" cy="52.5"></circle>
+                                    <circle r="0.75" cx="34" cy="52.5" fill="#fff" stroke="none"></circle>
+                                    <g id="PenaltyArea2">
+                                        <path d="M 13.84 0 v 16.5 h 40.32 v -16.5"></path>
+                                        <path d="M 24.84 0 v 5.5 h 18.32 v -5.5"></path>
+                                        <circle r="0.75" cx="34" cy="10.94" fill="#fff" stroke="none"></circle>
+                                        <path d="M 26.733027 16.5 a 9.15 9.15 0 0 0 14.533946 0"></path>
+                                    </g>
+                                    <use href="#PenaltyArea2" transform="rotate(180,34,52.5)"></use>
+                                    <path d="M 0 2 a 2 2 0 0 0 2 -2 M 66 0 a 2 2 0 0 0 2 2 M 68 103 a 2 2 0 0 0 -2 2 M 2 105 a 2 2 0 0 0 -2 -2"></path>
+                                </g>
+                            </svg>
+
+                            <!-- Joueurs sur le terrain -->
+                            <div class="player-pin" 
+                                 *ngFor="let player of getStarters(awayTeamCallup.players)"
+                                 [style.left.%]="getPlayerPosition(player, awayTeamCallup.formation || '4-4-2').x"
+                                 [style.top.%]="getPlayerPosition(player, awayTeamCallup.formation || '4-4-2').y"
+                                 [class.hovered]="hoveredPlayerId === player.id"
+                                 (mouseenter)="onPlayerHover(player.id)"
+                                 (mouseleave)="onPlayerHover(null)">
+                                <div class="pin-avatar">
+                                    <img *ngIf="player.photo" [src]="player.photo" [alt]="player.first_name">
+                                    <span *ngIf="!player.photo" class="pin-initials">
+                                        {{ (player.first_name?.charAt(0) || '') + (player.last_name?.charAt(0) || '') }}
+                                    </span>
+                                </div>
+                                <div class="pin-name">{{ player.first_name }} {{ player.last_name }}</div>
+                                <div class="pin-number">#{{ player.jersey_number }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ng-template #noCallups>
+            <div class="no-callups-message">
+                <i class="pi pi-info-circle"></i>
+                <p class="message-title">Les feuilles de match ne sont pas encore disponibles</p>
+                <p class="message-subtitle">Les équipes n'ont pas encore soumis leurs compositions</p>
+            </div>
+        </ng-template>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="dialog-footer">
+            <button pButton type="button" label="Fermer" class="p-button-text" (click)="onClose()"></button>
+            <button pButton type="button" label="Saisir rapport" class="p-button-primary" 
+                    *ngIf="match?.canSubmitReport && !match?.reportSubmitted"
+                    (click)="onSubmitReport()"></button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>
