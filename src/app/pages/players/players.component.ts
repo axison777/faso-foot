@@ -218,7 +218,9 @@ export class PlayersComponent implements OnInit {
     this.loading = true;
     this.playerService.getAll().subscribe({
       next: (res: any) => {
-        this.players = res?.data?.players || [];
+        // console.log(res);
+
+        this.players = res || [];
         this.loading = false;
       },
       error: () => {

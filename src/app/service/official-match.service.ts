@@ -27,43 +27,43 @@ export interface OfficialInfo {
 export interface OfficialMatch {
     id: string;
     number?: number;
-    competition: { 
-        id: string; 
-        name: string; 
-        type: 'LEAGUE' | 'CUP' | 'TOURNAMENT' 
+    competition: {
+        id: string;
+        name: string;
+        type: 'LEAGUE' | 'CUP' | 'TOURNAMENT'
     };
     seasonId?: string;
-    homeTeam: { 
-        id: string; 
-        name: string; 
-        logo?: string 
+    homeTeam: {
+        id: string;
+        name: string;
+        logo?: string
     };
-    awayTeam: { 
-        id: string; 
-        name: string; 
-        logo?: string 
+    awayTeam: {
+        id: string;
+        name: string;
+        logo?: string
     };
-    stadium: { 
-        id: string; 
-        name: string; 
-        address?: string 
+    stadium: {
+        id: string;
+        name: string;
+        address?: string
     };
     scheduledAt: string; // ISO
     status: 'UPCOMING' | 'IN_PROGRESS' | 'COMPLETED' | 'POSTPONED' | 'CANCELLED';
     score?: { home: number; away: number };
     phase?: string;
-    
+
     // Assignation officielle
     officialRole: 'CENTRAL_REFEREE' | 'ASSISTANT_REFEREE_1' | 'ASSISTANT_REFEREE_2' | 'FOURTH_OFFICIAL' | 'COMMISSIONER';
     assignedAt: string;
-    
+
     // Autres officiels du match
     otherOfficials?: Array<{
         id: string;
         name: string;
         role: string;
     }>;
-    
+
     // Rapports
     reports?: MatchReport[];
     incidents?: MatchIncident[];
@@ -73,7 +73,7 @@ export interface OfficialMatch {
         type: string;
         description: string;
     }>;
-    
+
     // Validation
     canSubmitReport: boolean;
     reportSubmitted: boolean;
@@ -143,6 +143,7 @@ export class OfficialMatchService {
         // Endpoint correct : GET /Official/officialMatchs/{officialId}
         return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
             map(res => {
+<<<<<<< HEAD
                 // Extraire les matchs depuis data.official.matches (singulier !)
                 const official = res?.data?.official;
                 let matches = official?.matches || [];
@@ -150,6 +151,10 @@ export class OfficialMatchService {
                 // Le backend renvoie déjà le bon format ! Pas besoin de mapper
                 // Les matchs ont déjà: id, homeTeam, awayTeam, stadium, competition, etc.
                 
+=======
+                let matches = (res?.data?.matches as OfficialMatch[]) || [];
+
+>>>>>>> dafd7dd211baaf00eb6c9168bebd7c7c51d6380a
                 // Appliquer les filtres côté client si nécessaire
                 if (filters?.status) {
                     const now = new Date();
@@ -177,7 +182,7 @@ export class OfficialMatchService {
                 if (filters?.seasonId) {
                     matches = matches.filter((m: any) => m.seasonId === filters.seasonId);
                 }
-                
+
                 return matches;
             }),
             catchError(() => of([]))
@@ -246,6 +251,7 @@ export class OfficialMatchService {
 
     // Récupérer les notifications de l'officiel
     getNotifications(): Observable<any[]> {
+<<<<<<< HEAD
         // Temporairement désactivé - endpoint 404
         // TODO: Vérifier le bon endpoint avec le backend
         return of([]);
@@ -254,6 +260,12 @@ export class OfficialMatchService {
         //     map(res => (res?.data?.notifications) || []),
         //     catchError(() => of([]))
         // );
+=======
+        return this.http.get<any>(`${this.baseUrl}/officials/notifications`).pipe(
+            map(res => (res?.data?.notifications) || []),
+            catchError(() => of([]))
+        );
+>>>>>>> dafd7dd211baaf00eb6c9168bebd7c7c51d6380a
     }
 
     // Marquer une notification comme lue
