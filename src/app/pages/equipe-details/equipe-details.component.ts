@@ -121,6 +121,7 @@ export class EquipeDetailsComponent implements OnInit {
     manager_role: 'Entraîneur-chef',
     player_count: 22,
     staff_members: [
+
     ],
     kits: [
       { id: 'kit-1', name: 'Maillot Domicile', type: 'home',
@@ -342,8 +343,7 @@ activationMailDialog = false;
 
   loadPlayers() {
     this.loadingPlayers = true;
-    if (!this.team_id) return;
-    this.playerService.getByTeamId(this.team_id).subscribe({
+    this.playerService.getByTeamId(this.team_id!).subscribe({
       next: (res: any) => {
         this.players = res?.data?.players || [];
         this.loadingPlayers = false;
@@ -589,7 +589,7 @@ activationMailDialog = false;
   }
 
   // ---------- CONTRACTS ----------
-  openContractsModal(p: Player) {
+  openContractsModal(p: any) {
     this.currentPlayer = p;
     this.showContracts = true;
     this.showContractForm = false;
@@ -983,5 +983,3 @@ removeReason(index: number) {
   }
 
 }
-
-

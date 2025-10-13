@@ -310,7 +310,7 @@ export class AppTopbar {
 
   getUserFullName(): string {
   const user = this.authService.user();
-  console.log(user);
+ // console.log(user);
 
   return user ? `${user.first_name} ${user.last_name}` : '';
 }
