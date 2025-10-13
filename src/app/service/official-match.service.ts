@@ -143,7 +143,6 @@ export class OfficialMatchService {
         // Endpoint correct : GET /Official/officialMatchs/{officialId}
         return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
             map(res => {
-<<<<<<< HEAD
                 // Extraire les matchs depuis data.official.matches (singulier !)
                 const official = res?.data?.official;
                 let matches = official?.matches || [];
@@ -151,10 +150,6 @@ export class OfficialMatchService {
                 // Le backend renvoie déjà le bon format ! Pas besoin de mapper
                 // Les matchs ont déjà: id, homeTeam, awayTeam, stadium, competition, etc.
                 
-=======
-                let matches = (res?.data?.matches as OfficialMatch[]) || [];
-
->>>>>>> dafd7dd211baaf00eb6c9168bebd7c7c51d6380a
                 // Appliquer les filtres côté client si nécessaire
                 if (filters?.status) {
                     const now = new Date();
@@ -251,7 +246,6 @@ export class OfficialMatchService {
 
     // Récupérer les notifications de l'officiel
     getNotifications(): Observable<any[]> {
-<<<<<<< HEAD
         // Temporairement désactivé - endpoint 404
         // TODO: Vérifier le bon endpoint avec le backend
         return of([]);
@@ -260,12 +254,6 @@ export class OfficialMatchService {
         //     map(res => (res?.data?.notifications) || []),
         //     catchError(() => of([]))
         // );
-=======
-        return this.http.get<any>(`${this.baseUrl}/officials/notifications`).pipe(
-            map(res => (res?.data?.notifications) || []),
-            catchError(() => of([]))
-        );
->>>>>>> dafd7dd211baaf00eb6c9168bebd7c7c51d6380a
     }
 
     // Marquer une notification comme lue
