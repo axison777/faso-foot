@@ -36,17 +36,17 @@ export interface OfficialMatch {
     homeTeam: {
         id: string;
         name: string;
-        logo?: string
+        logo?: string;
     };
     awayTeam: {
         id: string;
         name: string;
-        logo?: string
+        logo?: string;
     };
     stadium: {
         id: string;
         name: string;
-        address?: string
+        address?: string;
     };
     scheduledAt: string; // ISO
     status: 'UPCOMING' | 'IN_PROGRESS' | 'COMPLETED' | 'POSTPONED' | 'CANCELLED';
@@ -105,7 +105,7 @@ export class OfficialMatchService {
                 // Extraire les infos de l'officiel depuis data.official (singulier !)
                 const official = res?.data?.official;
                 if (!official) return null;
-                
+
                 return {
                     id: official.id,
                     first_name: official.first_name,
@@ -143,23 +143,15 @@ export class OfficialMatchService {
         // Endpoint correct : GET /Official/officialMatchs/{officialId}
         return this.http.get<any>(`${this.apiUrl}/officialMatchs/${currentUser.official_id}`).pipe(
             map(res => {
-<<<<<<< HEAD
                 // Extraire les matchs depuis data.official.matches (singulier !)
                 const official = res?.data?.official;
                 let matches = official?.matches || [];
-                
-                // Le backend renvoie déjà le bon format ! Pas besoin de mapper
-                // Les matchs ont déjà: id, homeTeam, awayTeam, stadium, competition, etc.
-                
-=======
-                let matches = (res?.data?.matches as OfficialMatch[]) || [];
 
->>>>>>> dafd7dd211baaf00eb6c9168bebd7c7c51d6380a
                 // Appliquer les filtres côté client si nécessaire
                 if (filters?.status) {
                     const now = new Date();
                     if (filters.status === 'UPCOMING') {
-                        // Matchs à venir = non clôturés ET date future/présent
+                        // Matchs à venir = non clôturés ET date future/présente
                         matches = matches.filter((m: any) => {
                             const matchDate = new Date(m.scheduledAt);
                             return !m.matchClosed && matchDate >= now;
@@ -193,7 +185,7 @@ export class OfficialMatchService {
     getMatchDetails(matchId: string): Observable<OfficialMatch | null> {
         console.log('[OfficialMatchService] Récupération détails match:', matchId);
         console.log('[OfficialMatchService] URL:', `${this.apiUrl}/matchOfficials/${matchId}`);
-        
+
         return this.http.get<any>(`${this.apiUrl}/matchOfficials/${matchId}`).pipe(
             map(res => {
                 console.log('[OfficialMatchService] Réponse API match details:', res);
@@ -251,21 +243,14 @@ export class OfficialMatchService {
 
     // Récupérer les notifications de l'officiel
     getNotifications(): Observable<any[]> {
-<<<<<<< HEAD
         // Temporairement désactivé - endpoint 404
         // TODO: Vérifier le bon endpoint avec le backend
         return of([]);
-        
+
         // return this.http.get<any>(`${this.baseUrl}/officials/notifications`).pipe(
         //     map(res => (res?.data?.notifications) || []),
         //     catchError(() => of([]))
         // );
-=======
-        return this.http.get<any>(`${this.baseUrl}/officials/notifications`).pipe(
-            map(res => (res?.data?.notifications) || []),
-            catchError(() => of([]))
-        );
->>>>>>> dafd7dd211baaf00eb6c9168bebd7c7c51d6380a
     }
 
     // Marquer une notification comme lue
