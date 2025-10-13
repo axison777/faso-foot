@@ -12,6 +12,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { OfficialMatch } from '../../service/official-match.service';
+import { MatchCallupService, CallupPlayer, MatchCallups } from '../../service/match-callup.service';
 
 interface Sanction {
     id: string;
@@ -150,9 +151,12 @@ interface EvaluationOfficiel {
                                     <div class="goal-scorer">
                                         <h5>Buteur</h5>
                                         <div class="player-fields">
-                                            <input type="text" [(ngModel)]="buteur.maillot" placeholder="Maillot" class="field-small">
-                                            <input type="text" [(ngModel)]="buteur.licence" placeholder="N° Licence" class="field-medium">
-                                            <input type="text" [(ngModel)]="buteur.joueur" placeholder="Nom du joueur" class="field-large">
+                                            <input type="text" [(ngModel)]="buteur.maillot" 
+                                                   (ngModelChange)="onJerseyNumberChange('buteur', i)" 
+                                                   placeholder="Maillot" class="field-small"
+                                                   [class.invalid-jersey]="buteur.maillot && !isValidJerseyNumber(buteur.maillot, buteur.equipe)">
+                                            <input type="text" [(ngModel)]="buteur.licence" placeholder="N° Licence" class="field-medium" readonly>
+                                            <input type="text" [(ngModel)]="buteur.joueur" placeholder="Nom du joueur" class="field-large" readonly>
                                             <input type="number" [(ngModel)]="buteur.minute" placeholder="Min" min="0" max="120" class="field-small">
                                         </div>
                                     </div>
@@ -160,9 +164,12 @@ interface EvaluationOfficiel {
                                     <div class="goal-assist">
                                         <h5>Passeur Décisif (optionnel)</h5>
                                         <div class="player-fields">
-                                            <input type="text" [(ngModel)]="buteur.passeur.maillot" placeholder="Maillot" class="field-small">
-                                            <input type="text" [(ngModel)]="buteur.passeur.licence" placeholder="N° Licence" class="field-medium">
-                                            <input type="text" [(ngModel)]="buteur.passeur.joueur" placeholder="Nom du joueur" class="field-large">
+                                            <input type="text" [(ngModel)]="buteur.passeur.maillot" 
+                                                   (ngModelChange)="onJerseyNumberChange('passeur', i)" 
+                                                   placeholder="Maillot" class="field-small"
+                                                   [class.invalid-jersey]="buteur.passeur.maillot && !isValidJerseyNumber(buteur.passeur.maillot, buteur.equipe)">
+                                            <input type="text" [(ngModel)]="buteur.passeur.licence" placeholder="N° Licence" class="field-medium" readonly>
+                                            <input type="text" [(ngModel)]="buteur.passeur.joueur" placeholder="Nom du joueur" class="field-large" readonly>
                                             <button type="button" class="clear-assist-btn" (click)="clearAssist(i)" *ngIf="buteur.passeur.joueur">
                                                 <i class="pi pi-times"></i>
                                             </button>
@@ -196,13 +203,16 @@ interface EvaluationOfficiel {
                                 <div>Actions</div>
                             </div>
                             <div class="table-row" *ngFor="let sanction of reportData.avertissements; let i = index">
-                                <input type="text" [(ngModel)]="sanction.maillot" placeholder="N°">
-                                <select [(ngModel)]="sanction.equipe">
+                                <input type="text" [(ngModel)]="sanction.maillot" 
+                                       (ngModelChange)="onJerseyNumberChange('avertissement', i)" 
+                                       placeholder="N°"
+                                       [class.invalid-jersey]="sanction.maillot && !isValidJerseyNumber(sanction.maillot, sanction.equipe)">
+                                <select [(ngModel)]="sanction.equipe" (ngModelChange)="onTeamChange('avertissement', i)">
                                     <option value="home">{{ match?.homeTeam?.name }}</option>
                                     <option value="away">{{ match?.awayTeam?.name }}</option>
                                 </select>
-                                <input type="text" [(ngModel)]="sanction.licence" placeholder="Licence">
-                                <input type="text" [(ngModel)]="sanction.joueur" placeholder="Nom">
+                                <input type="text" [(ngModel)]="sanction.licence" placeholder="Licence" readonly>
+                                <input type="text" [(ngModel)]="sanction.joueur" placeholder="Nom" readonly>
                                 <input type="number" [(ngModel)]="sanction.minute" placeholder="Min" min="0" max="120">
                                 <input type="text" [(ngModel)]="sanction.raisons" placeholder="Raisons">
                                 <button type="button" class="remove-btn" (click)="removeAvertissement(i)">
@@ -229,13 +239,16 @@ interface EvaluationOfficiel {
                                 <div>Actions</div>
                             </div>
                             <div class="table-row" *ngFor="let sanction of reportData.expulsions; let i = index">
-                                <input type="text" [(ngModel)]="sanction.maillot" placeholder="N°">
-                                <select [(ngModel)]="sanction.equipe">
+                                <input type="text" [(ngModel)]="sanction.maillot" 
+                                       (ngModelChange)="onJerseyNumberChange('expulsion', i)" 
+                                       placeholder="N°"
+                                       [class.invalid-jersey]="sanction.maillot && !isValidJerseyNumber(sanction.maillot, sanction.equipe)">
+                                <select [(ngModel)]="sanction.equipe" (ngModelChange)="onTeamChange('expulsion', i)">
                                     <option value="home">{{ match?.homeTeam?.name }}</option>
                                     <option value="away">{{ match?.awayTeam?.name }}</option>
                                 </select>
-                                <input type="text" [(ngModel)]="sanction.licence" placeholder="Licence">
-                                <input type="text" [(ngModel)]="sanction.joueur" placeholder="Nom">
+                                <input type="text" [(ngModel)]="sanction.licence" placeholder="Licence" readonly>
+                                <input type="text" [(ngModel)]="sanction.joueur" placeholder="Nom" readonly>
                                 <input type="number" [(ngModel)]="sanction.minute" placeholder="Min" min="0" max="120">
                                 <input type="text" [(ngModel)]="sanction.raisons" placeholder="Raisons">
                                 <button type="button" class="remove-btn" (click)="removeExpulsion(i)">
@@ -961,6 +974,33 @@ interface EvaluationOfficiel {
         .note-insufficient { background: #fed7aa; color: #c2410c; }
         .note-bad { background: #fecaca; color: #dc2626; }
 
+        /* Styles pour l'auto-complétion */
+        .invalid-jersey {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2;
+        }
+
+        .field-small[readonly], .field-medium[readonly], .field-large[readonly] {
+            background-color: #f9fafb;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .table-row input[readonly], .table-row select[readonly] {
+            background-color: #f9fafb;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        /* Indicateur visuel pour les champs auto-complétés */
+        .field-small[readonly]:not(:placeholder-shown), 
+        .field-medium[readonly]:not(:placeholder-shown), 
+        .field-large[readonly]:not(:placeholder-shown),
+        .table-row input[readonly]:not(:placeholder-shown) {
+            background-color: #f0f9ff;
+            border-color: #0ea5e9;
+        }
+
         .dialog-footer {
             display: flex;
             gap: 1rem;
@@ -1028,7 +1068,15 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         evaluationsOfficiels: []
     };
 
-    constructor(private messageService: MessageService) {}
+    // Données des joueurs pour l'auto-complétion
+    matchCallups: MatchCallups | null = null;
+    homeTeamPlayers: CallupPlayer[] = [];
+    awayTeamPlayers: CallupPlayer[] = [];
+
+    constructor(
+        private messageService: MessageService,
+        private matchCallupService: MatchCallupService
+    ) {}
 
     ngOnInit() {
         this.initializeSteps();
@@ -1056,6 +1104,9 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
             this.isCommissioner = this.match.officialRole === 'COMMISSIONER';
             this.initializeSteps();
             
+            // Charger les données des joueurs pour l'auto-complétion
+            this.loadMatchPlayers();
+            
             if (this.isCommissioner && this.match.otherOfficials) {
                 this.reportData.evaluationsOfficiels = this.match.otherOfficials.map(official => ({
                     officielId: official.id,
@@ -1065,6 +1116,35 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
                     total: 0
                 }));
             }
+        }
+    }
+
+    /**
+     * Charger les données des joueurs du match pour l'auto-complétion
+     */
+    loadMatchPlayers() {
+        if (this.match?.id) {
+            this.matchCallupService.getMatchCallups(this.match.id).subscribe({
+                next: (callups) => {
+                    this.matchCallups = callups;
+                    if (callups) {
+                        this.homeTeamPlayers = callups.team_one_callup?.players || [];
+                        this.awayTeamPlayers = callups.team_two_callup?.players || [];
+                        console.log('Joueurs chargés:', {
+                            home: this.homeTeamPlayers.length,
+                            away: this.awayTeamPlayers.length
+                        });
+                    }
+                },
+                error: (error) => {
+                    console.error('Erreur lors du chargement des joueurs:', error);
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Attention',
+                        detail: 'Impossible de charger les données des joueurs pour l\'auto-complétion'
+                    });
+                }
+            });
         }
     }
 
@@ -1335,5 +1415,93 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         this.visibleChange.emit(false);
         this.currentStep = 1;
         this.initializeReportData();
+    }
+
+    /**
+     * Auto-complétion des données du joueur basée sur le numéro de maillot
+     */
+    onJerseyNumberChange(type: 'buteur' | 'passeur' | 'avertissement' | 'expulsion', index: number, subIndex?: number) {
+        let item: any;
+        let team: 'home' | 'away';
+        let jerseyNumber: string;
+
+        // Récupérer l'élément et le numéro de maillot selon le type
+        if (type === 'buteur') {
+            item = this.reportData.buteurs[index];
+            team = item.equipe;
+            jerseyNumber = item.maillot;
+        } else if (type === 'passeur' && subIndex !== undefined) {
+            item = this.reportData.buteurs[index].passeur;
+            team = item.equipe || this.reportData.buteurs[index].equipe;
+            jerseyNumber = item.maillot;
+        } else if (type === 'avertissement') {
+            item = this.reportData.avertissements[index];
+            team = item.equipe;
+            jerseyNumber = item.maillot;
+        } else if (type === 'expulsion') {
+            item = this.reportData.expulsions[index];
+            team = item.equipe;
+            jerseyNumber = item.maillot;
+        } else {
+            return;
+        }
+
+        // Si le numéro de maillot est vide, vider les autres champs
+        if (!jerseyNumber || jerseyNumber.trim() === '') {
+            item.licence = '';
+            item.joueur = '';
+            return;
+        }
+
+        // Trouver le joueur correspondant
+        const players = team === 'home' ? this.homeTeamPlayers : this.awayTeamPlayers;
+        const player = players.find(p => 
+            p.jersey_number?.toString() === jerseyNumber.toString()
+        );
+
+        if (player) {
+            // Auto-compléter les champs
+            item.licence = player.player_id || '';
+            item.joueur = `${player.first_name || ''} ${player.last_name || ''}`.trim();
+            
+            console.log(`Auto-complétion pour ${type}:`, {
+                jerseyNumber,
+                player: item.joueur,
+                licence: item.licence
+            });
+        } else {
+            // Joueur non trouvé, vider les champs mais garder le numéro de maillot
+            item.licence = '';
+            item.joueur = '';
+            
+            // Afficher un message d'avertissement si le numéro n'est pas trouvé
+            if (jerseyNumber.trim() !== '') {
+                console.warn(`Joueur avec le maillot ${jerseyNumber} non trouvé dans l'équipe ${team}`);
+            }
+        }
+    }
+
+    /**
+     * Auto-complétion lors du changement d'équipe
+     */
+    onTeamChange(type: 'buteur' | 'passeur' | 'avertissement' | 'expulsion', index: number, subIndex?: number) {
+        // Réappliquer l'auto-complétion avec la nouvelle équipe
+        this.onJerseyNumberChange(type, index, subIndex);
+    }
+
+    /**
+     * Obtenir la liste des joueurs pour une équipe donnée (pour affichage/debug)
+     */
+    getPlayersForTeam(team: 'home' | 'away'): CallupPlayer[] {
+        return team === 'home' ? this.homeTeamPlayers : this.awayTeamPlayers;
+    }
+
+    /**
+     * Vérifier si un numéro de maillot existe dans une équipe
+     */
+    isValidJerseyNumber(jerseyNumber: string, team: 'home' | 'away'): boolean {
+        if (!jerseyNumber) return false;
+        const players = this.getPlayersForTeam(team);
+        return players.some(p => p.jersey_number?.toString() === jerseyNumber.toString());
     }
 }
