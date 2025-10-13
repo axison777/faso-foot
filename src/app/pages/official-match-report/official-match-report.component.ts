@@ -4,6 +4,7 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { OfficialMatchService, OfficialMatch } from '../../service/official-match.service';
 import { MatchReport, MatchEvent, CardEvent, RefereeEvaluation } from '../../models/match-report.model';
+import { MatchCallupService, CallupPlayer, MatchCallups } from '../../service/match-callup.service';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -144,11 +145,12 @@ import { Observable } from 'rxjs';
                                             </div>
                                             <div class="col-12 md:col-3">
                                                 <label>Joueur</label>
-                                                <input type="text" formControlName="playerName" class="p-inputtext" placeholder="Nom du joueur">
+                                                <input type="text" formControlName="playerName" class="p-inputtext" placeholder="Nom du joueur" readonly>
                                             </div>
                                             <div class="col-12 md:col-2">
                                                 <label>N°</label>
-                                                <input type="number" formControlName="playerNumber" class="p-inputtext" min="1" max="99">
+                                                <input type="number" formControlName="playerNumber" 
+                                                       class="p-inputtext" min="1" max="99">
                                             </div>
                                             <div class="col-12 md:col-1">
                                                 <label>&nbsp;</label>
@@ -194,11 +196,12 @@ import { Observable } from 'rxjs';
                                             </div>
                                             <div class="col-12 md:col-3">
                                                 <label>Joueur</label>
-                                                <input type="text" formControlName="playerName" class="p-inputtext" placeholder="Nom du joueur">
+                                                <input type="text" formControlName="playerName" class="p-inputtext" placeholder="Nom du joueur" readonly>
                                             </div>
                                             <div class="col-12 md:col-2">
                                                 <label>N°</label>
-                                                <input type="number" formControlName="playerNumber" class="p-inputtext" min="1" max="99">
+                                                <input type="number" formControlName="playerNumber" 
+                                                       class="p-inputtext" min="1" max="99">
                                             </div>
                                             <div class="col-12 md:col-1">
                                                 <label>&nbsp;</label>
@@ -416,6 +419,24 @@ import { Observable } from 'rxjs';
             margin-bottom: 0.5rem;
             display: block;
         }
+
+        /* Styles pour l'auto-complétion */
+        .invalid-jersey {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2;
+        }
+
+        input[readonly] {
+            background-color: #f9fafb;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        /* Indicateur visuel pour les champs auto-complétés */
+        input[readonly]:not(:placeholder-shown) {
+            background-color: #f0f9ff;
+            border-color: #0ea5e9;
+        }
     `]
 })
 export class OfficialMatchReportComponent implements OnInit {
@@ -423,11 +444,17 @@ export class OfficialMatchReportComponent implements OnInit {
     reportForm: FormGroup;
     matchId: string = '';
     evaluationData: any[] = [];
+    
+    // Données des joueurs pour l'auto-complétion
+    matchCallups: MatchCallups | null = null;
+    homeTeamPlayers: CallupPlayer[] = [];
+    awayTeamPlayers: CallupPlayer[] = [];
 
     constructor(
         private officialMatchService: OfficialMatchService,
         private route: ActivatedRoute,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private matchCallupService: MatchCallupService
     ) {
         this.reportForm = this.createForm();
     }
@@ -438,8 +465,12 @@ export class OfficialMatchReportComponent implements OnInit {
         
         // Initialiser l'évaluation des arbitres quand le match est chargé
         this.match$.subscribe(match => {
-            if (match && match.otherOfficials && match.officialRole === 'COMMISSIONER') {
-                this.initializeEvaluationData(match.otherOfficials);
+            if (match) {
+                if (match.otherOfficials && match.officialRole === 'COMMISSIONER') {
+                    this.initializeEvaluationData(match.otherOfficials);
+                }
+                // Charger les données des joueurs
+                this.loadMatchPlayers(match.id);
             }
         });
     }
@@ -494,6 +525,10 @@ export class OfficialMatchReportComponent implements OnInit {
             playerNumber: [null],
             description: ['']
         });
+        
+        // Ajouter les listeners pour l'auto-complétion
+        this.setupAutoCompleteListeners(eventGroup);
+        
         this.eventsArray.push(eventGroup);
     }
 
@@ -510,6 +545,10 @@ export class OfficialMatchReportComponent implements OnInit {
             playerNumber: [null, Validators.required],
             reason: ['']
         });
+        
+        // Ajouter les listeners pour l'auto-complétion
+        this.setupAutoCompleteListeners(cardGroup);
+        
         this.cardsArray.push(cardGroup);
     }
 
@@ -553,5 +592,91 @@ export class OfficialMatchReportComponent implements OnInit {
 
     goBack() {
         window.history.back();
+    }
+
+    /**
+     * Charger les données des joueurs du match pour l'auto-complétion
+     */
+    loadMatchPlayers(matchId: string) {
+        this.matchCallupService.getMatchCallups(matchId).subscribe({
+            next: (callups) => {
+                this.matchCallups = callups;
+                if (callups) {
+                    this.homeTeamPlayers = callups.team_one_callup?.players || [];
+                    this.awayTeamPlayers = callups.team_two_callup?.players || [];
+                    console.log('Joueurs chargés:', {
+                        home: this.homeTeamPlayers.length,
+                        away: this.awayTeamPlayers.length
+                    });
+                }
+            },
+            error: (error) => {
+                console.error('Erreur lors du chargement des joueurs:', error);
+            }
+        });
+    }
+
+    /**
+     * Configurer les listeners pour l'auto-complétion sur un FormGroup
+     */
+    setupAutoCompleteListeners(formGroup: FormGroup) {
+        // Listener pour le changement de numéro de maillot
+        formGroup.get('playerNumber')?.valueChanges.subscribe(() => {
+            this.performAutoComplete(formGroup);
+        });
+        
+        // Listener pour le changement d'équipe
+        formGroup.get('team')?.valueChanges.subscribe(() => {
+            this.performAutoComplete(formGroup);
+        });
+    }
+
+    /**
+     * Effectuer l'auto-complétion des données du joueur
+     */
+    performAutoComplete(formGroup: FormGroup) {
+        const jerseyNumber = formGroup.get('playerNumber')?.value;
+        const team = formGroup.get('team')?.value;
+        
+        if (!jerseyNumber || !team) {
+            formGroup.patchValue({
+                playerName: ''
+            }, { emitEvent: false });
+            return;
+        }
+
+        // Trouver le joueur correspondant
+        const players = team === 'HOME' ? this.homeTeamPlayers : this.awayTeamPlayers;
+        const player = players.find(p => 
+            p.jersey_number?.toString() === jerseyNumber.toString()
+        );
+
+        if (player) {
+            // Auto-compléter le nom
+            const playerName = `${player.first_name || ''} ${player.last_name || ''}`.trim();
+            formGroup.patchValue({
+                playerName: playerName
+            }, { emitEvent: false });
+            
+            console.log('Auto-complétion:', {
+                jerseyNumber,
+                playerName,
+                team
+            });
+        } else {
+            // Joueur non trouvé, vider le nom
+            formGroup.patchValue({
+                playerName: ''
+            }, { emitEvent: false });
+        }
+    }
+
+    /**
+     * Vérifier si un numéro de maillot existe dans une équipe
+     */
+    isValidJerseyNumber(jerseyNumber: number, team: 'HOME' | 'AWAY'): boolean {
+        if (!jerseyNumber) return false;
+        const players = team === 'HOME' ? this.homeTeamPlayers : this.awayTeamPlayers;
+        return players.some(p => p.jersey_number?.toString() === jerseyNumber.toString());
     }
 }
