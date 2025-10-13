@@ -36,17 +36,17 @@ export interface OfficialMatch {
     homeTeam: {
         id: string;
         name: string;
-        logo?: string;
+        logo?: string
     };
     awayTeam: {
         id: string;
         name: string;
-        logo?: string;
+        logo?: string
     };
     stadium: {
         id: string;
         name: string;
-        address?: string;
+        address?: string
     };
     scheduledAt: string; // ISO
     status: 'UPCOMING' | 'IN_PROGRESS' | 'COMPLETED' | 'POSTPONED' | 'CANCELLED';
@@ -147,11 +147,14 @@ export class OfficialMatchService {
                 const official = res?.data?.official;
                 let matches = official?.matches || [];
 
+                // Le backend renvoie déjà le bon format ! Pas besoin de mapper
+                // Les matchs ont déjà: id, homeTeam, awayTeam, stadium, competition, etc.
+
                 // Appliquer les filtres côté client si nécessaire
                 if (filters?.status) {
                     const now = new Date();
                     if (filters.status === 'UPCOMING') {
-                        // Matchs à venir = non clôturés ET date future/présente
+                        // Matchs à venir = non clôturés ET date future/présent
                         matches = matches.filter((m: any) => {
                             const matchDate = new Date(m.scheduledAt);
                             return !m.matchClosed && matchDate >= now;
