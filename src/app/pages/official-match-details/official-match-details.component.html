@@ -207,9 +207,9 @@
 
                             <!-- Joueurs sur le terrain -->
                             <div class="player-pin" 
-                                 *ngFor="let player of getStarters(callups.team_one_callup.players)"
-                                 [style.left.%]="getPlayerPosition(player, callups.team_one_callup.formation || '4-4-2').x"
-                                 [style.top.%]="getPlayerPosition(player, callups.team_one_callup.formation || '4-4-2').y"
+                                 *ngFor="let player of getStarters(callups.team_one_callup.players); let i = index"
+                                 [style.left.%]="getPlayerPositionByIndex(i, callups.team_one_callup.formation || '4-4-2').x"
+                                 [style.top.%]="getPlayerPositionByIndex(i, callups.team_one_callup.formation || '4-4-2').y"
                                  [class.hovered]="hoveredPlayerId === player.id"
                                  (mouseenter)="onPlayerHover(player.id)"
                                  (mouseleave)="onPlayerHover(null)">
@@ -406,9 +406,9 @@
 
                             <!-- Joueurs sur le terrain -->
                             <div class="player-pin" 
-                                 *ngFor="let player of getStarters(callups.team_two_callup.players)"
-                                 [style.left.%]="getPlayerPosition(player, callups.team_two_callup.formation || '4-4-2').x"
-                                 [style.top.%]="getPlayerPosition(player, callups.team_two_callup.formation || '4-4-2').y"
+                                 *ngFor="let player of getStarters(callups.team_two_callup.players); let i = index"
+                                 [style.left.%]="getPlayerPositionByIndex(i, callups.team_two_callup.formation || '4-4-2').x"
+                                 [style.top.%]="getPlayerPositionByIndex(i, callups.team_two_callup.formation || '4-4-2').y"
                                  [class.hovered]="hoveredPlayerId === player.id"
                                  (mouseenter)="onPlayerHover(player.id)"
                                  (mouseleave)="onPlayerHover(null)">

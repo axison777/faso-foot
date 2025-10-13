@@ -107,12 +107,30 @@ export class OfficialMatchDetailsComponent implements OnInit {
 
     getStarters(players: any[]): any[] {
         if (!players) return [];
-        return players.filter(p => p.is_starter === true || p.is_starter === 'true' || p.is_starter === '1' || p.is_starter === 1);
+        const starters = players.filter(p => {
+            // Gérer tous les formats possibles pour is_starter
+            return p.is_starter === true || 
+                   p.is_starter === 'true' || 
+                   p.is_starter === '1' || 
+                   p.is_starter === 1;
+        });
+        console.log(`[getStarters] ${starters.length} titulaires trouvés sur ${players.length} joueurs`);
+        if (starters.length > 0) {
+            console.log('[getStarters] Premier titulaire:', starters[0]);
+        }
+        return starters;
     }
 
     getSubstitutes(players: any[]): any[] {
         if (!players) return [];
-        return players.filter(p => p.is_starter === false || p.is_starter === 'false' || p.is_starter === '0' || p.is_starter === 0);
+        const subs = players.filter(p => {
+            return p.is_starter === false || 
+                   p.is_starter === 'false' || 
+                   p.is_starter === '0' || 
+                   p.is_starter === 0;
+        });
+        console.log(`[getSubstitutes] ${subs.length} remplaçants trouvés sur ${players.length} joueurs`);
+        return subs;
     }
 
     toggleFormationView(team: 'team1' | 'team2') {
@@ -123,7 +141,7 @@ export class OfficialMatchDetailsComponent implements OnInit {
         this.hoveredPlayerId = playerId;
     }
 
-    getPlayerPosition(player: CallupPlayer, formation: string): { x: number, y: number } {
+    getPlayerPositionByIndex(index: number, formation: string): { x: number, y: number } {
         const formations: Record<string, any> = {
             '4-4-2': [
                 { role: 'GK', x: 4, y: 50 },
@@ -181,17 +199,16 @@ export class OfficialMatchDetailsComponent implements OnInit {
 
         const formationPositions = formations[formation] || formations['4-4-2'];
         
-        const positionMap: Record<string, string> = {
-            'GOALKEEPER': 'GK',
-            'DEFENSE': player.position?.includes('L') ? 'LB' : player.position?.includes('R') ? 'RB' : 'CB',
-            'MIDFIELD': player.position?.includes('L') ? 'LM' : player.position?.includes('R') ? 'RM' : 'CM',
-            'ATTACK': player.position?.includes('L') ? 'LW' : player.position?.includes('R') ? 'RW' : 'ST'
-        };
-
-        const role = positionMap[player.position || 'MIDFIELD'];
-        const pos = formationPositions.find((p: any) => p.role === role) || formationPositions[0];
+        // Retourner la position selon l'index du joueur
+        // Limite à 11 positions maximum
+        if (index < formationPositions.length) {
+            console.log(`[getPlayerPosition] Joueur index ${index} -> position:`, formationPositions[index]);
+            return { x: formationPositions[index].x, y: formationPositions[index].y };
+        }
         
-        return { x: pos.x, y: pos.y };
+        // Si plus de 11 joueurs, on les met au centre
+        console.warn(`[getPlayerPosition] Index ${index} hors limites (max ${formationPositions.length})`);
+        return { x: 50, y: 50 };
     }
 
     submitReport(matchId: string) {

@@ -7,10 +7,10 @@ import { environment } from '../../environments/environment';
 export interface CallupPlayer {
   id: string;
   player_id: string;
-  jersey_number: string;
+  jersey_number: string | number;
   position: string;
-  is_starter: boolean | string;
-  substitute_order: string | null;
+  is_starter: boolean | string | number;
+  substitute_order: string | number | null;
   first_name: string;
   last_name: string;
   photo: string | null;
@@ -18,6 +18,9 @@ export interface CallupPlayer {
   date_of_birth: string;
   nationality: string;
   role: string;
+  callup_id?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface TeamCallup {
@@ -88,6 +91,14 @@ export class MatchCallupService {
             team_two: callups.team_two_callup?.team_name,
             team_two_players: callups.team_two_callup?.players?.length || 0
           });
+          
+          // Log détaillé des premiers joueurs pour vérifier la structure
+          if (callups.team_one_callup?.players?.length > 0) {
+            console.log('[MatchCallupService] Premier joueur team_one:', callups.team_one_callup.players[0]);
+          }
+          if (callups.team_two_callup?.players?.length > 0) {
+            console.log('[MatchCallupService] Premier joueur team_two:', callups.team_two_callup.players[0]);
+          }
         } else {
           console.warn('[MatchCallupService] Aucun callup trouvé dans la réponse');
         }
