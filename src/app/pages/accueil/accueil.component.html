@@ -1,87 +1,215 @@
-<div class="p-4">
-  <h2>Tableau de Bord des Compétitions</h2>
+<div class="p-6 space-y-6">
+  <h2 class="text-2xl font-bold text-green-700">
+    Tableau de Bord des Compétitions
+  </h2>
 
-  <!-- 🔹 Sélection Ligue -->
-  <p-dropdown
-    [options]="ligues"
-    optionLabel="nom"
-    [(ngModel)]="selectedLigue"
-    placeholder="Sélectionner une ligue"
-    (onChange)="onLigueChange()">
-  </p-dropdown>
+<div class="flex flex-wrap gap-4 mt-4">
+    <p-dropdown
+      [options]="ligues"
+      optionLabel="nom"
+      [(ngModel)]="selectedLigue"
+      placeholder="Sélectionner une ligue"
+      (onChange)="onLigueChange()"
+      class="w-64">
+    </p-dropdown>
 
-  <!-- 🔹 Sélection Saison -->
-  <p-dropdown
-    *ngIf="selectedLigue?.saisons?.length"
-    [options]="selectedLigue?.saisons"
-    optionLabel="nom"
-    [(ngModel)]="selectedSaison"
-    placeholder="Sélectionner une saison"
-    (onChange)="onSaisonChange()">
-  </p-dropdown>
+    <p-dropdown
+      *ngIf="selectedLigue?.saisons?.length"
+      [options]="selectedLigue?.saisons"
+      optionLabel="nom"
+      [(ngModel)]="selectedSaison"
+      placeholder="Sélectionner une saison"
+      (onChange)="onSaisonChange()"
+      class="w-64">
+    </p-dropdown>
 
-  <!-- 🔹 Sélection Poule -->
-  <p-dropdown
-    *ngIf="selectedSaison?.poules?.length"
-    [options]="selectedSaison?.poules"
-    optionLabel="nom"
-    [(ngModel)]="selectedPoule"
-    placeholder="Sélectionner une poule"
-    (onChange)="onPouleChange()">
-  </p-dropdown>
+    <p-dropdown
+      *ngIf="selectedSaison?.poules?.length"
+      [options]="selectedSaison?.poules"
+      optionLabel="nom"
+      [(ngModel)]="selectedPoule"
+      placeholder="Sélectionner une poule"
+      (onChange)="onPouleChange()"
+      class="w-64">
+    </p-dropdown>
+  </div>
+
+  <!-- 🔹 Bandeau Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="p-4 bg-green-100 border-l-4 border-green-600 rounded-lg shadow">
+      <p class="text-sm text-gray-600">Matchs Joués</p>
+      <h3 class="text-2xl font-bold text-green-800">{{ totalMatchsJoues }}</h3>
+    </div>
+    <div class="p-4 bg-yellow-100 border-l-4 border-yellow-600 rounded-lg shadow">
+      <p class="text-sm text-gray-600">Matchs Reportés</p>
+      <h3 class="text-2xl font-bold text-yellow-800">{{ totalMatchsReportes }}</h3>
+    </div>
+    <div class="p-4 bg-red-100 border-l-4 border-red-600 rounded-lg shadow">
+      <p class="text-sm text-gray-600">Matchs Annulés</p>
+      <h3 class="text-2xl font-bold text-red-800">{{ totalMatchsAnnuels }}</h3>
+    </div>
+    <div class="p-4 bg-blue-100 border-l-4 border-blue-600 rounded-lg shadow">
+      <p class="text-sm text-gray-600">Total Matchs</p>
+      <h3 class="text-2xl font-bold text-blue-800">{{ totalMatchs }}</h3>
+    </div>
+  </div>
+
+  <!-- 🔹 Sélecteurs -->
+ <!--  <div class="flex flex-wrap gap-4">
+    <p-dropdown
+      [options]="ligues"
+      optionLabel="nom"
+      [(ngModel)]="selectedLigue"
+      placeholder="Sélectionner une ligue"
+      (onChange)="onLigueChange()"
+      class="w-64">
+    </p-dropdown>
+
+    <p-dropdown
+      *ngIf="selectedLigue?.saisons?.length"
+      [options]="selectedLigue?.saisons"
+      optionLabel="nom"
+      [(ngModel)]="selectedSaison"
+      placeholder="Sélectionner une saison"
+      (onChange)="onSaisonChange()"
+      class="w-64">
+    </p-dropdown>
+
+    <p-dropdown
+      *ngIf="selectedSaison?.poules?.length"
+      [options]="selectedSaison?.poules"
+      optionLabel="nom"
+      [(ngModel)]="selectedPoule"
+      placeholder="Sélectionner une poule"
+      (onChange)="onPouleChange()"
+      class="w-64">
+    </p-dropdown>
+  </div> -->
 
   <!-- 🔹 Graphiques -->
-  <div class="grid grid-cols-2 gap-4 mt-4">
-    <div>
-      <h3>Statistiques Matchs</h3>
-      <canvas baseChart
-        [data]="pieChartData"
-        [options]="pieChartOptions"
-        type="pie">
-      </canvas>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="p-4 border rounded-lg shadow">
+      <h3 class="font-semibold mb-2">Répartition des matchs</h3>
+      <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="pie"></canvas>
     </div>
 
-    <div>
-      <h3>Classement</h3>
-      <canvas baseChart
-        [data]="barChartData"
-        [options]="barChartOptions"
-        type="bar">
-      </canvas>
+    <div class="p-4 border rounded-lg shadow">
+      <h3 class="font-semibold mb-2">Classement</h3>
+      <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar"></canvas>
+    </div>
+
+    <div class="p-4 border rounded-lg shadow">
+      <h3 class="font-semibold mb-2">Évolution des Points</h3>
+      <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
     </div>
   </div>
 
-  <!-- 🔹 Tableau Classement -->
-<div *ngIf="classementEquipes?.length" class="mt-6">
-  <h3 class="text-lg font-semibold mb-3">Classement des équipes</h3>
+  
+  <div *ngIf="ranking?.length" class="mt-6">
+    <h3 class="text-xl font-semibold mb-3 text-green-700">Classement des équipes</h3>
 
-  <div class="overflow-x-auto shadow-md rounded-lg">
-    <table class="min-w-full border border-gray-200 rounded-lg">
-      <thead class="bg-green-600 text-white">
+    <p-table [value]="ranking" styleClass="p-datatable-sm p-datatable-gridlines w-full">
+      <ng-template pTemplate="header">
         <tr>
-          <th class="px-4 py-2 text-left">#</th>
-          <th class="px-4 py-2 text-left">Équipe</th>
-          <th class="px-4 py-2 text-center">Points</th>
-          <th class="px-4 py-2 text-center">Victoires</th>
-          <th class="px-4 py-2 text-center">Différence Buts</th>
+          <th>#</th>
+          <th>Club</th>
+          <th>MJ</th>
+          <th>G</th>
+          <th>N</th>
+          <th>P</th>
+          <th>BP</th>
+          <th>BC</th>
+          <th>DB</th>
+          <th>Pts</th>
+          <th>5 derniers</th>
         </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let equipe of classementEquipes; let i = index"
-            [ngClass]="{
-              'bg-yellow-100 font-bold': i === 0, 
-              'bg-gray-50': i % 2 !== 0
-            }"
-            class="hover:bg-green-50 transition">
-          <td class="px-4 py-2">{{ i + 1 }}</td>
-          <td class="px-4 py-2">{{ equipe.nom }}</td>
-          <td class="px-4 py-2 text-center">{{ equipe.points }}</td>
-          <td class="px-4 py-2 text-center">{{ equipe.victoires }}</td>
-          <td class="px-4 py-2 text-center">{{ equipe.differenceButs }}</td>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-team>
+        <tr>
+          <td class="text-center">{{ getPositionLabel(team.position) || team.position }}</td>
+          <td class="text-left font-medium">{{ team.team_name }}</td>
+          <td class="text-center">{{ team.matches_played }}</td>
+          <td class="text-center">{{ team.wins }}</td>
+          <td class="text-center">{{ team.draws }}</td>
+          <td class="text-center">{{ team.losses }}</td>
+          <td class="text-center">{{ team.goals_for }}</td>
+          <td class="text-center">{{ team.goals_against }}</td>
+          <td class="text-center">{{ team.goals_for - team.goals_against }}</td>
+          <td class="text-center font-bold">{{ team.points }}</td>
+          <td>
+            <div class="flex gap-1 justify-center">
+              <ng-container *ngFor="let r of team.last_5_results">
+                <span
+                  class="mini-badge w-6 h-6 flex items-center justify-center rounded text-xs font-bold text-white"
+                  [ngClass]="{
+                    'bg-green-600 text-white': r === 'W',
+                    'bg-gray-400 text-white': r === 'D',
+                    'bg-red-500 text-white': r === 'L'
+                  }"
+                >
+                  {{ r === 'W' ? 'V' : r === 'D' ? 'N' : 'D' }}
+                </span>
+              </ng-container>
+            </div>
+          </td>
         </tr>
-      </tbody>
-    </table>
+      </ng-template>
+    </p-table>
   </div>
-</div>
+
+  
+<section class="mt-8">
+  <h2 class="text-xl font-bold mb-3">🏆 Top Buteurs</h2>
+  <p-table [value]="topScorers" styleClass="p-datatable-sm p-datatable-gridlines w-full">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>#</th>
+        <th>Joueur</th>
+        <th>Club</th>
+        <th>Buts</th>
+        <th>Passes D.</th>
+        <th>Matchs</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-scorer let-i="rowIndex">
+      <tr>
+        <td class="text-center">{{ i + 1 }}</td>
+        <td class="text-left font-medium">{{ scorer.player }}</td>
+        <td class="text-left">{{ scorer.team }}</td>
+        <td class="text-center font-bold text-green-700">{{ scorer.goals }}</td>
+        <td class="text-center">{{ scorer.assists }}</td>
+        <td class="text-center">{{ scorer.matches }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
+
+<!-- ===== PROCHAINS MATCHS ===== -->
+<section class="mt-8">
+  <h2 class="text-xl font-bold mb-3">📅 Prochains Matchs</h2>
+  <p-table [value]="upcomingMatches" styleClass="p-datatable-sm p-datatable-gridlines w-full">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Date</th>
+        <th>Heure</th>
+        <th>Lieu</th>
+        <th>Domicile</th>
+        <th>Extérieur</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-match>
+      <tr>
+        <td class="text-center">{{ match.date | date:'dd/MM/yyyy' }}</td>
+        <td class="text-center">{{ match.time }}</td>
+        <td class="text-center">{{ match.stadium }}</td>
+        <td class="text-left font-medium">{{ match.home_team }}</td>
+        <td class="text-left font-medium">{{ match.away_team }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
 
 </div>
