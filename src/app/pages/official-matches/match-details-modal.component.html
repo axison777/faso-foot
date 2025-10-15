@@ -1,12 +1,12 @@
-<p-dialog 
-    [(visible)]="visible" 
-    [modal]="true" 
-    [style]="{width: '95vw', maxWidth: '1600px', height: '90vh'}" 
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [style]="{width: '95vw', maxWidth: '1600px', height: '90vh'}"
     [closable]="true"
     [draggable]="false"
     [resizable]="false"
     [dismissableMask]="true">
-    
+
     <ng-template pTemplate="header">
         <div class="dialog-custom-header">
             <div class="header-title">
@@ -58,8 +58,8 @@
                 <div class="team-column team-home">
                     <div class="team-header">
                         <div class="team-identity">
-                            <img *ngIf="homeTeamCallup.team_logo" 
-                                 [src]="homeTeamCallup.team_logo" 
+                            <img *ngIf="homeTeamCallup.team_logo"
+                                 [src]="homeTeamCallup.team_logo"
                                  [alt]="homeTeamCallup.team_name"
                                  class="team-logo">
                             <div class="team-badge-placeholder" *ngIf="!homeTeamCallup.team_logo">
@@ -68,7 +68,7 @@
                             <div class="team-info">
                                 <h3 class="team-name">{{ homeTeamCallup.team_name }}</h3>
                                 <p class="team-type">Équipe Domicile</p>
-                                <p class="team-players-count">{{ homeTeamCallup.total_players || (homeTeamCallup.players?.length || 0) }} JOUEURS</p>
+                                <p class="team-players-count">{{ homeTeamCallup.total_players || (homeTeamCallup.players.length || 0) }} JOUEURS</p>
                             </div>
                         </div>
                         <button class="btn-formation" (click)="toggleFormationView('team1')">
@@ -116,14 +116,14 @@
                                     <span class="group-count">{{ homeTeamCallup.starters_count || getStarters(homeTeamCallup.players).length }}</span>
                                 </summary>
                                 <div class="players-list">
-                                    <div class="player-card" 
+                                    <div class="player-card"
                                          *ngFor="let player of getStarters(homeTeamCallup.players)"
                                          (mouseenter)="onPlayerHover(player.id)"
                                          (mouseleave)="onPlayerHover(null)"
                                          [class.hovered]="hoveredPlayerId === player.id">
                                         <div class="player-number">#{{ player.jersey_number }}</div>
-                                        <img *ngIf="player.photo" 
-                                             [src]="player.photo" 
+                                        <img *ngIf="player.photo"
+                                             [src]="player.photo"
                                              [alt]="player.first_name + ' ' + player.last_name"
                                              class="player-photo">
                                         <div class="player-photo-placeholder" *ngIf="!player.photo">
@@ -148,14 +148,14 @@
                                     <span class="group-count">{{ homeTeamCallup.substitutes_count || getSubstitutes(homeTeamCallup.players).length }}</span>
                                 </summary>
                                 <div class="players-list">
-                                    <div class="player-card" 
+                                    <div class="player-card"
                                          *ngFor="let player of getSubstitutes(homeTeamCallup.players)"
                                          (mouseenter)="onPlayerHover(player.id)"
                                          (mouseleave)="onPlayerHover(null)"
                                          [class.hovered]="hoveredPlayerId === player.id">
                                         <div class="player-number">#{{ player.jersey_number }}</div>
-                                        <img *ngIf="player.photo" 
-                                             [src]="player.photo" 
+                                        <img *ngIf="player.photo"
+                                             [src]="player.photo"
                                              [alt]="player.first_name + ' ' + player.last_name"
                                              class="player-photo">
                                         <div class="player-photo-placeholder" *ngIf="!player.photo">
@@ -199,7 +199,7 @@
                             </svg>
 
                             <!-- Joueurs sur le terrain -->
-                            <div class="player-pin" 
+                            <div class="player-pin"
                                  *ngFor="let player of getStarters(homeTeamCallup.players)"
                                  [style.left.%]="getPlayerPosition(player, homeTeamCallup.formation || '4-4-2').x"
                                  [style.top.%]="getPlayerPosition(player, homeTeamCallup.formation || '4-4-2').y"
@@ -209,7 +209,7 @@
                                 <div class="pin-avatar">
                                     <img *ngIf="player.photo" [src]="player.photo" [alt]="player.first_name">
                                     <span *ngIf="!player.photo" class="pin-initials">
-                                        {{ (player.first_name?.charAt(0) || '') + (player.last_name?.charAt(0) || '') }}
+                                        {{ (player?.first_name?.charAt(0) || '') + (player?.last_name?.charAt(0) || '') }}
                                     </span>
                                 </div>
                                 <div class="pin-name">{{ player.first_name }} {{ player.last_name }}</div>
@@ -257,8 +257,8 @@
                 <div class="team-column team-away">
                     <div class="team-header">
                         <div class="team-identity">
-                            <img *ngIf="awayTeamCallup.team_logo" 
-                                 [src]="awayTeamCallup.team_logo" 
+                            <img *ngIf="awayTeamCallup.team_logo"
+                                 [src]="awayTeamCallup.team_logo"
                                  [alt]="awayTeamCallup.team_name"
                                  class="team-logo">
                             <div class="team-badge-placeholder" *ngIf="!awayTeamCallup.team_logo">
@@ -267,7 +267,7 @@
                             <div class="team-info">
                                 <h3 class="team-name">{{ awayTeamCallup.team_name }}</h3>
                                 <p class="team-type">Équipe Extérieur</p>
-                                <p class="team-players-count">{{ awayTeamCallup.total_players || (awayTeamCallup.players?.length || 0) }} JOUEURS</p>
+                                <p class="team-players-count">{{ awayTeamCallup.total_players || (awayTeamCallup.players.length || 0) }} JOUEURS</p>
                             </div>
                         </div>
                         <button class="btn-formation" (click)="toggleFormationView('team2')">
@@ -315,14 +315,14 @@
                                     <span class="group-count">{{ awayTeamCallup.starters_count || getStarters(awayTeamCallup.players).length }}</span>
                                 </summary>
                                 <div class="players-list">
-                                    <div class="player-card" 
+                                    <div class="player-card"
                                          *ngFor="let player of getStarters(awayTeamCallup.players)"
                                          (mouseenter)="onPlayerHover(player.id)"
                                          (mouseleave)="onPlayerHover(null)"
                                          [class.hovered]="hoveredPlayerId === player.id">
                                         <div class="player-number">#{{ player.jersey_number }}</div>
-                                        <img *ngIf="player.photo" 
-                                             [src]="player.photo" 
+                                        <img *ngIf="player.photo"
+                                             [src]="player.photo"
                                              [alt]="player.first_name + ' ' + player.last_name"
                                              class="player-photo">
                                         <div class="player-photo-placeholder" *ngIf="!player.photo">
@@ -347,14 +347,14 @@
                                     <span class="group-count">{{ awayTeamCallup.substitutes_count || getSubstitutes(awayTeamCallup.players).length }}</span>
                                 </summary>
                                 <div class="players-list">
-                                    <div class="player-card" 
+                                    <div class="player-card"
                                          *ngFor="let player of getSubstitutes(awayTeamCallup.players)"
                                          (mouseenter)="onPlayerHover(player.id)"
                                          (mouseleave)="onPlayerHover(null)"
                                          [class.hovered]="hoveredPlayerId === player.id">
                                         <div class="player-number">#{{ player.jersey_number }}</div>
-                                        <img *ngIf="player.photo" 
-                                             [src]="player.photo" 
+                                        <img *ngIf="player.photo"
+                                             [src]="player.photo"
                                              [alt]="player.first_name + ' ' + player.last_name"
                                              class="player-photo">
                                         <div class="player-photo-placeholder" *ngIf="!player.photo">
@@ -398,7 +398,7 @@
                             </svg>
 
                             <!-- Joueurs sur le terrain -->
-                            <div class="player-pin" 
+                            <div class="player-pin"
                                  *ngFor="let player of getStarters(awayTeamCallup.players)"
                                  [style.left.%]="getPlayerPosition(player, awayTeamCallup.formation || '4-4-2').x"
                                  [style.top.%]="getPlayerPosition(player, awayTeamCallup.formation || '4-4-2').y"
@@ -408,7 +408,7 @@
                                 <div class="pin-avatar">
                                     <img *ngIf="player.photo" [src]="player.photo" [alt]="player.first_name">
                                     <span *ngIf="!player.photo" class="pin-initials">
-                                        {{ (player.first_name?.charAt(0) || '') + (player.last_name?.charAt(0) || '') }}
+                                        {{ (player?.first_name?.charAt(0) || '') + (player?.last_name?.charAt(0) || '') }}
                                     </span>
                                 </div>
                                 <div class="pin-name">{{ player.first_name }} {{ player.last_name }}</div>
@@ -432,7 +432,7 @@
     <ng-template pTemplate="footer">
         <div class="dialog-footer">
             <button pButton type="button" label="Fermer" class="p-button-text" (click)="onClose()"></button>
-            <button pButton type="button" label="Saisir rapport" class="p-button-primary" 
+            <button pButton type="button" label="Saisir rapport" class="p-button-primary"
                     *ngIf="match?.canSubmitReport && !match?.reportSubmitted"
                     (click)="onSubmitReport()"></button>
         </div>
