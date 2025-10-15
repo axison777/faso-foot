@@ -116,9 +116,6 @@ export class OfficialsComponent implements OnInit {
             email: o.user?.email,
           }));
 
-          // séparer arbitres et commissaires
-          /* this.referees = officials.filter((o) => o.official_type === 'REFEREE');
-          this.commissioners = officials.filter((o) => o.official_type === 'COMMISSIONER'); */
         }
         this.loading = false;
       }, error: () => {
@@ -216,30 +213,30 @@ export class OfficialsComponent implements OnInit {
     }
   }
 
-  editOfficial(o: any) {
-    this.isEditing = true;
-    this.showForm = true;
+    editOfficial(o: any) {
+        this.isEditing = true;
+        this.showForm = true;
 
-    this.officialForm.patchValue({
-      first_name: o.first_name,
-      last_name: o.last_name,
-      email: o.email,
-      official_type: o.official_type,
-      license_number: o.license_number,
-      level: o.level,
-      status: o.status,
-      certification_date: o.certification_date ? new Date(o.certification_date) : null,
-      certification_expiry: o.certification_expiry ? new Date(o.certification_expiry) : null,
-      structure: o.structure,
-      experience: o.experience,
-      date_of_birth: o.date_of_birth,
-      birth_place: o.birth_place,
-      nationality: o.nationality,
-      phone: o.phone,
-    });
+        this.officialForm.patchValue({
+            user_first_name: o.user?.first_name || o.first_name,
+            user_last_name: o.user?.last_name || o.last_name,
+            user_email: o.user?.email || o.email,
+            official_type: o.official_type,
+            license_number: o.license_number,
+            level: o.level,
+            status: o.status,
+            certification_date: o.certification_date ? new Date(o.certification_date) : null,
+            certification_expiry: o.certification_expiry ? new Date(o.certification_expiry) : null,
+            structure: o.structure,
+            experience: o.experience,
+            date_of_birth: o.date_of_birth ? new Date(o.date_of_birth) : null,
+            birth_place: o.birth_place,
+            nationality: o.nationality,
+            phone: o.phone,
+        });
 
-    this.editingOfficialId = o.id;
-  }
+        this.editingOfficialId = o.id;
+    }
 
 
   deleteOfficial(id?: string): void {
