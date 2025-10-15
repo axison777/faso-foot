@@ -105,7 +105,7 @@ export class OfficialMatchService {
                 // Extraire les infos de l'officiel depuis data.official (singulier !)
                 const official = res?.data?.official;
                 if (!official) return null;
-                
+
                 return {
                     id: official.id,
                     first_name: official.first_name,
@@ -146,10 +146,10 @@ export class OfficialMatchService {
                 // Extraire les matchs depuis data.official.matches (singulier !)
                 const official = res?.data?.official;
                 let matches = official?.matches || [];
-                
+
                 // Le backend renvoie déjà le bon format ! Pas besoin de mapper
                 // Les matchs ont déjà: id, homeTeam, awayTeam, stadium, competition, etc.
-                
+
                 // Appliquer les filtres côté client si nécessaire
                 if (filters?.status) {
                     const now = new Date();
@@ -188,7 +188,7 @@ export class OfficialMatchService {
     getMatchDetails(matchId: string): Observable<OfficialMatch | null> {
         console.log('[OfficialMatchService] Récupération détails match:', matchId);
         console.log('[OfficialMatchService] URL:', `${this.apiUrl}/matchOfficials/${matchId}`);
-        
+
         return this.http.get<any>(`${this.apiUrl}/matchOfficials/${matchId}`).pipe(
             map(res => {
                 console.log('[OfficialMatchService] Réponse API match details:', res);
@@ -249,7 +249,7 @@ export class OfficialMatchService {
         // Temporairement désactivé - endpoint 404
         // TODO: Vérifier le bon endpoint avec le backend
         return of([]);
-        
+
         // return this.http.get<any>(`${this.baseUrl}/officials/notifications`).pipe(
         //     map(res => (res?.data?.notifications) || []),
         //     catchError(() => of([]))
