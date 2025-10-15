@@ -50,11 +50,12 @@ interface EvaluationOfficiel {
         <p-dialog 
             [(visible)]="visible" 
             [modal]="true" 
-            [style]="{width: '95vw', maxWidth: '1200px'}" 
+            [style]="{width: '95vw', maxWidth: '1200px', maxHeight: '90vh'}" 
             [header]="'Rapport de Match - ' + (match?.competition?.name || '')"
             [closable]="true"
             [draggable]="false"
-            [resizable]="false">
+            [resizable]="false"
+            [contentStyle]="{'overflow-y': 'auto', 'max-height': 'calc(90vh - 120px)'}">
             
             <div class="report-container">
                 <!-- Progress Bar -->
@@ -62,7 +63,9 @@ interface EvaluationOfficiel {
                     <div class="progress-step" 
                          *ngFor="let step of steps; let i = index"
                          [class.active]="currentStep === i + 1"
-                         [class.completed]="currentStep > i + 1">
+                         [class.completed]="currentStep > i + 1"
+                         (click)="goToStep(i + 1)"
+                         [style.cursor]="'pointer'">
                         <div class="step-number">{{ i + 1 }}</div>
                         <div class="step-label">{{ step }}</div>
                     </div>
@@ -377,18 +380,35 @@ interface EvaluationOfficiel {
                             <h4>{{ evaluation.officielName }} - {{ getRoleLabel(evaluation.role) }}</h4>
                             <div class="evaluation-criteria">
                                 <div class="criterion" *ngFor="let critere of getCriteresForRole(evaluation.role); let j = index; trackBy: trackByCriteres">
-                                    <label>{{ critere.label }}</label>
-                                    <div class="rating-input">
-                                        <input type="number" 
-                                               [(ngModel)]="evaluation.criteres[critere.key].note"
-                                               min="0" max="10" step="0.1"
-                                               (ngModelChange)="onNoteChange(i)"
-                                               class="note-input">
-                                        <span class="multiplier">x{{ critere.multiplicateur }}</span>
-                                        <span class="total">= {{ (evaluation.criteres[critere.key].note * critere.multiplicateur).toFixed(1) }}/{{ critere.max }}</span>
+                                    <div class="criterion-header">
+                                        <label class="criterion-label">{{ critere.label }}</label>
+                                        <span class="criterion-max">/{{ critere.max }}</span>
                                     </div>
-                                    <textarea [(ngModel)]="evaluation.criteres[critere.key].commentaires" 
-                                              rows="2" placeholder="Commentaires"></textarea>
+                                    <div class="criterion-description" *ngIf="critere.description">
+                                        {{ critere.description }}
+                                    </div>
+                                    <div class="rating-input">
+                                        <div class="note-section">
+                                            <label class="note-label">Note (sur 10):</label>
+                                            <input type="number" 
+                                                   [(ngModel)]="evaluation.criteres[critere.key].note"
+                                                   min="0" max="10" step="0.1"
+                                                   (ngModelChange)="onNoteChange(i)"
+                                                   class="note-input">
+                                        </div>
+                                        <div class="calculation-section">
+                                            <span class="multiplier">× {{ critere.multiplicateur }}</span>
+                                            <span class="equals">=</span>
+                                            <span class="total">{{ (evaluation.criteres[critere.key].note * critere.multiplicateur).toFixed(1) }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="comment-section">
+                                        <label class="comment-label">Commentaires:</label>
+                                        <textarea [(ngModel)]="evaluation.criteres[critere.key].commentaires" 
+                                                  rows="2" 
+                                                  placeholder="Ajoutez vos commentaires sur ce critère..."
+                                                  class="comment-textarea"></textarea>
+                                    </div>
                                 </div>
                             </div>
                             <div class="evaluation-summary">
@@ -418,6 +438,8 @@ interface EvaluationOfficiel {
     styles: [`
         .report-container {
             padding: 1rem;
+            max-height: calc(90vh - 120px);
+            overflow-y: auto;
         }
 
         .progress-bar {
@@ -922,31 +944,142 @@ interface EvaluationOfficiel {
         .criterion {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 1rem;
         }
 
-        .criterion label {
+        .criterion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .criterion-label {
             font-weight: 600;
-            color: #374151;
+            color: #1f2937;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .criterion-max {
+            font-weight: 700;
+            color: #3b82f6;
+            font-size: 1.1rem;
+            background: #eff6ff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .criterion-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-style: italic;
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 3px solid #3b82f6;
         }
 
         .rating-input {
             display: flex;
+            justify-content: space-between;
             align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .note-section {
+            display: flex;
+            flex-direction: column;
             gap: 0.5rem;
         }
 
-        .note-input {
-            width: 80px;
-            padding: 0.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            text-align: center;
+        .note-label {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
         }
 
-        .multiplier, .total {
-            font-size: 0.875rem;
+        .note-input {
+            width: 100px;
+            padding: 0.75rem;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .note-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .calculation-section {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .multiplier {
             color: #6b7280;
+            background: #f3f4f6;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        .equals {
+            color: #374151;
+        }
+
+        .total {
+            color: #059669;
+            background: #d1fae5;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            font-size: 1.1rem;
+        }
+
+        .comment-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .comment-label {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .comment-textarea {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            resize: vertical;
+            min-height: 60px;
+            transition: all 0.2s;
+        }
+
+        .comment-textarea:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .evaluation-summary {
@@ -1178,21 +1311,75 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         
         if (role === 'CENTRAL_REFEREE') {
             criteres = [
-                { key: 'controleMatch', label: 'A1. Contrôle du match & Interprétation des lois du jeu', multiplicateur: 5, max: 50 },
-                { key: 'conditionPhysique', label: 'A2. Condition physique', multiplicateur: 3, max: 30 },
-                { key: 'personnalite', label: 'B1. Personnalité', multiplicateur: 1, max: 10 },
-                { key: 'collaboration', label: 'B2. Collaboration', multiplicateur: 1, max: 10 }
+                { 
+                    key: 'controleMatch', 
+                    label: 'Contrôle du match & Interprétation des lois du jeu (Sanctions disciplinaire et les lois du jeux)', 
+                    multiplicateur: 5, 
+                    max: 50,
+                    description: 'Évaluation du contrôle du match et de l\'interprétation des lois du jeu'
+                },
+                { 
+                    key: 'conditionPhysique', 
+                    label: 'Condition physique (Endurance, Placement & déplacement, vitesse de réaction)', 
+                    multiplicateur: 3, 
+                    max: 30,
+                    description: 'Évaluation de la condition physique de l\'arbitre'
+                },
+                { 
+                    key: 'personnalite', 
+                    label: 'Personnalité (Décidé ou indécis, anxieux, Influençable par le public ou les joueurs, Partial ou impartial, Personnalité forte ou faible)', 
+                    multiplicateur: 1, 
+                    max: 10,
+                    description: 'Évaluation de la personnalité de l\'arbitre'
+                },
+                { 
+                    key: 'collaboration', 
+                    label: 'Collaboration (Coopération avec les autres arbitres, décisions claires, utilisation des sifflets, signaux claires, chronométrage)', 
+                    multiplicateur: 1, 
+                    max: 10,
+                    description: 'Évaluation de la collaboration avec les autres arbitres'
+                }
             ];
         } else if (role === 'ASSISTANT_REFEREE_1' || role === 'ASSISTANT_REFEREE_2') {
             criteres = [
-                { key: 'interpretationLois', label: 'A. Interprétations et application des lois du jeu', multiplicateur: 5, max: 50 },
-                { key: 'conditionPhysique', label: 'B. Condition Physique', multiplicateur: 3, max: 30 },
-                { key: 'collaboration', label: 'C. Collaboration', multiplicateur: 2, max: 20 }
+                { 
+                    key: 'interpretationLois', 
+                    label: 'Interprétations et application des lois du jeu (Décisions sur le hors jeu, Sorties de balles et fautes)', 
+                    multiplicateur: 5, 
+                    max: 50,
+                    description: 'Évaluation des décisions sur le hors jeu et les fautes'
+                },
+                { 
+                    key: 'conditionPhysique', 
+                    label: 'Condition Physique (vitesse, endurance, alignement sur le hors jeu)', 
+                    multiplicateur: 3, 
+                    max: 30,
+                    description: 'Évaluation de la condition physique de l\'assistant'
+                },
+                { 
+                    key: 'collaboration', 
+                    label: 'Collaboration (Coopération avec les autres arbitres)', 
+                    multiplicateur: 2, 
+                    max: 20,
+                    description: 'Évaluation de la collaboration avec les autres arbitres'
+                }
             ];
         } else if (role === 'FOURTH_OFFICIAL') {
             criteres = [
-                { key: 'controleSurfaces', label: 'Contrôle des surfaces techniques et Assistance dans le contrôle du match', multiplicateur: 3, max: 30 },
-                { key: 'gestionRemplacements', label: 'Gestion des remplacements, gestion du temps additionnel', multiplicateur: 2, max: 20 }
+                { 
+                    key: 'controleSurfaces', 
+                    label: 'Contrôle des surfaces techniques et Assistance dans le contrôle du match', 
+                    multiplicateur: 3, 
+                    max: 30,
+                    description: 'Évaluation du contrôle des surfaces techniques'
+                },
+                { 
+                    key: 'gestionRemplacements', 
+                    label: 'Gestion des remplacements, gestion du temps additionnel', 
+                    multiplicateur: 2, 
+                    max: 20,
+                    description: 'Évaluation de la gestion des remplacements et du temps'
+                }
             ];
         }
         
@@ -1355,10 +1542,10 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
 
     getRoleLabel(role: string): string {
         switch (role) {
-            case 'CENTRAL_REFEREE': return 'Arbitre Central';
-            case 'ASSISTANT_REFEREE_1': return 'Assistant 1';
-            case 'ASSISTANT_REFEREE_2': return 'Assistant 2';
-            case 'FOURTH_OFFICIAL': return '4ème Arbitre';
+            case 'CENTRAL_REFEREE': return 'Arbitre Principal';
+            case 'ASSISTANT_REFEREE_1': return 'Arbitre Assistant N°1';
+            case 'ASSISTANT_REFEREE_2': return 'Arbitre Assistant N°2';
+            case 'FOURTH_OFFICIAL': return '4e Arbitre';
             case 'COMMISSIONER': return 'Commissaire';
             default: return role;
         }
@@ -1377,7 +1564,25 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
             this.submitReport();
         } else {
             this.currentStep++;
+            this.scrollToTop();
         }
+    }
+
+    goToStep(step: number) {
+        if (step >= 1 && step <= this.steps.length) {
+            this.currentStep = step;
+            this.scrollToTop();
+        }
+    }
+
+    scrollToTop() {
+        // Scroll vers le haut du contenu du modal
+        setTimeout(() => {
+            const container = document.querySelector('.report-container');
+            if (container) {
+                container.scrollTop = 0;
+            }
+        }, 100);
     }
 
     previousStep() {
