@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -69,7 +69,7 @@ interface EvaluationOfficiel {
                 </div>
 
                 <!-- Step 1: Résultat -->
-                <div *ngIf="currentStep === 1" class="step-content">
+                <div *ngIf="currentStep === 1" class="step-content" #step1>
                     <h3>Résultat du Match</h3>
                     <div class="form-section">
                         <div class="result-grid">
@@ -186,7 +186,7 @@ interface EvaluationOfficiel {
                 </div>
 
                 <!-- Step 2: Sanctions -->
-                <div *ngIf="currentStep === 2" class="step-content">
+                <div *ngIf="currentStep === 2" class="step-content" #step2>
                     <h3>Sanctions Disciplinaires</h3>
                     
                     <!-- Avertissements -->
@@ -263,7 +263,7 @@ interface EvaluationOfficiel {
                 </div>
 
                 <!-- Step 3: Évaluation du Match -->
-                <div *ngIf="currentStep === 3" class="step-content">
+                <div *ngIf="currentStep === 3" class="step-content" #step3>
                     <h3>Évaluation du Match</h3>
                     <div class="form-section">
                         <div class="evaluation-group">
@@ -370,7 +370,7 @@ interface EvaluationOfficiel {
                 </div>
 
                 <!-- Step 4: Évaluation des Officiels (Commissaire seulement) -->
-                <div *ngIf="shouldShowEvaluationStep" class="step-content">
+                <div *ngIf="shouldShowEvaluationStep" class="step-content" #step4>
                     <h3>Évaluation des Officiels</h3>
                     <div class="officials-evaluation">
                         <div class="evaluation-card" *ngFor="let evaluation of reportData.evaluationsOfficiels; let i = index; trackBy: trackByEvaluation">
@@ -418,6 +418,27 @@ interface EvaluationOfficiel {
     styles: [`
         .report-container {
             padding: 1rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* Custom scrollbar styling */
+        .report-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .report-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .report-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        .report-container::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
         }
 
         .progress-bar {
@@ -1038,6 +1059,11 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
     @Output() visibleChange = new EventEmitter<boolean>();
     @Output() reportSubmitted = new EventEmitter<any>();
 
+    @ViewChild('step1') step1!: ElementRef;
+    @ViewChild('step2') step2!: ElementRef;
+    @ViewChild('step3') step3!: ElementRef;
+    @ViewChild('step4') step4!: ElementRef;
+
     currentStep = 1;
     steps: string[] = [];
     isCommissioner = false;
@@ -1178,16 +1204,16 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         
         if (role === 'CENTRAL_REFEREE') {
             criteres = [
-                { key: 'controleMatch', label: 'A1. Contrôle du match & Interprétation des lois du jeu', multiplicateur: 5, max: 50 },
-                { key: 'conditionPhysique', label: 'A2. Condition physique', multiplicateur: 3, max: 30 },
-                { key: 'personnalite', label: 'B1. Personnalité', multiplicateur: 1, max: 10 },
-                { key: 'collaboration', label: 'B2. Collaboration', multiplicateur: 1, max: 10 }
+                { key: 'controleMatch', label: 'Contrôle du match & Interprétation des lois du jeu (Sanctions disciplinaire et les lois du jeux)', multiplicateur: 5, max: 50 },
+                { key: 'conditionPhysique', label: 'Condition physique (Endurance, Placement & deplacement, vitesse de reaction)', multiplicateur: 3, max: 30 },
+                { key: 'personnalite', label: 'Personnalité (Décidé ou indécis, anxieux, Influençable par le public ou les joueurs, Partial ou impartial, Personnalité forte ou faible)', multiplicateur: 1, max: 10 },
+                { key: 'collaboration', label: 'Collaboration (Coopération avec les autres arbitres, décisions claires, utilisation des sifflets, signaux claires, chronometrage)', multiplicateur: 1, max: 10 }
             ];
         } else if (role === 'ASSISTANT_REFEREE_1' || role === 'ASSISTANT_REFEREE_2') {
             criteres = [
-                { key: 'interpretationLois', label: 'A. Interprétations et application des lois du jeu', multiplicateur: 5, max: 50 },
-                { key: 'conditionPhysique', label: 'B. Condition Physique', multiplicateur: 3, max: 30 },
-                { key: 'collaboration', label: 'C. Collaboration', multiplicateur: 2, max: 20 }
+                { key: 'interpretationLois', label: 'Interprétations et application des lois du jeu (Décisions sur le hors jeu, Sorties de balles et fautes)', multiplicateur: 5, max: 50 },
+                { key: 'conditionPhysique', label: 'Condition Physique (vitesse, endurance, alignement sur le hors jeu)', multiplicateur: 3, max: 30 },
+                { key: 'collaboration', label: 'Collaboration (Cooperation avec les autres arbitres)', multiplicateur: 2, max: 20 }
             ];
         } else if (role === 'FOURTH_OFFICIAL') {
             criteres = [
@@ -1377,12 +1403,22 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
             this.submitReport();
         } else {
             this.currentStep++;
+            // Scroll to top when changing steps
+            const container = document.querySelector('.report-container');
+            if (container) {
+                container.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
     }
 
     previousStep() {
         if (this.currentStep > 1) {
             this.currentStep--;
+            // Scroll to top when changing steps
+            const container = document.querySelector('.report-container');
+            if (container) {
+                container.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
     }
 

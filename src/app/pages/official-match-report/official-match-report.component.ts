@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
@@ -52,7 +52,7 @@ import { Observable } from 'rxjs';
 
                     <form [formGroup]="reportForm" class="report-form">
                         <!-- Informations générales -->
-                        <div class="form-section">
+                        <div class="form-section" #generalSection>
                             <h6>Informations générales</h6>
                             <div class="grid">
                                 <div class="col-12 md:col-6">
@@ -85,7 +85,7 @@ import { Observable } from 'rxjs';
                         </div>
 
                         <!-- Score et événements (pour arbitres) -->
-                        <div class="form-section" *ngIf="match.officialRole !== 'COMMISSIONER'">
+                        <div class="form-section" #eventsSection *ngIf="match.officialRole !== 'COMMISSIONER'">
                             <h6>Score et événements</h6>
                             <div class="grid">
                                 <div class="col-12 md:col-4">
@@ -217,7 +217,7 @@ import { Observable } from 'rxjs';
                         </div>
 
                         <!-- Évaluation des arbitres (pour commissaires) -->
-                        <div class="form-section" *ngIf="match.officialRole === 'COMMISSIONER'">
+                        <div class="form-section" #evaluationSection *ngIf="match.officialRole === 'COMMISSIONER'">
                             <h6>Évaluation des arbitres</h6>
                             <div class="evaluation-grid">
                                 <div class="evaluation-card" *ngFor="let official of match.otherOfficials; let i = index">
@@ -270,7 +270,7 @@ import { Observable } from 'rxjs';
                         </div>
 
                         <!-- Résumé et signature -->
-                        <div class="form-section">
+                        <div class="form-section" #summarySection>
                             <h6>Résumé et signature</h6>
                             <div class="grid">
                                 <div class="col-12">
@@ -437,9 +437,40 @@ import { Observable } from 'rxjs';
             background-color: #f0f9ff;
             border-color: #0ea5e9;
         }
+        
+        /* Scroll container */
+        :host ::ng-deep .report-form {
+            overflow-y: auto;
+            max-height: calc(100vh - 250px);
+            padding-right: 10px;
+        }
+        
+        /* Scrollbar styling */
+        :host ::ng-deep .report-form::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        :host ::ng-deep .report-form::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        :host ::ng-deep .report-form::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        :host ::ng-deep .report-form::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
     `]
 })
 export class OfficialMatchReportComponent implements OnInit {
+    @ViewChild('generalSection') generalSection!: ElementRef;
+    @ViewChild('eventsSection') eventsSection!: ElementRef;
+    @ViewChild('evaluationSection') evaluationSection!: ElementRef;
+    @ViewChild('summarySection') summarySection!: ElementRef;
+    
     match$!: Observable<OfficialMatch | null>;
     reportForm: FormGroup;
     matchId: string = '';
@@ -678,5 +709,34 @@ export class OfficialMatchReportComponent implements OnInit {
         if (!jerseyNumber) return false;
         const players = team === 'HOME' ? this.homeTeamPlayers : this.awayTeamPlayers;
         return players.some(p => p.jersey_number?.toString() === jerseyNumber.toString());
+    }
+    
+    /**
+     * Scroll to a specific section of the form
+     */
+    scrollToSection(section: string) {
+        let element: ElementRef | undefined;
+        
+        switch (section) {
+            case 'general':
+                element = this.generalSection;
+                break;
+            case 'events':
+                element = this.eventsSection;
+                break;
+            case 'evaluation':
+                element = this.evaluationSection;
+                break;
+            case 'summary':
+                element = this.summarySection;
+                break;
+        }
+        
+        if (element && element.nativeElement) {
+            element.nativeElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
     }
 }
