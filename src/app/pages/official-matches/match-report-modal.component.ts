@@ -1590,23 +1590,6 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         }, 100);
     }
 
-    goToStep(step: number) {
-        if (step >= 1 && step <= this.steps.length) {
-            this.currentStep = step;
-            this.scrollToTop();
-        }
-    }
-
-    scrollToTop() {
-        // Scroll vers le haut du contenu du modal
-        setTimeout(() => {
-            const container = document.querySelector('.report-container');
-            if (container) {
-                container.scrollTop = 0;
-            }
-        }, 100);
-    }
-
     previousStep() {
         if (this.currentStep > 1) {
             this.currentStep--;
