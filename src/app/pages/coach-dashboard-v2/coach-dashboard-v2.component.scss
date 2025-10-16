@@ -27,6 +27,23 @@
     color: #6b7280;
   }
 
+  .error-message {
+    background: #fee2e2;
+    border: 1px solid #ef4444;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #991b1b;
+    font-size: 1.1rem;
+    
+    i {
+      font-size: 1.5rem;
+      color: #dc2626;
+    }
+  }
+
   .empty {
     text-align: center;
     padding: 4rem;
@@ -42,6 +59,26 @@
 
   // Zone Prioritaire : Le Prochain Défi
   .priority-zone {
+    .no-next-match {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      border-radius: 20px;
+      padding: 3rem;
+      text-align: center;
+      color: white;
+      
+      i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+      }
+      
+      p {
+        font-size: 1.2rem;
+        margin: 0;
+        opacity: 0.9;
+      }
+    }
+    
     .next-match-card {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border-radius: 20px;
@@ -163,60 +200,46 @@
         }
       }
 
-      .opponent-stats {
+      .match-teams-display {
         display: flex;
-        gap: 3rem;
+        align-items: center;
+        justify-content: space-between;
         margin-bottom: 2rem;
         padding: 1.5rem;
         background: rgba(255, 255, 255, 0.1);
         border-radius: 15px;
-
-        .opponent-form, .opponent-ranking {
+        
+        .team-info {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
-
-          .label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            font-weight: 500;
+          align-items: center;
+          gap: 0.5rem;
+          flex: 1;
+          
+          .team-name {
+            font-size: 1.2rem;
+            font-weight: 600;
           }
-
-          .form-icons {
-            display: flex;
-            gap: 0.5rem;
-
-            .result {
-              width: 32px;
-              height: 32px;
-              border-radius: 50%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-weight: 700;
-              font-size: 0.9rem;
-
-              &.win {
-                background: #10b981;
-                color: white;
-              }
-
-              &.loss {
-                background: #ef4444;
-                color: white;
-              }
-
-              &.draw {
-                background: #fbbf24;
-                color: #1a1a1a;
-              }
-            }
+          
+          .badge {
+            background: #10b981;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
           }
-
-          .rank {
-            font-size: 1.5rem;
+          
+          &.my-team .team-name {
+            font-size: 1.4rem;
             font-weight: 700;
           }
+        }
+        
+        .vs-divider {
+          font-size: 1.5rem;
+          font-weight: 700;
+          opacity: 0.7;
+          padding: 0 2rem;
         }
       }
 

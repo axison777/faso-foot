@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +12,8 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
 import { PlayerDetailsModalComponent } from './player-details-modal.component';
+import { AuthService } from '../../service/auth.service';
+import { PlayerService } from '../../service/player.service';
 
 interface CoachPlayer {
     id: string;
@@ -900,6 +902,10 @@ interface CoachPlayer {
 export class CoachPlayersComponent implements OnInit {
     @Input() teamId?: string;
     
+    private authService = inject(AuthService);
+    private playerService = inject(PlayerService);
+    private messageService = inject(MessageService);
+    
     searchTerm = '';
     selectedFilters: string[] = ['ALL'];
     selectedPosition = '';
@@ -908,6 +914,8 @@ export class CoachPlayersComponent implements OnInit {
     filteredPlayers: CoachPlayer[] = [];
     showPlayerDetails = false;
     selectedPlayer: CoachPlayer | null = null;
+    loading = false;
+    error: string | null = null;
 
     positionOptions = [
         { label: 'Toutes les positions', value: '' },
@@ -924,14 +932,55 @@ export class CoachPlayersComponent implements OnInit {
         { label: 'Attaquant', value: 'ST' }
     ];
 
-    constructor(private messageService: MessageService) {}
-
     ngOnInit() {
         this.loadPlayers();
     }
 
     loadPlayers() {
-        // Données mockées pour les joueurs
+        this.loading = true;
+        this.error = null;
+        
+        const currentUser = this.authService.currentUser;
+        const userTeamId = this.teamId || currentUser?.team_id;
+        
+        console.log('👥 [PLAYERS] Chargement des joueurs du coach');
+        console.log('👤 [PLAYERS] Current User:', currentUser);
+        console.log('🏟️ [PLAYERS] Team ID:', userTeamId);
+        
+        if (!userTeamId) {
+            console.error('❌ [PLAYERS] Aucun team_id trouvé!');
+            this.error = 'Aucune équipe assignée';
+            this.loading = false;
+            return;
+        }
+        
+        console.log('🔄 [PLAYERS] Appel API GET /teams/' + userTeamId + '/players');
+        
+        this.playerService.getByTeamId(userTeamId).subscribe({
+            next: (apiPlayers) => {
+                console.log('✅ [PLAYERS] Joueurs reçus du backend:', apiPlayers);
+                console.log('📊 [PLAYERS] Nombre de joueurs:', apiPlayers?.length || 0);
+                
+                this.players = this.convertToCoachPlayers(apiPlayers);
+                this.filteredPlayers = [...this.players];
+                console.log('🔄 [PLAYERS] Joueurs convertis:', this.players);
+                
+                this.loading = false;
+            },
+            error: (err) => {
+                console.error('❌ [PLAYERS] Erreur lors du chargement:', err);
+                console.error('❌ [PLAYERS] Status:', err?.status);
+                console.error('❌ [PLAYERS] Message:', err?.message);
+                console.warn('⚠️ [PLAYERS] Utilisation des données de mock');
+                
+                // Fallback vers données mock
+                this.loadMockPlayers();
+                this.loading = false;
+            }
+        });
+    }
+
+    loadMockPlayers() {
         this.players = [
             {
                 id: '1',
@@ -1325,6 +1374,68 @@ export class CoachPlayersComponent implements OnInit {
         ];
 
         this.filteredPlayers = [...this.players];
+    }
+
+    convertToCoachPlayers(apiPlayers: any[]): CoachPlayer[] {
+        return apiPlayers.map((player: any) => ({
+            id: player.id || '',
+            firstName: player.first_name || '',
+            lastName: player.last_name || '',
+            birthDate: player.birth_date || '',
+            position: player.position || '',
+            jerseyNumber: player.jersey_number || 0,
+            status: player.status?.toUpperCase() || 'ACTIVE',
+            contractEndDate: player.contract_end_date || '',
+            photo: player.photo || '',
+            nationality: player.nationality || '',
+            height: player.height || 0,
+            weight: player.weight || 0,
+            preferredFoot: player.preferred_foot?.toUpperCase() || 'RIGHT',
+            fitnessLevel: player.fitness_level?.toUpperCase() || 'GOOD',
+            injuryType: player.injury_type,
+            injuryStartDate: player.injury_start_date,
+            injuryEndDate: player.injury_end_date,
+            suspensionReason: player.suspension_reason,
+            suspensionEndDate: player.suspension_end_date,
+            contractStatus: this.determineContractStatus(player.contract_end_date),
+            stats: player.statistics || player.stats || { 
+                goals: 0, 
+                assists: 0, 
+                yellowCards: 0, 
+                redCards: 0,
+                matchesPlayed: 0,
+                minutesPlayed: 0,
+                shotsOnTarget: 0,
+                passAccuracy: 0,
+                tackles: 0,
+                interceptions: 0
+            },
+            injuryHistory: player.injury_history || [],
+            performanceGoals: player.performance_goals || {
+                goals: 0,
+                assists: 0,
+                matches: 0,
+                currentGoals: 0,
+                currentAssists: 0,
+                currentMatches: 0
+            },
+            competitionRanking: player.competition_ranking || {
+                goals: 0,
+                assists: 0,
+                overall: 0
+            }
+        }));
+    }
+
+    determineContractStatus(contractEndDate: string): 'VALID' | 'EXPIRING' | 'EXPIRED' {
+        if (!contractEndDate) return 'VALID';
+        const endDate = new Date(contractEndDate);
+        const now = new Date();
+        const sixMonthsFromNow = new Date(now.getTime() + (6 * 30 * 24 * 60 * 60 * 1000));
+        
+        if (endDate < now) return 'EXPIRED';
+        if (endDate <= sixMonthsFromNow) return 'EXPIRING';
+        return 'VALID';
     }
 
     filterPlayers() {

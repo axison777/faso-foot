@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EquipeService, Equipe } from '../../service/equipe.service';
+import { AuthService } from '../../service/auth.service';
+import { MatchService } from '../../service/match.service';
 import { TeamDashboardData } from '../club-coach-shared/team-dashboard-card/team-dashboard-card.component';
 
 @Component({
@@ -14,10 +16,14 @@ export class CoachDashboardV2Component implements OnInit {
     @Input() teamId?: string;
     
     private equipeService = inject(EquipeService);
+    private authService = inject(AuthService);
+    private matchService = inject(MatchService);
     
     team = signal<Equipe | null>(null);
     teamData = signal<TeamDashboardData | null>(null);
+    nextMatch = signal<any>(null);
     loading = false;
+    error = signal<string | null>(null);
 
   // Données pour les top performers
   topScorers = [
@@ -42,28 +48,65 @@ export class CoachDashboardV2Component implements OnInit {
 
   loadTeamData() {
     this.loading = true;
-    this.equipeService.getMyTeam().subscribe(t => {
-      this.team.set(t);
-      
-      const data: TeamDashboardData = {
-        id: t.id || '',
-        name: t.name,
-        coach: { name: 'Vous' },
-        playerCount: 18,
-        totalPlayers: 25,
-        kit: { photo: t.logo },
-        nextMatch: {
-          opponent: 'USO',
-          date: new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString(),
-          competition: 'Championnat',
-          matchId: 'm1'
-        },
-        standing: { rank: 3, points: 24, played: 12 },
-        stats: { goals: 28, assists: 15, yellowCards: 12, redCards: 2 }
-      };
-      
-      this.teamData.set(data);
+    this.error.set(null);
+    
+    const currentUser = this.authService.currentUser;
+    const userTeamId = this.teamId || currentUser?.team_id;
+    
+    console.log('📊 [DASHBOARD] Chargement des données du coach');
+    console.log('👤 [DASHBOARD] Current User:', currentUser);
+    console.log('🏟️ [DASHBOARD] Team ID à utiliser:', userTeamId);
+    console.log('🆔 [DASHBOARD] Team ID depuis @Input:', this.teamId);
+    console.log('🆔 [DASHBOARD] Team ID depuis user:', currentUser?.team_id);
+    
+    if (!userTeamId) {
+      console.error('❌ [DASHBOARD] Aucun team_id trouvé!');
+      this.error.set('Aucune équipe assignée à votre compte coach');
       this.loading = false;
+      return;
+    }
+    
+    console.log('🔄 [DASHBOARD] Appel API GET /teams/' + userTeamId);
+    
+    // Récupérer les données de l'équipe via son ID
+    this.equipeService.getTeamById(userTeamId).subscribe({
+      next: (t) => {
+        console.log('✅ [DASHBOARD] Équipe reçue du backend:', t);
+        this.team.set(t);
+        
+        const data: TeamDashboardData = {
+          id: t.id || '',
+          name: t.name,
+          coach: { name: currentUser?.first_name && currentUser?.last_name 
+            ? `${currentUser.first_name} ${currentUser.last_name}` 
+            : 'Vous' },
+          playerCount: 18,
+          totalPlayers: 25,
+          kit: { photo: t.logo },
+          nextMatch: {
+            opponent: 'USO',
+            date: new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString(),
+            competition: 'Championnat',
+            matchId: 'm1'
+          },
+          standing: { rank: 3, points: 24, played: 12 },
+          stats: { goals: 28, assists: 15, yellowCards: 12, redCards: 2 }
+        };
+        
+        console.log('📦 [DASHBOARD] Team Data formatée:', data);
+        this.teamData.set(data);
+        
+        // Charger le prochain match
+        this.loadNextMatch(userTeamId);
+      },
+      error: (err) => {
+        console.error('❌ [DASHBOARD] Erreur lors du chargement de l\'équipe:', err);
+        console.error('❌ [DASHBOARD] Status:', err?.status);
+        console.error('❌ [DASHBOARD] Message:', err?.message);
+        console.error('❌ [DASHBOARD] Error complet:', err);
+        this.error.set('Impossible de charger les données de l\'équipe');
+        this.loading = false;
+      }
     });
   }
 
@@ -94,5 +137,58 @@ export class CoachDashboardV2Component implements OnInit {
     const draws = this.teamForm.filter(r => r === 'draw').length;
     const losses = this.teamForm.filter(r => r === 'loss').length;
     return `${wins}V ${draws}N ${losses}D`;
+  }
+
+  loadNextMatch(teamId: string) {
+    console.log('🔄 [DASHBOARD] Chargement du prochain match');
+    
+    this.matchService.getAllMatchesForTeam(teamId).subscribe({
+      next: (matches) => {
+        console.log('✅ [DASHBOARD] Matchs reçus pour prochain match:', matches);
+        
+        // Filtrer les matchs à venir et trouver le plus proche
+        const now = new Date();
+        const upcomingMatches = matches
+          .filter((m: any) => {
+            const matchDate = new Date(m.scheduled_at || m.scheduledAt);
+            return matchDate > now && (m.status === 'planned' || m.status === 'upcoming' || m.status === 'UPCOMING');
+          })
+          .sort((a: any, b: any) => {
+            const dateA = new Date(a.scheduled_at || a.scheduledAt);
+            const dateB = new Date(b.scheduled_at || b.scheduledAt);
+            return dateA.getTime() - dateB.getTime();
+          });
+        
+        if (upcomingMatches.length > 0) {
+          const nextMatchData = upcomingMatches[0];
+          const isHome = nextMatchData.team_one_id === teamId;
+          const opponent = isHome ? nextMatchData.team_two : nextMatchData.team_one;
+          
+          const formatted = {
+            id: nextMatchData.id,
+            opponent: opponent?.name || opponent?.abbreviation || 'Adversaire',
+            opponentLogo: opponent?.logo,
+            date: nextMatchData.scheduled_at || nextMatchData.scheduledAt,
+            competition: nextMatchData.pool?.name || nextMatchData.season?.name || 'Compétition',
+            stadium: nextMatchData.stadium?.name || 'Stade',
+            isHome: isHome,
+            homeTeam: nextMatchData.team_one?.name || nextMatchData.team_one?.abbreviation,
+            awayTeam: nextMatchData.team_two?.name || nextMatchData.team_two?.abbreviation
+          };
+          
+          console.log('⚽ [DASHBOARD] Prochain match trouvé:', formatted);
+          this.nextMatch.set(formatted);
+        } else {
+          console.log('ℹ️ [DASHBOARD] Aucun prochain match trouvé');
+          this.nextMatch.set(null);
+        }
+        
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('❌ [DASHBOARD] Erreur lors du chargement du prochain match:', err);
+        this.loading = false;
+      }
+    });
   }
 }

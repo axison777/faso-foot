@@ -42,6 +42,15 @@ export class AuthService {
   login(credentials: { email: string; password: string }): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(this.apiUrl + 'login', credentials).pipe(
       tap(response => {
+        console.log('🔐 [AUTH] Réponse complète du backend:', response);
+        console.log('👤 [AUTH] User reçu:', response?.data?.user);
+        console.log('🏷️ [AUTH] User ID:', response?.data?.user?.id);
+        console.log('🏟️ [AUTH] Team ID:', response?.data?.user?.team_id);
+        console.log('👔 [AUTH] Coach ID:', response?.data?.user?.coach_id);
+        console.log('✅ [AUTH] Is Coach:', response?.data?.user?.is_coach);
+        console.log('📋 [AUTH] Roles:', response?.data?.user?.roles);
+        console.log('🔑 [AUTH] Token:', response?.data?.access_token ? 'Token présent' : 'Token absent');
+        
         this._user.set(response?.data?.user);
         localStorage.setItem('token', response?.data?.access_token);
       })

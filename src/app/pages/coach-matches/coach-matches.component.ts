@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,8 +9,11 @@ import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { CoachMatchDetailsModalComponent } from './coach-match-details-modal.component';
+import { MatchService, MatchItem } from '../../service/match.service';
+import { AuthService } from '../../service/auth.service';
 
 interface CoachMatch {
     id: string;
@@ -994,6 +997,10 @@ interface CoachMatch {
 export class CoachMatchesComponent implements OnInit {
     @Input() teamId?: string;
     
+    private matchService = inject(MatchService);
+    private authService = inject(AuthService);
+    private messageService = inject(MessageService);
+    
     groupedMatches$!: Observable<{[key: string]: CoachMatch[]}>;
     selectedStatus = '';
     selectedCompetition = '';
@@ -1003,6 +1010,8 @@ export class CoachMatchesComponent implements OnInit {
     currentPage = 1;
     totalPages = 1;
     itemsPerPage = 6;
+    loading = false;
+    error: string | null = null;
 
     months = [
         { label: 'Septembre', value: '2024-09' },
@@ -1016,88 +1025,133 @@ export class CoachMatchesComponent implements OnInit {
         { label: 'Mai', value: '2025-05' }
     ];
 
-    constructor(private messageService: MessageService) {}
-
     ngOnInit() {
         this.loadMatches();
     }
 
     loadMatches() {
-        // Simuler des données de matchs (à remplacer par des appels API réels)
-        const mockMatches: CoachMatch[] = [
-            {
-                id: '1',
-                competition: { name: 'Championnat D1', type: 'LEAGUE' },
-                homeTeam: { id: '1', name: 'Mon Équipe', logo: 'assets/images/team-logo.png' },
-                awayTeam: { id: '2', name: 'Équipe Adversaire', logo: 'assets/images/opponent-logo.png' },
-                scheduledAt: new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString(),
-                stadium: { name: 'Stade Municipal', address: '123 Rue du Sport' },
-                status: 'UPCOMING',
-                isHomeTeam: true,
-                opponent: { name: 'Équipe Adversaire', logo: 'assets/images/opponent-logo.png' },
-                teamSheetSubmitted: false,
-                teamSheetStatus: 'PENDING'
+        this.loading = true;
+        this.error = null;
+        
+        const currentUser = this.authService.currentUser;
+        const userTeamId = this.teamId || currentUser?.team_id;
+        
+        console.log('⚽ [MATCHS] Chargement des matchs du coach');
+        console.log('👤 [MATCHS] Current User:', currentUser);
+        console.log('🏟️ [MATCHS] Team ID:', userTeamId);
+        
+        if (!userTeamId) {
+            console.error('❌ [MATCHS] Aucun team_id trouvé!');
+            this.error = 'Aucune équipe assignée à votre compte coach';
+            this.loading = false;
+            this.groupedMatches$ = of({});
+            return;
+        }
+        
+        // Initialiser avec un objet vide
+        this.groupedMatches$ = of({});
+        
+        console.log('🔄 [MATCHS] Appel API GET /teams/' + userTeamId + '/matches (TOUS les matchs)');
+        
+        // Charger TOUS les matchs de l'équipe (sans filtre de statut)
+        this.matchService.getAllMatchesForTeam(userTeamId).subscribe({
+            next: (allApiMatches) => {
+                console.log('✅ [MATCHS] Tous les matchs reçus:', allApiMatches);
+                console.log('📊 [MATCHS] Nombre total de matchs:', allApiMatches?.length || 0);
+                
+                const coachMatches = this.convertToCoachMatches(allApiMatches, userTeamId);
+                console.log('🔄 [MATCHS] Matchs convertis au format coach:', coachMatches);
+                
+                this.groupedMatches$ = of(coachMatches).pipe(
+                    map(matches => {
+                        const filtered = this.applyFilters(matches);
+                        const grouped = this.groupMatchesByCompetition(filtered);
+                        console.log('📋 [MATCHS] Matchs groupés par compétition:', grouped);
+                        return grouped;
+                    })
+                );
+                
+                this.loading = false;
             },
-            {
-                id: '2',
-                competition: { name: 'Coupe Nationale', type: 'CUP' },
-                homeTeam: { id: '3', name: 'Équipe Locale', logo: 'assets/images/local-logo.png' },
-                awayTeam: { id: '1', name: 'Mon Équipe', logo: 'assets/images/team-logo.png' },
-                scheduledAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
-                stadium: { name: 'Complexe Sportif', address: '456 Avenue des Champions' },
-                status: 'UPCOMING',
-                isHomeTeam: false,
-                opponent: { name: 'Équipe Locale', logo: 'assets/images/local-logo.png' },
-                teamSheetSubmitted: true,
-                teamSheetStatus: 'APPROVED'
-            },
-            {
-                id: '3',
-                competition: { name: 'Championnat D1', type: 'LEAGUE' },
-                homeTeam: { id: '1', name: 'Mon Équipe', logo: 'assets/images/team-logo.png' },
-                awayTeam: { id: '4', name: 'Rivaux FC', logo: 'assets/images/rivals-logo.png' },
-                scheduledAt: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(),
-                stadium: { name: 'Stade Municipal', address: '123 Rue du Sport' },
-                status: 'COMPLETED',
-                score: { home: 2, away: 1, halfTime: { home: 1, away: 0 } },
-                isHomeTeam: true,
-                opponent: { name: 'Rivaux FC', logo: 'assets/images/rivals-logo.png' },
-                teamSheetSubmitted: true,
-                teamSheetStatus: 'APPROVED'
-            },
-            {
-                id: '4',
-                competition: { name: 'Championnat D1', type: 'LEAGUE' },
-                homeTeam: { id: '5', name: 'Adversaire 2', logo: 'assets/images/opponent2-logo.png' },
-                awayTeam: { id: '1', name: 'Mon Équipe', logo: 'assets/images/team-logo.png' },
-                scheduledAt: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString(),
-                stadium: { name: 'Stade des Champions', address: '789 Boulevard du Sport' },
-                status: 'COMPLETED',
-                score: { home: 0, away: 3, halfTime: { home: 0, away: 2 } },
-                isHomeTeam: false,
-                opponent: { name: 'Adversaire 2', logo: 'assets/images/opponent2-logo.png' },
-                teamSheetSubmitted: true,
-                teamSheetStatus: 'APPROVED'
-            },
-            {
-                id: '5',
-                competition: { name: 'Match Amical', type: 'FRIENDLY' },
-                homeTeam: { id: '1', name: 'Mon Équipe', logo: 'assets/images/team-logo.png' },
-                awayTeam: { id: '6', name: 'Équipe Test', logo: 'assets/images/test-logo.png' },
-                scheduledAt: new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString(),
-                stadium: { name: 'Terrain d\'Entraînement', address: '321 Allée du Sport' },
-                status: 'UPCOMING',
-                isHomeTeam: true,
-                opponent: { name: 'Équipe Test', logo: 'assets/images/test-logo.png' },
-                teamSheetSubmitted: false,
-                teamSheetStatus: 'PENDING'
+            error: (err) => {
+                console.error('❌ [MATCHS] Erreur lors du chargement des matchs:', err);
+                console.error('❌ [MATCHS] Status:', err?.status);
+                console.error('❌ [MATCHS] Message:', err?.message);
+                console.error('❌ [MATCHS] Error complet:', err);
+                this.error = 'Impossible de charger les matchs';
+                this.loading = false;
+                this.groupedMatches$ = of({});
             }
-        ];
-
-        this.groupedMatches$ = new Observable(observer => {
-            const filtered = this.applyFilters(mockMatches);
-            const grouped = this.groupMatchesByCompetition(filtered);
-            observer.next(grouped);
+        });
+    }
+    
+    convertToCoachMatches(apiMatches: any[], myTeamId: string): CoachMatch[] {
+        console.log('🔄 [MATCHS] Conversion de', apiMatches.length, 'matchs');
+        
+        return apiMatches.map((match: any) => {
+            const isHome = match.team_one_id === myTeamId || match.home_club_id === myTeamId;
+            const opponent = isHome ? match.team_two : match.team_one;
+            
+            // Déterminer le statut
+            let status: 'UPCOMING' | 'IN_PROGRESS' | 'COMPLETED' | 'POSTPONED' | 'CANCELLED' = 'UPCOMING';
+            if (match.status === 'played' || match.status === 'PLAYED' || match.status === 'finished') {
+                status = 'COMPLETED';
+            } else if (match.status === 'in_progress' || match.status === 'IN_PROGRESS') {
+                status = 'IN_PROGRESS';
+            } else if (match.status === 'postponed' || match.status === 'POSTPONED') {
+                status = 'POSTPONED';
+            } else if (match.status === 'cancelled' || match.status === 'CANCELLED') {
+                status = 'CANCELLED';
+            }
+            
+            const converted: CoachMatch = {
+                id: match.id,
+                competition: {
+                    name: match.pool?.name || match.season?.name || 'Compétition',
+                    type: 'LEAGUE'
+                },
+                homeTeam: {
+                    id: match.team_one?.id || match.team_one_id,
+                    name: match.team_one?.name || match.team_one?.abbreviation || 'Équipe Domicile',
+                    logo: match.team_one?.logo
+                },
+                awayTeam: {
+                    id: match.team_two?.id || match.team_two_id,
+                    name: match.team_two?.name || match.team_two?.abbreviation || 'Équipe Extérieure',
+                    logo: match.team_two?.logo
+                },
+                scheduledAt: match.scheduled_at || match.scheduledAt,
+                stadium: {
+                    name: match.stadium?.name || 'Stade',
+                    address: match.stadium?.address || ''
+                },
+                status: status,
+                score: match.score || match.result ? {
+                    home: match.score?.home || match.result?.home || 0,
+                    away: match.score?.away || match.result?.away || 0,
+                    halfTime: match.score?.halfTime || match.result?.half_time ? {
+                        home: match.score?.halfTime?.home || match.result?.half_time?.home || 0,
+                        away: match.score?.halfTime?.away || match.result?.half_time?.away || 0
+                    } : undefined
+                } : undefined,
+                isHomeTeam: isHome,
+                opponent: {
+                    name: opponent?.name || opponent?.abbreviation || 'Adversaire',
+                    logo: opponent?.logo
+                },
+                teamSheetSubmitted: false,
+                teamSheetStatus: 'PENDING'
+            };
+            
+            console.log('📝 [MATCHS] Match converti:', {
+                id: converted.id,
+                opponent: converted.opponent.name,
+                date: converted.scheduledAt,
+                status: converted.status,
+                isHome: converted.isHomeTeam
+            });
+            
+            return converted;
         });
     }
 

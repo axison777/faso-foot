@@ -63,13 +63,54 @@ export class MatchService {
     );
   }
 
-  getMatchesForTeam(teamId: string, opts: { status: MatchStatus; competitionId?: string; seasonId?: string }): Observable<MatchItem[]> {
+  getMatchesForTeam(teamId: string, opts: { status?: MatchStatus; competitionId?: string; seasonId?: string }): Observable<MatchItem[]> {
     const url = `${environment.apiUrl}/teams/${teamId}/matches`;
-    const params: any = { status: opts.status, ...(opts.competitionId && { competition_id: opts.competitionId }), ...(opts.seasonId && { season_id: opts.seasonId }) };
+    // Map UPCOMING/PLAYED to the API's expected status values
+    const statusMap: { [key: string]: string } = {
+      'UPCOMING': 'upcoming',
+      'PLAYED': 'played'
+    };
+    const params: any = { 
+      ...(opts.status && { status: statusMap[opts.status] || opts.status }),
+      ...(opts.competitionId && { competition_id: opts.competitionId }), 
+      ...(opts.seasonId && { season_id: opts.seasonId }) 
+    };
+    
+    console.log('🔄 [MATCH SERVICE] GET ' + url);
+    console.log('📋 [MATCH SERVICE] Params:', params);
+    
     return this.http.get<any>(url, { params }).pipe(
-      map(res => (res?.data?.matches as MatchItem[]) || []),
-      catchError(() => of(this.mockMatches(teamId, opts.status)))
+      map(res => {
+        console.log('📥 [MATCH SERVICE] Réponse brute du backend:', res);
+        // Try different response structures
+        if (res?.data?.data?.matches) {
+          console.log('✅ [MATCH SERVICE] Extraction: res.data.data.matches');
+          return res.data.data.matches as MatchItem[];
+        }
+        if (res?.data?.matches) {
+          console.log('✅ [MATCH SERVICE] Extraction: res.data.matches');
+          return res.data.matches as MatchItem[];
+        }
+        if (res?.data) {
+          console.log('✅ [MATCH SERVICE] Extraction: res.data (array)');
+          return res.data as MatchItem[];
+        }
+        console.log('⚠️ [MATCH SERVICE] Aucune structure reconnue, retour tableau vide');
+        return [];
+      }),
+      catchError((err) => {
+        console.error('❌ [MATCH SERVICE] Erreur lors du chargement des matchs:', err);
+        console.error('❌ [MATCH SERVICE] Status:', err?.status);
+        console.error('❌ [MATCH SERVICE] Message:', err?.message);
+        console.warn('⚠️ [MATCH SERVICE] Utilisation des données de mock');
+        return of(this.mockMatches(teamId, opts.status || 'UPCOMING'));
+      })
     );
+  }
+
+  getAllMatchesForTeam(teamId: string): Observable<MatchItem[]> {
+    console.log('🔄 [MATCH SERVICE] GET ALL matches for team ' + teamId);
+    return this.getMatchesForTeam(teamId, {});
   }
 
   getCompetitionPhases(teamId: string, opts?: { competitionId?: string }): Observable<string[]> {

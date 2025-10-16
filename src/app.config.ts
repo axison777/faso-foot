@@ -9,7 +9,7 @@ import { AuthInterceptor } from './app/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
-        { provide: LOCALE_ID, useValue: 'fr-FR' },
+        { provide: LOCALE_ID, useValue: 'fr' },
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         provideHttpClient(withFetch(), withInterceptors([
             AuthInterceptor

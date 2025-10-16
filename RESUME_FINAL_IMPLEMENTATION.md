@@ -1,492 +1,549 @@
-# ✅ Résumé Final - Implémentation Vue Officiel Complète
+# 🎯 Résumé Final - Implémentation Coach
 
-## 🎯 Objectif Atteint
+## ✅ Ce qui fonctionne ACTUELLEMENT
 
-Toutes les fonctionnalités de la vue officiel ont été implémentées et testées avec succès.
+### 1. 🔐 Authentification Coach
+**Status :** ✅ **OPÉRATIONNEL**
+
+```
+Logs confirmés :
+✅ Team ID récupéré : 677ff2c4-da92-4715-aa87-47b6a5bd1d06  
+✅ is_coach: true
+✅ coach_id: 84a3e4cf-96c7-4d4b-b51a-02556cab1b97
+✅ Token présent
+```
+
+**URL :** `POST /api/v1/auth/login`
 
 ---
 
-## 📊 Problèmes Résolus (23 commits)
+### 2. 📊 Dashboard Coach
+**Status :** ✅ **OPÉRATIONNEL**
 
-### 1. **Erreurs API - URLs et IDs**
-- ✅ Double `/v1/v1/` corrigé → `/api/v1/Official/...`
-- ✅ Utilisation de `official_id` au lieu de `user.id`
-- ✅ Structure `data.official` (singulier) corrigée
+```
+Logs confirmés :
+✅ Équipe récupérée : "Association Sportive de la SONABEL"
+✅ Extraction réussie : res.data.team
+✅ Données formatées pour affichage
+```
 
-### 2. **TypeError - Status null**
-- ✅ Vérification `if (!status)` ajoutée partout
-- ✅ Valeur par défaut "À venir"
-- ✅ Corrections dans : dashboard, matches, modal détails
+**URL :** `GET /api/v1/teams/677ff2c4-da92-4715-aa87-47b6a5bd1d06`
 
-### 3. **Bouton "Voir détails"**
-- ✅ Modal s'ouvre correctement
-- ✅ `*ngIf="selectedMatch"` ajouté
-- ✅ `type="button"` pour éviter soumission formulaire
-
-### 4. **Bouton "Saisir rapport"**
-- ✅ Visible pour tous les matchs non soumis
-- ✅ Condition : `*ngIf="!match?.reportSubmitted"`
-- ✅ Ouvre le formulaire multistep
-
-### 5. **Tri des matchs**
-- ✅ Tri par date croissante (plus proches en premier)
-- ✅ Filtrage : date >= aujourd'hui AND !matchClosed
-
-### 6. **Officiels assignés**
-- ✅ Affichage depuis `match.otherOfficials`
-- ✅ Nom + rôle pour chaque officiel
-- ✅ CSS amélioré
-
-### 7. **Feuilles de match (callups)**
-- ✅ API `/callups/match/{matchId}` intégrée
-- ✅ Affichage des joueurs réels (home et away)
-- ✅ Badges titulaire/capitaine
-- ✅ Entraîneur, capitaine, formation affichés
-
-### 8. **Nettoyage dashboard**
-- ✅ Notifications supprimées (endpoint 404)
-- ✅ Section notifications retirée
-- ✅ Code corrompu nettoyé
+**Réponse backend :**
+```json
+{
+  "status": true,
+  "data": {
+    "team": {
+      "id": "677ff2c4-da92-4715-aa87-47b6a5bd1d06",
+      "name": "Association Sportive de la SONABEL",
+      "abbreviation": "AS SONABEL",
+      "logo": "http://localhost:8000/storage/teams/..."
+    }
+  },
+  "message": "succès"
+}
+```
 
 ---
 
-## 🎨 Fonctionnalités Implémentées
+### 3. ⚽ Chargement des Matchs
+**Status :** ✅ **IMPLÉMENTÉ** (En test)
 
-### Dashboard (`/officiel/dashboard`)
+**Modification effectuée :**
+- Ajout de `getAllMatchesForTeam()` dans MatchService
+- Le composant charge maintenant TOUS les matchs sans filtre de statut
+- Les matchs sont convertis et groupés par compétition
 
-✅ **Profil Officiel**
-```
-👤 Samba DIALLO
-🎖️ Commissaire  🏅 NATIONAL  ✅ ACTIVE
-🆔 Licence: COMSam1234
-```
-
-✅ **Statistiques (3 cartes)**
-- Matchs à venir : 0
-- Matchs terminés : 2
-- Rapports en attente : 2
-
-✅ **Liste matchs à venir**
-- Tri par date croissante
-- 3 premiers matchs affichés
-- Toutes les infos : équipes, date, stade, rôle
+**URL :** `GET /api/v1/teams/{teamId}/matches` (sans param `status`)
 
 ---
 
-### Page Matchs (`/officiel/matchs`)
+## 📋 Structure de Données Confirmée
 
-✅ **Cartes de matchs**
-- Toutes les données affichées
-- Équipes, dates, stades, compétition
-- Numéro de journée (J1, J2...)
-- Rôle de l'officiel
+### User (Coach)
+```typescript
+{
+  id: "3736698b-1890-4841-a4bc-59e973cc3ac9",
+  first_name: "Naruto",
+  last_name: "UZUMAKI",
+  email: "naruto@gmail.com",
+  team_id: "677ff2c4-da92-4715-aa87-47b6a5bd1d06",  // ✅ Présent
+  coach_id: "84a3e4cf-96c7-4d4b-b51a-02556cab1b97", // ✅ Présent
+  is_coach: true,  // ✅ Présent
+  is_official: false,
+  is_active: true,
+  roles: []
+}
+```
 
-✅ **Boutons**
-- **"Voir détails"** → Ouvre modal ✅
-- **"Saisir rapport"** → Ouvre formulaire ✅
+### Team
+```typescript
+{
+  id: "677ff2c4-da92-4715-aa87-47b6a5bd1d06",
+  name: "Association Sportive de la SONABEL",
+  abbreviation: "AS SONABEL",
+  logo: "http://localhost:8000/storage/teams/...",
+  manager_first_name: "",
+  // ... autres champs
+}
+```
 
 ---
 
-### Modal "Détails du Match"
+## 🔧 Services Implémentés
 
-✅ **Informations générales**
-- Compétition, date, heure, stade
-- Statut (géré si null)
+### MatchService
+```typescript
+// ✅ Récupérer les matchs avec filtre statut
+getMatchesForTeam(teamId: string, opts: { 
+  status?: 'UPCOMING' | 'PLAYED';
+  competitionId?: string;
+  seasonId?: string;
+}): Observable<MatchItem[]>
 
-✅ **Officiels Assignés**
+// ✅ Récupérer TOUS les matchs (nouveau)
+getAllMatchesForTeam(teamId: string): Observable<MatchItem[]>
 ```
-Assistant 1: Fugiat sapiente id Doloremque cillum qu
-Arbitre Central: Offi OFFICI
+
+### EquipeService
+```typescript
+// ✅ Récupérer une équipe par ID
+getTeamById(teamId: string): Observable<Equipe>
+
+// ✅ Récupérer les joueurs d'une équipe
+getTeamPlayers(teamId: string): Observable<any[]>
+
+// ✅ Récupérer le staff
+getStaff(teamId: string): Observable<any>
 ```
 
-✅ **Feuilles de Match (Callups API)**
+### PlayerService
+```typescript
+// ✅ Récupérer les joueurs par équipe
+getByTeamId(teamId: string): Observable<any[]>
 
-**Équipe Domicile :**
-- Entraîneur
-- Capitaine (nom + N°)
-- Formation tactique
-- Liste joueurs avec :
-  - N° maillot
+// ✅ Récupérer les détails d'un joueur
+show(id: string): Observable<any>
+```
+
+---
+
+## 🚀 Prochaines Étapes
+
+### 1. 📊 Vue Tableau des Matchs
+**Priorité :** HAUTE
+
+**À implémenter :**
+- [ ] Afficher les matchs en tableau (DataTable PrimeNG)
+- [ ] Colonnes : Date, Adversaire, Compétition, Stade, Résultat, Actions
+- [ ] Filtres :
+  - Status (Tous, À venir, Joués)
+  - Compétition (dropdown)
+  - Date (range picker)
+  - Recherche par adversaire
+- [ ] Bouton "Détails" sur chaque ligne
+
+**Composant :** `CoachMatchesComponent`
+
+---
+
+### 2. 🔍 Modal Détails du Match
+**Priorité :** HAUTE
+
+**À afficher :**
+- Informations générales
+  - Date et heure
+  - Compétition
+  - Stade
+  - Arbitres
+- Équipes
+  - Mon équipe vs Adversaire
+  - Score (si joué)
+  - Compositions
+- Événements du match
+  - Buts
+  - Cartons
+  - Remplacements
+- Feuille de match (si disponible)
+
+**Composant :** Créer `MatchDetailsModalComponent`
+
+---
+
+### 3. 👥 Liste des Joueurs
+**Priorité :** HAUTE
+
+**À implémenter :**
+- [ ] Appeler `playerService.getByTeamId(team_id)`
+- [ ] Afficher en tableau/cards
+- [ ] Colonnes : Photo, Nom, Poste, N° Maillot, Age, Actions
+- [ ] Filtres :
+  - Poste (Gardien, Défenseur, Milieu, Attaquant)
+  - Statut (Actif, Blessé, Suspendu)
+  - Recherche par nom
+- [ ] Bouton "Détails" sur chaque joueur
+
+**Composant :** `CoachPlayersComponent`
+
+---
+
+### 4. 🔍 Modal Détails du Joueur
+**Priorité :** HAUTE
+
+**À afficher :**
+- Informations personnelles
+  - Photo
   - Nom complet
-  - Position
-  - Badge "Titulaire"
-  - Badge "Capitaine"
+  - Date de naissance / Age
+  - Nationalité
+  - Poste
+  - N° de maillot
+  - N° de licence
+- Statistiques
+  - Matchs joués
+  - Buts
+  - Passes décisives
+  - Cartons jaunes/rouges
+- Historique des matchs
+  - Derniers matchs joués
+  - Performances
 
-**Équipe Extérieur :**
-- Même structure que domicile
-- Données depuis `team_two_callup`
-
----
-
-## 🔌 Services Créés/Modifiés
-
-### `match-callup.service.ts` (NOUVEAU ✅)
-```typescript
-getMatchCallups(matchId): Observable<MatchCallups>
-// GET /callups/match/{matchId}
-// Retourne: team_one_callup + team_two_callup
-```
-
-### `official-match.service.ts` (MODIFIÉ ✅)
-```typescript
-getOfficialInfo(): Observable<OfficialInfo>
-// GET /Official/officialMatchs/{official_id}
-// Extrait: data.official
-
-getAssignedMatches(filters): Observable<OfficialMatch[]>
-// GET /Official/officialMatchs/{official_id}  
-// Extrait: data.official.matches
-// Tri par date si status=UPCOMING
-
-getMatchOfficials(matchId): Observable<any[]>
-// GET /Official/matchOfficials/{matchId}
-// Extrait: data.officials
-```
-
-### `official-report.service.ts` (COMPLÉTÉ ✅)
-```typescript
-createReport(payload): POST /official-reports
-getReportById(id): GET /official-reports/{id}
-updateReport(id, payload): PUT /official-reports/{id}
-deleteReport(id): DELETE /official-reports/{id}
-submitReport(id): POST /official-reports/{id}/submit
-```
+**Composant :** Créer `PlayerDetailsModalComponent`
 
 ---
 
-## 📋 Endpoints API Intégrés
+## 📝 Plan d'Implémentation Détaillé
 
-| Méthode | Endpoint | Usage | Statut |
-|---------|----------|-------|--------|
-| `GET` | `/Official/officialMatchs/{official_id}` | Liste matchs + infos officiel | ✅ |
-| `GET` | `/Official/matchOfficials/{matchId}` | Officiels d'un match | ✅ |
-| `GET` | `/callups/match/{matchId}` | Feuilles de match | ✅ |
-| `POST` | `/official-reports` | Créer rapport | ✅ |
-| `GET` | `/official-reports/{id}` | Voir rapport | ✅ |
-| `PUT` | `/official-reports/{id}` | Modifier rapport | ✅ |
-| `DELETE` | `/official-reports/{id}` | Supprimer rapport | ✅ |
-| `POST` | `/official-reports/{id}/submit` | Soumettre rapport | ✅ |
+### Étape 1 : Vue Tableau des Matchs (2-3h)
+
+```typescript
+// coach-matches.component.ts
+
+// Imports PrimeNG
+import { TableModule } from 'primeng/table';
+import { CalendarModule } from 'primeng/calendar';
+import { MultiSelectModule } from 'primeng/multiselect';
+
+// Template
+<p-table 
+  [value]="matches" 
+  [loading]="loading"
+  [globalFilterFields]="['opponent.name', 'competition.name']"
+  responsiveLayout="scroll">
+  
+  <ng-template pTemplate="caption">
+    <div class="filters">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" 
+               (input)="onGlobalFilter($event)" 
+               placeholder="Rechercher...">
+      </span>
+      
+      <p-dropdown [options]="statusOptions" 
+                  [(ngModel)]="selectedStatus" 
+                  placeholder="Statut"
+                  (onChange)="applyFilters()">
+      </p-dropdown>
+      
+      <p-multiSelect [options]="competitions" 
+                     [(ngModel)]="selectedCompetitions"
+                     placeholder="Compétitions"
+                     (onChange)="applyFilters()">
+      </p-multiSelect>
+    </div>
+  </ng-template>
+  
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Date</th>
+      <th>Adversaire</th>
+      <th>Compétition</th>
+      <th>Lieu</th>
+      <th>Résultat</th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+  
+  <ng-template pTemplate="body" let-match>
+    <tr>
+      <td>{{ match.scheduledAt | date:'dd/MM/yyyy HH:mm' }}</td>
+      <td>
+        <div class="opponent-cell">
+          <img [src]="match.opponent.logo" class="opponent-logo">
+          <span>{{ match.opponent.name }}</span>
+          <span class="venue-badge" [class.home]="match.isHomeTeam">
+            {{ match.isHomeTeam ? 'Domicile' : 'Extérieur' }}
+          </span>
+        </div>
+      </td>
+      <td>{{ match.competition.name }}</td>
+      <td>{{ match.stadium.name }}</td>
+      <td>
+        <span *ngIf="match.status === 'COMPLETED'" class="score">
+          {{ match.score.home }} - {{ match.score.away }}
+        </span>
+        <span *ngIf="match.status === 'UPCOMING'" class="status-badge">
+          À venir
+        </span>
+      </td>
+      <td>
+        <button pButton 
+                icon="pi pi-eye" 
+                class="p-button-sm p-button-info"
+                (click)="viewMatchDetails(match)">
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+```
 
 ---
 
-## 📝 Structure des Données
+### Étape 2 : Modal Détails Match (1-2h)
 
-### Matchs de l'officiel
-```json
-{
-  "data": {
-    "official": {
-      "id": "official_id",
-      "first_name": "Samba",
-      "last_name": "DIALLO",
-      "level": "NATIONAL",
-      "license_number": "COMSam1234",
-      "official_type": "COMMISSIONER",
-      "matches": [
-        {
-          "id": "match_id",
-          "homeTeam": {...},      // Déjà formaté
-          "awayTeam": {...},
-          "stadium": {...},
-          "competition": {...},
-          "officialRole": "CENTRAL_REFEREE",
-          "otherOfficials": [     // Autres officiels du match
-            {"name": "...", "role": "ASSISTANT_1"}
-          ],
-          "matchClosed": true,
-          "reportSubmitted": false
-        }
-      ]
+```typescript
+// match-details-modal.component.ts
+
+<p-dialog [(visible)]="visible" 
+          [modal]="true" 
+          [style]="{width: '90vw', maxWidth: '1000px'}"
+          header="Détails du Match">
+  
+  <div class="match-header">
+    <div class="competition-badge">
+      {{ match.competition.name }}
+    </div>
+    <div class="match-date">
+      {{ match.scheduledAt | date:'EEEE d MMMM y à HH:mm':'':'fr' }}
+    </div>
+  </div>
+  
+  <div class="match-teams">
+    <div class="team home">
+      <img [src]="match.homeTeam.logo" class="team-logo">
+      <h3>{{ match.homeTeam.name }}</h3>
+    </div>
+    
+    <div class="score-section">
+      <div *ngIf="match.status === 'COMPLETED'" class="score">
+        <span class="score-home">{{ match.score.home }}</span>
+        <span class="separator">-</span>
+        <span class="score-away">{{ match.score.away }}</span>
+      </div>
+      <div *ngIf="match.status === 'UPCOMING'" class="vs">VS</div>
+    </div>
+    
+    <div class="team away">
+      <img [src]="match.awayTeam.logo" class="team-logo">
+      <h3>{{ match.awayTeam.name }}</h3>
+    </div>
+  </div>
+  
+  <p-tabView>
+    <p-tabPanel header="Informations">
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Stade</label>
+          <span>{{ match.stadium.name }}</span>
+        </div>
+        <div class="info-item">
+          <label>Adresse</label>
+          <span>{{ match.stadium.address }}</span>
+        </div>
+        <!-- Plus d'infos -->
+      </div>
+    </p-tabPanel>
+    
+    <p-tabPanel header="Compositions">
+      <!-- Afficher les compositions d'équipe -->
+    </p-tabPanel>
+    
+    <p-tabPanel header="Événements">
+      <!-- Buts, cartons, etc. -->
+    </p-tabPanel>
+  </p-tabView>
+  
+</p-dialog>
+```
+
+---
+
+### Étape 3 : Liste des Joueurs (2-3h)
+
+```typescript
+// coach-players.component.ts
+
+ngOnInit() {
+  const teamId = this.authService.currentUser?.team_id;
+  
+  this.playerService.getByTeamId(teamId).subscribe({
+    next: (players) => {
+      console.log('✅ [PLAYERS] Joueurs reçus:', players);
+      this.players = players;
+      this.filteredPlayers = players;
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('❌ [PLAYERS] Erreur:', err);
+      this.error = 'Impossible de charger les joueurs';
+      this.loading = false;
     }
-  }
+  });
 }
-```
 
-### Feuilles de Match (Callups)
-```json
-{
-  "data": {
-    "match_callups": {
-      "team_one_callup": {
-        "coach_name": "...",
-        "captain_name": "...",
-        "captain_jersey_number": "...",
-        "formation": "4-4-2",
-        "total_players": 18,
-        "players": [
-          {
-            "first_name": "...",
-            "last_name": "...",
-            "jersey_number": "10",
-            "position": "Milieu",
-            "is_starter": "1",
-            "player_id": "..."
-          }
-        ]
-      },
-      "team_two_callup": { /* même structure */ }
-    }
-  }
-}
-```
-
----
-
-## ✅ Fonctionnalités Supprimées
-
-### ❌ Notifications
-- Section notifications retirée du dashboard
-- Endpoint `/officials/notifications` retournait 404
-- Carte statistiques notifications supprimée
-- Code nettoyé
-
-### ❌ Validation Feuilles de Match
-- Boutons "Valider" / "Rejeter" supprimés
-- Champs `rejectionReasons` supprimés
-- Fonctions `approveTeamSheet()`, `rejectTeamSheet()` supprimées
-- Section validation-actions retirée
-
----
-
-## 🎨 Interface Utilisateur Finale
-
-### Dashboard
-```
-┌─────────────────────────────────────────────────┐
-│  👤 Samba DIALLO                                 │
-│  🎖️ Commissaire  🏅 NATIONAL  ✅ ACTIVE          │
-│  🆔 Licence: COMSam1234                          │
-└─────────────────────────────────────────────────┘
-
-📅 Matchs à venir    ✅ Matchs terminés    📝 Rapports
-    0                     2                   2
-
-┌─────────────────────────────────────────────────┐
-│  Mes prochains matchs                  Voir tous│
-│  (vide car tous clôturés)                        │
-└─────────────────────────────────────────────────┘
-```
-
-### Page Matchs
-```
-┌─────────────────────────────────────────────────┐
-│  🏆 Poule unique J1                      À venir│
-├─────────────────────────────────────────────────┤
-│  ⚽ Association Sportive des Douanes            │
-│                    vs                            │
-│  ⚽ Union Sportive des Forces Armées            │
-│  ───────────────────────────────────────────────│
-│  📅 24/09/2025  ⏰ 16:00                         │
-│  📍 Stade Municipal de Ouagadougou              │
-│  🧑‍⚖️ ARBITRE CENTRAL                            │
-│  ───────────────────────────────────────────────│
-│  [👁️ Voir détails]  [📝 Saisir rapport]         │
-└─────────────────────────────────────────────────┘
-```
-
-### Modal Détails
-```
-┌─────────────────────────────────────────────────┐
-│  Détails du Match - Poule unique                │
-├─────────────────────────────────────────────────┤
-│  Compétition: Poule unique                       │
-│  Date: 24/09/2025  Heure: 16:00                 │
-│  Stade: Stade Municipal de Ouagadougou          │
-│  Statut: À venir                                 │
-├─────────────────────────────────────────────────┤
-│  Équipes et Feuilles de Match                    │
-│  ┌─ Association Sportive des Douanes (18 joueurs)│
-│  │   Entraîneur: [nom]                          │
-│  │   Capitaine: [nom] (N°10)                    │
-│  │   Formation: 4-4-2                            │
-│  │                                               │
-│  │   Joueurs (18)                                │
-│  │   [10] Prénom Nom - Milieu [Titulaire] [Capitaine]│
-│  │   ...                                         │
-│  └───────────────────────────────────────────────│
-├─────────────────────────────────────────────────┤
-│  Officiels Assignés (2)                          │
-│  [Assistant 1] Fugiat sapiente id...            │
-│  [Arbitre Central] Offi OFFICI                  │
-└─────────────────────────────────────────────────┘
+// Template
+<p-table [value]="filteredPlayers" [loading]="loading">
+  <ng-template pTemplate="caption">
+    <div class="filters">
+      <input pInputText 
+             [(ngModel)]="searchTerm" 
+             (input)="applyFilters()"
+             placeholder="Rechercher un joueur...">
+      
+      <p-dropdown [options]="positionOptions" 
+                  [(ngModel)]="selectedPosition"
+                  (onChange)="applyFilters()"
+                  placeholder="Poste">
+      </p-dropdown>
+    </div>
+  </ng-template>
+  
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Photo</th>
+      <th>Nom</th>
+      <th>Poste</th>
+      <th>N° Maillot</th>
+      <th>Age</th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+  
+  <ng-template pTemplate="body" let-player>
+    <tr>
+      <td>
+        <img [src]="player.photo || 'assets/default-player.png'" 
+             class="player-photo">
+      </td>
+      <td>{{ player.first_name }} {{ player.last_name }}</td>
+      <td>{{ player.position }}</td>
+      <td>{{ player.jersey_number }}</td>
+      <td>{{ calculateAge(player.birth_date) }}</td>
+      <td>
+        <button pButton 
+                icon="pi pi-eye" 
+                (click)="viewPlayerDetails(player)">
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
 ```
 
 ---
 
-## 🚀 Tests Effectués
+## 📊 Endpoints API à Tester
 
-✅ Connexion en tant qu'officiel  
-✅ Redirection vers `/officiel/dashboard`  
-✅ Affichage du profil  
-✅ Statistiques correctes  
-✅ Navigation vers `/officiel/matchs`  
-✅ 2 matchs affichés avec toutes données  
-✅ Clic "Voir détails" → Modal s'ouvre  
-✅ Officiels assignés visibles  
-✅ Clic "Saisir rapport" → Formulaire s'ouvre  
-✅ Aucune erreur console  
-
----
-
-## 📂 Fichiers Modifiés/Créés
-
-### Services
-- ✅ `src/app/service/official-match.service.ts` (modifié)
-- ✅ `src/app/service/official-report.service.ts` (modifié)
-- ✅ `src/app/service/match-callup.service.ts` (nouveau)
-- ✅ `src/app/models/user.model.ts` (modifié)
-
-### Composants
-- ✅ `src/app/pages/official-dashboard/official-dashboard.component.ts`
-- ✅ `src/app/pages/official-matches/official-matches.component.ts`
-- ✅ `src/app/pages/official-matches/match-details-modal.component.ts`
-- ✅ `src/app/pages/login/login.component.ts`
-
-### Documentation
-- ✅ `BACKEND_INTEGRATION_OFFICIAL.md`
-- ✅ `FINAL_IMPLEMENTATION_STATUS.md`
-- ✅ `RAPPORT_OFFICIEL_IMPLEMENTATION.md`
-- ✅ `GUIDE_IMPLEMENTATION_COMPLETE.md`
-- ✅ `CONFIGURATION_LOGIN_REDIRECT.md`
-
----
-
-## 🔧 Différences Backend vs Frontend
-
-| Concept | Backend | Frontend |
-|---------|---------|----------|
-| ID Utilisateur | `user.id` | Non utilisé |
-| ID Officiel | `official_id` | ✅ Utilisé pour API |
-| Structure officiel | `data.official` | ✅ Singulier |
-| Matchs | `official.matches` | ✅ Déjà formatés |
-| Statut match | `null` | ✅ Affiché "À venir" |
-| Matchs finis | `matchClosed: true` | ✅ Filtrés |
-| Joueurs | `callups.team_one_callup` | ✅ Affichés |
-
----
-
-## 🎯 Données de Test Actuelles
-
-### Officiel
-- **Nom** : Samba DIALLO
-- **Type** : Commissaire
-- **Niveau** : NATIONAL
-- **Licence** : COMSam1234
-- **ID** : 01bb54c2-c395-45b9-947b-797ac6462eed
-
-### Matchs (2)
-1. **Association Sportive des Douanes** vs **Union Sportive des Forces Armées**
-   - Rôle : Arbitre Central
-   - Stade : Stade Municipal de Ouagadougou
-   - Date : 24/09/2025 16:00
-   - Clôturé : Oui
-   - Officiels : 2
-
-2. **Etoile Filante de Ouagadougou** vs **Majestic Sporting Club**
-   - Rôle : Commissaire
-   - Stade : Stade Municipal de Koudougou
-   - Date : 24/09/2025 16:00
-   - Clôturé : Oui
-   - Officiels : 3
-
----
-
-## 📚 Guide d'Utilisation
-
-### Pour créer un rapport
-
-1. Aller sur `/officiel/matchs`
-2. Cliquer "Saisir rapport"
-3. Remplir le formulaire multistep :
-   - Étape 1 : Résultat du match
-   - Étape 2 : Évaluation générale
-   - Étape 3 : Évaluation arbitre principal
-   - Étape 4 : Évaluation 4ème arbitre
-   - Étape 5 : Sanctions
-   - Étape 6 : Évaluation assistants
-4. Actions :
-   - **Enregistrer brouillon** → `POST /official-reports` (status=DRAFT)
-   - **Soumettre** → `POST /official-reports/{id}/submit`
-
-### Pour voir les feuilles de match
-
-1. Aller sur `/officiel/matchs`
-2. Cliquer "Voir détails"
-3. Cliquer sur le nom d'une équipe
-4. Voir :
-   - Liste des joueurs
-   - Titulaires (badge)
-   - Capitaine (badge)
-   - Entraîneur
-   - Formation
-
----
-
-## ✅ Checklist Complète
-
+### Matchs
 ```
-✅ Compilation réussie (0 erreur)
-✅ Interface User avec official_id
-✅ Service OfficialMatchService complet
-✅ Service OfficialReportService complet
-✅ Service MatchCallupService créé
-✅ Dashboard opérationnel
-✅ Profil officiel affiché
-✅ Statistiques correctes
-✅ Liste matchs fonctionnelle
-✅ Modal détails fonctionnel
-✅ Officiels assignés affichés
-✅ Feuilles de match chargées depuis API
-✅ Joueurs réels affichés
-✅ Bouton "Saisir rapport" visible
-✅ Formulaire multistep connecté
-✅ Endpoints CRUD rapports
-✅ Tri chronologique des matchs
-✅ Gestion status null
-✅ Safe navigation partout
-✅ Notifications supprimées
-✅ Validation supprimée
-✅ Documentation complète
-✅ Code nettoyé
-✅ Prêt pour production
+✅ GET /api/v1/teams/{teamId}/matches
+   Params: status (optional), season_id, competition_id
+   
+   Test à faire: Appeler sans params pour avoir tous les matchs
+```
+
+### Joueurs
+```
+✅ GET /api/v1/teams/{teamId}/players
+   Response attendue: { status: true, data: { players: [...] } }
+   
+   Test à faire: Vérifier la structure de réponse
+```
+
+### Détails Joueur
+```
+✅ GET /api/v1/players/show/{playerId}
+   Response attendue: { status: true, data: { player: {...} } }
 ```
 
 ---
 
-## 🚀 Branche Git
+## 🐛 Issues à Surveiller
 
-**Nom :** `fix/official-api-urls-and-ids`  
-**Commits :** 23  
-**État :** Prêt pour merge ✅
-
-**Derniers commits :**
+### 1. Logo de l'équipe
 ```
-[en cours] - refactor: Remove notifications and clean up code
-128698c - feat: Integrate match callups API for team sheets
-326e2f1 - fix: Improve officials display CSS
-52312fe - fix: Display other officials from match data
+❌ GET http://localhost:8000/storage/teams/...png 
+   net::ERR_CONNECTION_REFUSED
+```
+
+**Cause :** L'URL du logo pointe vers `localhost:8000` au lieu du serveur Serveo
+
+**Solution :** Le backend doit retourner l'URL complète avec le bon domaine
+
+---
+
+### 2. Structure des matchs
+À vérifier lors du test :
+- Le backend retourne-t-il `homeAway: "HOME"|"AWAY"` ?
+- Les informations opponent sont-elles présentes ?
+- Le statut est-il `"upcoming"` ou `"UPCOMING"` ?
+
+---
+
+## ✅ Tests à Effectuer
+
+### Test 1 : Tous les Matchs
+```bash
+# Ouvrir la console (F12)
+# Se connecter en tant que coach
+# Aller sur /mon-equipe/matchs
+# Vérifier les logs:
+
+✅ [MATCHS] Tous les matchs reçus: [...]
+✅ [MATCHS] Nombre total de matchs: X
+
+# Noter la structure exacte des matchs
+```
+
+### Test 2 : Joueurs de l'Équipe
+```bash
+# Dans la console
+const teamId = "677ff2c4-da92-4715-aa87-47b6a5bd1d06";
+fetch('https://.../api/v1/teams/' + teamId + '/players', {
+  headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+})
+.then(r => r.json())
+.then(data => console.log('Joueurs:', data));
 ```
 
 ---
 
-## 🎉 Résultat Final
+## 📚 Documentation
 
-### Ce qui fonctionne **maintenant** :
-
-✅ **Dashboard** : Profil + Stats + Matchs à venir  
-✅ **Page Matchs** : Liste complète avec toutes données  
-✅ **Détails Match** : Infos + Officiels + Feuilles de match  
-✅ **Formulaire Rapport** : Multistep prêt à l'emploi  
-✅ **API** : Tous les endpoints intégrés  
-✅ **Navigation** : Redirection auto après login  
-
-### Ce qui a été retiré :
-
-❌ **Notifications** : Endpoint 404  
-❌ **Validation feuilles** : Pas dans le scope  
+Guides disponibles :
+1. [IMPLEMENTATION_COACH_REDIRECTION.md](./IMPLEMENTATION_COACH_REDIRECTION.md)
+2. [INTEGRATION_MATCHS_COACH.md](./INTEGRATION_MATCHS_COACH.md)
+3. [ENDPOINTS_DISPONIBLES_COACH.md](./ENDPOINTS_DISPONIBLES_COACH.md)
+4. [INTEGRATION_FINALE_COACH.md](./INTEGRATION_FINALE_COACH.md)
+5. [GUIDE_LOGS_DEBUG.md](./GUIDE_LOGS_DEBUG.md)
+6. [LOGS_AJOUTES_RECAP.md](./LOGS_AJOUTES_RECAP.md)
+7. [CORRECTIONS_FINALES.md](./CORRECTIONS_FINALES.md)
+8. [RESUME_FINAL_IMPLEMENTATION.md](./RESUME_FINAL_IMPLEMENTATION.md) (ce document)
 
 ---
 
-**Date :** 2025-10-10  
-**Statut :** ✅ **100% FONCTIONNEL**  
-**Prêt pour :** Merge et Production
+## 🎯 Conclusion
+
+**Status actuel :** ✅ **Base fonctionnelle opérationnelle**
+
+- Authentification coach : ✅
+- Dashboard avec équipe : ✅
+- Service matchs adapté : ✅
+- Logs de debug : ✅
+
+**Prochaine priorité :** Implémenter la vue tableau des matchs et des joueurs
+
+L'infrastructure est en place, il ne reste plus qu'à créer les vues finales ! 🚀

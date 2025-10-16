@@ -79,8 +79,38 @@ export class EquipeService {
   getMyTeam(): Observable<Equipe> {
     const url = `${this.apiUrl}/me`;
     return this.http.get<any>(url).pipe(
-      map((res: any) => res?.data?.team as Equipe),
-      catchError(() => of(this.mockTeam()))
+      map((res: any) => {
+        if (res?.data?.team) {
+          return res.data.team as Equipe;
+        }
+        if (res?.data) {
+          return res.data as Equipe;
+        }
+        return res as Equipe;
+      }),
+      catchError((err) => {
+        console.warn('Erreur lors de la récupération de l\'équipe:', err);
+        return of(this.mockTeam());
+      })
+    );
+  }
+
+  getTeamById(teamId: string): Observable<Equipe> {
+    console.log('🔄 [EQUIPE SERVICE] GET /teams/' + teamId);
+    return this.http.get<any>(`${this.apiUrl}/${teamId}`).pipe(
+      map((res: any) => {
+        console.log('📥 [EQUIPE SERVICE] Réponse brute du backend:', res);
+        if (res?.data?.team) {
+          console.log('✅ [EQUIPE SERVICE] Extraction: res.data.team');
+          return res.data.team as Equipe;
+        }
+        if (res?.data) {
+          console.log('✅ [EQUIPE SERVICE] Extraction: res.data');
+          return res.data as Equipe;
+        }
+        console.log('✅ [EQUIPE SERVICE] Extraction: res directement');
+        return res as Equipe;
+      })
     );
   }
 

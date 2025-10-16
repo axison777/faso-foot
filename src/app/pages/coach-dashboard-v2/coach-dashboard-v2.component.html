@@ -6,56 +6,62 @@
 
   <div *ngIf="loading" class="loading">Chargement...</div>
 
-  <div *ngIf="!loading && teamData() as data" class="dashboard-container">
+  <div *ngIf="error()" class="error-message">
+    <i class="pi pi-exclamation-circle"></i>
+    <span>{{ error() }}</span>
+  </div>
+
+  <div *ngIf="!loading && !error() && teamData() as data" class="dashboard-container">
     
     <!-- Zone Prioritaire : Le Prochain Défi -->
     <div class="priority-zone">
-      <div class="next-match-card">
+      <div *ngIf="nextMatch()" class="next-match-card">
         <div class="match-header">
           <div class="competition-badge">
             <i class="pi pi-trophy"></i>
-            <span>{{ data.nextMatch?.competition }}</span>
+            <span>{{ nextMatch()!.competition }}</span>
           </div>
           <div class="match-date">
             <i class="pi pi-calendar"></i>
-            <span>{{ data.nextMatch?.date | date:'EEEE d MMMM y':'':'fr' }}</span>
-            <span class="time">{{ data.nextMatch?.date | date:'HH:mm':'':'fr' }}</span>
+            <span>{{ nextMatch()!.date | date:'EEEE d MMMM y':'':'fr' }}</span>
+            <span class="time">{{ nextMatch()!.date | date:'HH:mm':'':'fr' }}</span>
           </div>
         </div>
         
         <div class="match-vs">
           <div class="team-logo">
-            <img [src]="data.kit?.photo" alt="Mon équipe" />
+            <img *ngIf="data.kit?.photo" [src]="data.kit.photo" alt="Mon équipe" />
+            <div *ngIf="!data.kit?.photo" class="team-logo-placeholder">
+              <i class="pi pi-shield"></i>
+            </div>
           </div>
           <div class="vs-section">
             <div class="vs-text">VS</div>
-            <div class="opponent-name">{{ data.nextMatch?.opponent }}</div>
+            <div class="opponent-name">{{ nextMatch()!.opponent }}</div>
             <div class="stadium">
               <i class="pi pi-map-marker"></i>
-              <span>Stade Municipal</span>
+              <span>{{ nextMatch()!.stadium }}</span>
             </div>
           </div>
           <div class="opponent-logo">
-            <div class="opponent-placeholder">
+            <img *ngIf="nextMatch()!.opponentLogo" 
+                 [src]="nextMatch()!.opponentLogo" 
+                 alt="Logo adversaire" />
+            <div *ngIf="!nextMatch()!.opponentLogo" class="opponent-placeholder">
               <i class="pi pi-users"></i>
             </div>
           </div>
         </div>
 
-        <div class="opponent-stats">
-          <div class="opponent-form">
-            <span class="label">Forme (5 derniers)</span>
-            <div class="form-icons">
-              <span class="result win">W</span>
-              <span class="result loss">L</span>
-              <span class="result draw">D</span>
-              <span class="result win">W</span>
-              <span class="result win">W</span>
-            </div>
+        <div class="match-teams-display">
+          <div class="team-info home" [class.my-team]="nextMatch()!.isHome">
+            <span class="team-name">{{ nextMatch()!.homeTeam }}</span>
+            <span *ngIf="nextMatch()!.isHome" class="badge">Mon Équipe</span>
           </div>
-          <div class="opponent-ranking">
-            <span class="label">Classement</span>
-            <span class="rank">5ème</span>
+          <div class="vs-divider">VS</div>
+          <div class="team-info away" [class.my-team]="!nextMatch()!.isHome">
+            <span class="team-name">{{ nextMatch()!.awayTeam }}</span>
+            <span *ngIf="!nextMatch()!.isHome" class="badge">Mon Équipe</span>
           </div>
         </div>
 
@@ -66,9 +72,14 @@
           </button>
           <button class="secondary-action-btn">
             <i class="pi pi-eye"></i>
-            Match Central
+            Voir Détails
           </button>
         </div>
+      </div>
+      
+      <div *ngIf="!nextMatch()" class="no-next-match">
+        <i class="pi pi-calendar-times"></i>
+        <p>Aucun prochain match programmé</p>
       </div>
     </div>
 

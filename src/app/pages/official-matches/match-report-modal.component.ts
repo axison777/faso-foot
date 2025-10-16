@@ -35,6 +35,7 @@ interface EvaluationOfficiel {
         };
     };
     total: number;
+    totalMax?: number;
 }
 
 @Component({
@@ -389,17 +390,15 @@ interface EvaluationOfficiel {
                                     </div>
                                     <div class="rating-input">
                                         <div class="note-section">
-                                            <label class="note-label">Note (sur 10):</label>
+                                            <label class="note-label">Évaluation (sur {{ critere.max }}):</label>
                                             <input type="number" 
                                                    [(ngModel)]="evaluation.criteres[critere.key].note"
-                                                   min="0" max="10" step="0.1"
+                                                   min="0" [max]="critere.max" step="1"
                                                    (ngModelChange)="onNoteChange(i)"
                                                    class="note-input">
                                         </div>
-                                        <div class="calculation-section">
-                                            <span class="multiplier">× {{ critere.multiplicateur }}</span>
-                                            <span class="equals">=</span>
-                                            <span class="total">{{ (evaluation.criteres[critere.key].note * critere.multiplicateur).toFixed(1) }}</span>
+                                        <div class="total-display">
+                                            <span class="total">{{ evaluation.criteres[critere.key].note || 0 }}/{{ critere.max }}</span>
                                         </div>
                                     </div>
                                     <div class="comment-section">
@@ -412,10 +411,7 @@ interface EvaluationOfficiel {
                                 </div>
                             </div>
                             <div class="evaluation-summary">
-                                <strong>Total: {{ evaluation.total.toFixed(1) }}/10</strong>
-                                <span class="note-level" [ngClass]="getNoteLevel(evaluation.total)">
-                                    {{ getNoteLevelLabel(evaluation.total) }}
-                                </span>
+                                <strong>Total: {{ evaluation.total || 0 }}/{{ evaluation.totalMax || getTotalMaxForRole(evaluation.role) }}</strong>
                             </div>
                         </div>
                     </div>
@@ -1027,23 +1023,11 @@ interface EvaluationOfficiel {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .calculation-section {
+        .total-display {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
             font-size: 1rem;
             font-weight: 600;
-        }
-
-        .multiplier {
-            color: #6b7280;
-            background: #f3f4f6;
-            padding: 0.5rem 0.75rem;
-            border-radius: 4px;
-        }
-
-        .equals {
-            color: #374151;
         }
 
         .total {
@@ -1290,17 +1274,17 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         const criteres: any = {};
         
         if (role === 'CENTRAL_REFEREE') {
-            criteres.controleMatch = { note: 7, commentaires: '' };
-            criteres.conditionPhysique = { note: 7, commentaires: '' };
-            criteres.personnalite = { note: 7, commentaires: '' };
-            criteres.collaboration = { note: 7, commentaires: '' };
+            criteres.controleMatch = { note: 0, commentaires: '' };
+            criteres.conditionPhysique = { note: 0, commentaires: '' };
+            criteres.personnalite = { note: 0, commentaires: '' };
+            criteres.collaboration = { note: 0, commentaires: '' };
         } else if (role === 'ASSISTANT_REFEREE_1' || role === 'ASSISTANT_REFEREE_2') {
-            criteres.interpretationLois = { note: 7, commentaires: '' };
-            criteres.conditionPhysique = { note: 7, commentaires: '' };
-            criteres.collaboration = { note: 7, commentaires: '' };
+            criteres.interpretationLois = { note: 0, commentaires: '' };
+            criteres.conditionPhysique = { note: 0, commentaires: '' };
+            criteres.collaboration = { note: 0, commentaires: '' };
         } else if (role === 'FOURTH_OFFICIAL') {
-            criteres.controleSurfaces = { note: 7, commentaires: '' };
-            criteres.gestionRemplacements = { note: 7, commentaires: '' };
+            criteres.controleSurfaces = { note: 0, commentaires: '' };
+            criteres.gestionRemplacements = { note: 0, commentaires: '' };
         }
         
         return criteres;
@@ -1319,28 +1303,24 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
                 { 
                     key: 'controleMatch', 
                     label: 'Contrôle du match & Interprétation des lois du jeu (Sanctions disciplinaire et les lois du jeux)', 
-                    multiplicateur: 5, 
                     max: 50,
                     description: 'Évaluation du contrôle du match et de l\'interprétation des lois du jeu'
                 },
                 { 
                     key: 'conditionPhysique', 
                     label: 'Condition physique (Endurance, Placement & déplacement, vitesse de réaction)', 
-                    multiplicateur: 3, 
                     max: 30,
                     description: 'Évaluation de la condition physique de l\'arbitre'
                 },
                 { 
                     key: 'personnalite', 
                     label: 'Personnalité (Décidé ou indécis, anxieux, Influençable par le public ou les joueurs, Partial ou impartial, Personnalité forte ou faible)', 
-                    multiplicateur: 1, 
                     max: 10,
                     description: 'Évaluation de la personnalité de l\'arbitre'
                 },
                 { 
                     key: 'collaboration', 
                     label: 'Collaboration (Coopération avec les autres arbitres, décisions claires, utilisation des sifflets, signaux claires, chronométrage)', 
-                    multiplicateur: 1, 
                     max: 10,
                     description: 'Évaluation de la collaboration avec les autres arbitres'
                 }
@@ -1350,21 +1330,18 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
                 { 
                     key: 'interpretationLois', 
                     label: 'Interprétations et application des lois du jeu (Décisions sur le hors jeu, Sorties de balles et fautes)', 
-                    multiplicateur: 5, 
                     max: 50,
                     description: 'Évaluation des décisions sur le hors jeu et les fautes'
                 },
                 { 
                     key: 'conditionPhysique', 
                     label: 'Condition Physique (vitesse, endurance, alignement sur le hors jeu)', 
-                    multiplicateur: 3, 
                     max: 30,
                     description: 'Évaluation de la condition physique de l\'assistant'
                 },
                 { 
                     key: 'collaboration', 
                     label: 'Collaboration (Coopération avec les autres arbitres)', 
-                    multiplicateur: 2, 
                     max: 20,
                     description: 'Évaluation de la collaboration avec les autres arbitres'
                 }
@@ -1374,14 +1351,12 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
                 { 
                     key: 'controleSurfaces', 
                     label: 'Contrôle des surfaces techniques et Assistance dans le contrôle du match', 
-                    multiplicateur: 3, 
                     max: 30,
                     description: 'Évaluation du contrôle des surfaces techniques'
                 },
                 { 
                     key: 'gestionRemplacements', 
                     label: 'Gestion des remplacements, gestion du temps additionnel', 
-                    multiplicateur: 2, 
                     max: 20,
                     description: 'Évaluation de la gestion des remplacements et du temps'
                 }
@@ -1515,16 +1490,12 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         
         criteres.forEach(critere => {
             const note = evaluation.criteres[critere.key]?.note || 0;
-            total += note * critere.multiplicateur;
+            total += note;
             totalMax += critere.max;
         });
         
-        // Éviter la division par zéro
-        if (totalMax > 0) {
-            evaluation.total = total / (totalMax / 10);
-        } else {
-            evaluation.total = 0;
-        }
+        evaluation.total = total;
+        evaluation.totalMax = totalMax;
     }
 
     getNoteLevel(total: number): string {
@@ -1554,6 +1525,11 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
             case 'COMMISSIONER': return 'Commissaire';
             default: return role;
         }
+    }
+
+    getTotalMaxForRole(role: string): number {
+        const criteres = this.getCriteresForRole(role);
+        return criteres.reduce((sum, critere) => sum + critere.max, 0);
     }
 
     trackByEvaluation(index: number, evaluation: any): any {
