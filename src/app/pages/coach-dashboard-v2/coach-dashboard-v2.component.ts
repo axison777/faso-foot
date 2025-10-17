@@ -143,50 +143,61 @@ export class CoachDashboardV2Component implements OnInit {
     console.log('🔄 [DASHBOARD] Chargement du prochain match');
     
     this.matchService.getAllMatchesForTeam(teamId).subscribe({
-      next: (matches) => {
-        console.log('✅ [DASHBOARD] Matchs reçus pour prochain match:', matches);
+      next: (matches: any[]) => {
+        console.log('✅ [DASHBOARD] Matchs reçus:', matches);
+        console.log('📊 [DASHBOARD] Nombre de matchs:', matches?.length || 0);
+        
+        if (!matches || matches.length === 0) {
+          console.log('⚠️ [DASHBOARD] Aucun match disponible');
+          this.nextMatch.set(null);
+          this.loading = false;
+          return;
+        }
         
         // Filtrer les matchs à venir et trouver le plus proche
         const now = new Date();
         const upcomingMatches = matches
           .filter((m: any) => {
-            const matchDate = new Date(m.scheduled_at || m.scheduledAt);
-            return matchDate > now && (m.status === 'planned' || m.status === 'upcoming' || m.status === 'UPCOMING');
+            const matchDate = new Date(m.scheduled_at);
+            return matchDate > now;
           })
           .sort((a: any, b: any) => {
-            const dateA = new Date(a.scheduled_at || a.scheduledAt);
-            const dateB = new Date(b.scheduled_at || b.scheduledAt);
+            const dateA = new Date(a.scheduled_at);
+            const dateB = new Date(b.scheduled_at);
             return dateA.getTime() - dateB.getTime();
           });
         
+        console.log('⏭️ [DASHBOARD] Matchs à venir:', upcomingMatches.length);
+        
         if (upcomingMatches.length > 0) {
-          const nextMatchData = upcomingMatches[0];
-          const isHome = nextMatchData.team_one_id === teamId;
+          const nextMatchData: any = upcomingMatches[0];
+          const isHome = nextMatchData.team_one_id === teamId || nextMatchData.home_club_id === teamId;
           const opponent = isHome ? nextMatchData.team_two : nextMatchData.team_one;
           
           const formatted = {
             id: nextMatchData.id,
-            opponent: opponent?.name || opponent?.abbreviation || 'Adversaire',
+            opponent: opponent?.abbreviation || opponent?.name || 'Adversaire',
             opponentLogo: opponent?.logo,
-            date: nextMatchData.scheduled_at || nextMatchData.scheduledAt,
-            competition: nextMatchData.pool?.name || nextMatchData.season?.name || 'Compétition',
+            date: nextMatchData.scheduled_at,
+            competition: nextMatchData.pool?.name || 'Compétition',
             stadium: nextMatchData.stadium?.name || 'Stade',
             isHome: isHome,
-            homeTeam: nextMatchData.team_one?.name || nextMatchData.team_one?.abbreviation,
-            awayTeam: nextMatchData.team_two?.name || nextMatchData.team_two?.abbreviation
+            homeTeam: nextMatchData.team_one?.abbreviation || nextMatchData.team_one?.name || 'Équipe Domicile',
+            awayTeam: nextMatchData.team_two?.abbreviation || nextMatchData.team_two?.name || 'Équipe Extérieure',
+            matchId: nextMatchData.id
           };
           
           console.log('⚽ [DASHBOARD] Prochain match trouvé:', formatted);
           this.nextMatch.set(formatted);
         } else {
-          console.log('ℹ️ [DASHBOARD] Aucun prochain match trouvé');
+          console.log('ℹ️ [DASHBOARD] Aucun match à venir');
           this.nextMatch.set(null);
         }
         
         this.loading = false;
       },
       error: (err) => {
-        console.error('❌ [DASHBOARD] Erreur lors du chargement du prochain match:', err);
+        console.error('❌ [DASHBOARD] Erreur:', err);
         this.loading = false;
       }
     });
