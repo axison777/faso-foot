@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -37,6 +37,7 @@ export class CoachMatchesComponent implements OnInit {
     private coachService = inject(CoachService);
     private authService = inject(AuthService);
     private messageService = inject(MessageService);
+    private route = inject(ActivatedRoute);
 
     matches = signal<EnrichedMatch[]>([]);
     filteredMatches = signal<EnrichedMatch[]>([]);
@@ -80,6 +81,18 @@ export class CoachMatchesComponent implements OnInit {
 
     ngOnInit() {
         this.loadMatches();
+        
+        // Écouter les query params pour ouvrir automatiquement le modal si un matchId est présent
+        this.route.queryParams.subscribe(params => {
+            const matchId = params['matchId'];
+            if (matchId) {
+                console.log('🔍 [COACH MATCHES] Ouverture automatique du match:', matchId);
+                // Attendre que les matchs soient chargés avant d'ouvrir le modal
+                setTimeout(() => {
+                    this.openMatchFromId(matchId);
+                }, 1000);
+            }
+        });
     }
 
     loadMatches() {
@@ -281,5 +294,23 @@ export class CoachMatchesComponent implements OnInit {
         if (days === 0) return "Aujourd'hui";
         if (days === 1) return 'Demain';
         return `Dans ${days} jours`;
+    }
+
+    /**
+     * Ouvre le modal de détails pour un match spécifique à partir de son ID
+     */
+    openMatchFromId(matchId: string) {
+        const match = this.filteredMatches().find(m => m.id === matchId);
+        if (match) {
+            console.log('✅ [COACH MATCHES] Match trouvé, ouverture du modal:', match);
+            this.openMatchDetails(match);
+        } else {
+            console.warn('⚠️ [COACH MATCHES] Match non trouvé avec l\'ID:', matchId);
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Match non trouvé',
+                detail: 'Le match demandé n\'a pas été trouvé dans la liste'
+            });
+        }
     }
 }

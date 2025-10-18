@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { EquipeService, Equipe } from '../../service/equipe.service';
 import { AuthService } from '../../service/auth.service';
 import { MatchService } from '../../service/match.service';
@@ -18,6 +19,7 @@ export class CoachDashboardV2Component implements OnInit {
     private equipeService = inject(EquipeService);
     private authService = inject(AuthService);
     private matchService = inject(MatchService);
+    private router = inject(Router);
     
     team = signal<Equipe | null>(null);
     teamData = signal<TeamDashboardData | null>(null);
@@ -201,5 +203,35 @@ export class CoachDashboardV2Component implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  /**
+   * Navigue vers la page de préparation de la composition (match-setup)
+   * pour soumettre la feuille de match
+   */
+  prepareMatchSheet() {
+    const match = this.nextMatch();
+    if (match && match.id) {
+      console.log('📋 [DASHBOARD] Navigation vers match-setup pour le match:', match.id);
+      this.router.navigate(['/match-setup', match.id]);
+    } else {
+      console.warn('⚠️ [DASHBOARD] Aucun match disponible pour préparer la composition');
+    }
+  }
+
+  /**
+   * Navigue vers la page des détails du match
+   */
+  viewMatchDetails() {
+    const match = this.nextMatch();
+    if (match && match.id) {
+      console.log('👁️ [DASHBOARD] Navigation vers les détails du match:', match.id);
+      // Navigation vers la page de détails des matchs coach avec l'ID du match
+      this.router.navigate(['/mon-equipe/matchs'], { 
+        queryParams: { matchId: match.id } 
+      });
+    } else {
+      console.warn('⚠️ [DASHBOARD] Aucun match disponible pour voir les détails');
+    }
   }
 }
