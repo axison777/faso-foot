@@ -130,7 +130,7 @@ export class MatchSetupComponent implements OnInit {
     // Détection du mode coach
     const currentUser = this.authService.currentUser;
     this.myTeamId = currentUser?.team_id || null;
-    this.isCoachMode = currentUser?.is_coach || false;
+    this.isCoachMode = !!(currentUser?.is_coach);
 
     console.log('🏟️ [MATCH SETUP] Mode Coach:', this.isCoachMode);
     console.log('🆔 [MATCH SETUP] Team ID du coach:', this.myTeamId);
