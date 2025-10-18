@@ -1,0 +1,25 @@
+// coach-match-sheet.component.scss
+.coach-match-sheet-container {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 20px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+  color: #64748b;
+  
+  i {
+    color: rgb(50, 145, 87);
+  }
+  
+  p {
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+}

@@ -1,0 +1,22 @@
+<!-- coach-match-sheet.component.html -->
+<p-toast></p-toast>
+
+<div class="coach-match-sheet-container">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem;"></i>
+    <p>Chargement des données...</p>
+  </div>
+
+  <!-- Pitch Setup Component -->
+  <div *ngIf="!isLoading && availablePlayersPayload">
+    <app-pitch-setup
+      [availablePlayersData]="availablePlayersPayload"
+      [coachName]="coachName"
+      [teamName]="teamName"
+      [teamLogoUrl]="teamLogo"
+      (close)="onClose()"
+      (saveSheet)="onSaveSheet($event)">
+    </app-pitch-setup>
+  </div>
+</div>
