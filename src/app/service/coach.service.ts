@@ -120,19 +120,22 @@ export class CoachService {
       });
     }
 
-    return this.http.get<ApiResponse<MatchesResponse>>(`${this.baseUrl}/teams/${teamId}/matches`, { params }).pipe(
+    return this.http.get<any>(`${this.baseUrl}/teams/${teamId}/matches`, { params }).pipe(
       map(res => {
         console.log('✅ [COACH SERVICE] Matchs reçus:', res);
         
         // Gérer différentes structures de réponse
         if (res?.data?.data && Array.isArray(res.data.data)) {
-          return res.data.data;
+          return res.data.data as CoachMatch[];
         }
         if (Array.isArray(res?.data)) {
-          return res.data;
+          return res.data as CoachMatch[];
         }
-        if (res?.data?.matches) {
-          return res.data.matches;
+        if (res?.data?.matches && Array.isArray(res.data.matches)) {
+          return res.data.matches as CoachMatch[];
+        }
+        if (res?.matches && Array.isArray(res.matches)) {
+          return res.matches as CoachMatch[];
         }
         return [];
       }),

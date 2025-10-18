@@ -179,7 +179,8 @@ export interface PlayersResponse {
 }
 
 export interface MatchesResponse {
-  data: CoachMatch[];
+  matches?: CoachMatch[];
+  data?: CoachMatch[];
   total?: number;
 }
 

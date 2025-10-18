@@ -143,20 +143,20 @@
                 </div>
 
                 <div class="teams-compact">
-                  <div class="team-row" [class.my-team]="match.isMyTeamHome">
-                    <img [src]="match.team_one?.logo || 'assets/default-team.png'" 
-                         [alt]="match.team_one?.name" class="team-logo-sm" />
-                    <span class="team-name">{{ match.team_one?.abbreviation || match.team_one?.name }}</span>
-                    @if (match.isMyTeamHome) {
+                  <div class="team-row" [class.my-team]="match.isHome">
+                    <img [src]="match.team_one.logo || 'assets/default-team.png'" 
+                         [alt]="match.team_one.name" class="team-logo-sm" />
+                    <span class="team-name">{{ match.team_one.abbreviation || match.team_one.name }}</span>
+                    @if (match.isHome) {
                       <span class="badge-my-team">Mon Équipe</span>
                     }
                   </div>
 
-                  <div class="team-row" [class.my-team]="!match.isMyTeamHome">
-                    <img [src]="match.team_two?.logo || 'assets/default-team.png'" 
-                         [alt]="match.team_two?.name" class="team-logo-sm" />
-                    <span class="team-name">{{ match.team_two?.abbreviation || match.team_two?.name }}</span>
-                    @if (!match.isMyTeamHome) {
+                  <div class="team-row" [class.my-team]="!match.isHome">
+                    <img [src]="match.team_two.logo || 'assets/default-team.png'" 
+                         [alt]="match.team_two.name" class="team-logo-sm" />
+                    <span class="team-name">{{ match.team_two.abbreviation || match.team_two.name }}</span>
+                    @if (!match.isHome) {
                       <span class="badge-my-team">Mon Équipe</span>
                     }
                   </div>
@@ -165,11 +165,11 @@
                 <div class="match-info-compact">
                   <div class="info-row">
                     <i class="pi pi-map-marker"></i>
-                    <span>{{ match.stadium?.name || 'Stade' }}</span>
+                    <span>{{ match.stadium.name || 'Stade' }}</span>
                   </div>
                   <div class="info-row">
                     <i class="pi pi-trophy"></i>
-                    <span>{{ match.pool?.name || 'Compétition' }} - J{{ match.match_day?.number || '?' }}</span>
+                    <span>{{ match.pool.name || 'Compétition' }} - J{{ match.match_day.number || '?' }}</span>
                   </div>
                   @if (match.is_derby === 1) {
                     <div class="info-row derby">
@@ -214,11 +214,11 @@
         <div class="modal-header">
           <div class="match-teams">
             <div class="team-detail home">
-              <img [src]="match.team_one?.logo || 'assets/default-team.png'" 
-                   [alt]="match.team_one?.name" />
+              <img [src]="match.team_one.logo || 'assets/default-team.png'" 
+                   [alt]="match.team_one.name" />
               <div class="team-text">
-                <h3>{{ match.team_one?.name }}</h3>
-                <span class="badge">{{ match.isMyTeamHome ? 'Mon Équipe' : 'Adversaire' }}</span>
+                <h3>{{ match.team_one.name }}</h3>
+                <span class="badge">{{ match.isHome ? 'Mon Équipe' : 'Adversaire' }}</span>
               </div>
             </div>
 
@@ -232,11 +232,11 @@
 
             <div class="team-detail away">
               <div class="team-text">
-                <h3>{{ match.team_two?.name }}</h3>
-                <span class="badge">{{ !match.isMyTeamHome ? 'Mon Équipe' : 'Adversaire' }}</span>
+                <h3>{{ match.team_two.name }}</h3>
+                <span class="badge">{{ !match.isHome ? 'Mon Équipe' : 'Adversaire' }}</span>
               </div>
-              <img [src]="match.team_two?.logo || 'assets/default-team.png'" 
-                   [alt]="match.team_two?.name" />
+              <img [src]="match.team_two.logo || 'assets/default-team.png'" 
+                   [alt]="match.team_two.name" />
             </div>
           </div>
         </div>
@@ -247,15 +247,15 @@
             <div class="info-grid">
               <div class="info-item">
                 <label>Compétition</label>
-                <span>{{ match.pool?.name || 'N/A' }}</span>
+                <span>{{ match.pool.name || 'N/A' }}</span>
               </div>
               <div class="info-item">
                 <label>Journée</label>
-                <span>{{ match.match_day?.number || 'N/A' }} ({{ match.match_day?.leg || 'N/A' }})</span>
+                <span>{{ match.match_day.number || 'N/A' }} ({{ match.match_day.leg || 'N/A' }})</span>
               </div>
               <div class="info-item">
                 <label>Stade</label>
-                <span>{{ match.stadium?.name || 'N/A' }}</span>
+                <span>{{ match.stadium.name || 'N/A' }}</span>
               </div>
               <div class="info-item">
                 <label>Date et Heure</label>
@@ -280,20 +280,20 @@
             <h4><i class="pi pi-flag"></i> Équipes</h4>
             <div class="teams-detail-grid">
               <div class="team-card">
-                <img [src]="match.team_one?.logo || 'assets/default-team.png'" 
-                     [alt]="match.team_one?.name" />
-                <h5>{{ match.team_one?.name }}</h5>
-                <p>{{ match.team_one?.abbreviation }}</p>
-                @if (match.isMyTeamHome) {
+                <img [src]="match.team_one.logo || 'assets/default-team.png'" 
+                     [alt]="match.team_one.name" />
+                <h5>{{ match.team_one.name }}</h5>
+                <p>{{ match.team_one.abbreviation }}</p>
+                @if (match.isHome) {
                   <span class="my-team-badge">Mon Équipe (Domicile)</span>
                 }
               </div>
               <div class="team-card">
-                <img [src]="match.team_two?.logo || 'assets/default-team.png'" 
-                     [alt]="match.team_two?.name" />
-                <h5>{{ match.team_two?.name }}</h5>
-                <p>{{ match.team_two?.abbreviation }}</p>
-                @if (!match.isMyTeamHome) {
+                <img [src]="match.team_two.logo || 'assets/default-team.png'" 
+                     [alt]="match.team_two.name" />
+                <h5>{{ match.team_two.name }}</h5>
+                <p>{{ match.team_two.abbreviation }}</p>
+                @if (!match.isHome) {
                   <span class="my-team-badge">Mon Équipe (Extérieur)</span>
                 }
               </div>
