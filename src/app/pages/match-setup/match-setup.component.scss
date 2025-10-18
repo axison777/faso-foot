@@ -510,7 +510,141 @@
 }
 
 .team-logo {
-          width: 50px;
-          height: 50px;
-          object-fit: contain;
-        }
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+/* ========================================= */
+/* STYLES POUR LE MODE COACH */
+/* ========================================= */
+
+/* Carte de l'équipe du coach - mise en évidence */
+.team-card.my-team-card {
+  border: 3px solid #10b981 !important;
+  background: linear-gradient(to bottom, rgba(16, 185, 129, 0.05), white) !important;
+  position: relative;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  
+  h3 {
+    margin: 0;
+  }
+}
+
+/* Badge "Mon Équipe" */
+.my-team-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #10b981;
+  color: white;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  
+  i {
+    font-size: 1rem;
+  }
+}
+
+/* Alerte d'information pour le coach */
+.alert {
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  &.alert-info {
+    background: #dbeafe;
+    border-left: 4px solid #3b82f6;
+    color: #1e40af;
+    
+    i {
+      font-size: 1.5rem;
+      color: #3b82f6;
+    }
+    
+    span {
+      font-weight: 500;
+    }
+  }
+}
+
+/* ========================================= */
+/* STYLES POUR LE MODE COACH */
+/* ========================================= */
+
+/* Carte de l'équipe du coach - mise en évidence */
+.team-card.my-team-card {
+  border: 3px solid #10b981 !important;
+  background: linear-gradient(to bottom, rgba(16, 185, 129, 0.05), white) !important;
+  position: relative;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  
+  h3 {
+    margin: 0;
+  }
+}
+
+/* Badge "Mon Équipe" */
+.my-team-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #10b981;
+  color: white;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  
+  i {
+    font-size: 1rem;
+  }
+}
+
+/* Alerte d'information pour le coach */
+.alert {
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  &.alert-info {
+    background: #dbeafe;
+    border-left: 4px solid #3b82f6;
+    color: #1e40af;
+    
+    i {
+      font-size: 1.5rem;
+      color: #3b82f6;
+    }
+    
+    span {
+      font-weight: 500;
+    }
+  }
+
+  &.mb-4 {
+    margin-bottom: 1.5rem;
+  }
+}

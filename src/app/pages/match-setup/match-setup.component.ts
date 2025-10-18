@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CallupService } from '../../service/callup.service';
 import { OfficialService } from '../../service/official.service';
+import { AuthService } from '../../service/auth.service';
 import { MessageService } from 'primeng/api';
 import { Official } from '../../models/official.model';
 import { SelectModule } from 'primeng/select';
@@ -107,11 +108,18 @@ export class MatchSetupComponent implements OnInit {
   showHomeForm = false;
   showAwayForm = false;
 
+  // Coach mode: identifie quelle équipe appartient au coach connecté
+  myTeamId: string | null = null;
+  isCoachMode = false;
+  canEditHome = false;
+  canEditAway = false;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private callupService: CallupService,
     private officialService: OfficialService,
+    private authService: AuthService,
     private messageService: MessageService,
   ) { }
 
@@ -119,27 +127,85 @@ export class MatchSetupComponent implements OnInit {
     this.matchId = this.route.snapshot.paramMap.get('id') ?? '';
     this.match = history.state.match;
 
+    // Détection du mode coach
+    const currentUser = this.authService.currentUser;
+    this.myTeamId = currentUser?.team_id || null;
+    this.isCoachMode = currentUser?.is_coach || false;
+
+    console.log('🏟️ [MATCH SETUP] Mode Coach:', this.isCoachMode);
+    console.log('🆔 [MATCH SETUP] Team ID du coach:', this.myTeamId);
+
     if (!this.match) {
-      console.warn('Aucun match reçu, redirection...');
-      this.router.navigate(['/saisons']);
+      console.warn('Aucun match reçu, tentative de chargement via l\'API...');
+      this.loadMatchData();
       return;
     }
 
+    this.initializeTeams();
+  }
+
+  /**
+   * Charge les données du match depuis l'API si non passé via history.state
+   */
+  private loadMatchData() {
+    // Vous pouvez ajouter ici un appel API pour charger le match
+    // Pour l'instant, on redirige si pas de données
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Aucune donnée de match',
+      detail: 'Veuillez accéder à cette page depuis le dashboard'
+    });
+    if (this.isCoachMode) {
+      this.router.navigate(['/mon-equipe/dashboard']);
+    } else {
+      this.router.navigate(['/saisons']);
+    }
+  }
+
+  /**
+   * Initialise les équipes et détermine les permissions d'édition
+   */
+  private initializeTeams() {
     this.homeTeam = {
-      id: String(this.match.team1_id),
-      name: this.match.team1,
-      logo: this.match.team1_logo,
+      id: String(this.match.team1_id || this.match.team_one_id || this.match.home_club_id),
+      name: this.match.team1 || this.match.team_one?.name || 'Équipe Domicile',
+      logo: this.match.team1_logo || this.match.team_one?.logo || '',
       players: []
     };
 
     this.awayTeam = {
-      id: String(this.match.team2_id),
-      name: this.match.team2,
-      logo: this.match.team2_logo,
+      id: String(this.match.team2_id || this.match.team_two_id || this.match.away_club_id),
+      name: this.match.team2 || this.match.team_two?.name || 'Équipe Extérieure',
+      logo: this.match.team2_logo || this.match.team_two?.logo || '',
       players: []
     };
+
     this.homeCallup.teamId = this.homeTeam.id ?? '';
     this.awayCallup.teamId = this.awayTeam.id ?? '';
+
+    // Déterminer les permissions d'édition
+    if (this.isCoachMode && this.myTeamId) {
+      this.canEditHome = (this.homeTeam.id === this.myTeamId);
+      this.canEditAway = (this.awayTeam.id === this.myTeamId);
+      
+      console.log('✅ [MATCH SETUP] Permissions:');
+      console.log('   - Peut éditer domicile:', this.canEditHome);
+      console.log('   - Peut éditer extérieur:', this.canEditAway);
+      
+      if (!this.canEditHome && !this.canEditAway) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Accès refusé',
+          detail: 'Ce match ne concerne pas votre équipe'
+        });
+        this.router.navigate(['/mon-equipe/dashboard']);
+        return;
+      }
+    } else {
+      // Mode admin: peut tout éditer
+      this.canEditHome = true;
+      this.canEditAway = true;
+    }
 
     this.loadTeamPlayers(this.homeTeam);
     this.loadTeamPlayers(this.awayTeam);
@@ -397,6 +463,15 @@ export class MatchSetupComponent implements OnInit {
   }
 
   toggleHomeForm() {
+    if (!this.canEditHome) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Action non autorisée',
+        detail: 'Vous ne pouvez modifier que la composition de votre équipe'
+      });
+      return;
+    }
+    
     this.showHomeForm = !this.showHomeForm;
     if (this.showHomeForm) {
       this.prefillTeamFromAssigned('home');
@@ -406,6 +481,15 @@ export class MatchSetupComponent implements OnInit {
   }
 
   toggleAwayForm() {
+    if (!this.canEditAway) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Action non autorisée',
+        detail: 'Vous ne pouvez modifier que la composition de votre équipe'
+      });
+      return;
+    }
+    
     this.showAwayForm = !this.showAwayForm;
     if (this.showAwayForm) {
       this.prefillTeamFromAssigned('away');
@@ -603,6 +687,25 @@ export class MatchSetupComponent implements OnInit {
   }
 
   openPitch(side: 'home' | 'away') {
+    // Vérifier les permissions
+    if (side === 'home' && !this.canEditHome) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Action non autorisée',
+        detail: 'Vous ne pouvez modifier que la composition de votre équipe'
+      });
+      return;
+    }
+    
+    if (side === 'away' && !this.canEditAway) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Action non autorisée',
+        detail: 'Vous ne pouvez modifier que la composition de votre équipe'
+      });
+      return;
+    }
+    
     this.pitchFor = side;
     this.showPitch = true;
 
@@ -615,6 +718,22 @@ export class MatchSetupComponent implements OnInit {
       this.currentCoachName = this.awayCoaches?.[0]?.id ? this.awayCoaches[0].name : undefined;
       this.currentTeamName = this.awayTeam.name;
     }
+  }
+
+  /**
+   * Retourne true si l'équipe spécifiée appartient au coach connecté
+   */
+  isMyTeam(side: 'home' | 'away'): boolean {
+    if (!this.isCoachMode || !this.myTeamId) return false;
+    const teamId = side === 'home' ? this.homeTeam.id : this.awayTeam.id;
+    return teamId === this.myTeamId;
+  }
+
+  /**
+   * Retourne le label à afficher pour une équipe
+   */
+  getTeamLabel(side: 'home' | 'away'): string {
+    return this.isMyTeam(side) ? 'Mon Équipe' : 'Équipe Adverse';
   }
 
   onPitchClose() {

@@ -94,21 +94,50 @@
     <p-tabPanel header="Équipes">
       <div class="teams-callup-container">
         <h2>Feuille de match - Listes des équipes</h2>
-        <div class="flex justify-between gap-3 mt-4 mb-2">
-          <p-button (click)="toggleHomeForm()" icon="pi pi-pencil" label="Composition Domicile" severity="contrast">
+        
+        <!-- Message d'information pour le coach -->
+        <div *ngIf="isCoachMode" class="alert alert-info mb-4">
+          <i class="pi pi-info-circle"></i>
+          <span>Vous pouvez uniquement modifier la composition de votre équipe.</span>
+        </div>
 
+        <div class="flex justify-between gap-3 mt-4 mb-2">
+          <p-button 
+            (click)="toggleHomeForm()" 
+            icon="pi pi-pencil" 
+            [label]="'Composition Domicile' + (isMyTeam('home') ? ' (Mon Équipe)' : '')" 
+            [severity]="isMyTeam('home') ? 'success' : 'contrast'"
+            [disabled]="!canEditHome">
           </p-button>
 
-          <p-button (click)="toggleAwayForm()" icon="pi pi-pencil" label="Composition Exterieur" severity="contrast">
-
+          <p-button 
+            (click)="toggleAwayForm()" 
+            icon="pi pi-pencil" 
+            [label]="'Composition Exterieur' + (isMyTeam('away') ? ' (Mon Équipe)' : '')" 
+            [severity]="isMyTeam('away') ? 'success' : 'contrast'"
+            [disabled]="!canEditAway">
           </p-button>
         </div>
 
         <div class="flex justify-between gap-3 mt-4 mb-2" style="display:flex;gap:8px;">
 
           <!-- buttons pour ouvrir le composeur de feuille -->
-            <button pButton type="button" label="Modifier composition (domicile)" (click)="openPitch('home')"></button>
-            <button pButton type="button" label="Modifier composition (extérieur)" (click)="openPitch('away')"></button>
+            <button 
+              pButton 
+              type="button" 
+              [label]="'Modifier composition (domicile)' + (isMyTeam('home') ? ' - Mon Équipe' : '')" 
+              (click)="openPitch('home')"
+              [disabled]="!canEditHome"
+              [severity]="isMyTeam('home') ? 'success' : 'secondary'">
+            </button>
+            <button 
+              pButton 
+              type="button" 
+              [label]="'Modifier composition (extérieur)' + (isMyTeam('away') ? ' - Mon Équipe' : '')" 
+              (click)="openPitch('away')"
+              [disabled]="!canEditAway"
+              [severity]="isMyTeam('away') ? 'success' : 'secondary'">
+            </button>
 
           <!-- PitchSetupComponent -->
           <app-pitch-setup *ngIf="showPitch" [availablePlayersData]="currentAvailablePlayersPayload"
@@ -124,8 +153,13 @@
 
         <!-- Si données présentes : cards résumé -->
         <div *ngIf="assignedTeams" class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div *ngIf="assignedTeams.team_one_callup" class="team-card">
-            <h3>{{ assignedTeams.team_one_callup.team_name }}</h3>
+          <div *ngIf="assignedTeams.team_one_callup" class="team-card" [class.my-team-card]="isMyTeam('home')">
+            <div class="team-header">
+              <h3>{{ assignedTeams.team_one_callup.team_name }}</h3>
+              <span *ngIf="isMyTeam('home')" class="my-team-badge">
+                <i class="pi pi-check-circle"></i> Mon Équipe
+              </span>
+            </div>
             <img *ngIf="assignedTeams.team_one_callup.team_logo" [src]="assignedTeams.team_one_callup.team_logo"
               alt="Logo équipe" class="team-logo">
             <p><strong>Coach :</strong> {{ assignedTeams.team_one_callup.coach_name || 'Non renseigné' }}</p>
@@ -149,8 +183,13 @@
             </ul>
           </div>
 
-          <div *ngIf="assignedTeams.team_two_callup" class="team-card">
-            <h3>{{ assignedTeams.team_two_callup.team_name }}</h3>
+          <div *ngIf="assignedTeams.team_two_callup" class="team-card" [class.my-team-card]="isMyTeam('away')">
+            <div class="team-header">
+              <h3>{{ assignedTeams.team_two_callup.team_name }}</h3>
+              <span *ngIf="isMyTeam('away')" class="my-team-badge">
+                <i class="pi pi-check-circle"></i> Mon Équipe
+              </span>
+            </div>
             <img *ngIf="assignedTeams.team_two_callup.team_logo" [src]="assignedTeams.team_two_callup.team_logo"
               alt="Logo équipe" class="team-logo">
             <p><strong>Coach :</strong> {{ assignedTeams.team_two_callup.coach_name || 'Non renseigné' }}</p>

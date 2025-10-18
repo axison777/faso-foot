@@ -213,7 +213,31 @@ export class CoachDashboardV2Component implements OnInit {
     const match = this.nextMatch();
     if (match && match.id) {
       console.log('📋 [DASHBOARD] Navigation vers match-setup pour le match:', match.id);
-      this.router.navigate(['/match-setup', match.id]);
+      
+      // Préparer les données du match pour match-setup
+      const matchData = {
+        id: match.id,
+        team1_id: match.isHome ? this.authService.currentUser?.team_id : null,
+        team2_id: !match.isHome ? this.authService.currentUser?.team_id : null,
+        team_one_id: match.isHome ? this.authService.currentUser?.team_id : null,
+        team_two_id: !match.isHome ? this.authService.currentUser?.team_id : null,
+        home_club_id: match.isHome ? this.authService.currentUser?.team_id : null,
+        away_club_id: !match.isHome ? this.authService.currentUser?.team_id : null,
+        team1: match.isHome ? match.homeTeam : match.awayTeam,
+        team2: !match.isHome ? match.awayTeam : match.homeTeam,
+        team1_logo: this.team()?.logo || '',
+        team2_logo: match.opponentLogo || '',
+        scheduled_at: match.date,
+        stadium: match.stadium,
+        competition: match.competition,
+        pool: { name: match.competition }
+      };
+      
+      console.log('📦 [DASHBOARD] Données du match:', matchData);
+      
+      this.router.navigate(['/match-setup', match.id], { 
+        state: { match: matchData }
+      });
     } else {
       console.warn('⚠️ [DASHBOARD] Aucun match disponible pour préparer la composition');
     }
