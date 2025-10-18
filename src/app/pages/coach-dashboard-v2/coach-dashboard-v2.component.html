@@ -66,13 +66,13 @@
         </div>
 
         <div class="match-actions">
-          <button class="primary-action-btn">
+          <button class="primary-action-btn" (click)="prepareMatchSheet()" [disabled]="!nextMatch()">
             <i class="pi pi-cog"></i>
             Préparer la Composition
           </button>
-          <button class="secondary-action-btn">
+          <button class="secondary-action-btn" (click)="viewMatchDetails()" [disabled]="!nextMatch()">
             <i class="pi pi-eye"></i>
-            Voir Détails
+            Match Détails
           </button>
         </div>
       </div>

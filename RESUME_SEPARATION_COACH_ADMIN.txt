@@ -1,0 +1,190 @@
+═══════════════════════════════════════════════════════════════
+  SÉPARATION MATCH-SETUP : COACH vs ADMIN
+═══════════════════════════════════════════════════════════════
+
+✅ OBJECTIF ATTEINT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Séparer complètement la fonctionnalité feuille de match entre
+l'admin et le coach pour éviter toute confusion et simplifier
+la maintenance.
+
+═══════════════════════════════════════════════════════════════
+
+📌 MATCH-SETUP (Admin uniquement)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Restauré à son état initial (avant modifications coach)
+✓ Exclusivement pour les administrateurs
+✓ Permet de gérer les 2 équipes
+✓ Assignation des officiels
+✓ Aucune connexion avec le dashboard coach
+
+URL : /match-setup/:id (admin uniquement)
+
+📁 Fichiers restaurés :
+   • src/app/pages/match-setup/match-setup.component.ts
+   • src/app/pages/match-setup/match-setup.component.html
+   • src/app/pages/match-setup/match-setup.component.scss
+
+═══════════════════════════════════════════════════════════════
+
+⚽ COACH MATCH SHEET (Coach uniquement)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ NOUVEAU composant dédié au coach
+✓ Interface avec terrain de football (pitch-setup)
+✓ Composition de l'équipe en drag & drop
+✓ Sélection de formation (4-4-2, 4-3-3, etc.)
+✓ Sauvegarde automatique (create ou update)
+✓ Navigation simple depuis le dashboard
+
+URL : /mon-equipe/feuille-match/:id (coach uniquement)
+
+📁 Nouveaux fichiers créés :
+   • src/app/pages/coach-match-sheet/coach-match-sheet.component.ts
+   • src/app/pages/coach-match-sheet/coach-match-sheet.component.html
+   • src/app/pages/coach-match-sheet/coach-match-sheet.component.scss
+
+═══════════════════════════════════════════════════════════════
+
+🔄 FLUX DE NAVIGATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👨‍💼 ADMIN :
+   Saisons → Match Setup → Gestion 2 équipes + Officiels
+   
+👨‍🏫 COACH :
+   Dashboard → "Préparer la Composition" → Terrain de football
+                                          → Composition équipe
+                                          → Enregistrer
+                                          → Retour dashboard
+
+═══════════════════════════════════════════════════════════════
+
+🎨 INTERFACE COACH (Nouveau)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────┐
+│ ⚽ Composer la feuille de match                     │
+│ Coach: Naruto Uzumaki                              │
+├─────────────────────────────────────────────────────┤
+│ [4-4-2 ▼]  [Auto fill]  [Exporter PDF]  [Fermer]  │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│          🏟️ TERRAIN DE FOOTBALL                    │
+│                                                     │
+│     🥅  ← But                                       │
+│                                                     │
+│  🧑 🧑 🧑 🧑   ← Défenseurs (glisser-déposer)      │
+│                                                     │
+│  🧑 🧑 🧑 🧑   ← Milieux                            │
+│                                                     │
+│    🧑   🧑     ← Attaquants                        │
+│                                                     │
+├─────────────────────────────────────────────────────┤
+│ 📋 Joueurs disponibles (drag & drop)               │
+│ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐                   │
+│ │ #10 │ │ #7  │ │ #5  │ │ #11 │                   │
+│ │ Jean│ │ Paul│ │Marc │ │ Luc │                   │
+│ └─────┘ └─────┘ └─────┘ └─────┘                   │
+├─────────────────────────────────────────────────────┤
+│ [💾 Enregistrer] [❌ Annuler]                      │
+└─────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════
+
+✨ FONCTIONNALITÉS COACH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Chargement automatique des joueurs de l'équipe
+✓ Affichage du nom du coach
+✓ Terrain de football interactif
+✓ Drag & drop des joueurs sur le terrain
+✓ Changement de formation dynamique
+✓ Sélection des remplaçants
+✓ Désignation du capitaine
+✓ Détection auto create/update
+✓ Export PDF de la composition
+✓ Retour au dashboard après sauvegarde
+
+═══════════════════════════════════════════════════════════════
+
+📊 COMPARAISON
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌──────────────┬────────────────────┬─────────────────────┐
+│ Aspect       │ Match-Setup (Admin)│ Coach Match Sheet   │
+├──────────────┼────────────────────┼─────────────────────┤
+│ Cible        │ Admin              │ Coach               │
+│ Équipes      │ 2 équipes          │ 1 équipe            │
+│ Interface    │ Formulaires        │ Terrain football    │
+│ Officiels    │ Oui                │ Non                 │
+│ Navigation   │ Admin → Saisons    │ Dashboard coach     │
+│ Drag & drop  │ Optionnel          │ Principal           │
+│ URL          │ /match-setup/:id   │ /mon-equipe/.../:id │
+└──────────────┴────────────────────┴─────────────────────┘
+
+═══════════════════════════════════════════════════════════════
+
+🔧 MODIFICATIONS TECHNIQUES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Routes (/workspace/src/app.routes.ts)
+   ✓ Ajout : /mon-equipe/feuille-match/:id
+
+2. Dashboard Coach (coach-dashboard-v2.component.ts)
+   ✓ prepareMatchSheet() → Navigation simplifiée
+
+3. Match-Setup (match-setup.component.*)
+   ✓ Retiré : AuthService, isCoachMode, canEditHome, etc.
+   ✓ Retiré : Styles coach (.my-team-card, .alert-info, etc.)
+   ✓ Retiré : Messages et badges "Mon Équipe"
+
+4. Nouveau composant (coach-match-sheet/)
+   ✓ Créé : component.ts (logique coach)
+   ✓ Créé : component.html (template pitch-setup)
+   ✓ Créé : component.scss (styles)
+
+═══════════════════════════════════════════════════════════════
+
+🧪 TESTS À FAIRE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+COACH :
+  1. Dashboard → Clic "Préparer la Composition"
+  2. Vérifier : Terrain de football s'affiche
+  3. Glisser-déposer 11 joueurs
+  4. Choisir formation (4-4-2, 4-3-3, etc.)
+  5. Cliquer "Enregistrer"
+  6. Vérifier : Message succès + Redirection
+
+ADMIN :
+  1. Aller sur /match-setup/:id
+  2. Vérifier : Interface normale (2 équipes)
+  3. Vérifier : Aucun message "coach mode"
+  4. Vérifier : Peut éditer les 2 équipes
+
+═══════════════════════════════════════════════════════════════
+
+✅ STATUT : TERMINÉ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ Match-Setup restauré (Admin uniquement)
+✓ Coach Match Sheet créé (Coach uniquement)
+✓ Terrain de football intégré (Pitch Setup)
+✓ Navigation dashboard connectée
+✓ Sauvegarde automatique (create/update)
+✓ Séparation complète des fonctionnalités
+
+📖 Documentation complète :
+   → NOUVEAU_COMPOSANT_COACH_MATCH_SHEET.md
+
+═══════════════════════════════════════════════════════════════
+
+🎉 RÉSULTAT FINAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Code plus propre et maintenable
+• Séparation claire admin/coach
+• Interface dédiée pour chaque rôle
+• Pas de confusion possible
+• Réutilisation du pitch-setup existant
+
+═══════════════════════════════════════════════════════════════

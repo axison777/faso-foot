@@ -1,15 +1,17 @@
 import { Component, OnInit, Input, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
+import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
-import { MatchService } from '../../service/match.service';
+import { CoachService } from '../../service/coach.service';
 import { AuthService } from '../../service/auth.service';
+import { EnrichedMatch } from '../../models/coach-api.model';
 
 @Component({
     selector: 'app-coach-matches',
@@ -22,7 +24,8 @@ import { AuthService } from '../../service/auth.service';
         ButtonModule,
         DropdownModule,
         DialogModule,
-        ToastModule
+        ToastModule,
+        InputTextModule
     ],
     providers: [MessageService],
     templateUrl: './coach-matches.component.html',
@@ -31,13 +34,14 @@ import { AuthService } from '../../service/auth.service';
 export class CoachMatchesComponent implements OnInit {
     @Input() teamId?: string;
     
-    private matchService = inject(MatchService);
+    private coachService = inject(CoachService);
     private authService = inject(AuthService);
     private messageService = inject(MessageService);
+    private route = inject(ActivatedRoute);
 
-    matches = signal<any[]>([]);
-    filteredMatches = signal<any[]>([]);
-    closestMatch = signal<any>(null);
+    matches = signal<EnrichedMatch[]>([]);
+    filteredMatches = signal<EnrichedMatch[]>([]);
+    closestMatch = signal<EnrichedMatch | null>(null);
     loading = signal(false);
     error = signal<string | null>(null);
 
@@ -46,20 +50,49 @@ export class CoachMatchesComponent implements OnInit {
     competitions = signal<any[]>([]);
     selectedSeason = signal<any>(null);
     selectedCompetition = signal<any>(null);
-    sortBy = signal<string>('date');
+    selectedStatus = signal<'upcoming' | 'played' | 'all'>('upcoming');
+    selectedPeriod = signal<'today' | 'week' | 'month' | 'all'>('all');
+    searchOpponent = signal<string>('');
+    sortBy = signal<'date_asc' | 'date_desc' | 'competition' | 'opponent'>('date_asc');
 
     // Modal
     showDetailsModal = signal(false);
-    selectedMatch = signal<any>(null);
+    selectedMatch = signal<EnrichedMatch | null>(null);
 
     sortOptions = [
-        { label: 'Date (Plus récent)', value: 'date' },
+        { label: 'Date (Plus proche en premier)', value: 'date_asc' },
+        { label: 'Date (Plus loin en premier)', value: 'date_desc' },
         { label: 'Compétition', value: 'competition' },
-        { label: 'Saison', value: 'season' }
+        { label: 'Adversaire', value: 'opponent' }
+    ];
+
+    statusOptions = [
+        { label: 'Tous les matchs', value: 'all' },
+        { label: 'À venir', value: 'upcoming' },
+        { label: 'Joués', value: 'played' }
+    ];
+
+    periodOptions = [
+        { label: 'Tous', value: 'all' },
+        { label: 'Aujourd\'hui', value: 'today' },
+        { label: 'Cette semaine', value: 'week' },
+        { label: 'Ce mois', value: 'month' }
     ];
 
     ngOnInit() {
         this.loadMatches();
+        
+        // Écouter les query params pour ouvrir automatiquement le modal si un matchId est présent
+        this.route.queryParams.subscribe(params => {
+            const matchId = params['matchId'];
+            if (matchId) {
+                console.log('🔍 [COACH MATCHES] Ouverture automatique du match:', matchId);
+                // Attendre que les matchs soient chargés avant d'ouvrir le modal
+                setTimeout(() => {
+                    this.openMatchFromId(matchId);
+                }, 1000);
+            }
+        });
     }
 
     loadMatches() {
@@ -72,7 +105,6 @@ export class CoachMatchesComponent implements OnInit {
         console.log('⚽ [COACH MATCHES] Chargement des matchs');
         console.log('👤 [COACH MATCHES] User:', currentUser);
         console.log('🏟️ [COACH MATCHES] Team ID:', userTeamId);
-        console.log('📌 [COACH MATCHES] Team ID depuis @Input:', this.teamId);
 
         if (!userTeamId) {
             this.error.set('Aucune équipe assignée à votre compte');
@@ -80,48 +112,43 @@ export class CoachMatchesComponent implements OnInit {
             return;
         }
 
-        this.matchService.getAllMatchesForTeam(userTeamId).subscribe({
-            next: (rawMatches: any[]) => {
+        // Construire les filtres API
+        const filters: any = {};
+        if (this.selectedSeason()) {
+            filters.season_id = this.selectedSeason().id;
+        }
+        if (this.selectedCompetition()) {
+            filters.pool_id = this.selectedCompetition().id;
+        }
+        if (this.selectedStatus() !== 'all') {
+            filters.status = this.selectedStatus();
+        }
+
+        // Charger les matchs avec filtres
+        this.coachService.getTeamMatches(userTeamId, filters).subscribe({
+            next: (rawMatches) => {
                 console.log('✅ [COACH MATCHES] Matchs reçus:', rawMatches);
                 console.log('📊 [COACH MATCHES] Nombre de matchs:', rawMatches?.length || 0);
 
                 if (!rawMatches || rawMatches.length === 0) {
                     console.warn('⚠️ [COACH MATCHES] Aucun match reçu du backend');
+                    this.matches.set([]);
+                    this.filteredMatches.set([]);
                     this.loading.set(false);
                     return;
                 }
 
-                // Ajouter les infos calculées directement sur les matchs
-                rawMatches.forEach((match: any, index: number) => {
-                    console.log(`📝 [MATCH ${index + 1}]`, {
-                        team_one_id: match.team_one_id,
-                        home_club_id: match.home_club_id,
-                        userTeamId: userTeamId,
-                        scheduled_at: match.scheduled_at,
-                        has_team_one: !!match.team_one,
-                        has_team_two: !!match.team_two
-                    });
+                // Enrichir les matchs
+                const enrichedMatches = this.coachService.enrichMatches(rawMatches, userTeamId);
+                console.log('✅ [COACH MATCHES] Matchs enrichis:', enrichedMatches);
 
-                    match.isMyTeamHome = match.team_one_id === userTeamId || match.home_club_id === userTeamId;
-                    match.myTeam = match.isMyTeamHome ? match.team_one : match.team_two;
-                    match.opponent = match.isMyTeamHome ? match.team_two : match.team_one;
-                    match.matchDate = new Date(match.scheduled_at);
-                    
-                    console.log(`✅ [MATCH ${index + 1}] Traité:`, {
-                        isMyTeamHome: match.isMyTeamHome,
-                        opponent: match.opponent?.name,
-                        matchDate: match.matchDate
-                    });
-                });
-
-                this.matches.set(rawMatches);
-                this.extractFilters(rawMatches);
+                this.matches.set(enrichedMatches);
+                this.extractFilters(enrichedMatches);
                 this.applyFilters();
                 this.findClosestMatch();
 
                 console.log('✅ [COACH MATCHES] Traitement terminé');
                 console.log('📊 [COACH MATCHES] Matchs filtrés:', this.filteredMatches().length);
-                console.log('⭐ [COACH MATCHES] Match le plus proche:', this.closestMatch());
 
                 this.loading.set(false);
             },
@@ -161,38 +188,28 @@ export class CoachMatchesComponent implements OnInit {
     applyFilters() {
         let filtered = [...this.matches()];
 
-        if (this.selectedSeason()) {
-            filtered = filtered.filter(m => m.season?.id === this.selectedSeason().id);
+        // Filtrer par période (frontend)
+        if (this.selectedPeriod() !== 'all') {
+            filtered = this.coachService.filterMatchesByPeriod(filtered, this.selectedPeriod());
         }
 
-        if (this.selectedCompetition()) {
-            filtered = filtered.filter(m => m.pool?.id === this.selectedCompetition().id);
+        // Filtrer par recherche d'adversaire
+        if (this.searchOpponent()) {
+            const search = this.searchOpponent().toLowerCase();
+            filtered = filtered.filter(m => 
+                m.opponent?.name.toLowerCase().includes(search) ||
+                m.opponent?.abbreviation?.toLowerCase().includes(search)
+            );
         }
 
-        filtered = this.sortMatches(filtered);
+        // Trier
+        filtered = this.coachService.sortMatches(filtered, this.sortBy());
+
         this.filteredMatches.set(filtered);
     }
 
-    sortMatches(matches: any[]): any[] {
-        const sortBy = this.sortBy();
-
-        return [...matches].sort((a, b) => {
-            switch (sortBy) {
-                case 'date':
-                    return a.matchDate.getTime() - b.matchDate.getTime();
-                case 'competition':
-                    return (a.pool?.name || '').localeCompare(b.pool?.name || '');
-                case 'season':
-                    return (a.season?.start_date || '').localeCompare(b.season?.start_date || '');
-                default:
-                    return 0;
-            }
-        });
-    }
-
     findClosestMatch() {
-        const now = new Date();
-        const upcomingMatches = this.filteredMatches().filter(m => m.matchDate >= now);
+        const upcomingMatches = this.filteredMatches().filter(m => m.isUpcoming);
 
         if (upcomingMatches.length > 0) {
             const closest = upcomingMatches.reduce((prev, curr) => {
@@ -205,11 +222,23 @@ export class CoachMatchesComponent implements OnInit {
     }
 
     onSeasonChange() {
+        this.loadMatches(); // Recharger avec le nouveau filtre API
+    }
+
+    onCompetitionChange() {
+        this.loadMatches(); // Recharger avec le nouveau filtre API
+    }
+
+    onStatusChange() {
+        this.loadMatches(); // Recharger avec le nouveau filtre API
+    }
+
+    onPeriodChange() {
         this.applyFilters();
         this.findClosestMatch();
     }
 
-    onCompetitionChange() {
+    onSearchChange() {
         this.applyFilters();
         this.findClosestMatch();
     }
@@ -221,12 +250,14 @@ export class CoachMatchesComponent implements OnInit {
     resetFilters() {
         this.selectedSeason.set(null);
         this.selectedCompetition.set(null);
-        this.sortBy.set('date');
-        this.applyFilters();
-        this.findClosestMatch();
+        this.selectedStatus.set('upcoming');
+        this.selectedPeriod.set('all');
+        this.searchOpponent.set('');
+        this.sortBy.set('date_asc');
+        this.loadMatches();
     }
 
-    openMatchDetails(match: any) {
+    openMatchDetails(match: EnrichedMatch) {
         this.selectedMatch.set(match);
         this.showDetailsModal.set(true);
     }
@@ -245,25 +276,41 @@ export class CoachMatchesComponent implements OnInit {
         this.loadMatches();
     }
 
-    getDaysUntilMatch(match: any): number {
-        const now = new Date();
-        const diff = match.matchDate.getTime() - now.getTime();
-        return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    getDaysUntilMatch(match: EnrichedMatch): number {
+        return match.daysUntilMatch || 0;
     }
 
-    isUpcoming(match: any): boolean {
-        return match.matchDate > new Date();
+    isUpcoming(match: EnrichedMatch): boolean {
+        return match.isUpcoming;
     }
 
-    isPast(match: any): boolean {
-        return match.matchDate < new Date();
+    isPast(match: EnrichedMatch): boolean {
+        return match.isPast;
     }
 
-    getMatchStatus(match: any): string {
-        const days = this.getDaysUntilMatch(match);
+    getMatchStatus(match: EnrichedMatch): string {
+        const days = match.daysUntilMatch || 0;
         if (days < 0) return 'Terminé';
         if (days === 0) return "Aujourd'hui";
         if (days === 1) return 'Demain';
         return `Dans ${days} jours`;
+    }
+
+    /**
+     * Ouvre le modal de détails pour un match spécifique à partir de son ID
+     */
+    openMatchFromId(matchId: string) {
+        const match = this.filteredMatches().find(m => m.id === matchId);
+        if (match) {
+            console.log('✅ [COACH MATCHES] Match trouvé, ouverture du modal:', match);
+            this.openMatchDetails(match);
+        } else {
+            console.warn('⚠️ [COACH MATCHES] Match non trouvé avec l\'ID:', matchId);
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Match non trouvé',
+                detail: 'Le match demandé n\'a pas été trouvé dans la liste'
+            });
+        }
     }
 }
