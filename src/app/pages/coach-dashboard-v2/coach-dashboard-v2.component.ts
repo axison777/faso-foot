@@ -207,7 +207,7 @@ export class CoachDashboardV2Component implements OnInit {
 
   /**
    * Navigue vers la page de préparation de la composition (match-setup)
-   * pour soumettre la feuille de match
+   * et ouvre directement le composeur de feuille (pitch setup)
    */
   prepareMatchSheet() {
     const match = this.nextMatch();
@@ -235,8 +235,10 @@ export class CoachDashboardV2Component implements OnInit {
       
       console.log('📦 [DASHBOARD] Données du match:', matchData);
       
+      // Navigation avec openPitch=true pour ouvrir directement le pitch setup
       this.router.navigate(['/match-setup', match.id], { 
-        state: { match: matchData }
+        state: { match: matchData },
+        queryParams: { openPitch: 'true' }
       });
     } else {
       console.warn('⚠️ [DASHBOARD] Aucun match disponible pour préparer la composition');

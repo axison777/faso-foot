@@ -142,6 +142,20 @@ export class MatchSetupComponent implements OnInit {
     }
 
     this.initializeTeams();
+    
+    // Vérifier si on doit ouvrir directement le pitch setup
+    const openPitchParam = this.route.snapshot.queryParamMap.get('openPitch');
+    if (openPitchParam === 'true') {
+      console.log('🎯 [MATCH SETUP] Ouverture automatique du pitch setup');
+      // Attendre que les données soient chargées avant d'ouvrir
+      setTimeout(() => {
+        if (this.canEditHome) {
+          this.openPitch('home');
+        } else if (this.canEditAway) {
+          this.openPitch('away');
+        }
+      }, 500);
+    }
   }
 
   /**
