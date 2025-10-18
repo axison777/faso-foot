@@ -11,62 +11,15 @@ import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
-import { PlayerDetailsModalComponent } from './player-details-modal.component';
+import { PlayerDetailsModalV2Component } from './player-details-modal-v2.component';
 import { AuthService } from '../../service/auth.service';
-import { PlayerService } from '../../service/player.service';
+import { CoachService } from '../../service/coach.service';
+import { CoachPlayer } from '../../models/coach-api.model';
 
-interface CoachPlayer {
-    id: string;
-    firstName: string;
-    lastName: string;
-    birthDate: string;
-    position: string;
-    jerseyNumber: number;
-    status: 'ACTIVE' | 'INJURED' | 'SUSPENDED' | 'TIRED';
-    contractEndDate: string;
-    photo?: string;
-    nationality: string;
-    height: number; // en cm
-    weight: number; // en kg
-    preferredFoot: 'LEFT' | 'RIGHT' | 'BOTH';
-    stats: {
-        goals: number;
-        assists: number;
-        yellowCards: number;
-        redCards: number;
-        matchesPlayed: number;
-        minutesPlayed: number;
-        shotsOnTarget: number;
-        passAccuracy: number;
-        tackles: number;
-        interceptions: number;
-    };
-    fitnessLevel: 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR';
-    injuryType?: string;
-    injuryStartDate?: string;
-    injuryEndDate?: string;
-    suspensionReason?: string;
-    suspensionEndDate?: string;
-    contractStatus: 'VALID' | 'EXPIRING' | 'EXPIRED';
-    injuryHistory: Array<{
-        date: string;
-        type: string;
-        duration: number; // en jours
-        status: 'RECOVERED' | 'ONGOING';
-    }>;
-    performanceGoals: {
-        goals: number;
-        assists: number;
-        matches: number;
-        currentGoals: number;
-        currentAssists: number;
-        currentMatches: number;
-    };
-    competitionRanking: {
-        goals: number;
-        assists: number;
-        overall: number;
-    };
+// Interface locale pour affichage avec âge calculé
+interface DisplayPlayer extends CoachPlayer {
+    age: number;
+    displayName: string;
 }
 
 @Component({
@@ -74,7 +27,7 @@ interface CoachPlayer {
     standalone: true,
     imports: [
         CommonModule, FormsModule, ButtonModule, InputTextModule, DropdownModule,
-        TagModule, TableModule, MenuModule, DialogModule, ToastModule, PlayerDetailsModalComponent
+        TagModule, TableModule, MenuModule, DialogModule, ToastModule, PlayerDetailsModalV2Component
     ],
     providers: [MessageService],
     template: `
@@ -198,20 +151,20 @@ interface CoachPlayer {
                         <ng-template pTemplate="body" let-player let-rowIndex="rowIndex">
                             <tr [ngClass]="getRowClass(player)">
                                 <td class="jersey-number">
-                                    <span class="jersey-badge">{{ player.jerseyNumber }}</span>
+                                    <span class="jersey-badge">{{ player.jersey_number }}</span>
                                 </td>
                                 
                                 <td class="player-info">
                                     <div class="player-avatar">
                                         <img *ngIf="player.photo" 
                                              [src]="player.photo" 
-                                             [alt]="player.firstName + ' ' + player.lastName">
+                                             [alt]="player.first_name + ' ' + player.last_name">
                                         <div *ngIf="!player.photo" class="avatar-placeholder">
-                                            {{ getInitials(player.firstName, player.lastName) }}
+                                            {{ getInitials(player.first_name, player.last_name) }}
                                         </div>
                                     </div>
                                     <div class="player-details">
-                                        <div class="player-name">{{ player.firstName }} {{ player.lastName }}</div>
+                                        <div class="player-name">{{ player.first_name }} {{ player.last_name }}</div>
                                         <div class="player-status" [ngClass]="getStatusClass(player.status)">
                                             {{ getStatusLabel(player.status) }}
                                         </div>
@@ -219,13 +172,13 @@ interface CoachPlayer {
                                 </td>
 
                                 <td class="age">
-                                    <div class="age-value">{{ calculateAge(player.birthDate) }} ans</div>
-                                    <div class="birth-date">{{ player.birthDate | date:'dd/MM/yyyy' }}</div>
+                                    <div class="age-value">{{ player.age }} ans</div>
+                                    <div class="birth-date">{{ player.date_of_birth | date:'dd/MM/yyyy' }}</div>
                                 </td>
 
                                 <td class="position">
-                                    <span class="position-badge" [ngClass]="getPositionClass(player.position)">
-                                        {{ player.position }}
+                                    <span class="position-badge" [ngClass]="getPositionClass(player.preferred_position)">
+                                        {{ player.preferred_position }}
                                     </span>
                                 </td>
 
@@ -233,26 +186,26 @@ interface CoachPlayer {
                                     <div class="stats-container">
                                         <div class="stat-item">
                                             <i class="pi pi-bullseye"></i>
-                                            <span>{{ player.stats.goals }}</span>
+                                            <span>{{ player.statistics?.goals || 0 }}</span>
                                         </div>
                                         <div class="stat-separator">/</div>
                                         <div class="stat-item">
                                             <i class="pi pi-send"></i>
-                                            <span>{{ player.stats.assists }}</span>
+                                            <span>{{ player.statistics?.assists || 0 }}</span>
                                         </div>
                                     </div>
                                     <div class="cards-info">
-                                        <span class="yellow-cards">{{ player.stats.yellowCards }}🟨</span>
-                                        <span class="red-cards">{{ player.stats.redCards }}🟥</span>
+                                        <span class="yellow-cards">{{ player.statistics?.yellow_cards || 0 }}🟨</span>
+                                        <span class="red-cards">{{ player.statistics?.red_cards || 0 }}🟥</span>
                                     </div>
                                 </td>
 
                                 <td class="fitness">
-                                    <div class="fitness-indicator" [ngClass]="getFitnessClass(player.fitnessLevel)">
+                                    <div class="fitness-indicator" [ngClass]="getFitnessClass(player.fitness_level)">
                                         <div class="fitness-bar">
-                                            <div class="fitness-fill" [style.width.%]="getFitnessPercentage(player.fitnessLevel)"></div>
+                                            <div class="fitness-fill" [style.width.%]="getFitnessPercentage(player.fitness_level)"></div>
                                         </div>
-                                        <span class="fitness-label">{{ getFitnessLabel(player.fitnessLevel) }}</span>
+                                        <span class="fitness-label">{{ getFitnessLabel(player.fitness_level) }}</span>
                                     </div>
                                 </td>
 
@@ -289,12 +242,11 @@ interface CoachPlayer {
         </div>
 
         <!-- Modal de détails du joueur -->
-        <app-player-details-modal 
+        <app-player-details-modal-v2
             [(visible)]="showPlayerDetails"
             [player]="selectedPlayer"
-            (editPlayerEvent)="onEditPlayer($event)"
-            (viewMatchHistoryEvent)="onViewMatchHistory($event)">
-        </app-player-details-modal>
+            (editPlayerEvent)="onEditPlayer($event)">
+        </app-player-details-modal-v2>
 
         <p-toast></p-toast>
     `,
@@ -903,17 +855,17 @@ export class CoachPlayersComponent implements OnInit {
     @Input() teamId?: string;
     
     private authService = inject(AuthService);
-    private playerService = inject(PlayerService);
+    private coachService = inject(CoachService);
     private messageService = inject(MessageService);
     
     searchTerm = '';
     selectedFilters: string[] = ['ALL'];
     selectedPosition = '';
     
-    players: CoachPlayer[] = [];
-    filteredPlayers: CoachPlayer[] = [];
+    players: DisplayPlayer[] = [];
+    filteredPlayers: DisplayPlayer[] = [];
     showPlayerDetails = false;
-    selectedPlayer: CoachPlayer | null = null;
+    selectedPlayer: DisplayPlayer | null = null;
     loading = false;
     error: string | null = null;
 
@@ -956,14 +908,21 @@ export class CoachPlayersComponent implements OnInit {
         
         console.log('🔄 [PLAYERS] Appel API GET /teams/' + userTeamId + '/players');
         
-        this.playerService.getByTeamId(userTeamId).subscribe({
+        // Utiliser le CoachService directement
+        this.coachService.getTeamPlayers(userTeamId).subscribe({
             next: (apiPlayers) => {
                 console.log('✅ [PLAYERS] Joueurs reçus du backend:', apiPlayers);
                 console.log('📊 [PLAYERS] Nombre de joueurs:', apiPlayers?.length || 0);
                 
-                this.players = this.convertToCoachPlayers(apiPlayers);
+                // Enrichir avec âge calculé et nom complet
+                this.players = apiPlayers.map(player => ({
+                    ...player,
+                    age: this.coachService.calculatePlayerAge(player.date_of_birth),
+                    displayName: `${player.first_name} ${player.last_name}`
+                }));
+                
                 this.filteredPlayers = [...this.players];
-                console.log('🔄 [PLAYERS] Joueurs convertis:', this.players);
+                console.log('✅ [PLAYERS] Joueurs enrichis:', this.players);
                 
                 this.loading = false;
             },
@@ -971,16 +930,14 @@ export class CoachPlayersComponent implements OnInit {
                 console.error('❌ [PLAYERS] Erreur lors du chargement:', err);
                 console.error('❌ [PLAYERS] Status:', err?.status);
                 console.error('❌ [PLAYERS] Message:', err?.message);
-                console.warn('⚠️ [PLAYERS] Utilisation des données de mock');
-                
-                // Fallback vers données mock
-                this.loadMockPlayers();
+                this.error = 'Impossible de charger les joueurs';
                 this.loading = false;
             }
         });
     }
 
-    loadMockPlayers() {
+    // MÉTHODE SUPPRIMÉE - On utilise maintenant les données réelles du backend
+    /* loadMockPlayers() {
         this.players = [
             {
                 id: '1',
@@ -1374,76 +1331,17 @@ export class CoachPlayersComponent implements OnInit {
         ];
 
         this.filteredPlayers = [...this.players];
-    }
+    } */
 
-    convertToCoachPlayers(apiPlayers: any[]): CoachPlayer[] {
-        return apiPlayers.map((player: any) => ({
-            id: player.id || '',
-            firstName: player.first_name || '',
-            lastName: player.last_name || '',
-            birthDate: player.birth_date || '',
-            position: player.position || '',
-            jerseyNumber: player.jersey_number || 0,
-            status: player.status?.toUpperCase() || 'ACTIVE',
-            contractEndDate: player.contract_end_date || '',
-            photo: player.photo || '',
-            nationality: player.nationality || '',
-            height: player.height || 0,
-            weight: player.weight || 0,
-            preferredFoot: player.preferred_foot?.toUpperCase() || 'RIGHT',
-            fitnessLevel: player.fitness_level?.toUpperCase() || 'GOOD',
-            injuryType: player.injury_type,
-            injuryStartDate: player.injury_start_date,
-            injuryEndDate: player.injury_end_date,
-            suspensionReason: player.suspension_reason,
-            suspensionEndDate: player.suspension_end_date,
-            contractStatus: this.determineContractStatus(player.contract_end_date),
-            stats: player.statistics || player.stats || { 
-                goals: 0, 
-                assists: 0, 
-                yellowCards: 0, 
-                redCards: 0,
-                matchesPlayed: 0,
-                minutesPlayed: 0,
-                shotsOnTarget: 0,
-                passAccuracy: 0,
-                tackles: 0,
-                interceptions: 0
-            },
-            injuryHistory: player.injury_history || [],
-            performanceGoals: player.performance_goals || {
-                goals: 0,
-                assists: 0,
-                matches: 0,
-                currentGoals: 0,
-                currentAssists: 0,
-                currentMatches: 0
-            },
-            competitionRanking: player.competition_ranking || {
-                goals: 0,
-                assists: 0,
-                overall: 0
-            }
-        }));
-    }
-
-    determineContractStatus(contractEndDate: string): 'VALID' | 'EXPIRING' | 'EXPIRED' {
-        if (!contractEndDate) return 'VALID';
-        const endDate = new Date(contractEndDate);
-        const now = new Date();
-        const sixMonthsFromNow = new Date(now.getTime() + (6 * 30 * 24 * 60 * 60 * 1000));
-        
-        if (endDate < now) return 'EXPIRED';
-        if (endDate <= sixMonthsFromNow) return 'EXPIRING';
-        return 'VALID';
-    }
+    // MÉTHODES SUPPRIMÉES - On utilise maintenant le CoachService
+    // convertToCoachPlayers() et determineContractStatus() sont maintenant dans CoachService
 
     filterPlayers() {
         this.filteredPlayers = this.players.filter(player => {
             const matchesSearch = !this.searchTerm || 
-                `${player.firstName} ${player.lastName}`.toLowerCase().includes(this.searchTerm.toLowerCase());
+                `${player.first_name} ${player.last_name}`.toLowerCase().includes(this.searchTerm.toLowerCase());
             
-            const matchesPosition = !this.selectedPosition || player.position === this.selectedPosition;
+            const matchesPosition = !this.selectedPosition || player.preferred_position === this.selectedPosition;
             
             const matchesFilters = this.selectedFilters.includes('ALL') || this.selectedFilters.some(filter => {
                 switch (filter) {
@@ -1452,9 +1350,9 @@ export class CoachPlayersComponent implements OnInit {
                     case 'SUSPENDED':
                         return player.status === 'SUSPENDED';
                     case 'CONTRACT_ENDING':
-                        return this.isContractEnding(player.contractEndDate);
+                        return this.isContractEnding(player.contract_end_date);
                     case 'OPTIMAL_FORM':
-                        return player.fitnessLevel === 'EXCELLENT';
+                        return player.fitness_level === 'EXCELLENT';
                     default:
                         return false;
                 }
@@ -1481,33 +1379,25 @@ export class CoachPlayersComponent implements OnInit {
         this.filterPlayers();
     }
 
-    isContractEnding(contractEndDate: string): boolean {
-        const endDate = new Date(contractEndDate);
-        const now = new Date();
-        const sixMonthsFromNow = new Date(now.getTime() + (6 * 30 * 24 * 60 * 60 * 1000));
-        return endDate <= sixMonthsFromNow;
+    isContractEnding(contractEndDate?: string): boolean {
+        if (!contractEndDate) return false;
+        const status = this.coachService.determineContractStatus(contractEndDate);
+        return status === 'EXPIRING';
     }
 
     calculateAge(birthDate: string): number {
-        const today = new Date();
-        const birth = new Date(birthDate);
-        let age = today.getFullYear() - birth.getFullYear();
-        const monthDiff = today.getMonth() - birth.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-            age--;
-        }
-        return age;
+        return this.coachService.calculatePlayerAge(birthDate);
     }
 
     getInitials(firstName: string, lastName: string): string {
         return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
     }
 
-    getRowClass(player: CoachPlayer): string {
+    getRowClass(player: DisplayPlayer): string {
         const classes = [];
         if (player.status === 'INJURED') classes.push('injured');
         if (player.status === 'SUSPENDED') classes.push('suspended');
-        if (this.isContractEnding(player.contractEndDate)) classes.push('contract-ending');
+        if (this.isContractEnding(player.contract_end_date)) classes.push('contract-ending');
         return classes.join(' ');
     }
 
@@ -1533,11 +1423,13 @@ export class CoachPlayersComponent implements OnInit {
         return '';
     }
 
-    getFitnessClass(level: string): string {
+    getFitnessClass(level?: string): string {
+        if (!level) return 'fitness-good';
         return `fitness-${level.toLowerCase()}`;
     }
 
-    getFitnessLabel(level: string): string {
+    getFitnessLabel(level?: string): string {
+        if (!level) return 'Bon';
         switch (level) {
             case 'EXCELLENT': return 'Excellent';
             case 'GOOD': return 'Bon';
@@ -1547,7 +1439,8 @@ export class CoachPlayersComponent implements OnInit {
         }
     }
 
-    getFitnessPercentage(level: string): number {
+    getFitnessPercentage(level?: string): number {
+        if (!level) return 75;
         switch (level) {
             case 'EXCELLENT': return 100;
             case 'GOOD': return 75;
@@ -1565,19 +1458,19 @@ export class CoachPlayersComponent implements OnInit {
         });
     }
 
-    editPlayer(player: CoachPlayer) {
+    editPlayer(player: DisplayPlayer) {
         this.messageService.add({
             severity: 'info',
             summary: 'Modifier le joueur',
-            detail: `Modification de ${player.firstName} ${player.lastName}`
+            detail: `Modification de ${player.first_name} ${player.last_name}`
         });
     }
 
-    deletePlayer(player: CoachPlayer) {
+    deletePlayer(player: DisplayPlayer) {
         this.messageService.add({
             severity: 'warn',
             summary: 'Supprimer le joueur',
-            detail: `Suppression de ${player.firstName} ${player.lastName}`
+            detail: `Suppression de ${player.first_name} ${player.last_name}`
         });
     }
 
@@ -1599,24 +1492,17 @@ export class CoachPlayersComponent implements OnInit {
         this.loadPlayers();
     }
 
-    viewPlayerDetails(player: CoachPlayer) {
+    viewPlayerDetails(player: DisplayPlayer) {
         this.selectedPlayer = player;
         this.showPlayerDetails = true;
     }
 
-    onEditPlayer(player: CoachPlayer) {
+    onEditPlayer(player: DisplayPlayer | CoachPlayer) {
         this.messageService.add({
             severity: 'info',
             summary: 'Modifier le joueur',
-            detail: `Modification de ${player.firstName} ${player.lastName}`
+            detail: `Modification de ${player.first_name} ${player.last_name}`
         });
-    }
-
-    onViewMatchHistory(player: CoachPlayer) {
-        this.messageService.add({
-            severity: 'info',
-            summary: 'Historique des matchs',
-            detail: `Historique de ${player.firstName} ${player.lastName}`
-        });
+        this.showPlayerDetails = false;
     }
 }

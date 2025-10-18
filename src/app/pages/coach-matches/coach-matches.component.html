@@ -24,6 +24,44 @@
     <div class="filters-section">
       <p-card>
         <div class="filters-grid">
+          <div class="filter-item search-wide">
+            <label>Rechercher un adversaire</label>
+            <span class="p-input-icon-left" style="width: 100%;">
+              <i class="pi pi-search"></i>
+              <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="searchOpponent" 
+                (input)="onSearchChange()"
+                placeholder="Nom de l'équipe adverse..."
+                style="width: 100%;" />
+            </span>
+          </div>
+
+          <div class="filter-item">
+            <label>Statut</label>
+            <p-dropdown 
+              [options]="statusOptions" 
+              [(ngModel)]="selectedStatus" 
+              (onChange)="onStatusChange()"
+              optionLabel="label" 
+              optionValue="value"
+              placeholder="Statut">
+            </p-dropdown>
+          </div>
+
+          <div class="filter-item">
+            <label>Période</label>
+            <p-dropdown 
+              [options]="periodOptions" 
+              [(ngModel)]="selectedPeriod" 
+              (onChange)="onPeriodChange()"
+              optionLabel="label" 
+              optionValue="value"
+              placeholder="Période">
+            </p-dropdown>
+          </div>
+
           <div class="filter-item">
             <label>Saison</label>
             <p-dropdown 
