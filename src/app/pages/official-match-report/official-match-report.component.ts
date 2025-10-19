@@ -223,46 +223,31 @@ import { Observable } from 'rxjs';
                                 <div class="evaluation-card" *ngFor="let official of match.otherOfficials; let i = index">
                                     <h6>{{ official.name }} - {{ getRoleLabel(official.role) }}</h6>
                                     <div class="evaluation-criteria">
-                                        <div class="criterion">
-                                            <label>Application des lois du jeu</label>
-                                            <input type="range" min="0" max="10" step="1" 
-                                                   [(ngModel)]="evaluationData[i].lawApplication"
-                                                   class="p-inputtext">
-                                            <span>{{ evaluationData[i].lawApplication }}/10</span>
-                                        </div>
-                                        <div class="criterion">
-                                            <label>Positionnement et déplacements</label>
-                                            <input type="range" min="0" max="10" step="1" 
-                                                   [(ngModel)]="evaluationData[i].positioning"
-                                                   class="p-inputtext">
-                                            <span>{{ evaluationData[i].positioning }}/10</span>
-                                        </div>
-                                        <div class="criterion">
-                                            <label>Contrôle du match</label>
-                                            <input type="range" min="0" max="10" step="1" 
-                                                   [(ngModel)]="evaluationData[i].matchControl"
-                                                   class="p-inputtext">
-                                            <span>{{ evaluationData[i].matchControl }}/10</span>
-                                        </div>
-                                        <div class="criterion">
-                                            <label>Communication et attitude</label>
-                                            <input type="range" min="0" max="10" step="1" 
-                                                   [(ngModel)]="evaluationData[i].communication"
-                                                   class="p-inputtext">
-                                            <span>{{ evaluationData[i].communication }}/10</span>
-                                        </div>
-                                        <div class="criterion">
-                                            <label>Collaboration entre officiels</label>
-                                            <input type="range" min="0" max="10" step="1" 
-                                                   [(ngModel)]="evaluationData[i].collaboration"
-                                                   class="p-inputtext">
-                                            <span>{{ evaluationData[i].collaboration }}/10</span>
+                                        <!-- Critères spécifiques selon le rôle -->
+                                        <ng-container *ngFor="let criterion of getCriteriaForRole(official.role)">
+                                            <div class="criterion">
+                                                <label>{{ criterion.label }}</label>
+                                                <input type="range" 
+                                                       [min]="0" 
+                                                       [max]="criterion.max" 
+                                                       step="1" 
+                                                       [(ngModel)]="evaluationData[i][criterion.key]"
+                                                       [ngModelOptions]="{standalone: true}"
+                                                       class="p-inputtext">
+                                                <span>{{ evaluationData[i][criterion.key] || 0 }}/{{ criterion.max }}</span>
+                                            </div>
+                                        </ng-container>
+                                        
+                                        <!-- Total calculé -->
+                                        <div class="total-score">
+                                            <strong>Total : {{ calculateTotalScore(i, official.role) }}/{{ getMaxScoreForRole(official.role) }}</strong>
                                         </div>
                                     </div>
                                     <div class="evaluation-comments">
                                         <label>Commentaires</label>
                                         <textarea [(ngModel)]="evaluationData[i].comments"
-                                                  class="p-inputtext" rows="2" 
+                                                  [ngModelOptions]="{standalone: true}"
+                                                  class="p-inputtext" rows="3" 
                                                   placeholder="Commentaires sur cet officiel"></textarea>
                                     </div>
                                 </div>
@@ -380,12 +365,16 @@ import { Observable } from 'rxjs';
         .evaluation-card h6 {
             color: var(--primary-color);
             margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--surface-100);
+            border-radius: 6px;
+            text-align: center;
         }
 
         .evaluation-criteria {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
             margin-bottom: 1rem;
         }
 
@@ -393,21 +382,66 @@ import { Observable } from 'rxjs';
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            padding: 1rem;
+            background: var(--surface-50);
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-color);
         }
 
         .criterion label {
             font-weight: 600;
             font-size: 0.875rem;
+            color: #374151;
+            line-height: 1.4;
         }
 
         .criterion input[type="range"] {
             width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .criterion input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .criterion input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: none;
         }
 
         .criterion span {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary-color);
             text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .total-score {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .total-score strong {
+            font-size: 1.4rem;
         }
 
         .evaluation-comments {
@@ -526,17 +560,115 @@ export class OfficialMatchReportComponent implements OnInit {
     }
 
     initializeEvaluationData(officials: any[]) {
-        this.evaluationData = officials.map(official => ({
-            officialId: official.id,
-            officialName: official.name,
-            role: official.role,
-            lawApplication: 5,
-            positioning: 5,
-            matchControl: 5,
-            communication: 5,
-            collaboration: 5,
-            comments: ''
-        }));
+        this.evaluationData = officials.map(official => {
+            const baseData = {
+                officialId: official.id,
+                officialName: official.name,
+                role: official.role,
+                comments: ''
+            };
+
+            // Initialiser les critères selon le rôle
+            const criteria = this.getCriteriaForRole(official.role);
+            criteria.forEach(criterion => {
+                baseData[criterion.key] = 0;
+            });
+
+            return baseData;
+        });
+    }
+
+    /**
+     * Retourne les critères d'évaluation spécifiques à chaque rôle
+     */
+    getCriteriaForRole(role: string): Array<{key: string, label: string, max: number}> {
+        switch (role) {
+            case 'MAIN_REFEREE':
+            case 'CENTRAL_REFEREE':
+                return [
+                    { 
+                        key: 'matchControlAndLaws', 
+                        label: 'Contrôle du match & Interprétation des lois du jeu (Sanctions disciplinaire et les lois du jeux)', 
+                        max: 50 
+                    },
+                    { 
+                        key: 'physicalCondition', 
+                        label: 'Condition physique (Endurance, Placement & déplacement, vitesse de réaction)', 
+                        max: 30 
+                    },
+                    { 
+                        key: 'personality', 
+                        label: 'Personnalité (Décidé ou indécis, anxieux, Influençable par le public ou les joueurs, Partial ou impartial, Personnalité forte ou faible)', 
+                        max: 10 
+                    },
+                    { 
+                        key: 'collaboration', 
+                        label: 'Collaboration (Coopération avec les autres arbitres, décisions claires, utilisation des sifflets, signaux claires, chronometrage)', 
+                        max: 10 
+                    }
+                ];
+            
+            case 'ASSISTANT_1':
+            case 'ASSISTANT_REFEREE_1':
+            case 'ASSISTANT_2':
+            case 'ASSISTANT_REFEREE_2':
+                return [
+                    { 
+                        key: 'lawInterpretation', 
+                        label: 'Interprétations et application des lois du jeu (Décisions sur le hors jeu, Sorties de balles et fautes)', 
+                        max: 50 
+                    },
+                    { 
+                        key: 'physicalCondition', 
+                        label: 'Condition Physique (vitesse, endurance, alignement sur le hors jeu)', 
+                        max: 30 
+                    },
+                    { 
+                        key: 'collaboration', 
+                        label: 'Collaboration (Coopération avec les autres arbitres)', 
+                        max: 20 
+                    }
+                ];
+            
+            case 'FOURTH_OFFICIAL':
+                return [
+                    { 
+                        key: 'technicalAreaControl', 
+                        label: 'Contrôle des surfaces techniques et Assistance dans le contrôle du match', 
+                        max: 30 
+                    },
+                    { 
+                        key: 'substitutionManagement', 
+                        label: 'Gestion des remplacements, gestion du temps additionnel', 
+                        max: 20 
+                    }
+                ];
+            
+            default:
+                return [
+                    { key: 'generalPerformance', label: 'Performance générale', max: 100 }
+                ];
+        }
+    }
+
+    /**
+     * Calcule le score total pour un officiel
+     */
+    calculateTotalScore(index: number, role: string): number {
+        if (!this.evaluationData[index]) return 0;
+        
+        const criteria = this.getCriteriaForRole(role);
+        return criteria.reduce((total, criterion) => {
+            return total + (this.evaluationData[index][criterion.key] || 0);
+        }, 0);
+    }
+
+    /**
+     * Retourne le score maximum pour un rôle
+     */
+    getMaxScoreForRole(role: string): number {
+        const criteria = this.getCriteriaForRole(role);
+        return criteria.reduce((total, criterion) => total + criterion.max, 0);
     }
 
     get eventsArray() {
