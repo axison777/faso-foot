@@ -56,6 +56,19 @@ export interface PlayerStatistics {
 // MATCH MODELS
 // ============================================
 
+/**
+ * Statuts possibles d'un match (basés sur le backend)
+ */
+export type MatchStatus = 
+  | 'not_started'
+  | 'in_progress'
+  | 'finished'
+  | 'cancelled'
+  | 'postponed'
+  | 'planned'
+  | 'completed'
+  | 'validated';
+
 export interface CoachMatch {
   id: string;
   team_one_id: string;
@@ -68,6 +81,7 @@ export interface CoachMatch {
   stadium_id: string;
   scheduled_at: string; // ISO date string
   match_start_time: string | null;
+  status?: MatchStatus; // Statut du match
   leg: 'first_leg' | 'second_leg';
   is_derby: 0 | 1;
   is_rescheduled: 0 | 1;
@@ -222,4 +236,48 @@ export interface PlayerWithStats extends CoachPlayer {
   age: number;
   contractStatus: 'VALID' | 'EXPIRING' | 'EXPIRED';
   displayName: string;
+}
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Retourne le label français pour un statut de match
+ */
+export function getMatchStatusLabel(status: MatchStatus | undefined): string {
+  if (!status) return 'Non défini';
+  
+  const labels: Record<MatchStatus, string> = {
+    'not_started': 'Non commencé',
+    'planned': 'Planifié',
+    'in_progress': 'En cours',
+    'finished': 'Terminé',
+    'completed': 'Complété',
+    'validated': 'Validé',
+    'postponed': 'Reporté',
+    'cancelled': 'Annulé'
+  };
+  
+  return labels[status] || status;
+}
+
+/**
+ * Retourne la classe CSS pour un statut de match
+ */
+export function getMatchStatusClass(status: MatchStatus | undefined): string {
+  if (!status) return 'status-unknown';
+  
+  const classes: Record<MatchStatus, string> = {
+    'not_started': 'status-not-started',
+    'planned': 'status-planned',
+    'in_progress': 'status-in-progress',
+    'finished': 'status-finished',
+    'completed': 'status-completed',
+    'validated': 'status-validated',
+    'postponed': 'status-postponed',
+    'cancelled': 'status-cancelled'
+  };
+  
+  return classes[status] || 'status-unknown';
 }

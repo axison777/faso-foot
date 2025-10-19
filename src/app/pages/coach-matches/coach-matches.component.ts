@@ -50,7 +50,7 @@ export class CoachMatchesComponent implements OnInit {
     competitions = signal<any[]>([]);
     selectedSeason = signal<any>(null);
     selectedCompetition = signal<any>(null);
-    selectedStatus = signal<'upcoming' | 'played' | 'all'>('upcoming');
+    selectedStatus = signal<'all' | 'not_started' | 'in_progress' | 'finished' | 'cancelled' | 'postponed' | 'planned' | 'completed' | 'validated'>('all');
     selectedPeriod = signal<'today' | 'week' | 'month' | 'all'>('all');
     searchOpponent = signal<string>('');
     sortBy = signal<'date_asc' | 'date_desc' | 'competition' | 'opponent'>('date_asc');
@@ -68,8 +68,14 @@ export class CoachMatchesComponent implements OnInit {
 
     statusOptions = [
         { label: 'Tous les matchs', value: 'all' },
-        { label: 'À venir', value: 'upcoming' },
-        { label: 'Joués', value: 'played' }
+        { label: 'Non commencé', value: 'not_started' },
+        { label: 'Planifié', value: 'planned' },
+        { label: 'En cours', value: 'in_progress' },
+        { label: 'Terminé', value: 'finished' },
+        { label: 'Complété', value: 'completed' },
+        { label: 'Validé', value: 'validated' },
+        { label: 'Reporté', value: 'postponed' },
+        { label: 'Annulé', value: 'cancelled' }
     ];
 
     periodOptions = [
@@ -250,7 +256,7 @@ export class CoachMatchesComponent implements OnInit {
     resetFilters() {
         this.selectedSeason.set(null);
         this.selectedCompetition.set(null);
-        this.selectedStatus.set('upcoming');
+        this.selectedStatus.set('all');
         this.selectedPeriod.set('all');
         this.searchOpponent.set('');
         this.sortBy.set('date_asc');
