@@ -147,17 +147,32 @@ export class CoachService {
   }
 
   /**
-   * Récupère uniquement les matchs à venir
+   * Récupère uniquement les matchs à venir (planned ou not_started)
    */
   getUpcomingMatches(teamId: string, filters?: Omit<MatchFilterOptions, 'status'>): Observable<CoachMatch[]> {
-    return this.getTeamMatches(teamId, { ...filters, status: 'upcoming' });
+    // Note: Pour les matchs à venir, on ne filtre pas par statut ici car on trie par date
+    // Le filtrage "à venir" se fait côté client avec enrichMatches
+    return this.getTeamMatches(teamId, { ...filters }).pipe(
+      map(matches => {
+        // Filtrer les matchs futurs
+        const now = new Date().getTime();
+        return matches.filter(m => new Date(m.scheduled_at).getTime() > now);
+      })
+    );
   }
 
   /**
-   * Récupère uniquement les matchs passés
+   * Récupère uniquement les matchs passés (finished, completed, validated)
    */
   getPastMatches(teamId: string, filters?: Omit<MatchFilterOptions, 'status'>): Observable<CoachMatch[]> {
-    return this.getTeamMatches(teamId, { ...filters, status: 'played' });
+    // Note: Pour les matchs passés, on peut filtrer par plusieurs statuts ou par date
+    return this.getTeamMatches(teamId, { ...filters }).pipe(
+      map(matches => {
+        // Filtrer les matchs passés
+        const now = new Date().getTime();
+        return matches.filter(m => new Date(m.scheduled_at).getTime() <= now);
+      })
+    );
   }
 
   /**
