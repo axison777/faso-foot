@@ -129,6 +129,9 @@ export class CoachMatchesComponent implements OnInit {
         if (this.selectedStatus() !== 'all') {
             filters.status = this.selectedStatus();
         }
+        
+        // Ajouter pagination - récupérer tous les matchs
+        filters.per_page = 1000; // Récupérer tous les matchs (ajustez selon vos besoins)
 
         // Charger les matchs avec filtres
         this.coachService.getTeamMatches(userTeamId, filters).subscribe({

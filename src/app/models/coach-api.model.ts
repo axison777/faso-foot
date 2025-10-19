@@ -207,7 +207,7 @@ export interface StaffResponse {
 // ============================================
 
 export interface MatchFilterOptions {
-  status?: 'upcoming' | 'played' | 'in_progress' | 'postponed';
+  status?: MatchStatus;
   season_id?: string;
   pool_id?: string;
   date_from?: string; // YYYY-MM-DD
@@ -215,6 +215,8 @@ export interface MatchFilterOptions {
   type?: string;
   stadium_id?: string;
   match_day_id?: string;
+  per_page?: number; // Nombre de matchs par page (ex: 10, 20, 50, 100)
+  page?: number; // Numéro de la page (commence à 1)
 }
 
 // ============================================
