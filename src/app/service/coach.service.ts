@@ -125,18 +125,33 @@ export class CoachService {
         console.log('✅ [COACH SERVICE] Matchs reçus:', res);
         
         // Gérer différentes structures de réponse
+        // Structure avec pagination Laravel: {status: true, data: {data: {data: [...]}}}
+        if (res?.data?.data?.data && Array.isArray(res.data.data.data)) {
+          console.log('📦 [COACH SERVICE] Matchs trouvés dans res.data.data.data:', res.data.data.data.length);
+          return res.data.data.data as CoachMatch[];
+        }
+        // Structure: {data: {data: [...]}}
         if (res?.data?.data && Array.isArray(res.data.data)) {
+          console.log('📦 [COACH SERVICE] Matchs trouvés dans res.data.data:', res.data.data.length);
           return res.data.data as CoachMatch[];
         }
+        // Structure: {data: [...]}
         if (Array.isArray(res?.data)) {
+          console.log('📦 [COACH SERVICE] Matchs trouvés dans res.data:', res.data.length);
           return res.data as CoachMatch[];
         }
+        // Structure: {data: {matches: [...]}}
         if (res?.data?.matches && Array.isArray(res.data.matches)) {
+          console.log('📦 [COACH SERVICE] Matchs trouvés dans res.data.matches:', res.data.matches.length);
           return res.data.matches as CoachMatch[];
         }
+        // Structure: {matches: [...]}
         if (res?.matches && Array.isArray(res.matches)) {
+          console.log('📦 [COACH SERVICE] Matchs trouvés dans res.matches:', res.matches.length);
           return res.matches as CoachMatch[];
         }
+        
+        console.warn('⚠️ [COACH SERVICE] Structure de réponse inattendue:', res);
         return [];
       }),
       catchError(err => {
