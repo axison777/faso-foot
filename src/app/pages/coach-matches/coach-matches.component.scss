@@ -255,13 +255,23 @@
     margin-bottom: 2rem;
 
     ::ng-deep .p-card {
+      background: white;
       border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+
+    ::ng-deep .p-card-body {
+      padding: 2rem;
+    }
+
+    ::ng-deep .p-card-content {
+      padding: 0;
     }
 
     .filters-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: 2fr repeat(5, 1fr);
       gap: 1.5rem;
       align-items: end;
 
@@ -273,19 +283,136 @@
         label {
           font-weight: 600;
           color: #374151;
-          font-size: 0.9rem;
+          font-size: 0.875rem;
+          margin-bottom: 0.25rem;
+        }
+
+        // Styles pour les dropdowns PrimeNG
+        ::ng-deep .p-dropdown {
+          width: 100%;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          background: white;
+          transition: all 0.2s;
+
+          &:hover {
+            border-color: #9ca3af;
+          }
+
+          &:focus,
+          &.p-focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+        }
+
+        ::ng-deep .p-dropdown-label {
+          padding: 0.75rem;
+          font-size: 0.875rem;
+          color: #374151;
+        }
+
+        ::ng-deep .p-dropdown-trigger {
+          width: 2.5rem;
+        }
+
+        // Styles pour les inputs
+        ::ng-deep input[type="text"] {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          font-size: 0.875rem;
+          color: #374151;
+          background: white;
+          transition: all 0.2s;
+
+          &:hover {
+            border-color: #9ca3af;
+          }
+
+          &:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+
+          &::placeholder {
+            color: #9ca3af;
+          }
+        }
+
+        ::ng-deep .p-input-icon-left {
+          width: 100%;
+
+          > i {
+            color: #9ca3af;
+            left: 0.75rem;
+          }
+
+          > input {
+            padding-left: 2.5rem;
+          }
         }
       }
 
       .filter-actions {
         display: flex;
-        gap: 1rem;
+        align-items: flex-end;
+        gap: 0.75rem;
+        justify-content: flex-end;
 
         button {
-          flex: 1;
+          white-space: nowrap;
+          height: fit-content;
+          
+          &.p-button {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+
+            &:hover {
+              transform: translateY(-1px);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+          }
         }
       }
     }
+
+    // Responsive pour les filtres
+    @media (max-width: 1400px) {
+      .filters-grid {
+        grid-template-columns: repeat(3, 1fr);
+        
+        .filter-actions {
+          grid-column: span 3;
+        }
+      }
+    }
+
+    @media (max-width: 768px) {
+      ::ng-deep .p-card-body {
+        padding: 1.5rem;
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        
+        .filter-actions {
+          flex-direction: column;
+          width: 100%;
+          
+          button {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
   }
 
   // Liste des matchs
@@ -780,13 +907,6 @@
       }
     }
 
-    .filters-section .filters-grid {
-      grid-template-columns: 1fr;
-
-      .filter-actions {
-        flex-direction: column;
-      }
-    }
 
     .match-details-modal .modal-body .info-section .info-grid {
       grid-template-columns: 1fr;
