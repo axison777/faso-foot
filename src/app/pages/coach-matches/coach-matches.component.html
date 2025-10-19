@@ -137,8 +137,17 @@
                     <span class="date">{{ match.matchDate | date:'dd/MM/yyyy' }}</span>
                     <span class="time">{{ match.matchDate | date:'HH:mm' }}</span>
                   </div>
-                  <div class="match-status-badge" [class.upcoming]="isUpcoming(match)">
-                    {{ getMatchStatus(match) }}
+                  <div class="match-status">
+                    <!-- Badge de statut backend -->
+                    <span class="status-badge" [ngClass]="getMatchStatusClass(match.status)">
+                      {{ getMatchStatusLabel(match.status) }}
+                    </span>
+                    <!-- Badge jours restants (si à venir) -->
+                    @if (isUpcoming(match) && getDaysUntilMatch(match) !== undefined) {
+                      <span class="days-badge" [class.today]="getDaysUntilMatch(match) === 0" [class.soon]="getDaysUntilMatch(match)! > 0 && getDaysUntilMatch(match)! <= 3">
+                        {{ getMatchStatus(match) }}
+                      </span>
+                    }
                   </div>
                 </div>
 

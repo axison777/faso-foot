@@ -11,7 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
 import { CoachService } from '../../service/coach.service';
 import { AuthService } from '../../service/auth.service';
-import { EnrichedMatch } from '../../models/coach-api.model';
+import { EnrichedMatch, MatchStatus, getMatchStatusLabel, getMatchStatusClass } from '../../models/coach-api.model';
 
 @Component({
     selector: 'app-coach-matches',
@@ -50,7 +50,7 @@ export class CoachMatchesComponent implements OnInit {
     competitions = signal<any[]>([]);
     selectedSeason = signal<any>(null);
     selectedCompetition = signal<any>(null);
-    selectedStatus = signal<'all' | 'not_started' | 'in_progress' | 'finished' | 'cancelled' | 'postponed' | 'planned' | 'completed' | 'validated'>('all');
+    selectedStatus = signal<'all' | 'not_started' | 'in_progress' | 'finished' | 'cancelled' | 'postponed' | 'planned' | 'completed' | 'validated'>('all'); // Par défaut: tous les matchs
     selectedPeriod = signal<'today' | 'week' | 'month' | 'all'>('all');
     searchOpponent = signal<string>('');
     sortBy = signal<'date_asc' | 'date_desc' | 'competition' | 'opponent'>('date_asc');
@@ -300,6 +300,20 @@ export class CoachMatchesComponent implements OnInit {
         if (days === 0) return "Aujourd'hui";
         if (days === 1) return 'Demain';
         return `Dans ${days} jours`;
+    }
+
+    /**
+     * Retourne le label français pour le statut du match
+     */
+    getMatchStatusLabel(status: MatchStatus | undefined): string {
+        return getMatchStatusLabel(status);
+    }
+
+    /**
+     * Retourne la classe CSS pour le statut du match
+     */
+    getMatchStatusClass(status: MatchStatus | undefined): string {
+        return getMatchStatusClass(status);
     }
 
     /**
