@@ -561,7 +561,7 @@ export class OfficialMatchReportComponent implements OnInit {
 
     initializeEvaluationData(officials: any[]) {
         this.evaluationData = officials.map(official => {
-            const baseData = {
+            const baseData: any = {
                 officialId: official.id,
                 officialName: official.name,
                 role: official.role,
