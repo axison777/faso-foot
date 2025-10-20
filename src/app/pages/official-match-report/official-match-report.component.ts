@@ -587,9 +587,10 @@ export class OfficialMatchReportComponent implements OnInit {
 
         officials.forEach((official) => {
             // Ne pas évaluer le commissaire lui-même
-            if (!official?.role || official.role === 'COMMISSIONER') return;
+            const canonicalRole = this.canonicalizeRole(official?.role);
+            if (!canonicalRole || canonicalRole === 'COMMISSIONER') return;
 
-            const criteriaConfig = this.getCriteriaForRole(official.role);
+            const criteriaConfig = this.getCriteriaForRole(canonicalRole);
             // Si aucun critère trouvé pour ce rôle, ignorer cet officiel pour éviter une carte vide
             if (!criteriaConfig || criteriaConfig.length === 0) {
                 return;
@@ -602,7 +603,7 @@ export class OfficialMatchReportComponent implements OnInit {
             const evalGroup = this.fb.group({
                 officialId: new FormControl<string>(official.id, { nonNullable: true }),
                 officialName: new FormControl<string>(official.name, { nonNullable: true }),
-                role: new FormControl<string>(official.role, { nonNullable: true }),
+                role: new FormControl<string>(canonicalRole, { nonNullable: true }),
                 comments: new FormControl<string>('', { nonNullable: true }),
                 criteria: this.fb.group(criteriaShape)
             });
@@ -640,6 +641,13 @@ export class OfficialMatchReportComponent implements OnInit {
                 ];
             case 'COMMISSIONER':
                 return [];
+            // Aliases éventuellement renvoyés par certains endpoints
+            case 'MAIN_REFEREE':
+                return this.getCriteriaForRole('CENTRAL_REFEREE');
+            case 'ASSISTANT_1':
+                return this.getCriteriaForRole('ASSISTANT_REFEREE_1');
+            case 'ASSISTANT_2':
+                return this.getCriteriaForRole('ASSISTANT_REFEREE_2');
             default:
                 return [];
         }
@@ -741,9 +749,29 @@ export class OfficialMatchReportComponent implements OnInit {
                 return 'Arbitre 4';
             case 'COMMISSIONER':
                 return 'Commissionnaire';
+            case 'MAIN_REFEREE':
+                return 'Arbitre central';
+            case 'ASSISTANT_1':
+                return 'Arbitre assistant 1';
+            case 'ASSISTANT_2':
+                return 'Arbitre assistant 2';
             default:
                 return role;
         }
+    }
+
+    /**
+     * Convertit les rôles variés en rôles canoniques backend
+     */
+    private canonicalizeRole(role: string | null | undefined): string {
+        if (!role) return '';
+        const map: Record<string, string> = {
+            'MAIN_REFEREE': 'CENTRAL_REFEREE',
+            'CENTRAL': 'CENTRAL_REFEREE',
+            'ASSISTANT_1': 'ASSISTANT_REFEREE_1',
+            'ASSISTANT_2': 'ASSISTANT_REFEREE_2'
+        };
+        return map[role] || role;
     }
 
     saveReport() {
