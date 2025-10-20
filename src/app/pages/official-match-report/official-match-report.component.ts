@@ -217,7 +217,7 @@ import { Observable } from 'rxjs';
                         </div>
 
                         <!-- Évaluation des arbitres (pour commissaires) -->
-                        <div class="form-section" #evaluationSection *ngIf="match.officialRole === 'COMMISSIONER' || refereeEvaluationsArray.length > 0">
+                        <div class="form-section" #evaluationSection *ngIf="isCommissioner && refereeEvaluationsArray.length > 0">
                             <h6>Évaluation des arbitres</h6>
                             <div class="evaluation-grid" formArrayName="refereeEvaluation">
                                 <div class="evaluation-card" *ngFor="let evalGroup of refereeEvaluationsArray.controls; let i = index" [formGroupName]="i">
@@ -506,6 +506,7 @@ export class OfficialMatchReportComponent implements OnInit {
     match$!: Observable<OfficialMatch | null>;
     reportForm: FormGroup;
     matchId: string = '';
+    isCommissioner: boolean = false;
     // Ancienne structure d'évaluation supprimée au profit des Reactive Forms
     
     // Données des joueurs pour l'auto-complétion
@@ -525,31 +526,33 @@ export class OfficialMatchReportComponent implements OnInit {
     ngOnInit() {
         this.matchId = this.route.snapshot.paramMap.get('id') || '';
         this.match$ = this.officialMatchService.getMatchDetails(this.matchId);
+        // Déterminer si l'utilisateur connecté est un commissaire
+        this.officialMatchService.getOfficialInfo().subscribe(info => {
+            this.isCommissioner = (info?.official_type === 'COMMISSIONER');
+        });
         
         // Initialiser l'évaluation des arbitres quand le match est chargé
         this.match$.subscribe(match => {
             if (match) {
-                if (match.officialRole === 'COMMISSIONER') {
-                    const localOfficials = match.otherOfficials && match.otherOfficials.length > 0
-                        ? match.otherOfficials
-                        : null;
+                const localOfficials = match.otherOfficials && match.otherOfficials.length > 0
+                    ? match.otherOfficials
+                    : null;
 
-                    if (localOfficials) {
-                        this.initializeEvaluationForm(localOfficials);
-                    } else {
-                        // Fallback: récupérer la liste des officiels via le service si non présente dans match
-                        this.officialMatchService.getMatchOfficials(match.id).subscribe({
-                            next: (officials) => {
-                                const normalized = this.normalizeOfficials(officials);
-                                if (normalized.length > 0) {
-                                    this.initializeEvaluationForm(normalized);
-                                }
-                            },
-                            error: () => {
-                                // Pas bloquant pour le reste du formulaire
+                if (localOfficials) {
+                    this.initializeEvaluationForm(localOfficials);
+                } else {
+                    // Fallback: récupérer la liste des officiels via le service si non présente dans match
+                    this.officialMatchService.getMatchOfficials(match.id).subscribe({
+                        next: (officials) => {
+                            const normalized = this.normalizeOfficials(officials);
+                            if (normalized.length > 0) {
+                                this.initializeEvaluationForm(normalized);
                             }
-                        });
-                    }
+                        },
+                        error: () => {
+                            // Pas bloquant pour le reste du formulaire
+                        }
+                    });
                 }
                 // Charger les données des joueurs
                 this.loadMatchPlayers(match.id);
@@ -935,6 +938,9 @@ export class OfficialMatchReportComponent implements OnInit {
     private normalizeOfficials(officials: any[]): Array<{ id: string; name: string; role: string }> {
         if (!Array.isArray(officials)) return [];
         return officials.map((o) => {
+            // L'API fournit parfois le rôle via pivot.role dans le contexte d'un match
+            const pivotRole = o?.pivot?.role;
+            const role = pivotRole || o?.role || o?.official_role || o?.match_role || o?.referee_role || 'REFEREE';
             const id = o?.id || o?.official_id || o?.referee_id || o?.official?.id || o?.user?.id || '';
             const name = o?.name 
                 || [o?.first_name, o?.last_name].filter(Boolean).join(' ').trim()
@@ -942,7 +948,6 @@ export class OfficialMatchReportComponent implements OnInit {
                 || o?.official?.name 
                 || o?.referee?.name 
                 || 'Officiel';
-            const role = o?.role || o?.official_role || o?.pivot?.role || o?.match_role || o?.referee_role || 'REFEREE';
             return { id, name, role };
         }).filter((o: any) => !!o.id);
     }
