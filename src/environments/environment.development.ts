@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://84ee0ad09545cfa2c7b95897bf50d81e.serveo.net/api/v1',
+  apiUrl: 'http://192.168.11.121:8000/api/v1',
 };
