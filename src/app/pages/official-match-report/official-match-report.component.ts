@@ -561,7 +561,7 @@ export class OfficialMatchReportComponent implements OnInit {
      * Initialise le FormArray refereeEvaluation avec un FormGroup par officiel
      */
     initializeEvaluationForm(officials: Array<{ id: string; name: string; role: string }>) {
-        const formArray = this.fb.array([]);
+        const formArray = this.fb.array<FormGroup>([]);
 
         officials.forEach((official) => {
             const criteriaShape: Record<string, FormControl<number>> = {} as Record<string, FormControl<number>>;
@@ -678,7 +678,7 @@ export class OfficialMatchReportComponent implements OnInit {
      * Accès pratique au FormArray refereeEvaluation
      */
     get refereeEvaluationsArray() {
-        return this.reportForm.get('refereeEvaluation') as FormArray;
+        return this.reportForm.get('refereeEvaluation') as FormArray<FormGroup>;
     }
 
     /**
