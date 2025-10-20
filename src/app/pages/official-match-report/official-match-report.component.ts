@@ -760,11 +760,17 @@ export class OfficialMatchReportComponent implements OnInit {
 
     getRoleLabel(role: string): string {
         switch (role) {
+            case 'MAIN_REFEREE':
+                return 'Arbitre Central';
             case 'CENTRAL_REFEREE':
                 return 'Arbitre Central';
             case 'ASSISTANT_REFEREE_1':
                 return 'Assistant 1';
             case 'ASSISTANT_REFEREE_2':
+                return 'Assistant 2';
+            case 'ASSISTANT_1':
+                return 'Assistant 1';
+            case 'ASSISTANT_2':
                 return 'Assistant 2';
             case 'FOURTH_OFFICIAL':
                 return '4ème Arbitre';
@@ -938,9 +944,9 @@ export class OfficialMatchReportComponent implements OnInit {
     private normalizeOfficials(officials: any[]): Array<{ id: string; name: string; role: string }> {
         if (!Array.isArray(officials)) return [];
         return officials.map((o) => {
-            // L'API fournit parfois le rôle via pivot.role dans le contexte d'un match
+            // Utiliser exclusivement le rôle terrain via pivot.role si disponible
             const pivotRole = o?.pivot?.role;
-            const role = pivotRole || o?.role || o?.official_role || o?.match_role || o?.referee_role || 'REFEREE';
+            const role = pivotRole || 'REFEREE';
             const id = o?.id || o?.official_id || o?.referee_id || o?.official?.id || o?.user?.id || '';
             const name = o?.name 
                 || [o?.first_name, o?.last_name].filter(Boolean).join(' ').trim()
