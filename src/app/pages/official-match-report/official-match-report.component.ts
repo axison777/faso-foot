@@ -219,34 +219,32 @@ import { Observable } from 'rxjs';
                         <!-- Évaluation des arbitres (pour commissaires) -->
                         <div class="form-section" #evaluationSection *ngIf="match.officialRole === 'COMMISSIONER'">
                             <h6>Évaluation des arbitres</h6>
-                            <div class="evaluation-grid">
-                                <div class="evaluation-card" *ngFor="let official of match.otherOfficials; let i = index">
-                                    <h6>{{ official.name }} - {{ getRoleLabel(official.role) }}</h6>
-                                    <div class="evaluation-criteria">
+                            <div class="evaluation-grid" formArrayName="refereeEvaluation">
+                                <div class="evaluation-card" *ngFor="let evalGroup of refereeEvaluationsArray.controls; let i = index" [formGroupName]="i">
+                                    <h6>{{ evalGroup.get('officialName')?.value }} - {{ getRoleLabel(evalGroup.get('role')?.value) }}</h6>
+                                    <div class="evaluation-criteria" formGroupName="criteria">
                                         <!-- Critères spécifiques selon le rôle -->
-                                        <ng-container *ngFor="let criterion of getCriteriaForRole(official.role)">
+                                        <ng-container *ngFor="let criterion of getCriteriaForRole(evalGroup.get('role')?.value)">
                                             <div class="criterion">
                                                 <label>{{ criterion.label }}</label>
                                                 <input type="range" 
                                                        [min]="0" 
                                                        [max]="criterion.max" 
                                                        step="1" 
-                                                       [(ngModel)]="evaluationData[i][criterion.key]"
-                                                       [ngModelOptions]="{standalone: true}"
+                                                       [formControlName]="criterion.key"
                                                        class="p-inputtext">
-                                                <span>{{ evaluationData[i][criterion.key] || 0 }}/{{ criterion.max }}</span>
+                                                <span>{{ (evalGroup.get('criteria')?.get(criterion.key)?.value || 0) }}/{{ criterion.max }}</span>
                                             </div>
                                         </ng-container>
                                         
                                         <!-- Total calculé -->
                                         <div class="total-score">
-                                            <strong>Total : {{ calculateTotalScore(i, official.role) }}/{{ getMaxScoreForRole(official.role) }}</strong>
+                                            <strong>Total : {{ calculateTotalScoreFromForm(i) }}/{{ getMaxScoreForRole(evalGroup.get('role')?.value) }}</strong>
                                         </div>
                                     </div>
                                     <div class="evaluation-comments">
                                         <label>Commentaires</label>
-                                        <textarea [(ngModel)]="evaluationData[i].comments"
-                                                  [ngModelOptions]="{standalone: true}"
+                                        <textarea formControlName="comments"
                                                   class="p-inputtext" rows="3" 
                                                   placeholder="Commentaires sur cet officiel"></textarea>
                                     </div>
@@ -508,7 +506,7 @@ export class OfficialMatchReportComponent implements OnInit {
     match$!: Observable<OfficialMatch | null>;
     reportForm: FormGroup;
     matchId: string = '';
-    evaluationData: any[] = [];
+    // Ancienne structure d'évaluation supprimée au profit des Reactive Forms
     
     // Données des joueurs pour l'auto-complétion
     matchCallups: MatchCallups | null = null;
@@ -532,7 +530,7 @@ export class OfficialMatchReportComponent implements OnInit {
         this.match$.subscribe(match => {
             if (match) {
                 if (match.otherOfficials && match.officialRole === 'COMMISSIONER') {
-                    this.initializeEvaluationData(match.otherOfficials);
+                    this.initializeEvaluationForm(match.otherOfficials);
                 }
                 // Charger les données des joueurs
                 this.loadMatchPlayers(match.id);
@@ -552,30 +550,37 @@ export class OfficialMatchReportComponent implements OnInit {
             finalAway: [null],
             events: this.fb.array([]),
             cards: this.fb.array([]),
-            refereeEvaluation: this.fb.group({}),
+            refereeEvaluation: this.fb.array([]),
             summary: [''],
             commissionerCode: [''],
             electronicSignature: ['', Validators.required]
         });
     }
 
-    initializeEvaluationData(officials: any[]) {
-        this.evaluationData = officials.map(official => {
-            const baseData: any = {
-                officialId: official.id,
-                officialName: official.name,
-                role: official.role,
-                comments: ''
-            };
+    /**
+     * Initialise le FormArray refereeEvaluation avec un FormGroup par officiel
+     */
+    initializeEvaluationForm(officials: Array<{ id: string; name: string; role: string }>) {
+        const formArray = this.fb.array([]);
 
-            // Initialiser les critères selon le rôle
-            const criteria = this.getCriteriaForRole(official.role);
-            criteria.forEach(criterion => {
-                baseData[criterion.key] = 0;
+        officials.forEach((official) => {
+            const criteriaShape: Record<string, FormControl<number>> = {} as Record<string, FormControl<number>>;
+            this.getCriteriaForRole(official.role).forEach((criterion) => {
+                criteriaShape[criterion.key] = new FormControl<number>(0, { nonNullable: true });
             });
 
-            return baseData;
+            const evalGroup = this.fb.group({
+                officialId: new FormControl<string>(official.id, { nonNullable: true }),
+                officialName: new FormControl<string>(official.name, { nonNullable: true }),
+                role: new FormControl<string>(official.role, { nonNullable: true }),
+                comments: new FormControl<string>('', { nonNullable: true }),
+                criteria: this.fb.group(criteriaShape)
+            });
+
+            formArray.push(evalGroup);
         });
+
+        this.reportForm.setControl('refereeEvaluation', formArray);
     }
 
     /**
@@ -651,17 +656,7 @@ export class OfficialMatchReportComponent implements OnInit {
         }
     }
 
-    /**
-     * Calcule le score total pour un officiel
-     */
-    calculateTotalScore(index: number, role: string): number {
-        if (!this.evaluationData[index]) return 0;
-        
-        const criteria = this.getCriteriaForRole(role);
-        return criteria.reduce((total, criterion) => {
-            return total + (this.evaluationData[index][criterion.key] || 0);
-        }, 0);
-    }
+    // calculateTotalScore() retiré, remplacé par calculateTotalScoreFromForm()
 
     /**
      * Retourne le score maximum pour un rôle
@@ -677,6 +672,26 @@ export class OfficialMatchReportComponent implements OnInit {
 
     get cardsArray() {
         return this.reportForm.get('cards') as FormArray;
+    }
+
+    /**
+     * Accès pratique au FormArray refereeEvaluation
+     */
+    get refereeEvaluationsArray() {
+        return this.reportForm.get('refereeEvaluation') as FormArray;
+    }
+
+    /**
+     * Calcule le total d'une évaluation depuis les valeurs du formulaire
+     */
+    calculateTotalScoreFromForm(index: number): number {
+        const array = this.refereeEvaluationsArray;
+        const group = array?.at(index) as FormGroup | null;
+        if (!group) return 0;
+        const role = group.get('role')?.value as string;
+        const criteria = this.getCriteriaForRole(role);
+        const criteriaGroup = group.get('criteria') as FormGroup;
+        return criteria.reduce((sum, c) => sum + (criteriaGroup.get(c.key)?.value || 0), 0);
     }
 
     addEvent() {
@@ -739,7 +754,7 @@ export class OfficialMatchReportComponent implements OnInit {
 
     saveReport() {
         if (this.reportForm.valid) {
-            const reportData = this.reportForm.value;
+            const reportData = this.buildReportDataWithEvaluationTotals();
             console.log('Sauvegarder rapport:', reportData);
             // Implémenter la sauvegarde
         }
@@ -747,7 +762,7 @@ export class OfficialMatchReportComponent implements OnInit {
 
     submitReport() {
         if (this.reportForm.valid) {
-            const reportData = this.reportForm.value;
+            const reportData = this.buildReportDataWithEvaluationTotals();
             console.log('Soumettre rapport:', reportData);
             // Implémenter la soumission
         }
@@ -870,5 +885,27 @@ export class OfficialMatchReportComponent implements OnInit {
                 block: 'start' 
             });
         }
+    }
+
+    /**
+     * Construit les données du formulaire en y ajoutant les totaux d'évaluation
+     */
+    private buildReportDataWithEvaluationTotals() {
+        const raw = this.reportForm.getRawValue();
+        const evaluations = (this.refereeEvaluationsArray?.controls || []).map((ctrl, idx) => {
+            const group = ctrl as FormGroup;
+            const role = group.get('role')?.value as string;
+            const maxScore = this.getMaxScoreForRole(role);
+            const totalScore = this.calculateTotalScoreFromForm(idx);
+            return {
+                ...group.getRawValue(),
+                totalScore,
+                maxScore
+            };
+        });
+        return {
+            ...raw,
+            refereeEvaluation: evaluations
+        };
     }
 }
