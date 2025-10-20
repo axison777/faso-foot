@@ -24,6 +24,12 @@ export class EquipeService {
 
   constructor(private http: HttpClient) {}
 
+  getTeamDashboard(teamId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${teamId}/dashboard`).pipe(
+      map((res: any) => res?.data?.team || [])
+    );
+  }
+
   getAll(): Observable<any[]> {
     return this.http.get<any>(this.apiUrl + '/all').pipe(
       map((res: any) => res?.data?.teams || [])
@@ -96,19 +102,19 @@ export class EquipeService {
   }
 
   getTeamById(teamId: string): Observable<Equipe> {
-    console.log('🔄 [EQUIPE SERVICE] GET /teams/' + teamId);
+    // console.log('🔄 [EQUIPE SERVICE] GET /teams/' + teamId);
     return this.http.get<any>(`${this.apiUrl}/${teamId}`).pipe(
       map((res: any) => {
-        console.log('📥 [EQUIPE SERVICE] Réponse brute du backend:', res);
+        // console.log('📥 [EQUIPE SERVICE] Réponse brute du backend:', res);
         if (res?.data?.team) {
-          console.log('✅ [EQUIPE SERVICE] Extraction: res.data.team');
+          // console.log('✅ [EQUIPE SERVICE] Extraction: res.data.team');
           return res.data.team as Equipe;
         }
         if (res?.data) {
-          console.log('✅ [EQUIPE SERVICE] Extraction: res.data');
+          // console.log('✅ [EQUIPE SERVICE] Extraction: res.data');
           return res.data as Equipe;
         }
-        console.log('✅ [EQUIPE SERVICE] Extraction: res directement');
+        // console.log('✅ [EQUIPE SERVICE] Extraction: res directement');
         return res as Equipe;
       })
     );

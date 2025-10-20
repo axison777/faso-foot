@@ -33,6 +33,7 @@ import { ClubDetailsComponent } from './app/pages/club-details/club-details.comp
 import { SaisonDetailsComponent } from './app/pages/saison-details/saison-details.component';
 import { MatchSetupComponent } from './app/pages/match-setup/match-setup.component';
 import { RolesComponent } from './app/pages/roles/roles.component';
+import { RoleRedirectGuard } from './app/role-redirect.guard';
 
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -44,6 +45,8 @@ export const appRoutes: Routes = [
     {
         path: '',
         component: AppLayout,
+        canActivate: [AuthGuard, RoleRedirectGuard],
+        data:{role:['admin']},
         children: [
            // { path: '', component: Dashboard },
             //{ path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
@@ -79,7 +82,8 @@ export const appRoutes: Routes = [
     {
         path: 'mon-club',
         component: ClubLayout,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, RoleRedirectGuard],
+        data:{role:['club','admin']},
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', loadComponent: () => import('./app/pages/club-dashboard-v2/club-dashboard-v2.component').then(m => m.ClubDashboardV2Component) },
@@ -91,7 +95,8 @@ export const appRoutes: Routes = [
     {
         path: 'officiel',
         component: OfficialLayout,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, RoleRedirectGuard],
+        data:{role:['official','admin']},
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', loadComponent: () => import('./app/pages/official-dashboard/official-dashboard.component').then(m => m.OfficialDashboardComponent) },
@@ -103,7 +108,8 @@ export const appRoutes: Routes = [
     {
         path: 'mon-equipe',
         component: CoachLayout,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, RoleRedirectGuard],
+        data:{role:['coach','admin']},
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', loadComponent: () => import('./app/pages/coach-dashboard-v2/coach-dashboard-v2.component').then(m => m.CoachDashboardV2Component) },

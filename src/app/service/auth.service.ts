@@ -50,7 +50,7 @@ export class AuthService {
         console.log('✅ [AUTH] Is Coach:', response?.data?.user?.is_coach);
         console.log('📋 [AUTH] Roles:', response?.data?.user?.roles);
         console.log('🔑 [AUTH] Token:', response?.data?.access_token ? 'Token présent' : 'Token absent');
-        
+
         this._user.set(response?.data?.user);
         localStorage.setItem('token', response?.data?.access_token);
       })
@@ -90,4 +90,24 @@ export class AuthService {
     if (isAdmin) return true;
     return slugs.some(s => this.hasPermission(s));
   }
+
+  getUserRole(): string | null {
+    const user = this._user();
+   if(user?.is_coach){
+    return 'coach';
+   }
+//    if(user?.is_club){
+//     return 'club';
+//    }
+   if(user?.is_official){
+    return 'official';
+   }
+   if(user?.roles?.some(r => (r.slug || '').toLowerCase() === 'admin')){
+    return 'admin';
+   }
+   return null;
+  }
+
+
+
 }

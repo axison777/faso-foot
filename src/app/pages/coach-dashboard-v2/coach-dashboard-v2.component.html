@@ -12,7 +12,7 @@
   </div>
 
   <div *ngIf="!loading && !error() && teamData() as data" class="dashboard-container">
-    
+
     <!-- Zone Prioritaire : Le Prochain Défi -->
     <div class="priority-zone">
       <div *ngIf="nextMatch()" class="next-match-card">
@@ -27,7 +27,7 @@
             <span class="time">{{ nextMatch()!.date | date:'HH:mm':'':'fr' }}</span>
           </div>
         </div>
-        
+
         <div class="match-vs">
           <div class="team-logo">
             <img *ngIf="data.kit?.photo" [src]="data.kit?.photo" alt="Mon équipe" />
@@ -44,8 +44,8 @@
             </div>
           </div>
           <div class="opponent-logo">
-            <img *ngIf="nextMatch()!.opponentLogo" 
-                 [src]="nextMatch()!.opponentLogo" 
+            <img *ngIf="nextMatch()!.opponentLogo"
+                 [src]="nextMatch()!.opponentLogo"
                  alt="Logo adversaire" />
             <div *ngIf="!nextMatch()!.opponentLogo" class="opponent-placeholder">
               <i class="pi pi-users"></i>
@@ -76,7 +76,7 @@
           </button>
         </div>
       </div>
-      
+
       <div *ngIf="!nextMatch()" class="no-next-match">
         <i class="pi pi-calendar-times"></i>
         <p>Aucun prochain match programmé</p>
@@ -99,7 +99,7 @@
             <div class="circular-progress">
               <svg viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" stroke-width="8"/>
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="8" 
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="8"
                         [style.stroke-dasharray]="getSquadPercentage() + ' ' + (100 - getSquadPercentage())"
                         stroke-dashoffset="25"/>
               </svg>
@@ -160,8 +160,8 @@
         <div class="performers-grid">
           <div class="performers-column">
             <h4>TOP Buteurs</h4>
-            <div class="performer-list">
-              <div class="performer-item" *ngFor="let scorer of topScorers">
+            <div class="performer-list" *ngIf="topScorers().length > 0">
+              <div class="performer-item" *ngFor="let scorer of topScorers()">
                 <div class="performer-info">
                   <span class="name">{{ scorer.name }}</span>
                   <span class="position">{{ scorer.position }}</span>
@@ -172,12 +172,16 @@
                 </div>
               </div>
             </div>
+            <div *ngIf="topScorers().length === 0" class="no-data">
+              <i class="pi pi-user"></i>
+              <p>Aucun buteur</p>
+            </div>
           </div>
-          
+
           <div class="performers-column">
             <h4>TOP Passeurs Décisifs</h4>
-            <div class="performer-list">
-              <div class="performer-item" *ngFor="let assister of topAssisters">
+            <div class="performer-list" *ngIf="topAssisters().length > 0">
+              <div class="performer-item" *ngFor="let assister of topAssisters()">
                 <div class="performer-info">
                   <span class="name">{{ assister.name }}</span>
                   <span class="position">{{ assister.position }}</span>
@@ -188,6 +192,10 @@
                 </div>
               </div>
             </div>
+            <div *ngIf="topAssisters().length === 0" class="no-data">
+              <i class="pi pi-user"></i>
+              <p>Aucun passeur décisif</p>
+            </div>
           </div>
         </div>
       </div>
@@ -195,7 +203,7 @@
       <div class="team-form">
         <h3>Forme de l'Équipe</h3>
         <div class="form-results">
-          <div class="result-icon" *ngFor="let result of teamForm" [ngClass]="result">
+          <div class="result-icon" *ngFor="let result of teamForm()" [ngClass]="result">
             <i class="pi" [ngClass]="getFormIcon(result)"></i>
           </div>
         </div>

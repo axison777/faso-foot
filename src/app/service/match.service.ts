@@ -76,26 +76,26 @@ export class MatchService {
             ...(opts.seasonId && { season_id: opts.seasonId })
         };
 
-        console.log('🔄 [MATCH SERVICE] GET ' + url);
-        console.log('📋 [MATCH SERVICE] Params:', params);
+        // console.log('🔄 [MATCH SERVICE] GET ' + url);
+        // console.log('📋 [MATCH SERVICE] Params:', params);
 
         return this.http.get<any>(url, { params }).pipe(
             map(res => {
-                console.log('📥 [MATCH SERVICE] Réponse brute du backend:', res);
+                // console.log('📥 [MATCH SERVICE] Réponse brute du backend:', res);
                 // Try different response structures
                 if (res?.data?.data?.matches) {
-                    console.log('✅ [MATCH SERVICE] Extraction: res.data.data.matches');
+                    // console.log('✅ [MATCH SERVICE] Extraction: res.data.data.matches');
                     return res.data.data.matches as MatchItem[];
                 }
                 if (res?.data?.matches) {
-                    console.log('✅ [MATCH SERVICE] Extraction: res.data.matches');
+                    // console.log('✅ [MATCH SERVICE] Extraction: res.data.matches');
                     return res.data.matches as MatchItem[];
                 }
                 if (res?.data) {
-                    console.log('✅ [MATCH SERVICE] Extraction: res.data (array)');
+                   // console.log('✅ [MATCH SERVICE] Extraction: res.data (array)');
                     return res.data as MatchItem[];
                 }
-                console.log('⚠️ [MATCH SERVICE] Aucune structure reconnue, retour tableau vide');
+                // console.log('⚠️ [MATCH SERVICE] Aucune structure reconnue, retour tableau vide');
                 return [];
             }),
             catchError((err) => {
@@ -110,18 +110,18 @@ export class MatchService {
 
     getAllMatchesForTeam(teamId: string): Observable<any[]> {
         const url = `${environment.apiUrl}/teams/${teamId}/matches`;
-        console.log('🔄 [MATCH SERVICE] GET ALL matches for team ' + teamId);
-        console.log('📍 [MATCH SERVICE] URL:', url);
+        // console.log('🔄 [MATCH SERVICE] GET ALL matches for team ' + teamId);
+        // console.log('📍 [MATCH SERVICE] URL:', url);
 
         return this.http.get<any>(url).pipe(
             map(res => {
-                console.log('📥 [MATCH SERVICE] Réponse brute COMPLÈTE:', res);
-                console.log('📥 [MATCH SERVICE] Type de réponse:', typeof res);
-                console.log('📥 [MATCH SERVICE] res.data:', res?.data);
-                console.log('📥 [MATCH SERVICE] res.data type:', typeof res?.data);
-                console.log('📥 [MATCH SERVICE] res.data is Array?:', Array.isArray(res?.data));
-                console.log('📥 [MATCH SERVICE] res is Array?:', Array.isArray(res));
-                
+                // console.log('📥 [MATCH SERVICE] Réponse brute COMPLÈTE:', res);
+                // console.log('📥 [MATCH SERVICE] Type de réponse:', typeof res);
+                // console.log('📥 [MATCH SERVICE] res.data:', res?.data);
+                // console.log('📥 [MATCH SERVICE] res.data type:', typeof res?.data);
+                // console.log('📥 [MATCH SERVICE] res.data is Array?:', Array.isArray(res?.data));
+                // console.log('📥 [MATCH SERVICE] res is Array?:', Array.isArray(res));
+
                 // Essayer différentes structures
                 if (res?.data?.data && Array.isArray(res.data.data)) {
                     console.log('✅ [MATCH SERVICE] Extraction: res.data.data (TROUVÉ!)');
@@ -143,10 +143,10 @@ export class MatchService {
                     console.log('✅ [MATCH SERVICE] Extraction: res (array directement)');
                     return res;
                 }
-                
-                console.log('⚠️ [MATCH SERVICE] Structure inconnue, retour []');
-                console.log('⚠️ [MATCH SERVICE] Clés de res:', Object.keys(res || {}));
-                console.log('⚠️ [MATCH SERVICE] Clés de res.data:', Object.keys(res?.data || {}));
+
+                // console.log('⚠️ [MATCH SERVICE] Structure inconnue, retour []');
+                // console.log('⚠️ [MATCH SERVICE] Clés de res:', Object.keys(res || {}));
+                // console.log('⚠️ [MATCH SERVICE] Clés de res.data:', Object.keys(res?.data || {}));
                 return [];
             }),
             catchError((err) => {

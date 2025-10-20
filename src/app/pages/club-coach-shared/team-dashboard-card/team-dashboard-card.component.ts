@@ -21,6 +21,9 @@ export interface TeamDashboardData {
   standing?: { rank: number; points: number; played: number };
   phase?: string;
   stats: { goals: number; assists: number; yellowCards: number; redCards: number };
+  topScorers: any[];
+  topAssisters: any[];
+  teamForm: any[];
 }
 
 @Component({

@@ -33,7 +33,7 @@ import { EnrichedMatch, MatchStatus, getMatchStatusLabel, getMatchStatusClass } 
 })
 export class CoachMatchesComponent implements OnInit {
     @Input() teamId?: string;
-    
+
     private coachService = inject(CoachService);
     private authService = inject(AuthService);
     private messageService = inject(MessageService);
@@ -87,7 +87,7 @@ export class CoachMatchesComponent implements OnInit {
 
     ngOnInit() {
         this.loadMatches();
-        
+
         // Écouter les query params pour ouvrir automatiquement le modal si un matchId est présent
         this.route.queryParams.subscribe(params => {
             const matchId = params['matchId'];
@@ -129,7 +129,7 @@ export class CoachMatchesComponent implements OnInit {
         if (this.selectedStatus() !== 'all') {
             filters.status = this.selectedStatus();
         }
-        
+
         // Ajouter pagination - récupérer tous les matchs
         filters.per_page = 1000; // Récupérer tous les matchs (ajustez selon vos besoins)
 
@@ -205,7 +205,7 @@ export class CoachMatchesComponent implements OnInit {
         // Filtrer par recherche d'adversaire
         if (this.searchOpponent()) {
             const search = this.searchOpponent().toLowerCase();
-            filtered = filtered.filter(m => 
+            filtered = filtered.filter(m =>
                 m.opponent?.name.toLowerCase().includes(search) ||
                 m.opponent?.abbreviation?.toLowerCase().includes(search)
             );
