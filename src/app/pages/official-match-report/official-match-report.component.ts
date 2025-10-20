@@ -222,7 +222,7 @@ import { Observable } from 'rxjs';
                             <div class="evaluation-grid" formArrayName="refereeEvaluation">
                                 <div class="evaluation-card" *ngFor="let evalGroup of refereeEvaluationsArray.controls; let i = index" [formGroupName]="i">
                                     <h6>{{ evalGroup.get('officialName')?.value }} - {{ getRoleLabel(evalGroup.get('role')?.value) }}</h6>
-                                    <div class="evaluation-criteria" formGroupName="criteria">
+                                    <div class="evaluation-criteria">
                                         <!-- Critères spécifiques selon le rôle -->
                                         <ng-container *ngFor="let criterion of evaluationCriteriaConfig[i]">
                                             <div class="criterion">
@@ -231,7 +231,7 @@ import { Observable } from 'rxjs';
                                                        [min]="0" 
                                                        [max]="criterion.max" 
                                                        step="1" 
-                                                       [formControlName]="criterion.key"
+                                                       [formControl]="(evalGroup.get('criteria')?.get(criterion.key))"
                                                        class="p-inputtext">
                                                 <span>{{ (evalGroup.get('criteria')?.get(criterion.key)?.value || 0) }}/{{ criterion.max }}</span>
                                             </div>
@@ -240,6 +240,7 @@ import { Observable } from 'rxjs';
                                         <!-- Total calculé -->
                                         <div class="total-score">
                                             <strong>Total : {{ calculateTotalScoreFromForm(i) }}/{{ getMaxScoreFromConfig(i) }}</strong>
+                                            <div style="font-size:12px;opacity:.7">Rôle: {{ evalGroup.get('role')?.value }}</div>
                                         </div>
                                     </div>
                                     <div class="evaluation-comments">
@@ -589,6 +590,10 @@ export class OfficialMatchReportComponent implements OnInit {
             if (!official?.role || official.role === 'COMMISSIONER') return;
 
             const criteriaConfig = this.getCriteriaForRole(official.role);
+            // Si aucun critère trouvé pour ce rôle, ignorer cet officiel pour éviter une carte vide
+            if (!criteriaConfig || criteriaConfig.length === 0) {
+                return;
+            }
             const criteriaShape: Record<string, FormControl<number>> = {} as Record<string, FormControl<number>>;
             criteriaConfig.forEach((criterion) => {
                 criteriaShape[criterion.key] = new FormControl<number>(0, { nonNullable: true });
