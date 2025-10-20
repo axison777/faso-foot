@@ -754,20 +754,6 @@ export class OfficialMatchReportComponent implements OnInit {
         }
     }
 
-    /**
-     * Convertit les rôles variés en rôles canoniques backend
-     */
-    private canonicalizeRole(role: string | null | undefined): string {
-        if (!role) return '';
-        const map: Record<string, string> = {
-            'MAIN_REFEREE': 'CENTRAL_REFEREE',
-            'CENTRAL': 'CENTRAL_REFEREE',
-            'ASSISTANT_1': 'ASSISTANT_REFEREE_1',
-            'ASSISTANT_2': 'ASSISTANT_REFEREE_2'
-        };
-        return map[role] || role;
-    }
-
     saveReport() {
         if (this.reportForm.valid) {
             const reportData = this.buildReportDataWithEvaluationTotals();
