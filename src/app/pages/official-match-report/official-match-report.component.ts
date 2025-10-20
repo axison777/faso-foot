@@ -217,7 +217,7 @@ import { Observable } from 'rxjs';
                         </div>
 
                         <!-- Évaluation des arbitres (pour commissaires) -->
-                        <div class="form-section" #evaluationSection *ngIf="match.officialRole === 'COMMISSIONER'">
+                        <div class="form-section" #evaluationSection *ngIf="match.officialRole === 'COMMISSIONER' || (refereeEvaluationsArray?.length > 0)">
                             <h6>Évaluation des arbitres</h6>
                             <div class="evaluation-grid" formArrayName="refereeEvaluation">
                                 <div class="evaluation-card" *ngFor="let evalGroup of refereeEvaluationsArray.controls; let i = index" [formGroupName]="i">
@@ -529,8 +529,27 @@ export class OfficialMatchReportComponent implements OnInit {
         // Initialiser l'évaluation des arbitres quand le match est chargé
         this.match$.subscribe(match => {
             if (match) {
-                if (match.otherOfficials && match.officialRole === 'COMMISSIONER') {
-                    this.initializeEvaluationForm(match.otherOfficials);
+                if (match.officialRole === 'COMMISSIONER') {
+                    const localOfficials = match.otherOfficials && match.otherOfficials.length > 0
+                        ? match.otherOfficials
+                        : null;
+
+                    if (localOfficials) {
+                        this.initializeEvaluationForm(localOfficials);
+                    } else {
+                        // Fallback: récupérer la liste des officiels via le service si non présente dans match
+                        this.officialMatchService.getMatchOfficials(match.id).subscribe({
+                            next: (officials) => {
+                                const normalized = this.normalizeOfficials(officials);
+                                if (normalized.length > 0) {
+                                    this.initializeEvaluationForm(normalized);
+                                }
+                            },
+                            error: () => {
+                                // Pas bloquant pour le reste du formulaire
+                            }
+                        });
+                    }
                 }
                 // Charger les données des joueurs
                 this.loadMatchPlayers(match.id);
@@ -907,5 +926,23 @@ export class OfficialMatchReportComponent implements OnInit {
             ...raw,
             refereeEvaluation: evaluations
         };
+    }
+
+    /**
+     * Normalise différents formats de retour d'officiels en { id, name, role }
+     */
+    private normalizeOfficials(officials: any[]): Array<{ id: string; name: string; role: string }> {
+        if (!Array.isArray(officials)) return [];
+        return officials.map((o) => {
+            const id = o?.id || o?.official_id || o?.referee_id || o?.official?.id || o?.user?.id || '';
+            const name = o?.name 
+                || [o?.first_name, o?.last_name].filter(Boolean).join(' ').trim()
+                || [o?.user?.first_name, o?.user?.last_name].filter(Boolean).join(' ').trim()
+                || o?.official?.name 
+                || o?.referee?.name 
+                || 'Officiel';
+            const role = o?.role || o?.official_role || o?.pivot?.role || o?.match_role || o?.referee_role || 'REFEREE';
+            return { id, name, role };
+        }).filter((o: any) => !!o.id);
     }
 }
