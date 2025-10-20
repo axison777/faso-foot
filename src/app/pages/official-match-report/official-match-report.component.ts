@@ -224,7 +224,7 @@ import { Observable } from 'rxjs';
                                     <h6>{{ evalGroup.get('officialName')?.value }} - {{ getRoleLabel(evalGroup.get('role')?.value) }}</h6>
                                     <div class="evaluation-criteria" formGroupName="criteria">
                                         <!-- Critères spécifiques selon le rôle -->
-                                        <ng-container *ngFor="let criterion of getCriteriaForRole(evalGroup.get('role')?.value)">
+                                        <ng-container *ngFor="let criterion of evaluationCriteriaConfig[i]">
                                             <div class="criterion">
                                                 <label>{{ criterion.label }}</label>
                                                 <input type="range" 
@@ -239,7 +239,7 @@ import { Observable } from 'rxjs';
                                         
                                         <!-- Total calculé -->
                                         <div class="total-score">
-                                            <strong>Total : {{ calculateTotalScoreFromForm(i) }}/{{ getMaxScoreForRole(evalGroup.get('role')?.value) }}</strong>
+                                            <strong>Total : {{ calculateTotalScoreFromForm(i) }}/{{ getMaxScoreFromConfig(i) }}</strong>
                                         </div>
                                     </div>
                                     <div class="evaluation-comments">
@@ -508,6 +508,7 @@ export class OfficialMatchReportComponent implements OnInit {
     matchId: string = '';
     isCommissioner: boolean = false;
     // Ancienne structure d'évaluation supprimée au profit des Reactive Forms
+    evaluationCriteriaConfig: Array<Array<{ key: string; label: string; max: number }>> = [];
     
     // Données des joueurs pour l'auto-complétion
     matchCallups: MatchCallups | null = null;
@@ -534,26 +535,23 @@ export class OfficialMatchReportComponent implements OnInit {
         // Initialiser l'évaluation des arbitres quand le match est chargé
         this.match$.subscribe(match => {
             if (match) {
-                const localOfficials = match.otherOfficials && match.otherOfficials.length > 0
-                    ? match.otherOfficials
-                    : null;
-
-                if (localOfficials) {
-                    this.initializeEvaluationForm(localOfficials);
-                } else {
-                    // Fallback: récupérer la liste des officiels via le service si non présente dans match
-                    this.officialMatchService.getMatchOfficials(match.id).subscribe({
-                        next: (officials) => {
-                            const normalized = this.normalizeOfficials(officials);
-                            if (normalized.length > 0) {
-                                this.initializeEvaluationForm(normalized);
-                            }
-                        },
-                        error: () => {
-                            // Pas bloquant pour le reste du formulaire
+                // Toujours récupérer les officiels du match pour avoir le rôle terrain via pivot.role
+                this.officialMatchService.getMatchOfficials(match.id).subscribe({
+                    next: (officials) => {
+                        const normalized = this.normalizeOfficials(officials);
+                        if (normalized.length > 0) {
+                            this.initializeEvaluationForm(normalized);
+                        } else if (match.otherOfficials && match.otherOfficials.length > 0) {
+                            // Fallback si l'API ne renvoie rien
+                            this.initializeEvaluationForm(match.otherOfficials as any);
                         }
-                    });
-                }
+                    },
+                    error: () => {
+                        if (match.otherOfficials && match.otherOfficials.length > 0) {
+                            this.initializeEvaluationForm(match.otherOfficials as any);
+                        }
+                    }
+                });
                 // Charger les données des joueurs
                 this.loadMatchPlayers(match.id);
             }
@@ -584,10 +582,15 @@ export class OfficialMatchReportComponent implements OnInit {
      */
     initializeEvaluationForm(officials: Array<{ id: string; name: string; role: string }>) {
         const formArray = this.fb.array<FormGroup>([]);
+        this.evaluationCriteriaConfig = [];
 
         officials.forEach((official) => {
+            // Ne pas évaluer le commissaire lui-même
+            if (!official?.role || official.role === 'COMMISSIONER') return;
+
+            const criteriaConfig = this.getCriteriaForRole(official.role);
             const criteriaShape: Record<string, FormControl<number>> = {} as Record<string, FormControl<number>>;
-            this.getCriteriaForRole(official.role).forEach((criterion) => {
+            criteriaConfig.forEach((criterion) => {
                 criteriaShape[criterion.key] = new FormControl<number>(0, { nonNullable: true });
             });
 
@@ -600,6 +603,7 @@ export class OfficialMatchReportComponent implements OnInit {
             });
 
             formArray.push(evalGroup);
+            this.evaluationCriteriaConfig.push(criteriaConfig);
         });
 
         this.reportForm.setControl('refereeEvaluation', formArray);
@@ -711,10 +715,14 @@ export class OfficialMatchReportComponent implements OnInit {
         const array = this.refereeEvaluationsArray;
         const group = array?.at(index) as FormGroup | null;
         if (!group) return 0;
-        const role = group.get('role')?.value as string;
-        const criteria = this.getCriteriaForRole(role);
+        const criteria = this.evaluationCriteriaConfig[index] || [];
         const criteriaGroup = group.get('criteria') as FormGroup;
         return criteria.reduce((sum, c) => sum + (criteriaGroup.get(c.key)?.value || 0), 0);
+    }
+
+    getMaxScoreFromConfig(index: number): number {
+        const criteria = this.evaluationCriteriaConfig[index] || [];
+        return criteria.reduce((total, c) => total + c.max, 0);
     }
 
     addEvent() {
