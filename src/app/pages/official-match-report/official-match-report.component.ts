@@ -217,7 +217,7 @@ import { Observable } from 'rxjs';
                         </div>
 
                         <!-- Évaluation des arbitres (pour commissaires) -->
-                        <div class="form-section" #evaluationSection *ngIf="match.officialRole === 'COMMISSIONER' || (refereeEvaluationsArray?.length > 0)">
+                        <div class="form-section" #evaluationSection *ngIf="match.officialRole === 'COMMISSIONER' || refereeEvaluationsArray.length > 0">
                             <h6>Évaluation des arbitres</h6>
                             <div class="evaluation-grid" formArrayName="refereeEvaluation">
                                 <div class="evaluation-card" *ngFor="let evalGroup of refereeEvaluationsArray.controls; let i = index" [formGroupName]="i">
@@ -696,8 +696,9 @@ export class OfficialMatchReportComponent implements OnInit {
     /**
      * Accès pratique au FormArray refereeEvaluation
      */
-    get refereeEvaluationsArray() {
-        return this.reportForm.get('refereeEvaluation') as FormArray<FormGroup>;
+    get refereeEvaluationsArray(): FormArray<FormGroup> {
+        const arr = this.reportForm.get('refereeEvaluation');
+        return (arr instanceof FormArray ? arr : this.fb.array<FormGroup>([])) as FormArray<FormGroup>;
     }
 
     /**
