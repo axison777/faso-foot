@@ -217,7 +217,7 @@ import { Observable } from 'rxjs';
                         </div>
 
                         <!-- Évaluation des arbitres (pour commissaires) -->
-                        <div class="form-section" #evaluationSection *ngIf="isCommissioner && refereeEvaluationsArray.length > 0">
+                        <div class="form-section" #evaluationSection *ngIf="refereeEvaluationsArray.length > 0">
                             <h6>Évaluation des arbitres</h6>
                             <div class="evaluation-grid" formArrayName="refereeEvaluation">
                                 <div class="evaluation-card" *ngFor="let evalGroup of refereeEvaluationsArray.controls; let i = index" [formGroupName]="i">
