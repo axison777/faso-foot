@@ -224,7 +224,7 @@ import { Observable } from 'rxjs';
                                     <h6>{{ evalGroup.get('officialName')?.value }} - {{ getRoleLabel(evalGroup.get('role')?.value) }}</h6>
                                     <div class="evaluation-criteria" formGroupName="criteria">
                                         <!-- Critères spécifiques selon le rôle -->
-                                        <ng-container *ngFor="let criterion of evaluationCriteriaConfig[i]">
+                                        <ng-container *ngFor="let criterion of getCriteriaForRole(evalGroup.get('role')?.value)">
                                             <div class="criterion">
                                                 <label>{{ criterion.label }}</label>
                                                 <input type="range" 
@@ -239,8 +239,7 @@ import { Observable } from 'rxjs';
                                         
                                         <!-- Total calculé -->
                                         <div class="total-score">
-                                            <strong>Total : {{ calculateTotalScoreFromForm(i) }}/{{ getMaxScoreFromConfig(i) }}</strong>
-                                            <div style="font-size:12px;opacity:.7">Rôle: {{ evalGroup.get('role')?.value }}</div>
+                                            <strong>Total : {{ calculateTotalScoreFromForm(i) }}/{{ getMaxScoreForRole(evalGroup.get('role')?.value) }}</strong>
                                         </div>
                                     </div>
                                     <div class="evaluation-comments">
