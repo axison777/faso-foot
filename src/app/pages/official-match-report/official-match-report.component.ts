@@ -619,6 +619,7 @@ export class OfficialMatchReportComponent implements OnInit {
      * Retourne les critères d'évaluation spécifiques à chaque rôle
      */
     getCriteriaForRole(role: string): Array<{key: string, label: string, max: number}> {
+        role = this.canonicalizeRole(role);
         switch (role) {
             case 'CENTRAL_REFEREE':
                 return [
@@ -641,13 +642,6 @@ export class OfficialMatchReportComponent implements OnInit {
                 ];
             case 'COMMISSIONER':
                 return [];
-            // Aliases éventuellement renvoyés par certains endpoints
-            case 'MAIN_REFEREE':
-                return this.getCriteriaForRole('CENTRAL_REFEREE');
-            case 'ASSISTANT_1':
-                return this.getCriteriaForRole('ASSISTANT_REFEREE_1');
-            case 'ASSISTANT_2':
-                return this.getCriteriaForRole('ASSISTANT_REFEREE_2');
             default:
                 return [];
         }
@@ -939,7 +933,7 @@ export class OfficialMatchReportComponent implements OnInit {
         return officials.map((o) => {
             // Utiliser exclusivement le rôle terrain via pivot.role si disponible
             const pivotRole = o?.pivot?.role;
-            const role = pivotRole || 'REFEREE';
+            const role = this.canonicalizeRole(pivotRole || o?.role || '');
             const id = o?.id || o?.official_id || o?.referee_id || o?.official?.id || o?.user?.id || '';
             const name = o?.name 
                 || [o?.first_name, o?.last_name].filter(Boolean).join(' ').trim()
@@ -949,5 +943,16 @@ export class OfficialMatchReportComponent implements OnInit {
                 || 'Officiel';
             return { id, name, role };
         }).filter((o: any) => !!o.id);
+    }
+
+    private canonicalizeRole(role: string | null | undefined): string {
+        if (!role) return '';
+        const map: Record<string, string> = {
+            MAIN_REFEREE: 'CENTRAL_REFEREE',
+            CENTRAL: 'CENTRAL_REFEREE',
+            ASSISTANT_1: 'ASSISTANT_REFEREE_1',
+            ASSISTANT_2: 'ASSISTANT_REFEREE_2'
+        } as any;
+        return map[role as keyof typeof map] || role;
     }
 }
