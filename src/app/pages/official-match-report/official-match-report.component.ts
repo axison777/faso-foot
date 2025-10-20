@@ -222,7 +222,7 @@ import { Observable } from 'rxjs';
                             <div class="evaluation-grid" formArrayName="refereeEvaluation">
                                 <div class="evaluation-card" *ngFor="let evalGroup of refereeEvaluationsArray.controls; let i = index" [formGroupName]="i">
                                     <h6>{{ evalGroup.get('officialName')?.value }} - {{ getRoleLabel(evalGroup.get('role')?.value) }}</h6>
-                                    <div class="evaluation-criteria">
+                                    <div class="evaluation-criteria" formGroupName="criteria">
                                         <!-- Critères spécifiques selon le rôle -->
                                         <ng-container *ngFor="let criterion of evaluationCriteriaConfig[i]">
                                             <div class="criterion">
@@ -231,7 +231,7 @@ import { Observable } from 'rxjs';
                                                        [min]="0" 
                                                        [max]="criterion.max" 
                                                        step="1" 
-                                                       [formControl]="(evalGroup.get('criteria')?.get(criterion.key))"
+                                                       [formControlName]="criterion.key"
                                                        class="p-inputtext">
                                                 <span>{{ (evalGroup.get('criteria')?.get(criterion.key)?.value || 0) }}/{{ criterion.max }}</span>
                                             </div>
@@ -619,71 +619,29 @@ export class OfficialMatchReportComponent implements OnInit {
      */
     getCriteriaForRole(role: string): Array<{key: string, label: string, max: number}> {
         switch (role) {
-            case 'MAIN_REFEREE':
             case 'CENTRAL_REFEREE':
                 return [
-                    { 
-                        key: 'matchControlAndLaws', 
-                        label: 'Contrôle du match & Interprétation des lois du jeu (Sanctions disciplinaire et les lois du jeux)', 
-                        max: 50 
-                    },
-                    { 
-                        key: 'physicalCondition', 
-                        label: 'Condition physique (Endurance, Placement & déplacement, vitesse de réaction)', 
-                        max: 30 
-                    },
-                    { 
-                        key: 'personality', 
-                        label: 'Personnalité (Décidé ou indécis, anxieux, Influençable par le public ou les joueurs, Partial ou impartial, Personnalité forte ou faible)', 
-                        max: 10 
-                    },
-                    { 
-                        key: 'collaboration', 
-                        label: 'Collaboration (Coopération avec les autres arbitres, décisions claires, utilisation des sifflets, signaux claires, chronometrage)', 
-                        max: 10 
-                    }
+                    { key: 'matchControlAndLaws', label: 'Contrôle du match & Interprétation des lois du jeu', max: 50 },
+                    { key: 'physicalCondition', label: 'Condition physique', max: 30 },
+                    { key: 'personality', label: 'Personnalité', max: 10 },
+                    { key: 'collaboration', label: 'Collaboration', max: 10 }
                 ];
-            
-            case 'ASSISTANT_1':
             case 'ASSISTANT_REFEREE_1':
-            case 'ASSISTANT_2':
             case 'ASSISTANT_REFEREE_2':
                 return [
-                    { 
-                        key: 'lawInterpretation', 
-                        label: 'Interprétations et application des lois du jeu (Décisions sur le hors jeu, Sorties de balles et fautes)', 
-                        max: 50 
-                    },
-                    { 
-                        key: 'physicalCondition', 
-                        label: 'Condition Physique (vitesse, endurance, alignement sur le hors jeu)', 
-                        max: 30 
-                    },
-                    { 
-                        key: 'collaboration', 
-                        label: 'Collaboration (Coopération avec les autres arbitres)', 
-                        max: 20 
-                    }
+                    { key: 'lawInterpretation', label: 'Interprétation des lois (hors-jeu, sorties, fautes)', max: 50 },
+                    { key: 'physicalCondition', label: 'Condition physique', max: 30 },
+                    { key: 'collaboration', label: 'Collaboration', max: 20 }
                 ];
-            
             case 'FOURTH_OFFICIAL':
                 return [
-                    { 
-                        key: 'technicalAreaControl', 
-                        label: 'Contrôle des surfaces techniques et Assistance dans le contrôle du match', 
-                        max: 30 
-                    },
-                    { 
-                        key: 'substitutionManagement', 
-                        label: 'Gestion des remplacements, gestion du temps additionnel', 
-                        max: 20 
-                    }
+                    { key: 'technicalAreaControl', label: 'Contrôle des surfaces techniques', max: 30 },
+                    { key: 'substitutionManagement', label: 'Gestion des remplacements/temps additionnel', max: 20 }
                 ];
-            
+            case 'COMMISSIONER':
+                return [];
             default:
-                return [
-                    { key: 'generalPerformance', label: 'Performance générale', max: 100 }
-                ];
+                return [];
         }
     }
 
@@ -773,22 +731,16 @@ export class OfficialMatchReportComponent implements OnInit {
 
     getRoleLabel(role: string): string {
         switch (role) {
-            case 'MAIN_REFEREE':
-                return 'Arbitre Central';
             case 'CENTRAL_REFEREE':
-                return 'Arbitre Central';
+                return 'Arbitre central';
             case 'ASSISTANT_REFEREE_1':
-                return 'Assistant 1';
+                return 'Arbitre assistant 1';
             case 'ASSISTANT_REFEREE_2':
-                return 'Assistant 2';
-            case 'ASSISTANT_1':
-                return 'Assistant 1';
-            case 'ASSISTANT_2':
-                return 'Assistant 2';
+                return 'Arbitre assistant 2';
             case 'FOURTH_OFFICIAL':
-                return '4ème Arbitre';
+                return 'Arbitre 4';
             case 'COMMISSIONER':
-                return 'Commissaire';
+                return 'Commissionnaire';
             default:
                 return role;
         }
