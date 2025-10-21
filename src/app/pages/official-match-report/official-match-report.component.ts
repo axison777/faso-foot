@@ -224,7 +224,7 @@ import { Observable } from 'rxjs';
                                     <h6>{{ evalGroup.get('officialName')?.value }} - {{ getRoleLabel(evalGroup.get('role')?.value) }}</h6>
                                     <div class="evaluation-criteria" formGroupName="criteria">
                                         <!-- Critères spécifiques selon le rôle -->
-                                        <ng-container *ngFor="let criterion of evaluationCriteriaConfig[i]">
+                                        <ng-container *ngFor="let criterion of getCriteriaListAt(i)">
                                             <div class="criterion">
                                                 <label>{{ criterion.label }}</label>
                                                 <input type="range" 
@@ -239,7 +239,7 @@ import { Observable } from 'rxjs';
                                         
                                         <!-- Total calculé -->
                                         <div class="total-score">
-                                            <strong>Total : {{ calculateTotalScoreFromForm(i) }}/{{ getMaxScoreFromConfig(i) }}</strong>
+                                            <strong>Total : {{ calculateTotalScoreFromForm(i) }}/{{ getMaxScoreForRole(evalGroup.get('role')?.value) }}</strong>
                                         </div>
                                     </div>
                                     <div class="evaluation-comments">
@@ -687,6 +687,16 @@ export class OfficialMatchReportComponent implements OnInit {
     getMaxScoreFromConfig(index: number): number {
         const criteria = this.evaluationCriteriaConfig[index] || [];
         return criteria.reduce((total, c) => total + c.max, 0);
+    }
+
+    /**
+     * Sécurise la récupération de la liste de critères pour l'index courant
+     */
+    getCriteriaListAt(index: number) {
+        const group = this.refereeEvaluationsArray?.at(index) as FormGroup | null;
+        const role = (group?.get('role')?.value as string) || '';
+        const list = this.getCriteriaForRole(role);
+        return Array.isArray(list) ? list : [];
     }
 
     addEvent() {
