@@ -535,23 +535,9 @@ export class OfficialMatchReportComponent implements OnInit {
         // Initialiser l'évaluation des arbitres quand le match est chargé
         this.match$.subscribe(match => {
             if (match) {
-                // Toujours récupérer les officiels du match pour avoir le rôle terrain via pivot.role
-                this.officialMatchService.getMatchOfficials(match.id).subscribe({
-                    next: (officials) => {
-                        const normalized = this.normalizeOfficials(officials);
-                        if (normalized.length > 0) {
-                            this.initializeEvaluationForm(normalized);
-                        } else if (match.otherOfficials && match.otherOfficials.length > 0) {
-                            // Fallback si l'API ne renvoie rien
-                            this.initializeEvaluationForm(match.otherOfficials as any);
-                        }
-                    },
-                    error: () => {
-                        if (match.otherOfficials && match.otherOfficials.length > 0) {
-                            this.initializeEvaluationForm(match.otherOfficials as any);
-                        }
-                    }
-                });
+                if (match.otherOfficials && match.otherOfficials.length > 0) {
+                    this.initializeEvaluationForm(match.otherOfficials as any);
+                }
                 // Charger les données des joueurs
                 this.loadMatchPlayers(match.id);
             }
