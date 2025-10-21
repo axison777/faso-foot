@@ -97,8 +97,6 @@ export const appRoutes: Routes = [
             { path: 'dashboard', loadComponent: () => import('./app/pages/official-dashboard/official-dashboard.component').then(m => m.OfficialDashboardComponent) },
             { path: 'matchs', loadComponent: () => import('./app/pages/official-matches/official-matches.component').then(m => m.OfficialMatchesComponent) },
             { path: 'match-details/:id', loadComponent: () => import('./app/pages/official-match-details/official-match-details.component').then(m => m.OfficialMatchDetailsComponent) },
-            { path: 'match-report/:id', loadComponent: () => import('./app/pages/official-match-report/official-match-report.component').then(m => m.OfficialMatchReportComponent) },
-            { path: 'rapports', loadComponent: () => import('./app/pages/official-match-report/official-match-report.component').then(m => m.OfficialMatchReportComponent) },
             { path: 'notifications', loadComponent: () => import('./app/pages/official-notifications/official-notifications.component').then(m => m.OfficialNotificationsComponent) }
         ]
     },

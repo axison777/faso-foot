@@ -212,7 +212,8 @@ export class OfficialMatchDetailsComponent implements OnInit {
     }
 
     submitReport(matchId: string) {
-        this.router.navigate(['/official/match-report', matchId]);
+        // Rediriger vers la page des matchs qui ouvrira le modal
+        this.router.navigate(['/officiel/matchs']);
     }
 
     enterScore(matchId: string) {

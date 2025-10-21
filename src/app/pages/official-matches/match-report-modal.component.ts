@@ -377,41 +377,50 @@ interface EvaluationOfficiel {
                 <div *ngIf="shouldShowEvaluationStep" class="step-content" #step4>
                     <h3>Évaluation des Officiels</h3>
                     <div class="officials-evaluation">
-                        <div class="evaluation-card" *ngFor="let evaluation of reportData.evaluationsOfficiels; let i = index; trackBy: trackByEvaluation">
-                            <h4>{{ evaluation.officielName }} - {{ getRoleLabel(evaluation.role) }}</h4>
-                            <div class="evaluation-criteria">
-                                <div class="criterion" *ngFor="let critere of getCriteresForRole(evaluation.role); let j = index; trackBy: trackByCriteres">
-                                    <div class="criterion-header">
-                                        <label class="criterion-label">{{ critere.label }}</label>
-                                        <span class="criterion-max">/{{ critere.max }}</span>
-                                    </div>
-                                    <div class="criterion-description" *ngIf="critere.description">
-                                        {{ critere.description }}
-                                    </div>
-                                    <div class="rating-input">
-                                        <div class="note-section">
-                                            <label class="note-label">Évaluation (sur {{ critere.max }}):</label>
-                                            <input type="number" 
-                                                   [(ngModel)]="evaluation.criteres[critere.key].note"
-                                                   min="0" [max]="critere.max" step="1"
-                                                   (ngModelChange)="onNoteChange(i)"
-                                                   class="note-input">
-                                        </div>
-                                        <div class="total-display">
-                                            <span class="total">{{ evaluation.criteres[critere.key].note || 0 }}/{{ critere.max }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="comment-section">
-                                        <label class="comment-label">Commentaires:</label>
-                                        <textarea [(ngModel)]="evaluation.criteres[critere.key].commentaires" 
-                                                  rows="2" 
-                                                  placeholder="Ajoutez vos commentaires sur ce critère..."
-                                                  class="comment-textarea"></textarea>
+                        <div class="evaluation-accordion" *ngFor="let evaluation of reportData.evaluationsOfficiels; let i = index; trackBy: trackByEvaluation">
+                            <div class="evaluation-header" (click)="toggleEvaluation(i)">
+                                <div class="header-left">
+                                    <i class="pi" [ngClass]="evaluation.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                                    <div class="official-info">
+                                        <h4>{{ evaluation.officielName }} - {{ getRoleLabel(evaluation.role) }}</h4>
+                                        <span class="total-score">Note globale: {{ evaluation.total || 0 }}/{{ evaluation.totalMax || getTotalMaxForRole(evaluation.role) }}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="evaluation-summary">
-                                <strong>Total: {{ evaluation.total || 0 }}/{{ evaluation.totalMax || getTotalMaxForRole(evaluation.role) }}</strong>
+                            
+                            <div class="evaluation-content" *ngIf="evaluation.expanded">
+                                <table class="criteria-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-criteria">Critère</th>
+                                            <th class="col-note">Note</th>
+                                            <th class="col-comments">Commentaires</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let critere of getCriteresForRole(evaluation.role); let j = index; trackBy: trackByCriteres">
+                                            <td class="criteria-cell">
+                                                <div class="criteria-name">{{ critere.label }}</div>
+                                                <div class="criteria-desc" *ngIf="critere.description">{{ critere.description }}</div>
+                                            </td>
+                                            <td class="note-cell">
+                                                <input type="number" 
+                                                       [(ngModel)]="evaluation.criteres[critere.key].note"
+                                                       min="0" [max]="critere.max" step="1"
+                                                       (ngModelChange)="onNoteChange(i)"
+                                                       class="note-input"
+                                                       placeholder="0">
+                                                <span class="note-max">/ {{ critere.max }}</span>
+                                            </td>
+                                            <td class="comment-cell">
+                                                <textarea [(ngModel)]="evaluation.criteres[critere.key].commentaires" 
+                                                          rows="2" 
+                                                          placeholder="Ajoutez vos commentaires..."
+                                                          class="comment-input"></textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -915,165 +924,194 @@ interface EvaluationOfficiel {
         .officials-evaluation {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
-        }
-
-        .evaluation-card {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .evaluation-card h4 {
-            margin: 0 0 1.5rem 0;
-            color: #1a1a1a;
-        }
-
-        .evaluation-criteria {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .criterion {
-            display: flex;
-            flex-direction: column;
             gap: 1rem;
-            padding: 1.5rem;
+        }
+
+        .evaluation-accordion {
             background: white;
-            border-radius: 8px;
             border: 1px solid #e5e7eb;
-            margin-bottom: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        .criterion-header {
+        .evaluation-header {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            cursor: pointer;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: flex-start;
-            gap: 1rem;
+            transition: background 0.2s;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        .criterion-label {
-            font-weight: 600;
-            color: #1f2937;
-            font-size: 0.95rem;
-            line-height: 1.4;
+        .evaluation-header:hover {
+            background: #e9ecef;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
             flex: 1;
         }
 
-        .criterion-max {
-            font-weight: 700;
-            color: #3b82f6;
-            font-size: 1.1rem;
-            background: #eff6ff;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-        }
-
-        .criterion-description {
-            font-size: 0.85rem;
+        .header-left i {
+            font-size: 1rem;
             color: #6b7280;
-            font-style: italic;
-            margin-top: 0.5rem;
-            padding: 0.75rem;
-            background: #f9fafb;
-            border-radius: 6px;
-            border-left: 3px solid #3b82f6;
+            transition: transform 0.2s;
         }
 
-        .rating-input {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .note-section {
+        .official-info {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.25rem;
         }
 
-        .note-label {
-            font-weight: 500;
+        .official-info h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .total-score {
+            font-size: 0.875rem;
+            color: #059669;
+            font-weight: 600;
+            background: #d1fae5;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .evaluation-content {
+            padding: 1.5rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .criteria-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .criteria-table thead {
+            background: #f8f9fa;
+        }
+
+        .criteria-table th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
             color: #374151;
             font-size: 0.875rem;
+            border-bottom: 2px solid #e5e7eb;
         }
 
-        .note-input {
-            width: 100px;
-            padding: 0.75rem;
-            border: 2px solid #d1d5db;
-            border-radius: 6px;
+        .col-criteria {
+            width: 40%;
+        }
+
+        .col-note {
+            width: 20%;
+            text-align: center;
+        }
+
+        .col-comments {
+            width: 40%;
+        }
+
+        .criteria-table tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s;
+        }
+
+        .criteria-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .criteria-table td {
+            padding: 1rem 0.75rem;
+            vertical-align: top;
+        }
+
+        .criteria-cell {
+            padding-right: 1rem;
+        }
+
+        .criteria-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .criteria-desc {
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .note-cell {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .note-cell .note-input {
+            width: 70px;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
             text-align: center;
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.2s;
         }
 
-        .note-input:focus {
+        .note-cell .note-input:focus {
             border-color: #3b82f6;
             outline: none;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .total-display {
-            display: flex;
-            align-items: center;
-            font-size: 1rem;
+        .note-max {
+            margin-left: 0.5rem;
+            color: #6b7280;
             font-weight: 600;
         }
 
-        .total {
-            color: #059669;
-            background: #d1fae5;
-            padding: 0.5rem 0.75rem;
-            border-radius: 4px;
-            font-size: 1.1rem;
+        .comment-cell {
+            padding-left: 1rem;
         }
 
-        .comment-section {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .comment-label {
-            font-weight: 500;
-            color: #374151;
-            font-size: 0.875rem;
-        }
-
-        .comment-textarea {
-            padding: 0.75rem;
+        .comment-input {
+            width: 100%;
+            padding: 0.5rem;
             border: 1px solid #d1d5db;
-            border-radius: 6px;
+            border-radius: 4px;
             font-size: 0.875rem;
             resize: vertical;
-            min-height: 60px;
+            min-height: 50px;
+            font-family: inherit;
             transition: all 0.2s;
         }
 
-        .comment-textarea:focus {
+        .comment-input:focus {
             border-color: #3b82f6;
             outline: none;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .evaluation-summary {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
         }
 
         .note-level {
@@ -1230,13 +1268,27 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
             this.loadMatchPlayers();
             
             if (this.isCommissioner && this.match.otherOfficials) {
-                this.reportData.evaluationsOfficiels = this.match.otherOfficials.map(official => ({
-                    officielId: official.id,
-                    officielName: official.name,
-                    role: official.role,
-                    criteres: this.getInitialCriteres(official.role),
-                    total: 0
-                }));
+                console.log('=== INITIALISATION DES EVALUATIONS ===');
+                console.log('Nombre d\'officiels:', this.match.otherOfficials.length);
+                console.log('Officiels:', this.match.otherOfficials);
+                
+                this.reportData.evaluationsOfficiels = this.match.otherOfficials.map((official, index) => {
+                    console.log(`\nInitialisation pour ${official.name} (${official.role})`);
+                    const criteres = this.getInitialCriteres(official.role);
+                    console.log('Critères initialisés:', criteres);
+                    
+                    return {
+                        officielId: official.id,
+                        officielName: official.name,
+                        role: official.role,
+                        criteres: criteres,
+                        total: 0,
+                        expanded: index === 0  // Premier élément ouvert par défaut
+                    };
+                });
+                
+                console.log('\nÉvaluations finales:', this.reportData.evaluationsOfficiels);
+                console.log('=== FIN INITIALISATION ===');
             }
         }
     }
@@ -1271,34 +1323,32 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
     }
 
     getInitialCriteres(role: string): any {
+        console.log(`  -> getInitialCriteres pour role: ${role}`);
+        const criteresDefinition = this.getCriteresForRole(role);
+        console.log(`  -> Définitions trouvées:`, criteresDefinition);
         const criteres: any = {};
         
-        if (role === 'CENTRAL_REFEREE') {
-            criteres.controleMatch = { note: 0, commentaires: '' };
-            criteres.conditionPhysique = { note: 0, commentaires: '' };
-            criteres.personnalite = { note: 0, commentaires: '' };
-            criteres.collaboration = { note: 0, commentaires: '' };
-        } else if (role === 'ASSISTANT_REFEREE_1' || role === 'ASSISTANT_REFEREE_2') {
-            criteres.interpretationLois = { note: 0, commentaires: '' };
-            criteres.conditionPhysique = { note: 0, commentaires: '' };
-            criteres.collaboration = { note: 0, commentaires: '' };
-        } else if (role === 'FOURTH_OFFICIAL') {
-            criteres.controleSurfaces = { note: 0, commentaires: '' };
-            criteres.gestionRemplacements = { note: 0, commentaires: '' };
-        }
+        criteresDefinition.forEach(critere => {
+            criteres[critere.key] = { note: 0, commentaires: '' };
+        });
         
+        console.log(`  -> Critères initiaux créés:`, criteres);
         return criteres;
     }
 
     getCriteresForRole(role: string): any[] {
+        console.log(`    -> getCriteresForRole appelé pour: ${role}`);
+        
         // Vérifier le cache d'abord
         if (this.criteresCache.has(role)) {
+            console.log(`    -> Critères trouvés dans le cache`);
             return this.criteresCache.get(role)!;
         }
         
+        console.log(`    -> Création des critères pour ${role}`);
         let criteres: any[] = [];
         
-        if (role === 'CENTRAL_REFEREE') {
+        if (role === 'CENTRAL_REFEREE' || role === 'CENTRAL') {
             criteres = [
                 { 
                     key: 'controleMatch', 
@@ -1325,7 +1375,7 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
                     description: 'Évaluation de la collaboration avec les autres arbitres'
                 }
             ];
-        } else if (role === 'ASSISTANT_REFEREE_1' || role === 'ASSISTANT_REFEREE_2') {
+        } else if (role === 'ASSISTANT_REFEREE_1' || role === 'ASSISTANT_REFEREE_2' || role === 'ASSISTANT_1' || role === 'ASSISTANT_2') {
             criteres = [
                 { 
                     key: 'interpretationLois', 
@@ -1346,7 +1396,7 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
                     description: 'Évaluation de la collaboration avec les autres arbitres'
                 }
             ];
-        } else if (role === 'FOURTH_OFFICIAL') {
+        } else if (role === 'FOURTH_OFFICIAL' || role === 'FOURTH') {
             criteres = [
                 { 
                     key: 'controleSurfaces', 
@@ -1518,18 +1568,34 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
 
     getRoleLabel(role: string): string {
         switch (role) {
-            case 'CENTRAL_REFEREE': return 'Arbitre Principal';
-            case 'ASSISTANT_REFEREE_1': return 'Arbitre Assistant N°1';
-            case 'ASSISTANT_REFEREE_2': return 'Arbitre Assistant N°2';
-            case 'FOURTH_OFFICIAL': return '4e Arbitre';
-            case 'COMMISSIONER': return 'Commissaire';
-            default: return role;
+            case 'CENTRAL_REFEREE':
+            case 'CENTRAL':
+                return 'Arbitre Principal';
+            case 'ASSISTANT_REFEREE_1':
+            case 'ASSISTANT_1':
+                return 'Arbitre Assistant N°1';
+            case 'ASSISTANT_REFEREE_2':
+            case 'ASSISTANT_2':
+                return 'Arbitre Assistant N°2';
+            case 'FOURTH_OFFICIAL':
+            case 'FOURTH':
+                return '4e Arbitre';
+            case 'COMMISSIONER':
+                return 'Commissaire';
+            default:
+                return role;
         }
     }
 
     getTotalMaxForRole(role: string): number {
         const criteres = this.getCriteresForRole(role);
         return criteres.reduce((sum, critere) => sum + critere.max, 0);
+    }
+
+    toggleEvaluation(index: number) {
+        if (this.reportData.evaluationsOfficiels[index]) {
+            this.reportData.evaluationsOfficiels[index].expanded = !this.reportData.evaluationsOfficiels[index].expanded;
+        }
     }
 
     trackByEvaluation(index: number, evaluation: any): any {
