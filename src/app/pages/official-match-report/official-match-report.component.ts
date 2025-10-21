@@ -224,7 +224,7 @@ import { Observable } from 'rxjs';
                                     <h6>{{ evalGroup.get('officialName')?.value }} - {{ getRoleLabel(evalGroup.get('role')?.value) }}</h6>
                                     <div class="evaluation-criteria" formGroupName="criteria">
                                         <!-- Critères spécifiques selon le rôle -->
-                                        <ng-container *ngFor="let criterion of getCriteriaListAt(i)">
+                                        <ng-container *ngFor="let criterion of getCriteriaListAt(i); trackBy: trackByCriterion">
                                             <div class="criterion">
                                                 <label>{{ criterion.label }}</label>
                                                 <input type="range" 
@@ -704,6 +704,8 @@ export class OfficialMatchReportComponent implements OnInit {
         }
         return Array.isArray(list) ? list : [];
     }
+
+    trackByCriterion = (_: number, c: { key: string }) => c.key;
 
     addEvent() {
         const eventGroup = this.fb.group({
