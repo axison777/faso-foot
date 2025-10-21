@@ -749,6 +749,7 @@ export class OfficialMatchReportComponent implements OnInit {
 
 
     getRoleLabel(role: string): string {
+        role = this.canonicalizeRole(role);
         switch (role) {
             case 'CENTRAL_REFEREE':
                 return 'Arbitre central';
@@ -760,12 +761,6 @@ export class OfficialMatchReportComponent implements OnInit {
                 return 'Arbitre 4';
             case 'COMMISSIONER':
                 return 'Commissionnaire';
-            case 'MAIN_REFEREE':
-                return 'Arbitre central';
-            case 'ASSISTANT_1':
-                return 'Arbitre assistant 1';
-            case 'ASSISTANT_2':
-                return 'Arbitre assistant 2';
             default:
                 return role;
         }
@@ -950,12 +945,22 @@ export class OfficialMatchReportComponent implements OnInit {
 
     private canonicalizeRole(role: string | null | undefined): string {
         if (!role) return '';
+        let r = role.toString().trim().toUpperCase();
+        // Normaliser traits d'union et espaces en underscore
+        r = r.replace(/[-\s]+/g, '_');
         const map: Record<string, string> = {
-            MAIN_REFEREE: 'CENTRAL_REFEREE',
-            CENTRAL: 'CENTRAL_REFEREE',
-            ASSISTANT_1: 'ASSISTANT_REFEREE_1',
-            ASSISTANT_2: 'ASSISTANT_REFEREE_2'
-        } as any;
-        return map[role as keyof typeof map] || role;
+            'MAIN_REFEREE': 'CENTRAL_REFEREE',
+            'CENTRAL': 'CENTRAL_REFEREE',
+            'ASSISTANT_1': 'ASSISTANT_REFEREE_1',
+            'ASSISTANT_2': 'ASSISTANT_REFEREE_2',
+            'FOURTH': 'FOURTH_OFFICIAL',
+            'FOURTH_REFEREE': 'FOURTH_OFFICIAL',
+            'FOURTH_OFFICER': 'FOURTH_OFFICIAL'
+        };
+        // Si déjà canonique, on garde tel quel
+        if (r === 'CENTRAL_REFEREE' || r === 'ASSISTANT_REFEREE_1' || r === 'ASSISTANT_REFEREE_2' || r === 'FOURTH_OFFICIAL' || r === 'COMMISSIONER') {
+            return r;
+        }
+        return map[r] || r;
     }
 }
