@@ -576,6 +576,7 @@ export class OfficialMatchReportComponent implements OnInit {
             if (!canonicalRole || canonicalRole === 'COMMISSIONER') return;
 
             const criteriaConfig = this.getCriteriaForRole(canonicalRole);
+            console.log('[Eval] Official:', official.name, 'rawRole:', official?.role, 'canonicalRole:', canonicalRole, 'criteriaCount:', criteriaConfig.length);
             // Si aucun critère trouvé pour ce rôle, ignorer cet officiel pour éviter une carte vide
             if (!criteriaConfig || criteriaConfig.length === 0) {
                 return;
@@ -598,6 +599,7 @@ export class OfficialMatchReportComponent implements OnInit {
         });
 
         this.reportForm.setControl('refereeEvaluation', formArray);
+        console.log('[Eval] refereeEvaluations count:', (this.reportForm.get('refereeEvaluation') as FormArray)?.length);
     }
 
     /**
@@ -624,6 +626,21 @@ export class OfficialMatchReportComponent implements OnInit {
                 return [
                     { key: 'technicalAreaControl', label: 'Contrôle des surfaces techniques', max: 30 },
                     { key: 'substitutionManagement', label: 'Gestion des remplacements/temps additionnel', max: 20 }
+                ];
+            // Par sécurité, gérer aussi les alias directement si non normalisé
+            case 'MAIN_REFEREE':
+                return [
+                    { key: 'matchControlAndLaws', label: 'Contrôle du match & Interprétation des lois du jeu', max: 50 },
+                    { key: 'physicalCondition', label: 'Condition physique', max: 30 },
+                    { key: 'personality', label: 'Personnalité', max: 10 },
+                    { key: 'collaboration', label: 'Collaboration', max: 10 }
+                ];
+            case 'ASSISTANT_1':
+            case 'ASSISTANT_2':
+                return [
+                    { key: 'lawInterpretation', label: 'Interprétation des lois (hors-jeu, sorties, fautes)', max: 50 },
+                    { key: 'physicalCondition', label: 'Condition physique', max: 30 },
+                    { key: 'collaboration', label: 'Collaboration', max: 20 }
                 ];
             case 'COMMISSIONER':
                 return [];
@@ -682,6 +699,9 @@ export class OfficialMatchReportComponent implements OnInit {
         const group = this.refereeEvaluationsArray?.at(index) as FormGroup | null;
         const role = (group?.get('role')?.value as string) || '';
         const list = this.getCriteriaForRole(role);
+        if (!list || list.length === 0) {
+            console.warn('[Eval] No criteria for role at index', index, 'role:', role);
+        }
         return Array.isArray(list) ? list : [];
     }
 
