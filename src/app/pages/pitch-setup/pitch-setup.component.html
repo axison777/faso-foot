@@ -1,270 +1,327 @@
-<!-- pitch-setup.component.html -->
-<div class="pitch-setup-backdrop" style="padding:16px;">
-    <div class="pitch-setup-card match-setup" style="max-width:1200px; margin:0 auto;">
+<!-- Nouvelle interface de composition des matchs -->
+<div class="composition-backdrop">
+  <div class="composition-container">
+    
+    <!-- En-tête de la Page -->
+    <header class="composition-header">
+      <div class="header-content">
+        <h1 class="page-title">Match à Venir</h1>
+        <button class="close-btn" (click)="closePanel()" type="button">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      
+      <!-- Navigation par Onglets -->
+      <nav class="tab-navigation">
+        <button class="tab-btn" [class.active]="activeTab === 'callup'" (click)="setActiveTab('callup')">
+          Appel des Joueurs
+        </button>
+        <button class="tab-btn active" [class.active]="activeTab === 'composition'" (click)="setActiveTab('composition')">
+          Modifier Composition
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'sheet'" (click)="setActiveTab('sheet')">
+          Feuille de Match
+        </button>
+      </nav>
+    </header>
 
-        <!-- HEADER: titre + full-width action bar -->
-        <header class="card-header" style="padding:12px 0;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h3 style="margin:0;color:rgb(50,145,87);font-size:18px;">Composer la feuille de match</h3>
-                    <small style="color:#64748b">{{ coachName }}</small>
-                </div>
-                <div style="width:48px;height:48px;"></div>
+    <!-- Contenu Principal -->
+    <div class="composition-content">
+      
+      <!-- Panneau Principal de Composition (Côté Gauche) -->
+      <main class="main-panel">
+        
+        <!-- Sélecteur de Formation -->
+        <section class="formation-selector">
+          <div class="formation-controls">
+            <div class="formation-dropdown">
+              <label for="formation-select">Formation</label>
+              <select 
+                id="formation-select" 
+                [(ngModel)]="team.formationKey" 
+                (change)="applyFormation(team.formationKey)"
+                class="formation-select"
+              >
+                <option *ngFor="let k of formationKeys" [value]="k">{{ formations[k].name }}</option>
+              </select>
+              <button class="info-btn" type="button" title="Informations sur les formations">
+                <i class="pi pi-info-circle"></i>
+              </button>
             </div>
-
-            <!-- Barre d'actions pleine largeur (séparée du pitch) -->
-            <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
-                <div style="flex:1; display:flex; gap:8px; align-items:center;">
-                    <!-- <select [(ngModel)]="team.formationKey" (change)="applyFormation(team.formationKey)"
-                        style="padding:8px;border-radius:8px;border:1px solid #e5e7eb;width:220px;">
-                        <option *ngFor="let k of formationKeys" [value]="k">{{ formations[k].name }}</option>
-                    </select> -->
-
-                    <!-- <button class="btn-info" type="button" (click)="autoFillFirst11()"
-                        style="padding:8px 12px;border-radius:8px;">
-                        Auto fill
-                    </button> -->
-
-                    <!-- <button class="btn-info" type="button" (click)="save()" style="padding:8px 12px;border-radius:8px;">
-                        Sauvegarder
-                    </button> -->
-
-                    <button class="btn-info" type="button" (click)="exportPdf()"
-                        style="padding:8px 12px;border-radius:8px;background-color: steelblue; color: #fff;">
-                        Exporter PDF
-                    </button>
-
-                    <button class="btn-info" type="button" (click)="closePanel()"
-                        style="padding:8px 12px;border-radius:8px;background-color: tomato;color: #fff;">
-                        Fermer
-                    </button>
+            
+            <!-- Aperçu rapide des formations -->
+            <div class="formation-preview">
+              <button 
+                *ngFor="let formation of getPopularFormations()" 
+                class="formation-preview-btn"
+                [class.active]="team.formationKey === formation.key"
+                (click)="applyFormation(formation.key)"
+                type="button"
+              >
+                <div class="formation-diagram">
+                  <div class="formation-name">{{ formation.key }}</div>
+                  <div class="formation-dots">
+                    <div *ngFor="let line of formation.lines" class="formation-line">
+                      <span *ngFor="let dot of getDots(line)" class="formation-dot"></span>
+                    </div>
+                  </div>
                 </div>
-
-                <div style="min-width:160px;text-align:right;color:#374151;font-size:13px;">
-                    <div>{{ team.formationKey }} · Titulaires: {{ starters.length || 0 }}/11</div>
-                    <div>Remplaçants: {{ substitutes.length || 0 }}</div>
-                </div>
+              </button>
             </div>
-        </header>
+          </div>
+        </section>
 
-        <!-- CONTENT: layout à deux colonnes (pitch fixe à gauche, sidebar droite) -->
-        <div class="content" style="display:flex; gap:16px; margin-top:12px;">
+        <!-- Terrain de Football -->
+        <section class="pitch-section">
+          <div class="pitch-container" #pitchContainer>
+            <div class="football-pitch">
+              <!-- SVG du terrain -->
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" class="pitch-svg">
+                <defs>
+                  <pattern id="grass-pattern" patternUnits="userSpaceOnUse" width="8" height="80">
+                    <rect width="4" height="80" fill="#2d5a3d"></rect>
+                    <rect x="4" width="4" height="80" fill="#1e4a32"></rect>
+                  </pattern>
+                </defs>
+                
+                <!-- Fond du terrain -->
+                <rect width="120" height="80" fill="url(#grass-pattern)"></rect>
+                
+                <!-- Lignes du terrain -->
+                <g fill="none" stroke="#ffffff" stroke-width="0.8">
+                  <!-- Contour du terrain -->
+                  <rect x="2" y="2" width="116" height="76" rx="2"></rect>
+                  
+                  <!-- Ligne médiane -->
+                  <line x1="60" y1="2" x2="60" y2="78"></line>
+                  
+                  <!-- Cercle central -->
+                  <circle cx="60" cy="40" r="12" fill="none"></circle>
+                  <circle cx="60" cy="40" r="1" fill="#ffffff"></circle>
+                  
+                  <!-- Surface de réparation gauche -->
+                  <rect x="2" y="20" width="18" height="40"></rect>
+                  <rect x="2" y="30" width="6" height="20"></rect>
+                  <circle cx="14" cy="40" r="1" fill="#ffffff"></circle>
+                  
+                  <!-- Surface de réparation droite -->
+                  <rect x="100" y="20" width="18" height="40"></rect>
+                  <rect x="112" y="30" width="6" height="20"></rect>
+                  <circle cx="106" cy="40" r="1" fill="#ffffff"></circle>
+                  
+                  <!-- Arcs de cercle des surfaces -->
+                  <path d="M 20 25 A 12 12 0 0 1 20 55" fill="none"></path>
+                  <path d="M 100 25 A 12 12 0 0 0 100 55" fill="none"></path>
+                </g>
+              </svg>
 
-            <!-- COLONNE GAUCHE : zone terrain + listes compactes au-dessus -->
-            <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
-
-                <!-- Listes compactes (Titulaires / Remplaçants / Non sélectionnés) -->
-                <div class="lists-toolbar" style="display:flex; gap:12px; align-items:flex-start;">
-                    <!-- Titulaires (compact) -->
-                    <div
-                        style="flex:1; min-width:220px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:10px;">
-                        <h4 style="margin:0 0 8px 0;font-size:14px;">Titulaires ({{ starters.length }}/11)</h4>
-                        <div style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto;">
-                            <div *ngFor="let p of starters"
-                                style="display:flex;align-items:center;gap:8px;padding:6px;background:#fff;border-radius:6px;border:1px solid #e6eef5;">
-                                <img [src]="p.photoUrl || 'assets/images/football-player.png'" width="28" height="28"
-                                    style="border-radius:50%;" (error)="onPhotoError($event)">
-                                <div style="font-size:13px;">
-                                    <div style="font-weight:600">{{ p.name || (p.first_name ? (p.first_name + ' ' +
-                                        (p.last_name || '')) : p.id) }}</div>
-                                    <div style="font-size:12px;color:#64748b">#{{ p.jersey_number || p.number || '-' }}
-                                        · {{ p.position || p.preferred?.[0] || '-' }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Remplaçants (compact) -->
-                    <div
-                        style="flex:0.7; min-width:240px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:10px;">
-                        <h4 style="margin:0 0 8px 0;font-size:14px;">Remplaçants ({{ substitutes.length }})</h4>
-                        <div style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto;">
-                            <div *ngFor="let p of substitutes"
-                                style="display:flex;align-items:center;gap:8px;padding:6px;background:#fff;border-radius:6px;border:1px solid #e6eef5;">
-                                <img [src]="p.photoUrl || 'assets/images/football-player.png'" width="26" height="26"
-                                    style="border-radius:50%;" (error)="onPhotoError($event)">
-                                <div style="font-size:13px;">{{ p.name || (p.first_name ? (p.first_name + ' ' +
-                                    (p.last_name || '')) : p.id) }}</div>
-                                <div style="margin-left:auto;">
-                                    <button type="button" (click)="removeFromSubstitutes(p.id)"
-                                        style="padding:6px 8px;border-radius:6px;">Retirer</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Non sélectionnés (compact) -->
-                    <div
-                        style="flex:1; min-width:240px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:10px;">
-                        <h4 style="margin:0 0 8px 0;font-size:14px;">Disponibles ({{ unselected.length }})</h4>
-                        <div style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto;">
-                            <div *ngFor="let p of unselected"
-                                style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px;background:#fff;border-radius:6px;border:1px solid #e6eef5;">
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <img [src]="p.photoUrl || 'assets/images/football-player.png'" width="26"
-                                        height="26" style="border-radius:50%;" (error)="onPhotoError($event)">
-                                    <div style="font-size:13px;">{{ p.first_name ? (p.first_name + ' ' + (p.last_name ||
-                                        '')) : p.name || p.id }}</div>
-                                </div>
-                                <div style="display:flex;gap:6px;">
-                                    <button type="button" (click)="pickAsStarter(p.id)"
-                                        style="padding:6px 8px;border-radius:6px;">Tit.</button>
-                                    <button type="button" (click)="addAsSubstitute(p.id)"
-                                        style="padding:6px 8px;border-radius:6px;">Remp.</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+              <!-- Placement des joueurs sur le terrain -->
+              <div 
+                *ngFor="let pos of team.positions; let i = index" 
+                class="player-position"
+                [style.left.%]="pos.x"
+                [style.top.%]="pos.y"
+                (click)="openPlayerSelector(i)"
+                cdkDropList
+                [cdkDropListData]="[pos]"
+                (cdkDropListDropped)="onPlayerDropped($event, i)"
+              >
+                <div 
+                  *ngIf="getPlayer(pos.playerId) as player; else emptyPosition"
+                  class="player-avatar"
+                  cdkDrag
+                  [cdkDragData]="player"
+                >
+                  <img 
+                    [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                    [alt]="getPlayerName(player)"
+                    (error)="onPhotoError($event)"
+                    class="player-photo"
+                  >
+                  <div class="player-number">{{ player.jersey_number || player.number || '?' }}</div>
+                  <div class="player-name">{{ getShortName(player) }}</div>
                 </div>
-
+                
+                <ng-template #emptyPosition>
+                  <div class="empty-position">
+                    <div class="position-role">{{ pos.role }}</div>
+                    <i class="pi pi-plus"></i>
+                  </div>
+                </ng-template>
+              </div>
             </div>
+          </div>
+        </section>
 
-            <!-- COLONNE DROITE : sidebar - boutons full width + preview JSON -->
-            <aside style="width:320px; min-width:260px;">
-                <div
-                    style="background:#fff;padding:12px;border-radius:8px;border:1px solid #e6eef5;display:flex;flex-direction:column;gap:10px;">
-                    <h4 style="margin:0">Actions rapides</h4>
+      </main>
 
-                    <!-- Boutons pleine largeur -->
-
-                    <strong>Formation</strong>
-                    <select [(ngModel)]="team.formationKey" (change)="applyFormation(team.formationKey)"
-                        style="padding:8px;border-radius:8px;border:1px solid #e5e7eb;">
-                        <option *ngFor="let k of formationKeys" [value]="k">{{ formations[k].name }}</option>
-                    </select>
-
-                    <div style="border-top:1px solid #eef2f7;padding-top:6px;">
-                        <div style="font-size:13px;color:#374151;"><strong>Capitaine</strong></div>
-                        <div style="margin-top:6px;">
-                            <select [(ngModel)]="team.captainId"
-                                style="width:100%;padding:8px;border-radius:8px;border:1px solid #e5e7eb;">
-                                <option [ngValue]="null">— Choisir un capitaine —</option>
-                                <option *ngFor="let p of starters" [value]="p.id">{{ p.name || (p.first_name ?
-                                    (p.first_name + ' ' + (p.last_name || '')) : p.id) }}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="font-size:13px;color:#374151;"><strong>Actions</strong></div>
-
-                    <button type="button" (click)="autoFillFirst11()"
-                        style="width:100%;padding:10px;border-radius:8px;border:1px solid #0e6d34;background:#0e6d34;color:#fff;">Pré-remplir les titulaires</button>
-                    <button type="button" (click)="resetComposition()"
-                        style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;">Réinitialiser</button>
-                    <button type="button" [disabled]="!canFinalize()" (click)="save()"
-                        style="width:100%;padding:10px;border-radius:8px;border:1px solid #0ea5a2;background:#0ea5a2;color:#fff;">
-                        Enregistrer
-                    </button>
-
-                </div>
-
-                <!-- Aperçu JSON -->
-                <!-- <div
-                    style="background:#fff;padding:12px;border-radius:8px;border:1px solid #e6eef5;margin-top:12px;max-height:380px;overflow:auto;">
-                    <h4 style="margin:0 0 8px 0">Aperçu JSON</h4>
-                    <pre style="font-size:12px;white-space:pre-wrap;">{{ getFinalPayload() | json }}</pre>
-                </div> -->
-            </aside>
-
+      <!-- Panneau des Joueurs (Côté Droit) -->
+      <aside class="players-panel">
+        
+        <!-- Bouton d'Action Principal -->
+        <div class="action-section">
+          <button 
+            class="primary-action-btn"
+            [disabled]="!canFinalize()"
+            (click)="save()"
+            type="button"
+          >
+            <i class="pi pi-check"></i>
+            SAUVEGARDER & PARTAGER AVEC OFFICIELS
+          </button>
         </div>
 
-        <!-- PITCH AREA (FIXE en pixel/ratio pour préserver positions) -->
-        <div class="pitch-wrapper"
-            style="background:#fff;border-radius:8px;border:1px solid #e6eef5;padding:12px;display:flex;justify-content:center; margin-top: 20px;">
-            <!-- zone pitch fixe -->
-            <div class="pitch-area" #pitchContainer
-                style="position:relative; overflow:hidden; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);">
-                <!-- SVG du terrain -->
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 74"
-                    style="width:100%; height:100%; display:block;">
-                    <defs>
-                        <pattern id="grass-stripes" patternUnits="userSpaceOnUse" width="6" height="74">
-                            <rect width="3" height="74" fill="#00a000"></rect>
-                            <rect x="3" width="3" height="74" fill="#009000"></rect>
-                        </pattern>
-                    </defs>
-                    <rect width="111" height="74" fill="url(#grass-stripes)"></rect>
-                    <g fill="none" stroke="#fff" stroke-width="0.5" transform="rotate(90, 53, 55.5)">
-                        <path d="M 0 0 h 68 v 105 h -68 Z"></path>
-                        <path d="M 0 52.5 h 68"></path>
-                        <circle r="9.15" cx="34" cy="52.5"></circle>
-                        <circle r="0.75" cx="34" cy="52.5" fill="#fff" stroke="none"></circle>
-                        <g id="PenaltyArea">
-                            <path d="M 13.84 0 v 16.5 h 40.32 v -16.5"></path>
-                            <path d="M 24.84 0 v 5.5 h 18.32 v -5.5"></path>
-                            <circle r="0.75" cx="34" cy="10.94" fill="#fff" stroke="none"></circle>
-                            <path d="M 26.733027 16.5 a 9.15 9.15 0 0 0 14.533946 0"></path>
-                        </g>
-                        <use href="#PenaltyArea" transform="rotate(180,34,52.5)"></use>
-                        <path
-                            d="M 0 2 a 2 2 0 0 0 2 -2 M 66 0 a 2 2 0 0 0 2 2 M 68 103 a 2 2 0 0 0 -2 2 M 2 105 a 2 2 0 0 0 -2 -2">
-                        </path>
-                    </g>
-                </svg>
-
-                <!-- Pins joueurs (positionnés en pourcentage ; NE PAS MODIFIER CES COORDS) -->
-                <ng-container *ngFor="let pos of team.positions; let i = index">
-                    <!-- remplace le bloc "player present" -->
-                    <ng-container *ngIf="getPlayer(pos.playerId) as player; else noPlayerTpl">
-                        <button class="player-pin match-setup clickable" (click)="openSelect(i)"
-                            [attr.title]="player.name ?? (pos.role || '')" [ngStyle]="playerStyle(pos)" type="button">
-                            <!-- NEW: structure with avatar, badge and name -->
-                            <div class="pin-inner">
-                                <div class="pin-avatar">
-                                    <img [src]="player.photoUrl || 'assets/images/football-player.png'"
-                                        [alt]="player.first_name" loading="lazy" (error)="onPhotoError($event)">
-                                </div>
-
-                                <div class="pin-name">
-                                    <!-- use available fields without changing TS -->
-                                    {{ player.name || (player.first_name ? (player.first_name + ' ' +
-                                    (player.last_name || '')) : 'Joueur') }}
-                                </div>
-
-                                <div class="pin-badge" aria-hidden="true">
-                                    #{{ player.jersey_number ?? player.number ?? 0 }}
-                                </div>
-                            </div>
-                        </button>
-                    </ng-container>
-
-                    <ng-template #noPlayerTpl>
-                        <button class="player-pin match-setup clickable" (click)="openSelect(i)"
-                            [attr.title]="pos.role ?? 'poste'" [ngStyle]="playerStyle(pos)" type="button">
-                            <div class="pin-inner empty">
-                                <div class="pin-avatar placeholder">
-                                    <span class="pin-initials">{{ playerInitials() }}</span>
-                                </div>
-                                <div class="pin-name">{{ pos.role ?? '' }}</div>
-                            </div>
-                        </button>
-                    </ng-template>
-                </ng-container>
-            </div>
-        </div>
-
-        <!-- SELECTOR MODAL FLOTANT (pour assigner manuellement à une position) -->
-        <div class="player-selector" *ngIf="selectedPositionIndex !== null"
-            style="position:fixed;right:24px;bottom:24px;z-index:10000;">
-            <div
-                style="width:340px;background:#fff;border-radius:10px;padding:12px;box-shadow:0 10px 30px rgba(0,0,0,0.12);">
-                <h4 style="margin-top:0">Assigner un joueur — {{ selectedRoleLabel() }}</h4>
-                <div style="max-height:320px;overflow:auto;">
-                    <div *ngFor="let p of roster"
-                        style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;">
-                        <div>{{ p.jersey_number || p.number }} - {{ p.name || (p.first_name ? (p.first_name + ' ' +
-                            (p.last_name || '')) : p.id) }}</div>
-                        <div>
-                            <button class="btn-info" type="button"
-                                (click)="assignPlayerToPosition(p.id)">Choisir</button>
-                        </div>
-                    </div>
+        <!-- Liste des Joueurs Disponibles -->
+        <section class="available-players">
+          <h3 class="section-title">
+            <i class="pi pi-users"></i>
+            Liste des Joueurs
+          </h3>
+          
+          <div class="players-list" cdkDropList [cdkDropListData]="unselected" (cdkDropListDropped)="onPlayerListDrop($event)">
+            <div 
+              *ngFor="let player of unselected" 
+              class="player-card"
+              cdkDrag
+              [cdkDragData]="player"
+            >
+              <img 
+                [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                [alt]="getPlayerName(player)"
+                (error)="onPhotoError($event)"
+                class="player-avatar-small"
+              >
+              <div class="player-info">
+                <div class="player-name-bold">{{ getPlayerName(player) }}</div>
+                <div class="player-status">
+                  <span class="status-indicator status-present"></span>
+                  Présent
                 </div>
-                <div style="display:flex;justify-content:flex-end;margin-top:8px;">
-                    <button type="button" (click)="selectedPositionIndex = null"
-                        style="padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#fff">Annuler</button>
-                </div>
+              </div>
+              <div class="player-actions">
+                <button 
+                  class="action-btn starter-btn" 
+                  (click)="pickAsStarter(player.id)"
+                  title="Ajouter comme titulaire"
+                  type="button"
+                >
+                  <i class="pi pi-arrow-up"></i>
+                </button>
+                <button 
+                  class="action-btn substitute-btn" 
+                  (click)="addAsSubstitute(player.id)"
+                  title="Ajouter comme remplaçant"
+                  type="button"
+                >
+                  <i class="pi pi-arrow-down"></i>
+                </button>
+              </div>
             </div>
-        </div>
+          </div>
+        </section>
+
+        <!-- Section des Remplaçants -->
+        <section class="substitutes-section">
+          <h3 class="section-title">
+            <i class="pi pi-users"></i>
+            Remplaçants Choisis
+            <span class="count-badge">{{ substitutes.length }}</span>
+          </h3>
+          
+          <div class="substitutes-container" cdkDropList [cdkDropListData]="substitutes" (cdkDropListDropped)="onSubstitutesDrop($event)">
+            <div 
+              *ngFor="let player of substitutes; let i = index" 
+              class="substitute-card"
+              cdkDrag
+              [cdkDragData]="player"
+            >
+              <div class="substitute-order">{{ i + 1 }}</div>
+              <img 
+                [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                [alt]="getPlayerName(player)"
+                (error)="onPhotoError($event)"
+                class="substitute-avatar"
+              >
+              <div class="substitute-info">
+                <div class="substitute-name">{{ getPlayerName(player) }}</div>
+                <div class="substitute-position">{{ player.position || 'Milieu' }}</div>
+              </div>
+              <button 
+                class="remove-btn" 
+                (click)="removeFromSubstitutes(player.id)"
+                title="Retirer du banc"
+                type="button"
+              >
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+            
+            <!-- Zone de dépôt pour ajouter des remplaçants -->
+            <div class="drop-zone" *ngIf="substitutes.length < 7">
+              <i class="pi pi-plus"></i>
+              <span>Glisser un joueur ici</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Informations sur la composition -->
+        <section class="composition-info">
+          <div class="info-item">
+            <span class="info-label">Formation :</span>
+            <span class="info-value">{{ team.formationKey || 'Non définie' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Titulaires :</span>
+            <span class="info-value">{{ getStartersCount() }}/11</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Remplaçants :</span>
+            <span class="info-value">{{ substitutes.length }}/7</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Capitaine :</span>
+            <select 
+              [(ngModel)]="team.captainId" 
+              class="captain-select"
+            >
+              <option [ngValue]="null">Choisir un capitaine</option>
+              <option *ngFor="let player of starters" [value]="player.id">
+                {{ getPlayerName(player) }}
+              </option>
+            </select>
+          </div>
+        </section>
+
+      </aside>
 
     </div>
+
+    <!-- Sélecteur de joueur modal -->
+    <div class="player-selector-modal" *ngIf="selectedPositionIndex !== null" (click)="closePlayerSelector()">
+      <div class="selector-content" (click)="$event.stopPropagation()">
+        <h4>Assigner un joueur - {{ selectedRoleLabel() }}</h4>
+        <div class="selector-players">
+          <div 
+            *ngFor="let player of roster" 
+            class="selector-player"
+            (click)="assignPlayerToPosition(player.id)"
+          >
+            <img 
+              [src]="player.photoUrl || 'assets/images/football-player.png'" 
+              [alt]="getPlayerName(player)"
+              (error)="onPhotoError($event)"
+            >
+            <div class="selector-player-info">
+              <div class="selector-player-name">{{ getPlayerName(player) }}</div>
+              <div class="selector-player-number">#{{ player.jersey_number || player.number || '?' }}</div>
+            </div>
+          </div>
+        </div>
+        <button class="selector-close" (click)="closePlayerSelector()" type="button">
+          Fermer
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>

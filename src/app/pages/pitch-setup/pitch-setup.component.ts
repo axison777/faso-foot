@@ -2,7 +2,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DragDropModule, CdkDragEnd, CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
+import { DragDropModule, CdkDragEnd, CdkDragDrop, transferArrayItem, moveItemInArray } from '@angular/cdk/drag-drop';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { DropdownModule } from 'primeng/dropdown';
@@ -35,6 +35,12 @@ interface TeamSheet {
   positions: Placed[];
   substitutes: string[];
   captainId?: string | null;
+}
+
+interface FormationPreview {
+  key: string;
+  name: string;
+  lines: number[];
 }
 
 @Component({
@@ -99,6 +105,17 @@ export class PitchSetupComponent implements OnInit, OnChanges {
 
   // flag finalize
   finalized = false;
+
+  // onglet actif
+  activeTab: 'callup' | 'composition' | 'sheet' = 'composition';
+
+  // formations populaires pour l'aperçu
+  popularFormations: FormationPreview[] = [
+    { key: '4-4-2', name: '4-4-2', lines: [1, 4, 4, 2] },
+    { key: '4-3-3', name: '4-3-3', lines: [1, 4, 3, 3] },
+    { key: '3-5-2', name: '3-5-2', lines: [1, 3, 5, 2] },
+    { key: '3-4-3', name: '3-4-3', lines: [1, 3, 4, 3] }
+  ];
 
   constructor(private hostRef: ElementRef) {}
 
@@ -509,5 +526,108 @@ export class PitchSetupComponent implements OnInit, OnChanges {
 
   closePanel() {
     this.close.emit();
+  }
+
+  // Nouvelles méthodes pour la nouvelle interface
+  
+  setActiveTab(tab: 'callup' | 'composition' | 'sheet') {
+    this.activeTab = tab;
+  }
+
+  getPopularFormations(): FormationPreview[] {
+    return this.popularFormations;
+  }
+
+  getDots(count: number): number[] {
+    return Array(count).fill(0);
+  }
+
+  getPlayerName(player: Player): string {
+    if (player.name) return player.name;
+    if (player.first_name) {
+      return `${player.first_name} ${player.last_name || ''}`.trim();
+    }
+    return player.id || 'Joueur';
+  }
+
+  getShortName(player: Player): string {
+    const fullName = this.getPlayerName(player);
+    const parts = fullName.split(' ');
+    if (parts.length === 1) return parts[0];
+    if (parts.length === 2) return `${parts[0].charAt(0)}. ${parts[1]}`;
+    return `${parts[0].charAt(0)}. ${parts[parts.length - 1]}`;
+  }
+
+  getStartersCount(): number {
+    return this.team.positions.filter(pos => pos.playerId).length;
+  }
+
+  openPlayerSelector(index: number) {
+    this.selectedPositionIndex = index;
+  }
+
+  closePlayerSelector() {
+    this.selectedPositionIndex = null;
+  }
+
+  onPlayerDropped(event: CdkDragDrop<any>, positionIndex: number) {
+    if (event.previousContainer !== event.container) {
+      const player = event.previousContainer.data[event.previousIndex] as Player;
+      if (player) {
+        // Retirer le joueur de sa position actuelle
+        this.team.positions.forEach(pos => {
+          if (pos.playerId === player.id) pos.playerId = undefined;
+        });
+        
+        // Retirer des remplaçants si nécessaire
+        this.team.substitutes = this.team.substitutes.filter(id => id !== player.id);
+        this.removeFromAllLists(player.id);
+        
+        // Assigner à la nouvelle position
+        this.team.positions[positionIndex].playerId = player.id;
+        
+        // Ajouter aux titulaires
+        if (!this.starters.find(s => s.id === player.id)) {
+          this.starters.push(player);
+        }
+        
+        // Retirer des autres listes
+        this.unselected = this.unselected.filter(p => p.id !== player.id);
+        this.substitutes = this.substitutes.filter(p => p.id !== player.id);
+      }
+    }
+  }
+
+  onPlayerListDrop(event: CdkDragDrop<Player[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      // Joueur déplacé depuis le terrain ou les remplaçants vers la liste disponible
+      const player = event.previousContainer.data[event.previousIndex] as Player;
+      if (player) {
+        this.removeFromAllLists(player.id);
+        this.team.positions.forEach(pos => {
+          if (pos.playerId === player.id) pos.playerId = undefined;
+        });
+        
+        if (!this.unselected.find(p => p.id === player.id)) {
+          this.unselected.push(player);
+        }
+      }
+    }
+  }
+
+  onSubstitutesDrop(event: CdkDragDrop<Player[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      // Mettre à jour l'ordre des remplaçants
+      this.team.substitutes = this.substitutes.map(s => s.id);
+    } else {
+      // Joueur déplacé depuis une autre liste vers les remplaçants
+      const player = event.previousContainer.data[event.previousIndex] as Player;
+      if (player && !this.substitutes.find(s => s.id === player.id)) {
+        this.addAsSubstitute(player.id);
+      }
+    }
   }
 }
