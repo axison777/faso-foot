@@ -181,7 +181,10 @@ export class CoachService {
             map((matches) => {
                 // Filtrer les matchs futurs
                 const now = new Date().getTime();
-                return matches.filter((m) => new Date(m.scheduled_at).getTime() > now);
+                return matches.filter((m) => {
+                    const matchDate = this.parseFrenchDate(m.scheduled_at);
+                    return matchDate ? matchDate.getTime() > now : false;
+                });
             })
         );
     }
@@ -195,7 +198,10 @@ export class CoachService {
             map((matches) => {
                 // Filtrer les matchs passés
                 const now = new Date().getTime();
-                return matches.filter((m) => new Date(m.scheduled_at).getTime() <= now);
+                return matches.filter((m) => {
+                    const matchDate = this.parseFrenchDate(m.scheduled_at);
+                    return matchDate ? matchDate.getTime() <= now : false;
+                });
             })
         );
     }
@@ -263,6 +269,47 @@ export class CoachService {
     // ============================================
 
     /**
+     * Analyse et parse une date en format français DD/MM/YYYY ou DD/MM/YYYY HH:mm
+     * ou ISO. Retourne une Date valide ou null si impossible à parser.
+     */
+    parseFrenchDate(dateString: string): Date | null {
+        if (!dateString || typeof dateString !== 'string') {
+            return null;
+        }
+
+        // Essayer d'abord avec le constructeur Date (ISO, etc.)
+        const isoDate = new Date(dateString);
+        if (!isNaN(isoDate.getTime())) {
+            return isoDate;
+        }
+
+        // Essayer le format DD/MM/YYYY
+        const ddmmyyyyMatch = dateString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (ddmmyyyyMatch) {
+            const [, day, month, year] = ddmmyyyyMatch;
+            // Note: Constructor Date uses 0-indexed months
+            const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+            if (!isNaN(parsedDate.getTime())) {
+                return parsedDate;
+            }
+        }
+
+        // Essayer le format DD/MM/YYYY HH:mm
+        const ddmmyyyyhhmmMatch = dateString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{1,2})$/);
+        if (ddmmyyyyhhmmMatch) {
+            const [, day, month, year, hours, minutes] = ddmmyyyyhhmmMatch;
+            const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes));
+            if (!isNaN(parsedDate.getTime())) {
+                return parsedDate;
+            }
+        }
+
+        // Format non reconnu
+        console.warn('⚠️ [DATE PARSER] Unable to parse date:', dateString);
+        return null;
+    }
+
+    /**
      * Enrichit les matchs avec des données calculées (adversaire, domicile/extérieur, etc.)
      */
     enrichMatches(matches: CoachMatch[], teamId: string): EnrichedMatch[] {
@@ -270,8 +317,22 @@ export class CoachService {
 
         return matches.map((match) => {
             const isHome = match.team_one_id === teamId || match.home_club_id === teamId;
-            const matchDate = new Date(match.scheduled_at);
-            const daysUntilMatch = Math.ceil((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+            // Validate date before creating Date object
+            let matchDate: Date | null = null;
+            let daysUntilMatch: number | undefined = undefined;
+
+            if (match.scheduled_at) {
+                // Use the French date parser to handle DD/MM/YYYY format and ISO dates
+                matchDate = this.parseFrenchDate(match.scheduled_at);
+                if (matchDate) {
+                    daysUntilMatch = Math.ceil((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                } else {
+                    console.warn('⚠️ [COACH SERVICE] Could not parse scheduled_at date:', match.scheduled_at, 'for match:', match.id);
+                }
+            } else {
+                console.warn('⚠️ [COACH SERVICE] Missing scheduled_at for match:', match.id);
+            }
 
             return {
                 ...match,
@@ -280,8 +341,8 @@ export class CoachService {
                 myTeam: isHome ? match.team_one : match.team_two,
                 matchDate,
                 daysUntilMatch,
-                isUpcoming: matchDate > now,
-                isPast: matchDate < now
+                isUpcoming: matchDate ? matchDate > now : false,
+                isPast: matchDate ? matchDate < now : false
             };
         });
     }
@@ -297,17 +358,17 @@ export class CoachService {
             case 'today':
                 const endOfToday = new Date(now);
                 endOfToday.setHours(23, 59, 59, 999);
-                return matches.filter((m) => m.matchDate >= now && m.matchDate <= endOfToday);
+                return matches.filter((m) => m.matchDate && m.matchDate >= now && m.matchDate <= endOfToday);
 
             case 'week':
                 const endOfWeek = new Date(now);
                 endOfWeek.setDate(endOfWeek.getDate() + 7);
-                return matches.filter((m) => m.matchDate >= now && m.matchDate <= endOfWeek);
+                return matches.filter((m) => m.matchDate && m.matchDate >= now && m.matchDate <= endOfWeek);
 
             case 'month':
                 const endOfMonth = new Date(now);
                 endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-                return matches.filter((m) => m.matchDate >= now && m.matchDate <= endOfMonth);
+                return matches.filter((m) => m.matchDate && m.matchDate >= now && m.matchDate <= endOfMonth);
 
             case 'all':
             default:
@@ -322,10 +383,14 @@ export class CoachService {
         return [...matches].sort((a, b) => {
             switch (sortBy) {
                 case 'date_asc':
-                    return a.matchDate.getTime() - b.matchDate.getTime();
+                    const aTime = a.matchDate ? a.matchDate.getTime() : 0;
+                    const bTime = b.matchDate ? b.matchDate.getTime() : 0;
+                    return aTime - bTime;
 
                 case 'date_desc':
-                    return b.matchDate.getTime() - a.matchDate.getTime();
+                    const bTimeDesc = b.matchDate ? b.matchDate.getTime() : 0;
+                    const aTimeDesc = a.matchDate ? a.matchDate.getTime() : 0;
+                    return bTimeDesc - aTimeDesc;
 
                 case 'competition':
                     return (a.pool?.name || '').localeCompare(b.pool?.name || '');
