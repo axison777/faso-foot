@@ -10,23 +10,18 @@
               <img src="assets/images/Logo-FBF.png" alt="Logo FBF" class="logo-image" />
               <span class="app-title">FÉDÉRATION BURKINABÈ DE FOOTBALL</span>
             </div>
-            <div class="logo-divider"></div>
-            <div class="logo-item">
-              <img src="assets/images/lfp.png" alt="Logo LFP" class="logo-image" />
-              <p class="app-description">LIGUE DE FOOTBALL PROFESSIONNEL</p>
-            </div>
           </div>
-          <div class="logo-title">Bienvenue sur l'espace numérique de gestion des championnats burkinabès de football.</div>
+          <div class="logo-title">
+            Bienvenue sur l'espace numérique de gestion des championnats burkinabès de football.
+          </div>
         </div>
       </div>
     </div>
+
     <!-- Right side -->
     <div class="form-side">
       <div class="form-container card">
         <h4 class="form-title">Identifiez-vous</h4>
-        <!-- Erreurs -->
-<!--         <div *ngIf="error" class="alert alert-error">{{ error }}</div>
-        <div *ngIf="success" class="alert alert-success">{{ success }}</div> -->
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <!-- Email -->
           <div class="mb-4">
@@ -51,7 +46,8 @@
               </span>
             </div>
           </div>
-          <!-- Mot de passe -->
+
+          <!-- Password -->
           <div class="mb-4">
             <label for="password" class="block mb-2 font-bold">Mot de passe</label>
             <p-iconfield>
@@ -77,6 +73,7 @@
               </span>
             </div>
           </div>
+
           <!-- Démo -->
           <div class="demo-credentials">
             <p class="demo-title">Identifiants de démonstration :</p>
