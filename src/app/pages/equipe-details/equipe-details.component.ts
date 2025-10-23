@@ -420,30 +420,30 @@ export class EquipeDetailsComponent implements OnInit {
         this.showPlayerForm = true;
         this.currentPhoto = p?.photo_url ?? null;
         if (p) {
-                // patch values
-                this.playerForm.patchValue({
-                    id: p.id,
-                    first_name: p.first_name,
-                    last_name: p.last_name,
-                    date_of_birth: p.date_of_birth ? new Date(p.date_of_birth) : null,
-                    birth_place: p.birth_place,
-                    nationality: p.nationality,
-                    gender: p.gender || this.team.category?.gender === 'MALE' ? 'MALE' : 'FEMALE',
-                    phone: p.phone,
-                    email: p.email,
-                    photo: p.photo_url,
-                    license_number: p.license_number,
-                    preferred_position: p.preferred_position,
-                    height: p.height,
-                    weight: p.weight,
-                    blood_type: p.blood_type,
-                    foot_preference: p.foot_preference,
-                    status: p.status,
-                    career_start: p.career_start ? new Date(p.career_start) : null,
-                    career_end: p.career_end ? new Date(p.career_end) : null,
-                    secondary_positions: p.secondary_positions || [],
-                    team_id: p.team_id || ''
-                });
+            // patch values
+            this.playerForm.patchValue({
+                id: p.id,
+                first_name: p.first_name,
+                last_name: p.last_name,
+                date_of_birth: p.date_of_birth ? new Date(p.date_of_birth) : null,
+                birth_place: p.birth_place,
+                nationality: p.nationality,
+                gender: p.gender || this.team.category?.gender === 'MALE' ? 'MALE' : 'FEMALE',
+                phone: p.phone,
+                email: p.email,
+                photo: p.photo_url,
+                license_number: p.license_number,
+                preferred_position: p.preferred_position,
+                height: p.height,
+                weight: p.weight,
+                blood_type: p.blood_type,
+                foot_preference: p.foot_preference,
+                status: p.status,
+                career_start: p.career_start ? new Date(p.career_start) : null,
+                career_end: p.career_end ? new Date(p.career_end) : null,
+                secondary_positions: p.secondary_positions || [],
+                team_id: p.team_id || ''
+            });
 
             // rebuild emergency contacts
             const fa = this.playerForm.get('emergency_contact') as FormArray;
@@ -801,6 +801,7 @@ export class EquipeDetailsComponent implements OnInit {
     }
 
     saveStaff() {
+        
         if (this.staffForm.invalid) {
             this.staffForm.markAllAsTouched();
             return;
