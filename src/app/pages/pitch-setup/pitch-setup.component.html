@@ -5,24 +5,11 @@
     <!-- En-tête de la Page -->
     <header class="composition-header">
       <div class="header-content">
-        <h1 class="page-title">Match à Venir</h1>
+        <h1 class="page-title">Composition d'Équipe</h1>
         <button class="close-btn" (click)="closePanel()" type="button">
           <i class="pi pi-times"></i>
         </button>
       </div>
-      
-      <!-- Navigation par Onglets -->
-      <nav class="tab-navigation">
-        <button class="tab-btn" [class.active]="activeTab === 'callup'" (click)="setActiveTab('callup')">
-          Appel des Joueurs
-        </button>
-        <button class="tab-btn active" [class.active]="activeTab === 'composition'" (click)="setActiveTab('composition')">
-          Modifier Composition
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'sheet'" (click)="setActiveTab('sheet')">
-          Feuille de Match
-        </button>
-      </nav>
     </header>
 
     <!-- Contenu Principal -->
@@ -79,8 +66,8 @@
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" class="pitch-svg">
                 <defs>
                   <pattern id="grass-pattern" patternUnits="userSpaceOnUse" width="8" height="80">
-                    <rect width="4" height="80" fill="#2d5a3d"></rect>
-                    <rect x="4" width="4" height="80" fill="#1e4a32"></rect>
+                    <rect width="4" height="80" fill="#22c55e"></rect>
+                    <rect x="4" width="4" height="80" fill="#16a34a"></rect>
                   </pattern>
                 </defs>
                 
@@ -300,23 +287,63 @@
     <div class="player-selector-modal" *ngIf="selectedPositionIndex !== null" (click)="closePlayerSelector()">
       <div class="selector-content" (click)="$event.stopPropagation()">
         <h4>Assigner un joueur - {{ selectedRoleLabel() }}</h4>
-        <div class="selector-players">
-          <div 
-            *ngFor="let player of roster" 
-            class="selector-player"
-            (click)="assignPlayerToPosition(player.id)"
-          >
-            <img 
-              [src]="player.photoUrl || 'assets/images/football-player.png'" 
-              [alt]="getPlayerName(player)"
-              (error)="onPhotoError($event)"
+        
+        <!-- Joueurs recommandés pour ce poste -->
+        <div *ngIf="getRecommendedPlayersForPosition().length > 0" class="recommended-section">
+          <h5 class="recommended-title">
+            <i class="pi pi-star-fill"></i>
+            Joueurs recommandés pour ce poste
+          </h5>
+          <div class="selector-players">
+            <div 
+              *ngFor="let player of getRecommendedPlayersForPosition()" 
+              class="selector-player recommended"
+              (click)="assignPlayerToPosition(player.id)"
             >
-            <div class="selector-player-info">
-              <div class="selector-player-name">{{ getPlayerName(player) }}</div>
-              <div class="selector-player-number">#{{ player.jersey_number || player.number || '?' }}</div>
+              <img 
+                [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                [alt]="getPlayerName(player)"
+                (error)="onPhotoError($event)"
+              >
+              <div class="selector-player-info">
+                <div class="selector-player-name">{{ getPlayerName(player) }}</div>
+                <div class="selector-player-details">
+                  <span class="player-number">#{{ player.jersey_number || player.number || '?' }}</span>
+                  <span class="player-position">{{ getPositionLabel(player.preferred_position || player.position) }}</span>
+                </div>
+              </div>
+              <div class="recommended-badge">
+                <i class="pi pi-star-fill"></i>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Tous les autres joueurs -->
+        <div class="all-players-section">
+          <h5 class="section-subtitle">Tous les joueurs disponibles</h5>
+          <div class="selector-players">
+            <div 
+              *ngFor="let player of getOtherAvailablePlayers()" 
+              class="selector-player"
+              (click)="assignPlayerToPosition(player.id)"
+            >
+              <img 
+                [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                [alt]="getPlayerName(player)"
+                (error)="onPhotoError($event)"
+              >
+              <div class="selector-player-info">
+                <div class="selector-player-name">{{ getPlayerName(player) }}</div>
+                <div class="selector-player-details">
+                  <span class="player-number">#{{ player.jersey_number || player.number || '?' }}</span>
+                  <span class="player-position">{{ getPositionLabel(player.preferred_position || player.position) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <button class="selector-close" (click)="closePlayerSelector()" type="button">
           Fermer
         </button>

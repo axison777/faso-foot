@@ -18,6 +18,7 @@ interface Player {
   number?: number;
   jersey_number?: number;
   position?: string;
+  preferred_position?: string;
   preferred?: Role[];
   photoUrl?: string;
 }
@@ -150,7 +151,8 @@ export class PitchSetupComponent implements OnInit, OnChanges {
       name: p.name ?? (p.first_name ? `${p.first_name} ${p.last_name ?? ''}`.trim() : undefined),
       jersey_number: p.jersey_number ?? p.number,
       number: p.jersey_number ?? p.number,
-      position: p.position ?? (p.preferred?.[0]),
+      position: p.position ?? p.preferred_position ?? (p.preferred?.[0]),
+      preferred_position: p.preferred_position,
       photoUrl: p.photoUrl ?? p.avatar ?? ''
     }));
 
@@ -526,6 +528,62 @@ export class PitchSetupComponent implements OnInit, OnChanges {
 
   closePanel() {
     this.close.emit();
+  }
+
+  getRecommendedPlayersForPosition(): Player[] {
+    if (this.selectedPositionIndex === null) return [];
+    
+    const selectedPosition = this.team.positions[this.selectedPositionIndex];
+    if (!selectedPosition?.role) return [];
+    
+    // Mapper les rôles du terrain vers les positions API
+    const targetApiPosition = this.mapRoleToApiCategory(selectedPosition.role);
+    
+    return this.roster.filter(player => {
+      // Ne pas inclure les joueurs déjà assignés
+      const isAlreadyAssigned = this.team.positions.some(pos => pos.playerId === player.id) ||
+                               this.team.substitutes.includes(player.id);
+      
+      if (isAlreadyAssigned) return false;
+      
+      // Vérifier si le joueur correspond au poste
+      const playerApiPosition = this.mapRoleToApiCategory(player.preferred_position || player.position);
+      return playerApiPosition === targetApiPosition;
+    });
+  }
+
+  getOtherAvailablePlayers(): Player[] {
+    if (this.selectedPositionIndex === null) return [];
+    
+    const recommendedIds = this.getRecommendedPlayersForPosition().map(p => p.id);
+    
+    return this.roster.filter(player => {
+      // Ne pas inclure les joueurs déjà assignés
+      const isAlreadyAssigned = this.team.positions.some(pos => pos.playerId === player.id) ||
+                               this.team.substitutes.includes(player.id);
+      
+      // Ne pas inclure les joueurs recommandés (déjà affichés dans la section recommandée)
+      const isRecommended = recommendedIds.includes(player.id);
+      
+      return !isAlreadyAssigned && !isRecommended;
+    });
+  }
+
+  getPositionLabel(position?: string): string {
+    if (!position) return 'Non défini';
+    
+    switch (position.toUpperCase()) {
+      case 'GOALKEEPER':
+        return 'Gardien';
+      case 'DEFENSE':
+        return 'Défenseur';
+      case 'MIDFIELD':
+        return 'Milieu';
+      case 'ATTACK':
+        return 'Attaquant';
+      default:
+        return position;
+    }
   }
 
   // Nouvelles méthodes pour la nouvelle interface
