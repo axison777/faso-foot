@@ -31,7 +31,7 @@ export class EquipeService {
     constructor(private http: HttpClient) {}
 
     getTeamDashboard(teamId: string): Observable<any> {
-        return this.http.get<any>(`${this.apiUrl}/${teamId}/dashboard`).pipe(map((res: any) => res?.team || []));
+        return this.http.get<any>(`${this.apiUrl}/${teamId}/dashboard`).pipe(map((res: any) => res?.data?.team || []));
     }
 
     getAll(): Observable<any[]> {

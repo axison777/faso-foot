@@ -272,14 +272,14 @@ export class CoachMatchesComponent implements OnInit {
                 // Note: Cette logique pourrait nécessiter un appel séparé si besoin
                 this.findClosestMatch();
 
-                console.log('✅ [COACH MATCHES] Traitement terminé avec pagination serveur');
-                console.log('📊 [COACH MATCHES] Statistiques pagination:', {
-                    page: paginatedResponse.meta.current_page,
-                    totalPages: paginatedResponse.meta.last_page,
-                    totalRecords: paginatedResponse.meta.total,
-                    perPage: paginatedResponse.meta.per_page,
-                    itemsOnThisPage: enrichedMatches.length
-                });
+                // console.log('✅ [COACH MATCHES] Traitement terminé avec pagination serveur');
+                // console.log('📊 [COACH MATCHES] Statistiques pagination:', {
+                //     page: paginatedResponse.meta.current_page,
+                //     totalPages: paginatedResponse.meta.last_page,
+                //     totalRecords: paginatedResponse.meta.total,
+                //     perPage: paginatedResponse.meta.per_page,
+                //     itemsOnThisPage: enrichedMatches.length
+                // });
 
                 this.loading.set(false);
             },
@@ -308,6 +308,16 @@ export class CoachMatchesComponent implements OnInit {
             this.loadingPrev.set(true);
             this.loadMatchesFromUrl(prevUrl);
         }
+    }
+
+    getLegLabel(leg: 'first_leg' | 'second_leg' | 'second_led'): string {
+        const labels: Record<'first_leg' | 'second_leg' | 'second_led', string> = {
+            first_leg: 'ALLER',
+            second_leg: 'RETOUR',
+            second_led: 'RETOUR'
+        };
+
+        return labels[leg] || leg;
     }
 
     goToNextPage() {
@@ -491,11 +501,11 @@ export class CoachMatchesComponent implements OnInit {
     }
 
     findClosestMatch() {
-        const upcomingMatches = this.filteredMatches().filter((m) => m.isUpcoming);
+        const upcomingMatches = this.filteredMatches().filter((m) => m.isUpcoming && m.matchDate);
 
         if (upcomingMatches.length > 0) {
             const closest = upcomingMatches.reduce((prev, curr) => {
-                return curr.matchDate < prev.matchDate ? curr : prev;
+                return curr.matchDate! < prev.matchDate! ? curr : prev;
             });
             this.closestMatch.set(closest);
         } else {
