@@ -71,8 +71,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Nom</th>
-                            <th>Prénom</th>
+                            <th class="text-center">Joueur</th>
                             <th>Position</th>
                             <!--  <th>Numéro</th> -->
                             <!-- <th>Contrats</th> -->
@@ -82,8 +81,14 @@
                     <tbody>
                         <tr *ngFor="let p of filteredPlayers; let i = index">
                             <td>{{ i + 1 }}</td>
-                            <td class="cell-strong">{{ p.last_name }}</td>
-                            <td>{{ p.first_name }}</td>
+                            <td class="player-cell">
+                                <div class="avatar" [ngStyle]="{'background-image': p.photo_url ? 'url('+p.photo_url+')' : 'linear-gradient(135deg,#118c46,#118c46)'}">
+                                    <span *ngIf="!p.photo_url" class="avatar-initials">{{ (p.first_name?.charAt(0) || '') + (p.last_name?.charAt(0) || '') }}</span>
+                                </div>
+                                <div class="player-meta">
+                                    <div class="name">{{ p.first_name }} {{ p.last_name }}</div>
+                                </div>
+                            </td>
                             <td>{{ getPositionLabel(p.preferred_position) || '—' }}</td>
                             <!-- <td>{{ getActiveContract(p)?.number || '—' }}</td> -->
                             <!-- <td>

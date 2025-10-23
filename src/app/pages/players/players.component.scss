@@ -160,6 +160,17 @@ table.custom-table {
           justify-content: center;
           align-items: center;
           color: #fff;
+          border: 2px solid #e2e8f0;
+          font-weight: 600;
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .avatar-initials {
+          font-weight: 600;
+          font-size: 0.9rem;
+          text-transform: uppercase;
         }
 
         .player-meta .name {
