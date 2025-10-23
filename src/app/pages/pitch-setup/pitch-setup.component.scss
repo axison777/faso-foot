@@ -525,15 +525,19 @@
   height: 8px;
   border-radius: 50%;
 
-  &.status-present {
+  &.status-active {
     background: #10b981;
   }
 
-  &.status-injured {
+  &.status-inactive {
+    background: #6b7280;
+  }
+
+  &.status-suspended {
     background: #ef4444;
   }
 
-  &.status-preferred {
+  &.status-injured {
     background: #f59e0b;
   }
 }

@@ -15,12 +15,20 @@ interface Player {
   first_name?: string;
   last_name?: string;
   name?: string;
-  number?: number;
   jersey_number?: number;
-  position?: string;
   preferred_position?: string;
-  preferred?: Role[];
-  photoUrl?: string;
+  status?: string;
+  photo_url?: string;
+  birth_place?: string;
+  nationality?: string;
+  phone?: string;
+  email?: string;
+  date_of_birth?: string;
+  height?: number;
+  weight?: number;
+  blood_type?: string;
+  foot_preference?: string;
+  license_number?: string;
 }
 
 interface Placed {
@@ -149,11 +157,20 @@ export class PitchSetupComponent implements OnInit, OnChanges {
       first_name: p.first_name,
       last_name: p.last_name,
       name: p.name ?? (p.first_name ? `${p.first_name} ${p.last_name ?? ''}`.trim() : undefined),
-      jersey_number: p.jersey_number ?? p.number,
-      number: p.jersey_number ?? p.number,
-      position: p.position ?? p.preferred_position ?? (p.preferred?.[0]),
+      jersey_number: p.jersey_number,
       preferred_position: p.preferred_position,
-      photoUrl: p.photoUrl ?? p.avatar ?? ''
+      status: p.status,
+      photo_url: p.photo_url,
+      birth_place: p.birth_place,
+      nationality: p.nationality,
+      phone: p.phone,
+      email: p.email,
+      date_of_birth: p.date_of_birth,
+      height: p.height,
+      weight: p.weight,
+      blood_type: p.blood_type,
+      foot_preference: p.foot_preference,
+      license_number: p.license_number
     }));
 
     // reset UI lists but keep team.positions coords intact
@@ -394,14 +411,15 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     this.finalized = true;
   }
 
-    // helper: map a position/role string (ex: "GK", "LCM", "ST") to API allowed categories
+    // helper: map a position/role string (ex: "GK", "CB", "ST") to API allowed categories
   private mapRoleToApiCategory(role?: string | null): 'GOALKEEPER' | 'DEFENSE' | 'MIDFIELD' | 'ATTACK' {
     if (!role) return 'MIDFIELD';
     const r = role.toUpperCase();
 
-    const gks = ['GK', 'GOALKEEPER', 'GK?'];
-    const defs = ['CB', 'LB', 'RB', 'LCB', 'RCB', 'LWB', 'RWB', 'WB', 'CB?','DEF'];
-    const mids = ['CM', 'CDM', 'CAM', 'LM', 'RM', 'RCM', 'LCM', 'DM', 'MID', 'MIDFIELD'];
+    // Positions basées sur votre liste: ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'ST']
+    const gks = ['GK', 'GOALKEEPER'];
+    const defs = ['CB', 'LB', 'RB', 'LCB', 'RCB', 'LWB', 'RWB', 'WB', 'DEF', 'DEFENSE'];
+    const mids = ['CDM', 'CM', 'CAM', 'LM', 'RM', 'RCM', 'LCM', 'DM', 'MID', 'MIDFIELD'];
     const atks = ['ST', 'CF', 'LW', 'RW', 'LS', 'RS', 'FW', 'ATT', 'ATTACK'];
 
     if (gks.includes(r)) return 'GOALKEEPER';
@@ -410,6 +428,19 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     if (atks.includes(r)) return 'ATTACK';
     // fallback sensible
     return 'MIDFIELD';
+  }
+
+  // Mapper les positions spécifiques vers des catégories pour le filtrage intelligent
+  private mapSpecificPositionToCategory(position?: string | null): 'GK' | 'DEF' | 'MID' | 'ATT' {
+    if (!position) return 'MID';
+    const pos = position.toUpperCase();
+
+    if (pos === 'GK') return 'GK';
+    if (['CB', 'LB', 'RB'].includes(pos)) return 'DEF';
+    if (['CDM', 'CM', 'CAM'].includes(pos)) return 'MID';
+    if (['LW', 'RW', 'ST'].includes(pos)) return 'ATT';
+    
+    return 'MID'; // fallback
   }
 
   getFinalPayload(): any {
@@ -422,11 +453,11 @@ export class PitchSetupComponent implements OnInit, OnChanges {
       const pl = pid ? this.getPlayer(pid) : undefined;
 
       // map role -> API allowed position category
-      const apiPosition = this.mapRoleToApiCategory(pos.role ?? (pl?.position ?? null));
+      const apiPosition = this.mapRoleToApiCategory(pos.role ?? (pl?.preferred_position ?? null));
 
       playersPayload.push({
         player_id: pid, // string or null (parent should fill or validation will fail server-side)
-        jersey_number: pl ? (pl.jersey_number ?? pl.number ?? null) : null,
+        jersey_number: pl ? (pl.jersey_number ?? null) : null,
         position: apiPosition,
         is_starter: !!pid,
         substitute_order: null // starters have null substitute_order
@@ -438,11 +469,11 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     for (let i = 0; i < subs.length; i++) {
       const id = subs[i];
       const pl = this.getPlayer(id);
-      const apiPosition = this.mapRoleToApiCategory(pl?.position ?? null);
+      const apiPosition = this.mapRoleToApiCategory(pl?.preferred_position ?? null);
 
       playersPayload.push({
         player_id: id ?? null,
-        jersey_number: pl ? (pl.jersey_number ?? pl.number ?? null) : null,
+        jersey_number: pl ? (pl.jersey_number ?? null) : null,
         position: apiPosition,
         is_starter: false,
         substitute_order: i + 1
@@ -537,7 +568,7 @@ export class PitchSetupComponent implements OnInit, OnChanges {
       pdf.setFontSize(10);
       this.team.positions.forEach(pos => {
         const p = this.getPlayer(pos.playerId);
-        const label = `${(p?.jersey_number ?? p?.number ?? '-') } ${p?.name ?? (p?.first_name ? (p.first_name + ' ' + p.last_name) : '(vide)')} ${pos.role ? '- ' + pos.role : ''}`;
+        const label = `${(p?.jersey_number ?? '-') } ${p?.name ?? (p?.first_name ? (p.first_name + ' ' + p.last_name) : '(vide)')} ${pos.role ? '- ' + pos.role : ''}`;
         pdf.text(label, infoX, y);
         y += 6;
       });
@@ -549,7 +580,7 @@ export class PitchSetupComponent implements OnInit, OnChanges {
       pdf.setFontSize(10);
       (this.team.substitutes || []).forEach((id, idx) => {
         const p = this.getPlayer(id);
-        const label = ` ${p?.jersey_number ?? p?.number ?? '-'} ${p?.name ?? id}`;
+        const label = ` ${p?.jersey_number ?? '-'} ${p?.name ?? id}`;
         pdf.text(label, infoX, y);
         y += 6;
       });
@@ -570,8 +601,8 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     const selectedPosition = this.team.positions[this.selectedPositionIndex];
     if (!selectedPosition?.role) return [];
     
-    // Mapper les rôles du terrain vers les positions API
-    const targetApiPosition = this.mapRoleToApiCategory(selectedPosition.role);
+    // Mapper le rôle du terrain vers une catégorie
+    const targetCategory = this.mapSpecificPositionToCategory(selectedPosition.role);
     
     return this.roster.filter(player => {
       // Ne pas inclure les joueurs déjà assignés
@@ -581,8 +612,24 @@ export class PitchSetupComponent implements OnInit, OnChanges {
       if (isAlreadyAssigned) return false;
       
       // Vérifier si le joueur correspond au poste
-      const playerApiPosition = this.mapRoleToApiCategory(player.preferred_position || player.position);
-      return playerApiPosition === targetApiPosition;
+      const playerCategory = this.mapSpecificPositionToCategory(player.preferred_position);
+      
+      // Logique de recommandation plus flexible
+      if (targetCategory === 'GK') {
+        // Pour gardien, seulement les gardiens
+        return playerCategory === 'GK';
+      } else if (targetCategory === 'DEF') {
+        // Pour défense, défenseurs en priorité, mais accepter milieux défensifs
+        return playerCategory === 'DEF' || (playerCategory === 'MID' && player.preferred_position === 'CDM');
+      } else if (targetCategory === 'MID') {
+        // Pour milieu, tous les milieux
+        return playerCategory === 'MID';
+      } else if (targetCategory === 'ATT') {
+        // Pour attaque, attaquants et milieux offensifs
+        return playerCategory === 'ATT' || (playerCategory === 'MID' && player.preferred_position === 'CAM');
+      }
+      
+      return false;
     });
   }
 
@@ -606,17 +653,46 @@ export class PitchSetupComponent implements OnInit, OnChanges {
   getPositionLabel(position?: string): string {
     if (!position) return 'Non défini';
     
-    switch (position.toUpperCase()) {
-      case 'GOALKEEPER':
-        return 'Gardien';
-      case 'DEFENSE':
-        return 'Défenseur';
-      case 'MIDFIELD':
-        return 'Milieu';
-      case 'ATTACK':
-        return 'Attaquant';
+    const positionLabels: { [key: string]: string } = {
+      'GK': 'Gardien',
+      'CB': 'Défenseur central',
+      'LB': 'Arrière gauche',
+      'RB': 'Arrière droit',
+      'CDM': 'Milieu défensif',
+      'CM': 'Milieu central',
+      'CAM': 'Milieu offensif',
+      'LW': 'Ailier gauche',
+      'RW': 'Ailier droit',
+      'ST': 'Attaquant',
+      // Positions étendues pour compatibilité
+      'LCB': 'Défenseur central gauche',
+      'RCB': 'Défenseur central droit',
+      'LWB': 'Piston gauche',
+      'RWB': 'Piston droit',
+      'LM': 'Milieu gauche',
+      'RM': 'Milieu droit',
+      'CF': 'Avant-centre',
+      'LF': 'Attaquant gauche',
+      'RF': 'Attaquant droit'
+    };
+    
+    return positionLabels[position.toUpperCase()] || position;
+  }
+
+  getStatusLabel(status?: string): string {
+    if (!status) return 'Non défini';
+    
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
+        return 'Actif';
+      case 'INACTIVE':
+        return 'Inactif';
+      case 'SUSPENDED':
+        return 'Suspendu';
+      case 'INJURED':
+        return 'Blessé';
       default:
-        return position;
+        return status;
     }
   }
 

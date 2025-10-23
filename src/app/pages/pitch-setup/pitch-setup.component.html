@@ -120,12 +120,12 @@
                   [cdkDragData]="player"
                 >
                   <img 
-                    [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                    [src]="player.photo_url || 'assets/images/football-player.png'" 
                     [alt]="getPlayerName(player)"
                     (error)="onPhotoError($event)"
                     class="player-photo"
                   >
-                  <div class="player-number">{{ player.jersey_number || player.number || '?' }}</div>
+                  <div class="player-number">{{ player.jersey_number || '?' }}</div>
                   <div class="player-name">{{ getShortName(player) }}</div>
                 </div>
                 
@@ -173,7 +173,7 @@
               [cdkDragData]="player"
             >
               <img 
-                [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                [src]="player.photo_url || 'assets/images/football-player.png'" 
                 [alt]="getPlayerName(player)"
                 (error)="onPhotoError($event)"
                 class="player-avatar-small"
@@ -181,8 +181,12 @@
               <div class="player-info">
                 <div class="player-name-bold">{{ getPlayerName(player) }}</div>
                 <div class="player-status">
-                  <span class="status-indicator status-present"></span>
-                  Présent
+                  <span class="status-indicator" [ngClass]="{
+                    'status-active': player.status === 'ACTIVE',
+                    'status-inactive': player.status === 'INACTIVE',
+                    'status-suspended': player.status === 'SUSPENDED'
+                  }"></span>
+                  {{ getStatusLabel(player.status) }}
                 </div>
               </div>
               <div class="player-actions">
@@ -224,14 +228,14 @@
             >
               <div class="substitute-order">{{ i + 1 }}</div>
               <img 
-                [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                [src]="player.photo_url || 'assets/images/football-player.png'" 
                 [alt]="getPlayerName(player)"
                 (error)="onPhotoError($event)"
                 class="substitute-avatar"
               >
               <div class="substitute-info">
                 <div class="substitute-name">{{ getPlayerName(player) }}</div>
-                <div class="substitute-position">{{ player.position || 'Milieu' }}</div>
+                <div class="substitute-position">{{ getPositionLabel(player.preferred_position) }}</div>
               </div>
               <button 
                 class="remove-btn" 
@@ -301,15 +305,15 @@
               (click)="assignPlayerToPosition(player.id)"
             >
               <img 
-                [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                [src]="player.photo_url || 'assets/images/football-player.png'" 
                 [alt]="getPlayerName(player)"
                 (error)="onPhotoError($event)"
               >
               <div class="selector-player-info">
                 <div class="selector-player-name">{{ getPlayerName(player) }}</div>
                 <div class="selector-player-details">
-                  <span class="player-number">#{{ player.jersey_number || player.number || '?' }}</span>
-                  <span class="player-position">{{ getPositionLabel(player.preferred_position || player.position) }}</span>
+                  <span class="player-number">#{{ player.jersey_number || '?' }}</span>
+                  <span class="player-position">{{ getPositionLabel(player.preferred_position) }}</span>
                 </div>
               </div>
               <div class="recommended-badge">
@@ -329,15 +333,15 @@
               (click)="assignPlayerToPosition(player.id)"
             >
               <img 
-                [src]="player.photoUrl || 'assets/images/football-player.png'" 
+                [src]="player.photo_url || 'assets/images/football-player.png'" 
                 [alt]="getPlayerName(player)"
                 (error)="onPhotoError($event)"
               >
               <div class="selector-player-info">
                 <div class="selector-player-name">{{ getPlayerName(player) }}</div>
                 <div class="selector-player-details">
-                  <span class="player-number">#{{ player.jersey_number || player.number || '?' }}</span>
-                  <span class="player-position">{{ getPositionLabel(player.preferred_position || player.position) }}</span>
+                  <span class="player-number">#{{ player.jersey_number || '?' }}</span>
+                  <span class="player-position">{{ getPositionLabel(player.preferred_position) }}</span>
                 </div>
               </div>
             </div>
