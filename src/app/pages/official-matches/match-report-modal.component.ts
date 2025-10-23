@@ -48,20 +48,20 @@ interface EvaluationOfficiel {
     ],
     providers: [MessageService],
     template: `
-        <p-dialog 
-            [(visible)]="visible" 
-            [modal]="true" 
-            [style]="{width: '95vw', maxWidth: '1200px', maxHeight: '90vh'}" 
+        <p-dialog
+            [(visible)]="visible"
+            [modal]="true"
+            [style]="{width: '95vw', maxWidth: '1200px', maxHeight: '90vh'}"
             [header]="'Rapport de Match - ' + (match?.competition?.name || '')"
             [closable]="true"
             [draggable]="false"
             [resizable]="false"
             [contentStyle]="{'overflow-y': 'auto', 'max-height': 'calc(90vh - 120px)'}">
-            
+
             <div class="report-container">
                 <!-- Progress Bar -->
                 <div class="progress-bar">
-                    <div class="progress-step" 
+                    <div class="progress-step"
                          *ngFor="let step of steps; let i = index"
                          [class.active]="currentStep === i + 1"
                          [class.completed]="currentStep > i + 1"
@@ -80,40 +80,40 @@ interface EvaluationOfficiel {
                             <div class="result-item">
                                 <label>Résultat final</label>
                                 <div class="score-input">
-                                    <input type="number" [(ngModel)]="reportData.resultatFinal.home" 
+                                    <input type="number" [(ngModel)]="reportData.resultatFinal.home"
                                            class="score-field" placeholder="0" min="0">
                                     <span class="vs">-</span>
-                                    <input type="number" [(ngModel)]="reportData.resultatFinal.away" 
+                                    <input type="number" [(ngModel)]="reportData.resultatFinal.away"
                                            class="score-field" placeholder="0" min="0">
                                 </div>
                             </div>
                             <div class="result-item">
                                 <label>Résultat à la mi-temps</label>
                                 <div class="score-input">
-                                    <input type="number" [(ngModel)]="reportData.resultatMiTemps.home" 
+                                    <input type="number" [(ngModel)]="reportData.resultatMiTemps.home"
                                            class="score-field" placeholder="0" min="0">
                                     <span class="vs">-</span>
-                                    <input type="number" [(ngModel)]="reportData.resultatMiTemps.away" 
+                                    <input type="number" [(ngModel)]="reportData.resultatMiTemps.away"
                                            class="score-field" placeholder="0" min="0">
                                 </div>
                             </div>
                             <div class="result-item" *ngIf="reportData.prolongations">
                                 <label>Résultat après prolongations</label>
                                 <div class="score-input">
-                                    <input type="number" [(ngModel)]="reportData.resultatProlongations.home" 
+                                    <input type="number" [(ngModel)]="reportData.resultatProlongations.home"
                                            class="score-field" placeholder="0" min="0">
                                     <span class="vs">-</span>
-                                    <input type="number" [(ngModel)]="reportData.resultatProlongations.away" 
+                                    <input type="number" [(ngModel)]="reportData.resultatProlongations.away"
                                            class="score-field" placeholder="0" min="0">
                                 </div>
                             </div>
                             <div class="result-item" *ngIf="reportData.tirsAuxButsEnabled">
                                 <label>Tirs aux buts</label>
                                 <div class="score-input">
-                                    <input type="number" [(ngModel)]="reportData.tirsAuxButs.home" 
+                                    <input type="number" [(ngModel)]="reportData.tirsAuxButs.home"
                                            class="score-field" placeholder="0" min="0">
                                     <span class="vs">-</span>
-                                    <input type="number" [(ngModel)]="reportData.tirsAuxButs.away" 
+                                    <input type="number" [(ngModel)]="reportData.tirsAuxButs.away"
                                            class="score-field" placeholder="0" min="0">
                                 </div>
                             </div>
@@ -150,13 +150,13 @@ interface EvaluationOfficiel {
                                         <i class="pi pi-trash"></i>
                                     </button>
                                 </div>
-                                
+
                                 <div class="goal-details">
                                     <div class="goal-scorer">
                                         <h5>Buteur</h5>
                                         <div class="player-fields">
-                                            <input type="text" [(ngModel)]="buteur.maillot" 
-                                                   (ngModelChange)="onJerseyNumberChange('buteur', i)" 
+                                            <input type="text" [(ngModel)]="buteur.maillot"
+                                                   (ngModelChange)="onJerseyNumberChange('buteur', i)"
                                                    placeholder="Maillot" class="field-small"
                                                    [class.invalid-jersey]="buteur.maillot && !isValidJerseyNumber(buteur.maillot, buteur.equipe)">
                                             <input type="text" [(ngModel)]="buteur.licence" placeholder="N° Licence" class="field-medium" readonly>
@@ -164,12 +164,12 @@ interface EvaluationOfficiel {
                                             <input type="number" [(ngModel)]="buteur.minute" placeholder="Min" min="0" max="120" class="field-small">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="goal-assist">
                                         <h5>Passeur Décisif (optionnel)</h5>
                                         <div class="player-fields">
-                                            <input type="text" [(ngModel)]="buteur.passeur.maillot" 
-                                                   (ngModelChange)="onJerseyNumberChange('passeur', i)" 
+                                            <input type="text" [(ngModel)]="buteur.passeur.maillot"
+                                                   (ngModelChange)="onJerseyNumberChange('passeur', i)"
                                                    placeholder="Maillot" class="field-small"
                                                    [class.invalid-jersey]="buteur.passeur.maillot && !isValidJerseyNumber(buteur.passeur.maillot, buteur.equipe)">
                                             <input type="text" [(ngModel)]="buteur.passeur.licence" placeholder="N° Licence" class="field-medium" readonly>
@@ -182,7 +182,7 @@ interface EvaluationOfficiel {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <button type="button" class="add-goal-btn" (click)="addGoal()">
                             <i class="pi pi-plus"></i> Ajouter un but
                         </button>
@@ -192,7 +192,7 @@ interface EvaluationOfficiel {
                 <!-- Step 2: Sanctions -->
                 <div *ngIf="currentStep === 2" class="step-content" #step2>
                     <h3>Sanctions Disciplinaires</h3>
-                    
+
                     <!-- Avertissements -->
                     <div class="sanctions-section">
                         <h4>Avertissements</h4>
@@ -207,8 +207,8 @@ interface EvaluationOfficiel {
                                 <div>Actions</div>
                             </div>
                             <div class="table-row" *ngFor="let sanction of reportData.avertissements; let i = index">
-                                <input type="text" [(ngModel)]="sanction.maillot" 
-                                       (ngModelChange)="onJerseyNumberChange('avertissement', i)" 
+                                <input type="text" [(ngModel)]="sanction.maillot"
+                                       (ngModelChange)="onJerseyNumberChange('avertissement', i)"
                                        placeholder="N°"
                                        [class.invalid-jersey]="sanction.maillot && !isValidJerseyNumber(sanction.maillot, sanction.equipe)">
                                 <select [(ngModel)]="sanction.equipe" (ngModelChange)="onTeamChange('avertissement', i)">
@@ -243,8 +243,8 @@ interface EvaluationOfficiel {
                                 <div>Actions</div>
                             </div>
                             <div class="table-row" *ngFor="let sanction of reportData.expulsions; let i = index">
-                                <input type="text" [(ngModel)]="sanction.maillot" 
-                                       (ngModelChange)="onJerseyNumberChange('expulsion', i)" 
+                                <input type="text" [(ngModel)]="sanction.maillot"
+                                       (ngModelChange)="onJerseyNumberChange('expulsion', i)"
                                        placeholder="N°"
                                        [class.invalid-jersey]="sanction.maillot && !isValidJerseyNumber(sanction.maillot, sanction.equipe)">
                                 <select [(ngModel)]="sanction.equipe" (ngModelChange)="onTeamChange('expulsion', i)">
@@ -291,27 +291,27 @@ interface EvaluationOfficiel {
                         <div class="observations-grid">
                             <div class="observation-item">
                                 <label>Attitude des joueurs de l'équipe A</label>
-                                <textarea [(ngModel)]="reportData.attitudeJoueursA" rows="3" 
+                                <textarea [(ngModel)]="reportData.attitudeJoueursA" rows="3"
                                           placeholder="Décrire l'attitude des joueurs"></textarea>
                             </div>
                             <div class="observation-item">
                                 <label>Attitude des joueurs de l'équipe B</label>
-                                <textarea [(ngModel)]="reportData.attitudeJoueursB" rows="3" 
+                                <textarea [(ngModel)]="reportData.attitudeJoueursB" rows="3"
                                           placeholder="Décrire l'attitude des joueurs"></textarea>
                             </div>
                             <div class="observation-item">
                                 <label>Attitude du public</label>
-                                <textarea [(ngModel)]="reportData.attitudePublic" rows="3" 
+                                <textarea [(ngModel)]="reportData.attitudePublic" rows="3"
                                           placeholder="Décrire l'attitude du public"></textarea>
                             </div>
                             <div class="observation-item">
                                 <label>État du terrain et des installations</label>
-                                <textarea [(ngModel)]="reportData.etatTerrain" rows="3" 
+                                <textarea [(ngModel)]="reportData.etatTerrain" rows="3"
                                           placeholder="Décrire l'état du terrain"></textarea>
                             </div>
                             <div class="observation-item">
                                 <label>Observation sur l'organisation</label>
-                                <textarea [(ngModel)]="reportData.observationOrganisation" rows="3" 
+                                <textarea [(ngModel)]="reportData.observationOrganisation" rows="3"
                                           placeholder="Observations sur l'organisation"></textarea>
                             </div>
                             <div class="observation-item">
@@ -361,12 +361,12 @@ interface EvaluationOfficiel {
                             </div>
                             <div class="observation-item">
                                 <label>Nombre de spectateurs</label>
-                                <input type="number" [(ngModel)]="reportData.nombreSpectateurs" 
+                                <input type="number" [(ngModel)]="reportData.nombreSpectateurs"
                                        placeholder="Nombre de spectateurs" min="0">
                             </div>
                             <div class="observation-item full-width">
                                 <label>Incidents ou Autres Remarques</label>
-                                <textarea [(ngModel)]="reportData.incidentsRemarques" rows="4" 
+                                <textarea [(ngModel)]="reportData.incidentsRemarques" rows="4"
                                           placeholder="Décrire les incidents ou autres remarques"></textarea>
                             </div>
                         </div>
@@ -387,7 +387,7 @@ interface EvaluationOfficiel {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="evaluation-content" *ngIf="evaluation.expanded">
                                 <table class="criteria-table">
                                     <thead>
@@ -404,7 +404,7 @@ interface EvaluationOfficiel {
                                                 <div class="criteria-desc" *ngIf="critere.description">{{ critere.description }}</div>
                                             </td>
                                             <td class="note-cell">
-                                                <input type="number" 
+                                                <input type="number"
                                                        [(ngModel)]="evaluation.criteres[critere.key].note"
                                                        min="0" [max]="critere.max" step="1"
                                                        (ngModelChange)="onNoteChange(i)"
@@ -413,8 +413,8 @@ interface EvaluationOfficiel {
                                                 <span class="note-max">/ {{ critere.max }}</span>
                                             </td>
                                             <td class="comment-cell">
-                                                <textarea [(ngModel)]="evaluation.criteres[critere.key].commentaires" 
-                                                          rows="2" 
+                                                <textarea [(ngModel)]="evaluation.criteres[critere.key].commentaires"
+                                                          rows="2"
                                                           placeholder="Ajoutez vos commentaires..."
                                                           class="comment-input"></textarea>
                                             </td>
@@ -430,9 +430,9 @@ interface EvaluationOfficiel {
             <ng-template pTemplate="footer">
                 <div class="dialog-footer">
                     <button pButton type="button" label="Annuler" class="p-button-text" (click)="onCancel()"></button>
-                    <button pButton type="button" label="Précédent" class="p-button-secondary" 
+                    <button pButton type="button" label="Précédent" class="p-button-secondary"
                             *ngIf="currentStep > 1" (click)="previousStep()"></button>
-                    <button pButton type="button" [label]="isLastStep ? 'Soumettre' : 'Suivant'" 
+                    <button pButton type="button" [label]="isLastStep ? 'Soumettre' : 'Suivant'"
                             class="p-button-primary" (click)="nextStep()"></button>
                 </div>
             </ng-template>
@@ -1148,8 +1148,8 @@ interface EvaluationOfficiel {
         }
 
         /* Indicateur visuel pour les champs auto-complétés */
-        .field-small[readonly]:not(:placeholder-shown), 
-        .field-medium[readonly]:not(:placeholder-shown), 
+        .field-small[readonly]:not(:placeholder-shown),
+        .field-medium[readonly]:not(:placeholder-shown),
         .field-large[readonly]:not(:placeholder-shown),
         .table-row input[readonly]:not(:placeholder-shown) {
             background-color: #f0f9ff;
@@ -1263,20 +1263,20 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         if (this.match) {
             this.isCommissioner = this.match.officialRole === 'COMMISSIONER';
             this.initializeSteps();
-            
+
             // Charger les données des joueurs pour l'auto-complétion
             this.loadMatchPlayers();
-            
+
             if (this.isCommissioner && this.match.otherOfficials) {
                 console.log('=== INITIALISATION DES EVALUATIONS ===');
                 console.log('Nombre d\'officiels:', this.match.otherOfficials.length);
                 console.log('Officiels:', this.match.otherOfficials);
-                
+
                 this.reportData.evaluationsOfficiels = this.match.otherOfficials.map((official, index) => {
                     console.log(`\nInitialisation pour ${official.name} (${official.role})`);
                     const criteres = this.getInitialCriteres(official.role);
                     console.log('Critères initialisés:', criteres);
-                    
+
                     return {
                         officielId: official.id,
                         officielName: official.name,
@@ -1286,7 +1286,7 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
                         expanded: index === 0  // Premier élément ouvert par défaut
                     };
                 });
-                
+
                 console.log('\nÉvaluations finales:', this.reportData.evaluationsOfficiels);
                 console.log('=== FIN INITIALISATION ===');
             }
@@ -1327,92 +1327,92 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         const criteresDefinition = this.getCriteresForRole(role);
         console.log(`  -> Définitions trouvées:`, criteresDefinition);
         const criteres: any = {};
-        
+
         criteresDefinition.forEach(critere => {
             criteres[critere.key] = { note: 0, commentaires: '' };
         });
-        
+
         console.log(`  -> Critères initiaux créés:`, criteres);
         return criteres;
     }
 
     getCriteresForRole(role: string): any[] {
         console.log(`    -> getCriteresForRole appelé pour: ${role}`);
-        
+
         // Vérifier le cache d'abord
         if (this.criteresCache.has(role)) {
             console.log(`    -> Critères trouvés dans le cache`);
             return this.criteresCache.get(role)!;
         }
-        
+
         console.log(`    -> Création des critères pour ${role}`);
         let criteres: any[] = [];
-        
+
         if (role === 'CENTRAL_REFEREE' || role === 'CENTRAL') {
             criteres = [
-                { 
-                    key: 'controleMatch', 
-                    label: 'Contrôle du match & Interprétation des lois du jeu (Sanctions disciplinaire et les lois du jeux)', 
+                {
+                    key: 'controleMatch',
+                    label: 'Contrôle du match & Interprétation des lois du jeu (Sanctions disciplinaire et les lois du jeux)',
                     max: 50,
                     description: 'Évaluation du contrôle du match et de l\'interprétation des lois du jeu'
                 },
-                { 
-                    key: 'conditionPhysique', 
-                    label: 'Condition physique (Endurance, Placement & déplacement, vitesse de réaction)', 
+                {
+                    key: 'conditionPhysique',
+                    label: 'Condition physique (Endurance, Placement & déplacement, vitesse de réaction)',
                     max: 30,
                     description: 'Évaluation de la condition physique de l\'arbitre'
                 },
-                { 
-                    key: 'personnalite', 
-                    label: 'Personnalité (Décidé ou indécis, anxieux, Influençable par le public ou les joueurs, Partial ou impartial, Personnalité forte ou faible)', 
+                {
+                    key: 'personnalite',
+                    label: 'Personnalité (Décidé ou indécis, anxieux, Influençable par le public ou les joueurs, Partial ou impartial, Personnalité forte ou faible)',
                     max: 10,
                     description: 'Évaluation de la personnalité de l\'arbitre'
                 },
-                { 
-                    key: 'collaboration', 
-                    label: 'Collaboration (Coopération avec les autres arbitres, décisions claires, utilisation des sifflets, signaux claires, chronométrage)', 
+                {
+                    key: 'collaboration',
+                    label: 'Collaboration (Coopération avec les autres arbitres, décisions claires, utilisation des sifflets, signaux claires, chronométrage)',
                     max: 10,
                     description: 'Évaluation de la collaboration avec les autres arbitres'
                 }
             ];
         } else if (role === 'ASSISTANT_REFEREE_1' || role === 'ASSISTANT_REFEREE_2' || role === 'ASSISTANT_1' || role === 'ASSISTANT_2') {
             criteres = [
-                { 
-                    key: 'interpretationLois', 
-                    label: 'Interprétations et application des lois du jeu (Décisions sur le hors jeu, Sorties de balles et fautes)', 
+                {
+                    key: 'interpretationLois',
+                    label: 'Interprétations et application des lois du jeu (Décisions sur le hors jeu, Sorties de balles et fautes)',
                     max: 50,
                     description: 'Évaluation des décisions sur le hors jeu et les fautes'
                 },
-                { 
-                    key: 'conditionPhysique', 
-                    label: 'Condition Physique (vitesse, endurance, alignement sur le hors jeu)', 
+                {
+                    key: 'conditionPhysique',
+                    label: 'Condition Physique (vitesse, endurance, alignement sur le hors jeu)',
                     max: 30,
                     description: 'Évaluation de la condition physique de l\'assistant'
                 },
-                { 
-                    key: 'collaboration', 
-                    label: 'Collaboration (Coopération avec les autres arbitres)', 
+                {
+                    key: 'collaboration',
+                    label: 'Collaboration (Coopération avec les autres arbitres)',
                     max: 20,
                     description: 'Évaluation de la collaboration avec les autres arbitres'
                 }
             ];
         } else if (role === 'FOURTH_OFFICIAL' || role === 'FOURTH') {
             criteres = [
-                { 
-                    key: 'controleSurfaces', 
-                    label: 'Contrôle des surfaces techniques et Assistance dans le contrôle du match', 
+                {
+                    key: 'controleSurfaces',
+                    label: 'Contrôle des surfaces techniques et Assistance dans le contrôle du match',
                     max: 30,
                     description: 'Évaluation du contrôle des surfaces techniques'
                 },
-                { 
-                    key: 'gestionRemplacements', 
-                    label: 'Gestion des remplacements, gestion du temps additionnel', 
+                {
+                    key: 'gestionRemplacements',
+                    label: 'Gestion des remplacements, gestion du temps additionnel',
                     max: 20,
                     description: 'Évaluation de la gestion des remplacements et du temps'
                 }
             ];
         }
-        
+
         // Mettre en cache
         this.criteresCache.set(role, criteres);
         return criteres;
@@ -1454,12 +1454,12 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         // Déterminer l'équipe par défaut basée sur le score
         const totalHomeGoals = this.reportData.buteurs.filter((b: any) => b.equipe === 'home').length;
         const totalAwayGoals = this.reportData.buteurs.filter((b: any) => b.equipe === 'away').length;
-        
+
         let defaultTeam: 'home' | 'away' = 'home';
         if (totalHomeGoals >= this.reportData.resultatFinal.home && totalAwayGoals < this.reportData.resultatFinal.away) {
             defaultTeam = 'away';
         }
-        
+
         this.reportData.buteurs.push({
             id: Date.now().toString(),
             maillot: '',
@@ -1498,7 +1498,7 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         const awayGoals = this.getGoalsCount('away');
         const expectedHome = this.reportData.resultatFinal.home;
         const expectedAway = this.reportData.resultatFinal.away;
-        
+
         if (homeGoals !== expectedHome || awayGoals !== expectedAway) {
             return `Attention: ${homeGoals}/${expectedHome} buts domicile, ${awayGoals}/${expectedAway} buts extérieur`;
         }
@@ -1513,7 +1513,7 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         if (this.calculateTimeout) {
             clearTimeout(this.calculateTimeout);
         }
-        
+
         // Programmer le calcul avec un délai de 100ms
         this.calculateTimeout = setTimeout(() => {
             this.calculateTotal(index);
@@ -1524,26 +1524,26 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
         if (!this.reportData.evaluationsOfficiels || index >= this.reportData.evaluationsOfficiels.length) {
             return;
         }
-        
+
         const evaluation = this.reportData.evaluationsOfficiels[index];
         if (!evaluation || !evaluation.criteres) {
             return;
         }
-        
+
         const criteres = this.getCriteresForRole(evaluation.role);
         if (!criteres || criteres.length === 0) {
             return;
         }
-        
+
         let total = 0;
         let totalMax = 0;
-        
+
         criteres.forEach(critere => {
             const note = evaluation.criteres[critere.key]?.note || 0;
             total += note;
             totalMax += critere.max;
         });
-        
+
         evaluation.total = total;
         evaluation.totalMax = totalMax;
     }
@@ -1578,7 +1578,6 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
             case 'ASSISTANT_2':
                 return 'Arbitre Assistant N°2';
             case 'FOURTH_OFFICIAL':
-            case 'FOURTH':
                 return '4e Arbitre';
             case 'COMMISSIONER':
                 return 'Commissaire';
@@ -1712,7 +1711,7 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
 
         // Trouver le joueur correspondant
         const players = team === 'home' ? this.homeTeamPlayers : this.awayTeamPlayers;
-        const player = players.find(p => 
+        const player = players.find(p =>
             p.jersey_number?.toString() === jerseyNumber.toString()
         );
 
@@ -1720,7 +1719,7 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
             // Auto-compléter les champs
             item.licence = player.player_id || '';
             item.joueur = `${player.first_name || ''} ${player.last_name || ''}`.trim();
-            
+
             console.log(`Auto-complétion pour ${type}:`, {
                 jerseyNumber,
                 player: item.joueur,
@@ -1730,7 +1729,7 @@ export class MatchReportModalComponent implements OnInit, OnChanges {
             // Joueur non trouvé, vider les champs mais garder le numéro de maillot
             item.licence = '';
             item.joueur = '';
-            
+
             // Afficher un message d'avertissement si le numéro n'est pas trouvé
             if (jerseyNumber.trim() !== '') {
                 console.warn(`Joueur avec le maillot ${jerseyNumber} non trouvé dans l'équipe ${team}`);

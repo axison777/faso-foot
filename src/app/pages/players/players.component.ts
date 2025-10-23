@@ -23,160 +23,178 @@ import { ContractService } from '../../service/contract.service';
 
 // Modèles locaux (adaptés au nouveau schéma fourni)
 export interface EmergencyContact {
-  name?: string;
-  phone?: string;
-  email?: string;
-  relationship?: string;
+    name?: string;
+    phone?: string;
+    email?: string;
+    relationship?: string;
 }
 
-
-
 export interface Team {
-  id?: string;
-  name?: string;
-  abbreviation?: string;
+    id?: string;
+    name?: string;
+    abbreviation?: string;
 }
 
 export interface Player {
-  id?: string;
-  first_name?: string;
-  last_name?: string;
-  date_of_birth?: string; // date-time string
-  birth_place?: string;
-  nationality?: string;
-  phone?: string;
-  email?: string;
-  photo?: any;
-  photo_url?: string; // base64 or url
-  license_number?: string;
-  preferred_position?: 'GOALKEEPER' | 'DEFENSE' | 'MIDFIELD' | 'ATTACK' | string;
-  height?: number;
-  weight?: number;
-  blood_type?: string;
-  foot_preference?: 'LEFT' | 'RIGHT' | string;
-  status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | string;
-  career_start?: string;
-  career_end?: string;
-  secondary_positions?: Array<'GOALKEEPER' | 'DEFENSE' | 'MIDFIELD' | 'ATTACK' | string>;
-  emergency_contact?: EmergencyContact[];
-  team_id?: string;
-  team?: Team | null;
-  contracts?: Contract[];
-
+    id?: string;
+    first_name?: string;
+    last_name?: string;
+    date_of_birth?: string; // date-time string
+    birth_place?: string;
+    nationality?: string;
+    phone?: string;
+    email?: string;
+    photo?: any;
+    photo_url?: string; // base64 or url
+    license_number?: string;
+    preferred_position?: 'GOALKEEPER' | 'DEFENSE' | 'MIDFIELD' | 'ATTACK' | string;
+    height?: number;
+    weight?: number;
+    blood_type?: string;
+    foot_preference?: 'LEFT' | 'RIGHT' | string;
+    status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | string;
+    career_start?: string;
+    career_end?: string;
+    secondary_positions?: Array<'GOALKEEPER' | 'DEFENSE' | 'MIDFIELD' | 'ATTACK' | string>;
+    emergency_contact?: EmergencyContact[];
+    team_id?: string;
+    team?: Team | null;
+    contracts?: Contract[];
 }
 
-
 @Component({
-  selector: 'app-players',
-  standalone: true,
-  templateUrl: './players.component.html',
-  styleUrls: ['./players.component.scss'],
+    selector: 'app-players',
+    standalone: true,
+    templateUrl: './players.component.html',
+    styleUrls: ['./players.component.scss'],
 
-
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    DialogModule,
-    ButtonModule,
-    InputTextModule,
-    DropdownModule,
-    ConfirmDialogModule,
-    ToastModule,
-    InputNumberModule,
-    DatePickerModule,
-    MultiSelectModule,
-    DatePickerModule,
-    SelectModule,FileUploadModule,
-    TextareaModule
-  ],
-  providers: [MessageService, ConfirmationService]
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        DialogModule,
+        ButtonModule,
+        InputTextModule,
+        DropdownModule,
+        ConfirmDialogModule,
+        ToastModule,
+        InputNumberModule,
+        DatePickerModule,
+        MultiSelectModule,
+        DatePickerModule,
+        SelectModule,
+        FileUploadModule,
+        TextareaModule
+    ],
+    providers: [MessageService, ConfirmationService]
 })
 export class PlayersComponent implements OnInit {
-@ViewChild('fileUploader') fileUploader!: FileUpload;
+    @ViewChild('fileUploader') fileUploader!: FileUpload;
 
-  players: Player[] = [];
-  loading = false;
-  searchPlayer = '';
+    players: Player[] = [];
+    loading = false;
+    searchPlayer = '';
 
-  // dialogs & forms
-  showPlayerForm = false;
-  isEditingPlayer = false;
-  playerForm!: FormGroup;
+    // dialogs & forms
+    showPlayerForm = false;
+    isEditingPlayer = false;
+    playerForm!: FormGroup;
 
-  showPlayerDetails = false;
-  currentPlayer: Player | null = null;
+    showPlayerDetails = false;
+    currentPlayer: Player | null = null;
 
-  showContracts = false;
-  showContractForm = false;
-  contractForm!: FormGroup;
+    showContracts = false;
+    showContractForm = false;
+    contractForm!: FormGroup;
 
-  loadingForm: boolean = false;
+    loadingForm: boolean = false;
 
-  // options
-  positionOptions = [
-    { label: 'Gardien', value: 'GOALKEEPER' },
-    { label: 'Défenseur', value: 'DEFENSE' },
-    { label: 'Milieu', value: 'MIDFIELD' },
-    { label: 'Attaquant', value: 'ATTACK' }
-  ];
-  footOptions = [ { label: 'Gauche', value: 'LEFT' }, { label: 'Droite', value: 'RIGHT' } ];
-  statusOptions = [ { label: 'Actif', value: 'ACTIVE' }, { label: 'Inactif', value: 'INACTIVE' }, { label: 'Suspendu', value: 'SUSPENDED' } ];
-  contractTypes = [ { label: 'Professionnel', value: 'Professionnel' }, { label: 'Jeune', value: 'Jeune' }, { label: 'Prêt', value: 'Prêt' } ];
+    // options
+    positionOptions = [
+        { label: 'Gardien de but', value: 'GK' },
+        { label: 'Défenseur central', value: 'CB' },
+        { label: 'Arrière gauche', value: 'LB' },
+        { label: 'Arrière droit', value: 'RB' },
+        { label: 'Milieu défensif', value: 'CDM' },
+        { label: 'Milieu central', value: 'CM' },
+        { label: 'Milieu offensif', value: 'CAM' },
+        { label: 'Ailier gauche', value: 'LW' },
+        { label: 'Ailier droit', value: 'RW' },
+        { label: 'Attaquant', value: 'ST' }
+    ];
+    footOptions = [
+        { label: 'Gauche', value: 'LEFT' },
+        { label: 'Droite', value: 'RIGHT' }
+    ];
+    statusOptions = [
+        { label: 'Actif', value: 'ACTIVE' },
+        { label: 'Inactif', value: 'INACTIVE' },
+        { label: 'Suspendu', value: 'SUSPENDED' }
+    ];
+    contractTypes = [
+        { label: 'Professionnel', value: 'Professionnel' },
+        { label: 'Jeune', value: 'Jeune' },
+        { label: 'Prêt', value: 'Prêt' }
+    ];
 
-  // mock team for demo
-  mockTeam: Team = { id: 'team-1', name: 'ASFA U20', abbreviation: 'ASFA' };
-  selectedFile: File | null = null;
-  currentPhoto: string | null = null;
-  teams?: Team[] = [];
-   isEditingContract = false;
-  constructor(private fb: FormBuilder, private messageService: MessageService, private confirmationService: ConfirmationService,
-    private playerService: PlayerService, private equipeService: EquipeService, private router: Router, private contractService: ContractService
-  ) {}
+    // mock team for demo
+    mockTeam: Team = { id: 'team-1', name: 'ASFA U20', abbreviation: 'ASFA' };
+    selectedFile: File | null = null;
+    currentPhoto: string | null = null;
+    teams?: Team[] = [];
+    isEditingContract = false;
+    constructor(
+        private fb: FormBuilder,
+        private messageService: MessageService,
+        private confirmationService: ConfirmationService,
+        private playerService: PlayerService,
+        private equipeService: EquipeService,
+        private router: Router,
+        private contractService: ContractService
+    ) {}
 
-  ngOnInit(): void {
-    this.playerForm = this.fb.group({
-      id: [''],
-      first_name: ['', Validators.required],
-      last_name: ['', Validators.required],
-      date_of_birth: [null, Validators.required],
-      birth_place: ['', Validators.required],
-      nationality: ['', Validators.required],
-      phone: ['', Validators.required],
-      email: ['', [Validators.email, Validators.required]],
-      photo_url: [''],
-      license_number: ['', Validators.required],
-      preferred_position: ['', Validators.required],
-      height: [null],
-      weight: [null],
-      blood_type: [''],
-      foot_preference: [''],
-      status: ['ACTIVE'],
-      career_start: [null],
-      career_end: [null],
-      secondary_positions: [[]],
-      emergency_contact: this.fb.array([]),
-      team_id: ['']
-    });
+    ngOnInit(): void {
+        this.playerForm = this.fb.group({
+            id: [''],
+            first_name: ['', Validators.required],
+            last_name: ['', Validators.required],
+            date_of_birth: [null, Validators.required],
+            birth_place: ['', Validators.required],
+            nationality: ['', Validators.required],
+            phone: ['', Validators.required],
+            email: ['', [Validators.email, Validators.required]],
+            photo_url: [''],
+            license_number: ['', Validators.required],
+            preferred_position: ['', Validators.required],
+            height: [null],
+            weight: [null],
+            blood_type: [''],
+            foot_preference: [''],
+            status: ['ACTIVE'],
+            career_start: [null],
+            career_end: [null],
+            secondary_positions: [[]],
+            emergency_contact: this.fb.array([]),
+            team_id: ['']
+        });
 
-    this.contractForm = this.fb.group({
-    id: [null], // facultatif, utile en édition
-    player_id: ['', Validators.required],
-    club_id: ['', Validators.required],
-    start_date: [null, Validators.required],
-    end_date: [null, Validators.required],
-    salary_amount: [null, Validators.required],
-    status: ['ACTIVE', Validators.required], // valeur par défaut
-    clauses: this.fb.array([]) // gestion dynamique des clauses
-    });
+        this.contractForm = this.fb.group({
+            id: [null], // facultatif, utile en édition
+            player_id: ['', Validators.required],
+            club_id: ['', Validators.required],
+            start_date: [null, Validators.required],
+            end_date: [null, Validators.required],
+            salary_amount: [null, Validators.required],
+            status: ['ACTIVE', Validators.required], // valeur par défaut
+            clauses: this.fb.array([]) // gestion dynamique des clauses
+        });
 
-    this.loadPlayers();
+        this.loadPlayers();
+    }
 
-  }
-
-  // ---------- MOCK DATA ----------
-  loadPlayers() {
-    /* this.players = [
+    // ---------- MOCK DATA ----------
+    loadPlayers() {
+        /* this.players = [
       {
         id: 'player-1',
         first_name: 'Alfred',
@@ -215,215 +233,193 @@ export class PlayersComponent implements OnInit {
         contracts: [ { id: 'c4', player_id: 'player-3', team: this.mockTeam, number: 9, position: 'Milieu', type: 'Professionnel', start_date: '2024-01-01', end_date: '2026-12-31' } ]
       }
     ]; */
-    this.loading = true;
-    this.playerService.getAll().subscribe({
-      next: (res: any) => {
-        console.log('=== DONNÉES JOUEURS REÇUES ===');
-        console.log('Nombre de joueurs:', res?.length || 0);
-        console.log('Premier joueur (toutes les données):', JSON.stringify(res?.[0], null, 2));
+        this.loading = true;
+        this.playerService.getAll().subscribe({
+            next: (res: any) => {
+                // console.log(res);
 
-        // Construire l'URL de la photo si elle n'existe pas déjà
-        const players = (res || []).map((player: any) => {
-          // Si photo_url existe déjà, on l'utilise
-          if (player.photo_url) {
-            return player;
-          }
-          
-          // Sinon, on construit l'URL à partir de photo si elle existe
-          if (player.photo && !player.photo.startsWith('http')) {
-            // Si photo est un chemin relatif, on construit l'URL complète
-            player.photo_url = `http://192.168.11.121:8000/storage/${player.photo}`;
-          } else if (player.photo) {
-            // Si photo est déjà une URL complète
-            player.photo_url = player.photo;
-          }
-          
-          return player;
+                this.players = res || [];
+                this.loading = false;
+            },
+            error: () => {
+                this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors du chargement des joueurs', life: 2500 });
+                this.loading = false;
+            }
         });
-        
-        console.log('Premier joueur après traitement:', players?.[0]);
-        console.log('Photo URL finale:', players?.[0]?.photo_url);
-
-        this.players = players;
-        this.loading = false;
-      },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors du chargement des joueurs', life: 2500 });
-        this.loading = false;
-      }
-    });
-
-}
-
-  // ---------- HELPERS ----------
-  get filteredPlayers(): Player[] {
-    const q = this.searchPlayer?.toLowerCase().trim();
-    if (!q) return this.players;
-    return this.players.filter(p => (p.first_name || '').toLowerCase().includes(q) || (p.last_name || '').toLowerCase().includes(q));
-  }
-
-  getActiveContract(player: Player | null | undefined): Contract | undefined {
-    if (!player?.contracts?.length) return undefined;
-    const sorted = [...player.contracts].sort((a, b) => new Date(b.start_date || 0).getTime() - new Date(a.start_date || 0).getTime());
-    return sorted[0];
-  }
-
-  toISO(d: any): string | undefined {
-    if (!d) return undefined;
-    const date = (d instanceof Date) ? d : new Date(d);
-    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString().slice(0,10);
-  }
-
-  // ---------- PLAYER FORM ----------
-  showPlayerDialog(p?: Player) {
-    this.isEditingPlayer = !!p?.id;
-    this.showPlayerForm = true;
-    this.currentPhoto = p?.photo_url ?? null;
-    if (p) {
-      // patch values
-      this.playerForm.patchValue({
-        id: p.id,
-        first_name: p.first_name,
-        last_name: p.last_name,
-        date_of_birth: p.date_of_birth ? new Date(p.date_of_birth) : null,
-        birth_place: p.birth_place,
-        nationality: p.nationality,
-        phone: p.phone,
-        email: p.email,
-        photo: p.photo_url,
-        license_number: p.license_number,
-        preferred_position: p.preferred_position,
-        height: p.height,
-        weight: p.weight,
-        blood_type: p.blood_type,
-        foot_preference: p.foot_preference,
-        status: p.status,
-        career_start: p.career_start ? new Date(p.career_start) : null,
-        career_end: p.career_end ? new Date(p.career_end) : null,
-        secondary_positions: p.secondary_positions || [],
-        team_id: p.team_id || ''
-      });
-
-      // rebuild emergency contacts
-      const fa = this.playerForm.get('emergency_contact') as FormArray;
-      fa.clear();
-      (p.emergency_contact || []).forEach(ec => fa.push(this.fb.group({ name: [ec.name], phone: [ec.phone], email: [ec.email], relationship: [ec.relationship] })));
-
-      this.currentPlayer = p;
-    } else {
-      this.playerForm.reset({ status: 'ACTIVE', secondary_positions: [], emergency_contact: [] });
-      this.currentPhoto = null;
-      this.selectedFile = null;
-      const fa = this.playerForm.get('emergency_contact') as FormArray;
-      fa.clear();
-      this.currentPlayer = null;
-      this.currentPhoto = null;
     }
-  }
 
-  closePlayerForm() { this.showPlayerForm = false;
-    this.playerForm.reset({ status: 'ACTIVE', secondary_positions: [], emergency_contact: [] });
-    this.selectedFile = null;
-    this.currentPhoto = null;
-  }
+    // ---------- HELPERS ----------
+    get filteredPlayers(): Player[] {
+        const q = this.searchPlayer?.toLowerCase().trim();
+        if (!q) return this.players;
+        return this.players.filter((p) => (p.first_name || '').toLowerCase().includes(q) || (p.last_name || '').toLowerCase().includes(q));
+    }
 
- savePlayer(): void {
-  if (this.playerForm.invalid) {
-    this.playerForm.markAllAsTouched();
-    this.ecControls.forEach(ec => ec.markAllAsTouched());
-    return;
-  }
+    getActiveContract(player: Player | null | undefined): Contract | undefined {
+        if (!player?.contracts?.length) return undefined;
+        const sorted = [...player.contracts].sort((a, b) => new Date(b.start_date || 0).getTime() - new Date(a.start_date || 0).getTime());
+        return sorted[0];
+    }
 
-  this.loadingForm = true;
-  const v = this.playerForm.value;
-  const formData = new FormData();
+    toISO(d: any): string | undefined {
+        if (!d) return undefined;
+        const date = d instanceof Date ? d : new Date(d);
+        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString().slice(0, 10);
+    }
 
-  if (v.first_name) formData.append('first_name', v.first_name);
-  if (v.birth_place) formData.append('birth_place', v.birth_place);
-  if (v.nationality) formData.append('nationality', v.nationality);
-  if (v.phone) formData.append('phone', v.phone);
-  if (v.email) formData.append('email', v.email);
-  if (v.license_number) formData.append('license_number', v.license_number);
-  if (v.preferred_position) formData.append('preferred_position', v.preferred_position);
- if (v.secondary_positions?.length) {
-  v.secondary_positions.forEach((pos: string, index: number) => {
-    formData.append(`secondary_positions[${index}]`, pos);
-  });
-}
+    // ---------- PLAYER FORM ----------
+    showPlayerDialog(p?: Player) {
+        this.isEditingPlayer = !!p?.id;
+        this.showPlayerForm = true;
+        this.currentPhoto = p?.photo_url ?? null;
+        if (p) {
+            // patch values
+            this.playerForm.patchValue({
+                id: p.id,
+                first_name: p.first_name,
+                last_name: p.last_name,
+                date_of_birth: p.date_of_birth ? new Date(p.date_of_birth) : null,
+                birth_place: p.birth_place,
+                nationality: p.nationality,
+                phone: p.phone,
+                email: p.email,
+                photo: p.photo_url,
+                license_number: p.license_number,
+                preferred_position: p.preferred_position,
+                height: p.height,
+                weight: p.weight,
+                blood_type: p.blood_type,
+                foot_preference: p.foot_preference,
+                status: p.status,
+                career_start: p.career_start ? new Date(p.career_start) : null,
+                career_end: p.career_end ? new Date(p.career_end) : null,
+                secondary_positions: p.secondary_positions || [],
+                team_id: p.team_id || ''
+            });
 
-  if (v.height) formData.append('height', v.height);
-  if (v.weight) formData.append('weight', v.weight);
-  if (v.blood_type) formData.append('blood_type', v.blood_type);
-  if (v.foot_preference) formData.append('foot_preference', v.foot_preference);
-  if (v.status) formData.append('status', v.status);
-  if (v.career_start) formData.append('career_start', this.toISO(v.career_start)!);
-  if (v.career_end) formData.append('career_end', this.toISO(v.career_end)!);
-  if (v.team_id) formData.append('team_id', v.team_id);
+            // rebuild emergency contacts
+            const fa = this.playerForm.get('emergency_contact') as FormArray;
+            fa.clear();
+            (p.emergency_contact || []).forEach((ec) => fa.push(this.fb.group({ name: [ec.name], phone: [ec.phone], email: [ec.email], relationship: [ec.relationship] })));
 
-  // Champs complexes → stringify
-  if (v.emergency_contact?.length) {
-  v.emergency_contact.forEach((ec: any, index: number) => {
-    if (ec.name) formData.append(`emergency_contact[${index}][name]`, ec.name);
-    if (ec.phone) formData.append(`emergency_contact[${index}][phone]`, ec.phone);
-    if (ec.email) formData.append(`emergency_contact[${index}][email]`, ec.email);
-    if (ec.relationship) formData.append(`emergency_contact[${index}][relationship]`, ec.relationship);
-  });
-}
+            this.currentPlayer = p;
+        } else {
+            this.playerForm.reset({ status: 'ACTIVE', secondary_positions: [], emergency_contact: [] });
+            this.currentPhoto = null;
+            this.selectedFile = null;
+            const fa = this.playerForm.get('emergency_contact') as FormArray;
+            fa.clear();
+            this.currentPlayer = null;
+            this.currentPhoto = null;
+        }
+    }
 
-
-  if (this.currentPlayer?.contracts?.length) {
-    formData.append('contracts', JSON.stringify(this.currentPlayer.contracts));
-  }
-
-  // Upload photo si nouvelle sélection
-  if (this.selectedFile) {
-    formData.append('photo_url', this.selectedFile);
-  }
-
-  // Edition → PUT
-  if (this.isEditingPlayer && v.id) {
-    formData.append('_method', 'PUT');
-  }
-
-  const request$ = this.isEditingPlayer && v.id
-    ? this.playerService.update(v.id, formData)
-    : this.playerService.create(formData);
-
-  request$.subscribe({
-    next: () => {
-      this.messageService.add({
-        severity: 'success',
-        summary: this.isEditingPlayer ? 'Joueur modifié' : 'Joueur ajouté',
-        detail: `${v.first_name} ${v.last_name}`,
-        life: 2500
-      });
-      this.loadPlayers();
-      this.showPlayerForm = false;
-      this.loadingForm = false;
-      this.selectedFile = null;
+    closePlayerForm() {
+        this.showPlayerForm = false;
         this.playerForm.reset({ status: 'ACTIVE', secondary_positions: [], emergency_contact: [] });
+        this.selectedFile = null;
         this.currentPhoto = null;
-    },
-    error: () => {
-      this.loadingForm = false;
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Une erreur est survenue',
-        life: 2500
-      });
     }
-  });
-}
 
+    savePlayer(): void {
+        if (this.playerForm.invalid) {
+            this.playerForm.markAllAsTouched();
+            this.ecControls.forEach((ec) => ec.markAllAsTouched());
+            return;
+        }
 
-  // ----- emergency contacts helpers -----
-  get ecControls() { return (this.playerForm.get('emergency_contact') as FormArray).controls as FormGroup[]; }
-  addEmergencyContact() { (this.playerForm.get('emergency_contact') as FormArray).push(this.fb.group({ name: [''], phone: [''], email: ['', Validators.email], relationship: [''] })); }
-  removeEmergencyContact(i: number) { (this.playerForm.get('emergency_contact') as FormArray).removeAt(i); }
+        this.loadingForm = true;
+        const v = this.playerForm.value;
+        const formData = new FormData();
 
-  // photo handling
-/*   onPhotoSelected(ev: any) {
+        if (v.first_name) formData.append('first_name', v.first_name);
+        if (v.birth_place) formData.append('birth_place', v.birth_place);
+        if (v.nationality) formData.append('nationality', v.nationality);
+        if (v.phone) formData.append('phone', v.phone);
+        if (v.email) formData.append('email', v.email);
+        if (v.license_number) formData.append('license_number', v.license_number);
+        if (v.preferred_position) formData.append('preferred_position', v.preferred_position);
+        if (v.secondary_positions?.length) {
+            v.secondary_positions.forEach((pos: string, index: number) => {
+                formData.append(`secondary_positions[${index}]`, pos);
+            });
+        }
+
+        if (v.height) formData.append('height', v.height);
+        if (v.weight) formData.append('weight', v.weight);
+        if (v.blood_type) formData.append('blood_type', v.blood_type);
+        if (v.foot_preference) formData.append('foot_preference', v.foot_preference);
+        if (v.status) formData.append('status', v.status);
+        if (v.career_start) formData.append('career_start', this.toISO(v.career_start)!);
+        if (v.career_end) formData.append('career_end', this.toISO(v.career_end)!);
+        if (v.team_id) formData.append('team_id', v.team_id);
+
+        // Champs complexes → stringify
+        if (v.emergency_contact?.length) {
+            v.emergency_contact.forEach((ec: any, index: number) => {
+                if (ec.name) formData.append(`emergency_contact[${index}][name]`, ec.name);
+                if (ec.phone) formData.append(`emergency_contact[${index}][phone]`, ec.phone);
+                if (ec.email) formData.append(`emergency_contact[${index}][email]`, ec.email);
+                if (ec.relationship) formData.append(`emergency_contact[${index}][relationship]`, ec.relationship);
+            });
+        }
+
+        if (this.currentPlayer?.contracts?.length) {
+            formData.append('contracts', JSON.stringify(this.currentPlayer.contracts));
+        }
+
+        // Upload photo si nouvelle sélection
+        if (this.selectedFile) {
+            formData.append('photo_url', this.selectedFile);
+        }
+
+        // Edition → PUT
+        if (this.isEditingPlayer && v.id) {
+            formData.append('_method', 'PUT');
+        }
+
+        const request$ = this.isEditingPlayer && v.id ? this.playerService.update(v.id, formData) : this.playerService.create(formData);
+
+        request$.subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: this.isEditingPlayer ? 'Joueur modifié' : 'Joueur ajouté',
+                    detail: `${v.first_name} ${v.last_name}`,
+                    life: 2500
+                });
+                this.loadPlayers();
+                this.showPlayerForm = false;
+                this.loadingForm = false;
+                this.selectedFile = null;
+                this.playerForm.reset({ status: 'ACTIVE', secondary_positions: [], emergency_contact: [] });
+                this.currentPhoto = null;
+            },
+            error: () => {
+                this.loadingForm = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: 'Une erreur est survenue',
+                    life: 2500
+                });
+            }
+        });
+    }
+
+    // ----- emergency contacts helpers -----
+    get ecControls() {
+        return (this.playerForm.get('emergency_contact') as FormArray).controls as FormGroup[];
+    }
+    addEmergencyContact() {
+        (this.playerForm.get('emergency_contact') as FormArray).push(this.fb.group({ name: [''], phone: [''], email: ['', Validators.email], relationship: [''] }));
+    }
+    removeEmergencyContact(i: number) {
+        (this.playerForm.get('emergency_contact') as FormArray).removeAt(i);
+    }
+
+    // photo handling
+    /*   onPhotoSelected(ev: any) {
     const file: File = ev.target.files && ev.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -433,151 +429,163 @@ export class PlayersComponent implements OnInit {
     reader.readAsDataURL(file);
   } */
 
-      onFileSelect(event: any): void {
-    const file = event.files?.[0];
-    if (file) {
-      this.selectedFile = file;
-      this.playerForm.get('logo')?.setValue(file.name);
-    }
-  }
-
-  openContractsModal(p: Player) {
-    this.currentPlayer = p;
-    this.showContracts = true;
-    this.showContractForm = false;
-    this.contractForm.reset({ number: null });
-    this.loadTeams();
-  }
-
-  newContract() {
-    this.showContractForm = true;
-    this.contractForm.reset({ id: '', type: '', position: '', number: null, start_date: null, end_date: null });
-  }
-
-  editContract(c: Contract) {
-    this.isEditingContract=true
-    this.showContractForm = true;
-    this.contractForm.patchValue({ id: c.id, type: c.type || '', position: c.position || '', number: c.number || null, start_date: c.start_date ? new Date(c.start_date) : null, end_date: c.end_date ? new Date(c.end_date) : null });
-  }
-
-  cancelContractForm() {this.isEditingContract=false; this.showContractForm = false; }
-
-  saveContract() {
-    if (this.contractForm.invalid || !this.currentPlayer) { this.contractForm.markAllAsTouched(); return; }
-    const v = this.contractForm.value;
-    const payload: Contract = { id: v.id || ('c-' + Date.now()), player_id: this.currentPlayer.id, team: this.mockTeam, number: v.number, position: v.position, type: v.type, start_date: this.toISO(v.start_date), end_date: this.toISO(v.end_date) };
-
-    if (v.id) {
-      this.currentPlayer.contracts = (this.currentPlayer.contracts || []).map(c => c.id === v.id ? payload : c);
-      this.messageService.add({ severity: 'success', summary: 'Contrat modifié', detail: `${payload.type}`, life: 2200 });
-    } else {
-      this.currentPlayer.contracts = [ payload, ...(this.currentPlayer.contracts || []) ];
-      this.messageService.add({ severity: 'success', summary: 'Contrat ajouté', detail: `${payload.type}`, life: 2200 });
+    onFileSelect(event: any): void {
+        const file = event.files?.[0];
+        if (file) {
+            this.selectedFile = file;
+            this.playerForm.get('logo')?.setValue(file.name);
+        }
     }
 
-    this.showContractForm = false;
-  }
+    openContractsModal(p: Player) {
+        this.currentPlayer = p;
+        this.showContracts = true;
+        this.showContractForm = false;
+        this.contractForm.reset({ number: null });
+        this.loadTeams();
+    }
 
-  deleteContractConfirm(id?: string) {
-    if (!this.currentPlayer || !id) return;
-    this.confirmationService.confirm({ icon: 'pi pi-exclamation-triangle', message: 'Supprimer ce contrat ?', accept: () => {
-        accept: () => {
-        this.contractService.delete(id).subscribe({
-          next: () => {
-            this.loadPlayers();
-            this.messageService.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
-          },
-          error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
-          }
-        })
-      }
-     } });
-  }
+    newContract() {
+        this.showContractForm = true;
+        this.contractForm.reset({ id: '', type: '', position: '', number: null, start_date: null, end_date: null });
+    }
 
-  // ---------- DELETE PLAYER ----------
-  confirmDeletePlayer(id: string) {
-    this.confirmationService.confirm({ icon: 'pi pi-exclamation-triangle', message: 'Voulez-vous vraiment supprimer ce joueur ?',
-         accept: () => {
-            this.playerService.delete(id).subscribe({
-                next: () => {
-                    this.loadPlayers();
-                    this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Le joueur a été supprimé.' });
-                },
-                error: () => {
-                    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
-                }
+    editContract(c: Contract) {
+        this.isEditingContract = true;
+        this.showContractForm = true;
+        this.contractForm.patchValue({ id: c.id, type: c.type || '', position: c.position || '', number: c.number || null, start_date: c.start_date ? new Date(c.start_date) : null, end_date: c.end_date ? new Date(c.end_date) : null });
+    }
+
+    cancelContractForm() {
+        this.isEditingContract = false;
+        this.showContractForm = false;
+    }
+
+    saveContract() {
+        if (this.contractForm.invalid || !this.currentPlayer) {
+            this.contractForm.markAllAsTouched();
+            return;
+        }
+        const v = this.contractForm.value;
+        const payload: Contract = { id: v.id || 'c-' + Date.now(), player_id: this.currentPlayer.id, team: this.mockTeam, number: v.number, position: v.position, type: v.type, start_date: this.toISO(v.start_date), end_date: this.toISO(v.end_date) };
+
+        if (v.id) {
+            this.currentPlayer.contracts = (this.currentPlayer.contracts || []).map((c) => (c.id === v.id ? payload : c));
+            this.messageService.add({ severity: 'success', summary: 'Contrat modifié', detail: `${payload.type}`, life: 2200 });
+        } else {
+            this.currentPlayer.contracts = [payload, ...(this.currentPlayer.contracts || [])];
+            this.messageService.add({ severity: 'success', summary: 'Contrat ajouté', detail: `${payload.type}`, life: 2200 });
+        }
+
+        this.showContractForm = false;
+    }
+
+    deleteContractConfirm(id?: string) {
+        if (!this.currentPlayer || !id) return;
+        this.confirmationService.confirm({
+            icon: 'pi pi-exclamation-triangle',
+            message: 'Supprimer ce contrat ?',
+            accept: () => {
+                accept: () => {
+                    this.contractService.delete(id).subscribe({
+                        next: () => {
+                            this.loadPlayers();
+                            this.messageService.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+                        },
+                        error: () => {
+                            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+                        }
+                    });
+                };
             }
-
-
-            )
-        } });
-  }
-
-  openPlayerDetails(p: Player) {
-    /* this.currentPlayer = p;
-    this.showPlayerDetails = true; */
-    this.router.navigate(['/joueur-details', p.id]);
-  }
-
-  getPositionLabel(pos: string | undefined): string {
-    if (!pos) return '';
-    const opt = this.positionOptions.find(o => o.value === pos);
-    return opt ? opt.label : pos;
-  }
-
-  getStatusLabel(status: string | undefined): string {
-    if (!status) return '';
-    const opt = this.statusOptions.find(o => o.value === status);
-    return opt ? opt.label : status;
-  }
-
-  get clauses(): FormArray {
-  return this.contractForm.get('clauses') as FormArray;
-}
-
-addClause() {
-  this.clauses.push(
-    this.fb.group({
-      type: ['', Validators.required],
-      value: ['', Validators.required]
-    })
-  );
-}
-
-removeClause(index: number) {
-  this.clauses.removeAt(index);
-}
-get cf() { return this.contractForm.controls as {
-    [key in keyof any]: FormControl;
-  }; }
-
-  loadTeams() {
-  this.equipeService.getAll().subscribe({
-    next: (res: any) => {
-      this.teams = res?.data?.teams || [];
-
-    },
-    error: (err) => {
-      console.error('Erreur lors du chargement des équipes', err);
+        });
     }
-  });}
+
+    // ---------- DELETE PLAYER ----------
+    confirmDeletePlayer(id: string) {
+        this.confirmationService.confirm({
+            icon: 'pi pi-exclamation-triangle',
+            message: 'Voulez-vous vraiment supprimer ce joueur ?',
+            accept: () => {
+                this.playerService.delete(id).subscribe({
+                    next: () => {
+                        this.loadPlayers();
+                        this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Le joueur a été supprimé.' });
+                    },
+                    error: () => {
+                        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
+                    }
+                });
+            }
+        });
+    }
+
+    openPlayerDetails(p: Player) {
+        /* this.currentPlayer = p;
+    this.showPlayerDetails = true; */
+        this.router.navigate(['/joueur-details', p.id]);
+    }
+
+    getPositionLabel(pos: string | undefined): string {
+        if (!pos) return '';
+        const opt = this.positionOptions.find((o) => o.value === pos);
+        return opt ? opt.label : pos;
+    }
+
+    getStatusLabel(status: string | undefined): string {
+        if (!status) return '';
+        const opt = this.statusOptions.find((o) => o.value === status);
+        return opt ? opt.label : status;
+    }
+
+    get clauses(): FormArray {
+        return this.contractForm.get('clauses') as FormArray;
+    }
+
+    addClause() {
+        this.clauses.push(
+            this.fb.group({
+                type: ['', Validators.required],
+                value: ['', Validators.required]
+            })
+        );
+    }
+
+    removeClause(index: number) {
+        this.clauses.removeAt(index);
+    }
+    get cf() {
+        return this.contractForm.controls as {
+            [key in keyof any]: FormControl;
+        };
+    }
+
+    loadTeams() {
+        this.equipeService.getAll().subscribe({
+            next: (res: any) => {
+                this.teams = res?.data?.teams || [];
+            },
+            error: (err) => {
+                console.error('Erreur lors du chargement des équipes', err);
+            }
+        });
+    }
 
     deleteContract(id: string) {
-    if (!this.currentPlayer) return;
-    this.confirmationService.confirm({
-      icon: 'pi pi-exclamation-triangle',
-      message: 'Supprimer ce contrat ?',
-      accept: () => {
-        this.currentPlayer!.contracts = (this.currentPlayer!.contracts || []).filter(c => c.id !== id);
-        this.messageService.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
-      }
-    });
-  }
+        if (!this.currentPlayer) return;
+        this.confirmationService.confirm({
+            icon: 'pi pi-exclamation-triangle',
+            message: 'Supprimer ce contrat ?',
+            accept: () => {
+                this.currentPlayer!.contracts = (this.currentPlayer!.contracts || []).filter((c) => c.id !== id);
+                this.messageService.add({ severity: 'success', summary: 'Suppression réussie', detail: 'Contrat supprimé.' });
+            }
+        });
+    }
 
-  getFootLabel(foot: string | undefined): string {
-    if (!foot) return '';
-    const opt = this.footOptions.find(o => o.value === foot);
-    return opt ? opt.label : foot;
-  }
+    getFootLabel(foot: string | undefined): string {
+        if (!foot) return '';
+        const opt = this.footOptions.find((o) => o.value === foot);
+        return opt ? opt.label : foot;
+    }
 }
