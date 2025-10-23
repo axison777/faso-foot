@@ -8,11 +8,13 @@
   <div class="details-card">
     <h2>Informations personnelles</h2>
     <div class="details-grid">
-      <div><strong>Nom :</strong> {{ official?.last_name }}</div>
-      <div><strong>Prénom :</strong> {{ official?.first_name }}</div>
+      <div><strong>Nom :</strong> {{ official?.user?.last_name }}</div>
+      <div><strong>Prénom :</strong> {{ official?.user?.first_name }}</div>
       <div><strong>Date de naissance :</strong> {{ official?.date_of_birth | date }}</div>
       <div><strong>Lieu :</strong> {{ official?.birth_place }}</div>
       <div><strong>Nationalité :</strong> {{ official?.nationality }}</div>
+      <div><strong>Adresse email :</strong> {{ official?.user?.email }}</div>
+      <div><strong>Contact :</strong> {{ official?.phone }}</div>
     </div>
   </div>
 

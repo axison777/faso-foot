@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <h1>Equipes</h1>
     <button class="btn-primary" (click)="toggleForm()">
-      <i class="pi pi-plus-circle mr-2"></i> Ajouter equipe
+      <i class="mr-2 pi pi-plus-circle"></i> Ajouter equipe
     </button>
   </div>
 
@@ -24,12 +24,12 @@
     <form [formGroup]="teamForm" (ngSubmit)="saveTeam()" class="flex flex-col gap-6">
       <!-- ✅ Section ÉQUIPE -->
       <div>
-        <h3 class="text-lg font-bold border-b pb-1 text-green-700">Equipe</h3>
+        <h3 class="pb-1 text-lg font-bold text-green-700 border-b">Equipe</h3>
       </div>
       <div class="flex gap-4">
         <!-- Nom -->
         <div class="w-1/2">
-          <label for="name" class="block font-bold mb-2">Nom <span class="text-red-500">*</span></label>
+          <label for="name" class="block mb-2 font-bold">Nom <span class="text-red-500">*</span></label>
           <input
             pInputText
             type="text"
@@ -44,7 +44,7 @@
         </div>
         <!-- Abréviation -->
         <div class="w-1/2">
-          <label for="abbreviation" class="block font-bold mb-2">Abréviation</label>
+          <label for="abbreviation" class="block mb-2 font-bold">Abréviation</label>
           <input
             pInputText
             type="text"
@@ -61,7 +61,7 @@
 
       <!-- Ville -->
       <div class="w-full">
-        <label for="ville" class="block font-bold mb-2">Ville <span class="text-red-500">*</span></label>
+        <label for="ville" class="block mb-2 font-bold">Ville <span class="text-red-500">*</span></label>
         <p-select
           id="ville"
           formControlName="city_id"
@@ -79,10 +79,10 @@
 
       <!-- Logo -->
       <div class="w-full">
-        <label for="logo" class="block font-bold mb-2">Logo</label>
+        <label for="logo" class="block mb-2 font-bold">Logo</label>
         <div *ngIf="isEditing && currentLogo" class="mb-2">
-          <p class="text-gray-600 text-sm mb-1">Logo actuel :</p>
-          <img [src]="currentLogo" alt="Logo actuel" class="w-16 h-16 object-cover rounded shadow" />
+          <p class="mb-1 text-sm text-gray-600">Logo actuel :</p>
+          <img [src]="currentLogo" alt="Logo actuel" class="object-cover w-16 h-16 rounded shadow" />
         </div>
         <p-fileupload
           name="logo"
@@ -106,7 +106,7 @@
 
         <!-- Catégorie -->
         <div class="w-full">
-          <label for="category" class="block font-bold mb-2">Catégorie </label>
+          <label for="category" class="block mb-2 font-bold">Catégorie </label>
           <p-select
             id="category"
             formControlName="category_id"
@@ -126,7 +126,7 @@
 
         <!-- Club -->
                  <div class="w-full">
-          <label for="category" class="block font-bold mb-2">Club </label>
+          <label for="category" class="block mb-2 font-bold">Club </label>
           <p-select
             id="club"
             formControlName="club_id"
@@ -146,12 +146,12 @@
 
       <!-- ✅ Section RESPONSABLE -->
       <div>
-        <h3 class="text-lg font-bold border-b pb-1 text-green-700">Responsable de l'équipe</h3>
+        <h3 class="pb-1 text-lg font-bold text-green-700 border-b">Responsable de l'équipe</h3>
       </div>
       <div class="flex gap-4">
         <!-- Prénom -->
         <div class="w-1/2">
-          <label for="manager_first_name" class="block font-bold mb-2">Prénom</label>
+          <label for="manager_first_name" class="block mb-2 font-bold">Prénom</label>
           <input
             pInputText
             type="text"
@@ -166,7 +166,7 @@
         </div>
         <!-- Nom -->
         <div class="w-1/2">
-          <label for="manager_last_name" class="block font-bold mb-2">Nom</label>
+          <label for="manager_last_name" class="block mb-2 font-bold">Nom</label>
           <input
             pInputText
             type="text"
@@ -183,7 +183,7 @@
       <div class="flex gap-4">
         <!-- Téléphone -->
         <div class="w-1/2">
-          <label for="phone" class="block font-bold mb-2">Téléphone</label>
+          <label for="phone" class="block mb-2 font-bold">Téléphone</label>
           <input
             pInputText
             type="tel"
@@ -198,7 +198,7 @@
         </div>
         <!-- Email -->
         <div class="w-1/2">
-          <label for="email" class="block font-bold mb-2">Email</label>
+          <label for="email" class="block mb-2 font-bold">Email</label>
           <input
             pInputText
             type="email"
@@ -218,7 +218,7 @@
 
       <!-- Poste du responsable -->
       <div class="w-full">
-        <label for="role" class="block font-bold mb-2">Poste</label>
+        <label for="role" class="block mb-2 font-bold">Poste</label>
         <input
           pInputText
           type="text"
@@ -265,7 +265,7 @@
   [baseZIndex]="10000">
 
   <div *ngIf="teamToTransfer" class="league-transfer-container">
-    <div class="team-info-transfer mb-4">
+    <div class="mb-4 team-info-transfer">
       <h3 style="color: rgb(50,145,87); font-size: 1.2rem; margin-bottom: 0.5rem;">
         {{ teamToTransfer.name }}
       </h3>
@@ -275,7 +275,7 @@
     </div>
     <form [formGroup]="leagueTransferForm" class="flex flex-col gap-4">
       <div class="w-full">
-        <label for="league_transfer" class="block font-bold mb-2">
+        <label for="league_transfer" class="block mb-2 font-bold">
           Nouvelle ligue <span class="text-red-500">*</span>
         </label>
         <p-select
@@ -368,14 +368,29 @@
       <thead>
         <tr>
          <th>#</th>
-          <th>Nom</th>
+          <th >Equipe</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
   <tr *ngFor="let team of filteredTeams">
     <td>{{getOriginalIndex(team)}}</td>
-    <td class="equipe-nom">{{ team.name }}</td>
+    <td class="equipe-cell">
+  <div class="equipe-info">
+    <ng-container *ngIf="team?.logo; else noLogo">
+      <img [src]="team.logo" alt="logo {{team?.full_name}}" class="equipe-logo" />
+    </ng-container>
+    <ng-template #noLogo>
+      <div class="equipe-logo placeholder">N/A</div>
+    </ng-template>
+
+    <span class="equipe-nom">
+      {{ team?.name!.length <= 15 ? team?.name : team?.abbreviation }}
+      <span *ngIf="team.category">({{ team.category.name }})</span>
+    </span>
+  </div>
+</td>
+
     <td class="actions">
 
       <div class="btn-group">

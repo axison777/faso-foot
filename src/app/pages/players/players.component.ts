@@ -139,14 +139,14 @@ export class PlayersComponent implements OnInit {
       id: [''],
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      date_of_birth: [null],
-      birth_place: [''],
-      nationality: [''],
-      phone: [''],
-      email: ['', Validators.email],
+      date_of_birth: [null, Validators.required],
+      birth_place: ['', Validators.required],
+      nationality: ['', Validators.required],
+      phone: ['', Validators.required],
+      email: ['', [Validators.email, Validators.required]],
       photo_url: [''],
-      license_number: [''],
-      preferred_position: [''],
+      license_number: ['', Validators.required],
+      preferred_position: ['', Validators.required],
       height: [null],
       weight: [null],
       blood_type: [''],
@@ -218,7 +218,9 @@ export class PlayersComponent implements OnInit {
     this.loading = true;
     this.playerService.getAll().subscribe({
       next: (res: any) => {
-        this.players = res?.data?.players || [];
+        // console.log(res);
+
+        this.players = res || [];
         this.loading = false;
       },
       error: () => {
@@ -304,6 +306,7 @@ export class PlayersComponent implements OnInit {
  savePlayer(): void {
   if (this.playerForm.invalid) {
     this.playerForm.markAllAsTouched();
+    this.ecControls.forEach(ec => ec.markAllAsTouched());
     return;
   }
 
@@ -311,10 +314,7 @@ export class PlayersComponent implements OnInit {
   const v = this.playerForm.value;
   const formData = new FormData();
 
-  // Champs simples
   if (v.first_name) formData.append('first_name', v.first_name);
-  if (v.last_name) formData.append('last_name', v.last_name);
-  if (v.date_of_birth) formData.append('date_of_birth', this.toISO(v.date_of_birth)!);
   if (v.birth_place) formData.append('birth_place', v.birth_place);
   if (v.nationality) formData.append('nationality', v.nationality);
   if (v.phone) formData.append('phone', v.phone);
@@ -395,7 +395,7 @@ export class PlayersComponent implements OnInit {
 
   // ----- emergency contacts helpers -----
   get ecControls() { return (this.playerForm.get('emergency_contact') as FormArray).controls as FormGroup[]; }
-  addEmergencyContact() { (this.playerForm.get('emergency_contact') as FormArray).push(this.fb.group({ name: [''], phone: [''], email: [''], relationship: [''] })); }
+  addEmergencyContact() { (this.playerForm.get('emergency_contact') as FormArray).push(this.fb.group({ name: [''], phone: [''], email: ['', Validators.email], relationship: [''] })); }
   removeEmergencyContact(i: number) { (this.playerForm.get('emergency_contact') as FormArray).removeAt(i); }
 
   // photo handling

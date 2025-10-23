@@ -113,7 +113,7 @@
         <!-- TAB CONTRATS -->
     <p-tabPanel header="Contrats" leftIcon="pi pi-file ">
        <div class="tab-header-actions text-end">
-        <button class="btn-primary"  (click)="newContract()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un contrat</button>
+     <button class="btn-primary"  (click)="newContract()"><i class="pi pi-plus-circle mr-2"></i> Ajouter un contrat</button>
       </div><br>
 
          <!-- Liste contrats -->
@@ -124,43 +124,55 @@
           <tr>
             <th>#</th>
             <th>Equipe</th>
-            <th>Début</th>
-            <th>Fin</th>
+                        <th class="px-4 py-3 text-center min-w-[140px] md:min-w-[140px]">Début</th>
+            <th class="px-4 py-3 text-center min-w-[140px] md:min-w-[140px]">Fin</th>
+
             <th>Salaire</th>
             <th>Statut</th>
-          <!--   <th>Clauses</th> -->
-            <th>Actions</th>
+
+             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let c of player!.contracts!; let i = index">
-            <td>{{ i + 1 }}</td>
-            <td class="cell-strong">{{ c?.team_name || '—' }}</td>
-            <td>{{ c.start_date | date: 'dd/MM/yyyy' }}</td>
-            <td>{{ c.end_date | date: 'dd/MM/yyyy' }}</td>
-            <td>{{ c.salary_amount | number:'1.0-0':'fr-FR' }} F CFA</td>
-            <td>
-              <span [ngClass]="{
-                'status-active': c.status === 'ACTIVE',
-                'status-inactive': c.status === 'INACTIVE',
-                'status-suspended': c.status === 'SUSPENDED'
-              }">
-                {{getStatusLabel(c.status) || c.status }}
-              </span>
-            </td>
-     <!--        <td>
-              <ul *ngIf="c.clauses?.length; else noClauses">
-                <li *ngFor="let clause of c.clauses">{{ clause.type }} : {{ clause.value }}</li>
-              </ul>
-              <ng-template #noClauses>—</ng-template>
-            </td> -->
-            <td class="actions">
-              <div class="btn-group">
-                <p-button severity="warn" icon="pi pi-pencil" (click)="editContract(c)" />
-                <button class="btn btn-danger" (click)="deleteContract(c.id!)"><i class="pi pi-trash"></i></button>
-              </div>
-            </td>
-          </tr>
+  <td class="px-4 py-2 text-center">{{ i + 1 }}</td>
+
+  <td class="px-4 py-2 font-semibold text-slate-800">{{ c?.team_name || '—' }}</td>
+   <td class="px-4 py-2 text-center min-w-[140px] md:min-w-[140px] whitespace-nowrap">
+  {{ c.start_date | date: 'dd/MM/yyyy' }}
+</td>
+<td class="px-4 py-2 text-center  min-w-[140px] md:min-w-[140px] whitespace-nowrap">
+  {{ c.end_date | date: 'dd/MM/yyyy' }}
+</td>
+
+
+
+
+
+  <td class="px-4 py-2 text-center">
+    {{ c.salary_amount | number:'1.0-0':'fr-FR' }} F CFA
+  </td>
+
+  <td class="px-4 py-2 text-center">
+    <span [ngClass]="{
+      'status-active': c.status === 'ACTIVE',
+      'status-inactive': c.status === 'INACTIVE',
+      'status-suspended': c.status === 'SUSPENDED'
+    }">
+      {{ getStatusLabel(c.status) || c.status }}
+    </span>
+  </td>
+
+   <td class="px-4 py-2 text-center whitespace-nowrap">
+    <div class="flex justify-center gap-2">
+      <p-button severity="warn" icon="pi pi-pencil" (click)="editContract(c)" />
+      <button class="btn btn-danger" (click)="deleteContract(c.id!)">
+        <i class="pi pi-trash"></i>
+      </button>
+    </div>
+  </td>
+</tr>
+
         </tbody>
       </table>
     </div>
@@ -368,12 +380,12 @@
               [style]="{ width: '800px', }"  [header]="isEditingContract ? 'Modifier le contrat' : 'Ajouter un contrat'">
 
        <!-- Formulaire contrat -->
-    <div  class="form-container mt-4">
-  <h3 class="form-title">
+    <div  >
+  <!-- <h3 class="form-title">
     {{ isEditingContract ? 'Modifier un contrat' : 'Ajouter un contrat' }}
-  </h3>
+  </h3> -->
 
-  <form [formGroup]="contractForm" class="form-grid">
+  <form [formGroup]="contractForm" *ngIf="!loading" class="form-grid">
 
     <!-- Club -->
  <!--    <div class="form-item">
@@ -433,9 +445,9 @@
           <label>Equipe <span class="req">*</span></label>
           <p-select formControlName="team_id"
                     [options]="teams"
-                    optionLabel="name"
+                    optionLabel="full_name"
                     optionValue="id"
-                    placeholder="Sélectionner un club"
+                    placeholder="Sélectionner une équipe"
                     appendTo="body">
           </p-select>
           <small class="error" *ngIf="cf['team_id']?.invalid && cf['team_id']?.touched">Requis</small>
@@ -470,7 +482,7 @@
 
   <div class="form-actions mt-4 flex justify-end gap-2">
     <p-button label="Annuler"  [raised]="true" severity="secondary" (click)="cancelContractForm()" />
-    <p-button [loading]="loading" [raised]="true" (click)="saveContract()" label="Enregistrer"  />
+    <p-button [loading]="loadingForm" [raised]="true" (click)="saveContract()" label="Enregistrer"  />
   </div>
 </div>
 
@@ -553,7 +565,7 @@
       <div class="grid grid-cols-2 gap-4">
         <div><span class="label">Début carrière:</span> <span class="value">{{ player.career_start | date:'dd/MM/yyyy' }}</span></div>
         <div><span class="label">Fin carrière:</span> <span class="value">{{ player.career_end ? (player.career_end | date:'dd/MM/yyyy') : 'N/A' }}</span></div>
-        <div><span class="label">Statut:</span> <span class="value">{{ player.status }}</span></div>
+        <div><span class="label">Statut:</span> <span class="value">{{getStatusLabel( player.status) || player.status }}</span></div>
       </div>
     </div>
 
@@ -575,4 +587,3 @@
 
   </div>
 </p-dialog>
-

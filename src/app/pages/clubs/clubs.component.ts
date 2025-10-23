@@ -76,6 +76,7 @@ export class ClubsComponent {
   ) {
     this.clubForm = this.fb.group({
       name: ['', Validators.required],
+      city: ['', Validators.required],
       abbreviation: [''],
       founded_year: [''],
       logo: [''],
@@ -118,7 +119,7 @@ export class ClubsComponent {
   }
 ]; */
 
-    //this.loadVilles();
+    this.loadVilles();
   }
 
 
@@ -178,6 +179,9 @@ export class ClubsComponent {
     if (this.selectedFile) {
       formData.append('logo', this.selectedFile);
     }
+    if(this.clubForm.get('city')?.value){
+      formData.append('city', this.clubForm.get('city')?.value);
+    }
     if (this.isEditing) {
       formData.append('_method', 'PUT');
     }
@@ -218,7 +222,8 @@ export class ClubsComponent {
       abbreviation: club.abbreviation,
       founded_year: club.fonded_year  ,
       status: club.status,
-      logo: club.logo ? club.logo : ''
+      logo: club.logo ? club.logo : '',
+      city: club?.city
     });
     this.selectedFile = null;
     this.showForm = true;
@@ -448,4 +453,6 @@ updateGlobalSelection() {
     this.showDetails = true; */
     this.router.navigate(['/club-details', id],);
   }
+
+
 }

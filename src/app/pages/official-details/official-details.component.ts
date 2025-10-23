@@ -55,6 +55,14 @@ export class OfficialDetailsComponent implements OnInit {
   private mapOfficial(raw: any): Official {
     return {
       id: raw.id,
+      user: raw.user,
+      //first_name: raw.user.first_name,
+      //last_name: raw.user.last_name,
+    //   date_of_birth: raw.date_of_birth ? new Date(raw.date_of_birth) : undefined,
+    //   birth_place: raw.birth_place,
+    //   nationality: raw.nationality,
+      phone: raw.phone,
+      //email: raw.user.email,
       first_name: raw.first_name,
       last_name: raw.last_name,
       date_of_birth: raw.date_of_birth ? new Date(raw.date_of_birth) : undefined,

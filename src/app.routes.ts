@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
+import { ClubLayout } from './app/pages/club-layout/club.layout';
+import { CoachLayout } from './app/pages/club-layout/coach.layout';
+import { OfficialLayout } from './app/pages/official-layout/official.layout';
 //import { Dashboard } from './app/pages/dashboard/dashboard';
 //import { Documentation } from './app/pages/documentation/documentation';
 //import { Landing } from './app/pages/landing/landing';
@@ -30,6 +33,7 @@ import { ClubDetailsComponent } from './app/pages/club-details/club-details.comp
 import { SaisonDetailsComponent } from './app/pages/saison-details/saison-details.component';
 import { MatchSetupComponent } from './app/pages/match-setup/match-setup.component';
 import { RolesComponent } from './app/pages/roles/roles.component';
+import { RoleRedirectGuard } from './app/role-redirect.guard';
 
 export const appRoutes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -41,6 +45,8 @@ export const appRoutes: Routes = [
     {
         path: '',
         component: AppLayout,
+        canActivate: [AuthGuard, RoleRedirectGuard],
+        data:{role:['admin']},
         children: [
            // { path: '', component: Dashboard },
             //{ path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
@@ -67,13 +73,49 @@ export const appRoutes: Routes = [
             {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
 
-
-          /*    {path: 'calendar', component:CalendarComponent}, */
-
             {path: 'officiels', component: OfficialsComponent, canActivate: [AuthGuard] },
             {path: 'officiel-details/:id', component: OfficialDetailsComponent, canActivate: [AuthGuard] },
-            {path: 'match-setup/:id', component: MatchSetupComponent, canActivate: [AuthGuard] },
+                {path: 'match-setup/:id', component: MatchSetupComponent, canActivate: [AuthGuard] },
 
+        ]
+    },
+    {
+        path: 'mon-club',
+        component: ClubLayout,
+        canActivate: [AuthGuard, RoleRedirectGuard],
+        data:{role:['club','admin']},
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/club-dashboard-v2/club-dashboard-v2.component').then(m => m.ClubDashboardV2Component) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/club-matches/club-matches.component').then(m => m.ClubMatchesComponent) },
+            { path: 'joueurs', loadComponent: () => import('./app/pages/club-players/club-players.component').then(m => m.ClubPlayersComponent) },
+            { path: 'parametres', loadComponent: () => import('./app/pages/club-coach-shared/parametres-page/parametres-page.component').then(m => m.ParametresPageComponent) }
+        ]
+    },
+    {
+        path: 'officiel',
+        component: OfficialLayout,
+        canActivate: [AuthGuard, RoleRedirectGuard],
+        data:{role:['official','admin']},
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/official-dashboard/official-dashboard.component').then(m => m.OfficialDashboardComponent) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/official-matches/official-matches.component').then(m => m.OfficialMatchesComponent) },
+            { path: 'match-details/:id', loadComponent: () => import('./app/pages/official-match-details/official-match-details.component').then(m => m.OfficialMatchDetailsComponent) },
+            { path: 'notifications', loadComponent: () => import('./app/pages/official-notifications/official-notifications.component').then(m => m.OfficialNotificationsComponent) }
+        ]
+    },
+    {
+        path: 'mon-equipe',
+        component: CoachLayout,
+        canActivate: [AuthGuard, RoleRedirectGuard],
+        data:{role:['coach','admin']},
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./app/pages/coach-dashboard-v2/coach-dashboard-v2.component').then(m => m.CoachDashboardV2Component) },
+            { path: 'matchs', loadComponent: () => import('./app/pages/coach-matches/coach-matches.component').then(m => m.CoachMatchesComponent) },
+            { path: 'joueurs', loadComponent: () => import('./app/pages/coach-players/coach-players.component').then(m => m.CoachPlayersComponent) },
+            { path: 'feuille-match/:id', loadComponent: () => import('./app/pages/coach-match-sheet/coach-match-sheet.component').then(m => m.CoachMatchSheetComponent) }
         ]
     },
 

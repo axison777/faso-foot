@@ -5,7 +5,7 @@
     <div class="logo-side">
       <div class="logo-content">
         <div class="logo-header">
-          <div class="logo-wrapper">
+          <div class="flex items-center justify-center gap-4 logo-wrapper">
             <div class="logo-item">
               <img src="assets/images/Logo-FBF.png" alt="Logo FBF" class="logo-image" />
               <span class="app-title">FÉDÉRATION BURKINABÈ DE FOOTBALL</span>
@@ -25,7 +25,7 @@
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <!-- Email -->
           <div class="mb-4">
-            <label for="email" class="block font-bold mb-2">Email</label>
+            <label for="email" class="block mb-2 font-bold">Email</label>
             <p-iconfield>
               <p-inputicon class="pi pi-envelope" />
               <input
@@ -37,11 +37,19 @@
                 placeholder="Adresse email"
               />
             </p-iconfield>
+            <div class="mt-1 text-sm text-red-500" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+              <span *ngIf="loginForm.get('email')?.errors?.['required']">
+                L'email est requis.
+              </span>
+              <span *ngIf="loginForm.get('email')?.errors?.['email']">
+                Email invalide.
+              </span>
+            </div>
           </div>
 
           <!-- Password -->
           <div class="mb-4">
-            <label for="password" class="block font-bold mb-2">Mot de passe</label>
+            <label for="password" class="block mb-2 font-bold">Mot de passe</label>
             <p-iconfield>
               <p-inputicon class="pi pi-lock" />
               <input
@@ -59,6 +67,11 @@
                 (click)="togglePasswordVisibility()"
               ></p-inputicon>
             </p-iconfield>
+            <div class="mt-1 text-sm text-red-500" *ngIf="loginForm.get('password')?.touched ">
+              <span *ngIf="loginForm.get('password')?.errors?.['required']">
+                Le mot de passe est requis.
+              </span>
+            </div>
           </div>
 
           <!-- Démo -->

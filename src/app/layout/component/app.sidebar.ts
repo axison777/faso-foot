@@ -40,6 +40,13 @@ import { CommonModule } from '@angular/common';
       --surface-hover: #004d40;
     }
 
+    /* Sidebar de base  confilt*/
+    // .layout-sidebar {
+    //   position: fixed;
+    //   top: 0px; /* sous le topbar */
+    //   left: 0;
+    //   width: 280px;
+    //   height: calc(100vh );
     /* Sidebar */
     .layout-sidebar {
       position: fixed;
@@ -79,6 +86,14 @@ import { CommonModule } from '@angular/common';
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    /* Container pour les logos avec séparateur  conflit*/
+    // .logo-container {
+    //   display: flex;
+    //   align-items: center;
+    //   justify-content: center;
+    //   gap: 0.75rem;
+    //   margin-bottom: 1rem;
+    //   width: 100%;
     /* Container uniquement pour FBF */
     .logo-container {
       display: flex;

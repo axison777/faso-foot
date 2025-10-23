@@ -286,7 +286,7 @@ export class PlayerDetailsComponent implements OnInit {
     this.loading = true;
     this.playerService.show(id).subscribe({
       next: (res: any) => {
-        this.player = res?.data.player;
+        this.player = res?.player;
         this.loading = false;
       },
       error: () => {
@@ -539,6 +539,7 @@ export class PlayerDetailsComponent implements OnInit {
     this.contractForm.markAllAsTouched();
     return;
   }
+  this.loadingForm = true;
 
   const formValue = this.contractForm.value;
 
@@ -699,13 +700,20 @@ removeClause(index: number) {
 }
 
 loadTeams() {
+    this.loading = true;
   this.equipeService.getAll().subscribe({
     next: (res: any) => {
-      this.teams = res?.data?.teams || [];
+        console.log(res);
+      this.teams = res || [];
+      this.teams?.forEach((team: Team) => {
+          team.full_name= team?.abbreviation + ' ' + (team?.category?.name || '');
+      })
+        this.loading = false;
 
     },
     error: (err) => {
       console.error('Erreur lors du chargement des équipes', err);
+        this.loading = false;
     }
   });}
 

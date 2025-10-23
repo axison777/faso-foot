@@ -1,0 +1,598 @@
+.players-page {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.header-content h1 {
+    margin: 0 0 0.5rem 0;
+    color: #1a1a1a;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.header-content p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 1.1rem;
+}
+
+/* Barre d'Action et de Filtrage */
+.filters-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+}
+
+.search-and-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.search-container {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-container i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    z-index: 1;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+
+    &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.add-player-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+
+    &:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+}
+
+.export-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+    }
+}
+
+.quick-filters {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: end;
+}
+
+.filter-group h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.filter-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 20px;
+    background: white;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        transform: translateY(-1px);
+    }
+
+    &.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    &.injured.active {
+        background: #f59e0b;
+        border-color: #f59e0b;
+    }
+
+    &.suspended.active {
+        background: #ef4444;
+        border-color: #ef4444;
+    }
+
+    &.contract-ending.active {
+        background: #6b7280;
+        border-color: #6b7280;
+    }
+
+    &.optimal-form.active {
+        background: #10b981;
+        border-color: #10b981;
+    }
+
+    i {
+        font-size: 0.875rem;
+    }
+}
+
+.position-dropdown {
+    min-width: 200px;
+}
+
+/* Tableau des Joueurs */
+.players-table-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f8fafc;
+
+    h3 {
+        margin: 0;
+        color: #1a1a1a;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #f3f4f6;
+        color: #374151;
+    }
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.players-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+        background: #f8fafc;
+        color: #374151;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    td {
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle;
+    }
+
+    tr {
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: #f8fafc;
+        }
+
+        &.injured {
+            background: #fef3c7;
+        }
+
+        &.suspended {
+            background: #fecaca;
+        }
+
+        &.contract-ending {
+            background: #f3f4f6;
+        }
+    }
+}
+
+.jersey-number {
+    text-align: center;
+}
+
+.jersey-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #3b82f6;
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.player-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    border: 2px solid #e5e7eb;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.avatar-placeholder {
+    font-weight: 700;
+    color: #6b7280;
+    font-size: 1.1rem;
+}
+
+.player-details {
+    flex: 1;
+}
+
+.player-name {
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 0.25rem;
+}
+
+.player-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.status-active {
+        color: #10b981;
+    }
+
+    &.status-injured {
+        color: #f59e0b;
+    }
+
+    &.status-suspended {
+        color: #ef4444;
+    }
+
+    &.status-tired {
+        color: #6b7280;
+    }
+}
+
+.age {
+    text-align: center;
+}
+
+.age-value {
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 1.1rem;
+}
+
+.birth-date {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.position {
+    text-align: center;
+}
+
+.position-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+
+    &.position-defender {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    &.position-midfielder {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    &.position-forward {
+        background: #fecaca;
+        color: #dc2626;
+    }
+
+    &.position-goalkeeper {
+        background: #e5e7eb;
+        color: #374151;
+    }
+}
+
+.stats {
+    text-align: center;
+}
+
+.stats-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+
+    i {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+}
+
+.stat-separator {
+    color: #9ca3af;
+    font-weight: 600;
+}
+
+.cards-info {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.fitness {
+    text-align: center;
+}
+
+.fitness-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.fitness-bar {
+    width: 80px;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.fitness-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+
+    &.fitness-excellent {
+        background: #10b981;
+    }
+
+    &.fitness-good {
+        background: #84cc16;
+    }
+
+    &.fitness-fair {
+        background: #f59e0b;
+    }
+
+    &.fitness-poor {
+        background: #ef4444;
+    }
+}
+
+.fitness-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.actions {
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: white;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    &.details:hover {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    &.edit:hover {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    &.delete:hover {
+        background: #fecaca;
+        color: #dc2626;
+    }
+}
+
+.empty-message {
+    text-align: center;
+    padding: 3rem;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: #6b7280;
+
+    i {
+        font-size: 3rem;
+        color: #9ca3af;
+    }
+
+    h4 {
+        margin: 0;
+        color: #374151;
+    }
+
+    p {
+        margin: 0;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .players-page {
+        padding: 1rem;
+    }
+
+    .search-and-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action-buttons {
+        justify-content: center;
+    }
+
+    .quick-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-tags {
+        justify-content: center;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+}

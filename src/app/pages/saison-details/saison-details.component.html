@@ -21,7 +21,7 @@
         <p-accordion-panel value="{{i}}" *ngFor="let day of getMatchdays() index as i" >
             <p-accordion-header>{{day.label}}</p-accordion-header>
             <p-accordion-content>
-                          <div class="cards-grid">
+<div class="cards-grid">
 <p-card class="match-card" *ngFor="let match of day.matches">
   <div class="match-teams">
     <div class="team-row">
@@ -107,7 +107,7 @@
   <ng-template pTemplate="body" let-team>
     <tr>
       <td class="text-center">{{getPositionLabel(team.position) || team.position }}</td>
-      <td class="text-left font-medium">{{ team.team_name }}</td>
+      <td class="font-medium text-left">{{ team.team_name }}</td>
       <td class="text-center">{{ team.matches_played }}</td>
       <td class="text-center">{{ team.wins }}</td>
       <td class="text-center">{{ team.draws }}</td>
@@ -115,12 +115,12 @@
       <td class="text-center">{{ team.goals_for }}</td>
       <td class="text-center">{{ team.goals_against }}</td>
       <td class="text-center">{{ team.goals_for - team.goals_against }}</td>
-      <td class="text-center font-bold">{{ team.points }}</td>
+      <td class="font-bold text-center">{{ team.points }}</td>
       <td>
-        <div class="flex gap-1 justify-center">
+        <div class="flex justify-center gap-1">
           <ng-container *ngFor="let r of team.last_5_results">
             <span
-              class="mini-badge w-6 h-6 flex items-center justify-center rounded text-xs font-bold text-white"
+              class="flex items-center justify-center w-6 h-6 text-xs font-bold text-white rounded mini-badge"
               [ngClass]="{
                 'bg-green-600 text-white': r === 'W',
                 'bg-gray-400 text-white': r === 'D',
@@ -247,12 +247,12 @@
         <p-step-panel [value]="1">
         <ng-template #content let-activateCallback="activateCallback">
             <!-- Score principal -->
-  <div class="flex justify-between items-center gap-8 mb-6">
+  <div class="flex items-center justify-between gap-8 mb-6">
     <div class="flex flex-col items-center gap-2">
       <img
         [src]="selectedMatch?.team1_logo"
         *ngIf="selectedMatch?.team1_logo; else team1ph"
-        class=" h-16 w-16 rounded-full object-cover"
+        class="object-cover w-16 h-16 rounded-full "
       />
       <ng-template #team1ph>
             <div class="big-team-logo placeholder" [style.background-color]="getTeamColor(selectedMatch?.team1)">
@@ -264,7 +264,7 @@
         formControlName="home_score"
         min="0"
         max="99"
-        class=" text-center"
+        class="text-center "
       />
     </div>
 
@@ -274,7 +274,7 @@
       <img
         [src]="selectedMatch?.team2_logo"
         *ngIf="selectedMatch?.team2_logo; else team2ph"
-        class=" h-16 rounded-full object-cover"
+        class="object-cover h-16 rounded-full "
       />
       <ng-template #team2ph>
             <div class="big-team-logo placeholder w-50 h-50" [style.background-color]="getTeamColor(selectedMatch?.team2)">
@@ -286,14 +286,14 @@
         formControlName="away_score"
         min="0"
         max="99"
-        class=" text-center"
+        class="text-center "
       />
     </div>
   </div>
 
   <!-- Type de résultat -->
-  <div class="mt-4 grid justify-center text-center">
-    <h5 class="font-semibold mb-1"> Fin du match </h5>
+  <div class="grid justify-center mt-4 text-center">
+    <h5 class="mb-1 font-semibold"> Fin du match </h5>
     <p-select
       [options]="resultTypes"
       optionLabel="label"
@@ -304,9 +304,9 @@
   </div>
 
   <!-- Détails des scores -->
-<div class="mt-6 grid grid-cols-1 gap-4">
-  <div class="border rounded p-3">
-    <h5 class="font-semibold mb-2">Score à la mi-temps</h5>
+<div class="grid grid-cols-1 gap-4 mt-6">
+  <div class="p-3 border rounded">
+    <h5 class="mb-2 font-semibold">Score à la mi-temps</h5>
     <div class="flex items-center justify-center gap-3">
       <p-inputNumber
         formControlName="halftime_home_score"
@@ -326,8 +326,8 @@
     </div>
   </div>
 
-  <div *ngIf="resultForm.get('result_type')?.value === 'EXTRA_TIME' || resultForm.get('result_type')?.value === 'PENALTIES'" class="border rounded p-3">
-    <h5 class="font-semibold mb-2">Score après les prolongations</h5>
+  <div *ngIf="resultForm.get('result_type')?.value === 'EXTRA_TIME' || resultForm.get('result_type')?.value === 'PENALTIES'" class="p-3 border rounded">
+    <h5 class="mb-2 font-semibold">Score après les prolongations</h5>
     <div class="flex items-center justify-center gap-3">
       <p-inputNumber
         formControlName="extra_time_home_score"
@@ -347,8 +347,8 @@
     </div>
   </div>
 
-  <div *ngIf="resultForm.get('result_type')?.value === 'PENALTIES'" class="border rounded p-3">
-    <h5 class="font-semibold mb-2">Score après les tirs au but</h5>
+  <div *ngIf="resultForm.get('result_type')?.value === 'PENALTIES'" class="p-3 border rounded">
+    <h5 class="mb-2 font-semibold">Score après les tirs au but</h5>
     <div class="flex items-center justify-center gap-3">
       <p-inputNumber
         formControlName="penalty_home_score"
@@ -370,7 +370,7 @@
 </div>
 
   <!-- Navigation -->
-  <div class="mt-6 flex justify-end">
+  <div class="flex justify-end mt-6">
     <p-button label="Suivant" (onClick)="goToStep(2)"></p-button>
   </div>
           </ng-template>
@@ -383,12 +383,12 @@
             <div
   *ngFor="let ev of events.controls; let i = index"
   [formGroupName]="i"
-  class="p-4 border rounded-lg flex flex-col gap-4"
+  class="flex flex-col gap-4 p-4 border rounded-lg"
 >
   <!-- Ligne 1 -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
     <div class="flex flex-col">
-      <label class=" font-medium mb-1">Type</label>
+      <label class="mb-1 font-medium ">Type</label>
       <p-select
         [options]="eventTypes"
         optionLabel="label"
@@ -399,20 +399,20 @@
     </div>
 
     <div class="flex flex-col">
-      <label class="font-medium mb-1">Minute</label>
+      <label class="mb-1 font-medium">Minute</label>
       <p-inputnumber formControlName="minute" class="w-full" />
     </div>
 
     <div class="flex flex-col">
-      <label class="font-medium mb-1">Temps d'arrêt (mn)  </label>
+      <label class="mb-1 font-medium">Temps d'arrêt (mn)  </label>
       <p-inputnumber formControlName="stoppage" class="w-full" />
     </div>
   </div>
 
   <!-- Ligne 2 -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
     <div class="flex flex-col">
-      <label class="font-medium mb-1">Équipe</label>
+      <label class="mb-1 font-medium">Équipe</label>
       <p-select
         [options]="getTeamsOptions()"
         optionLabel="label"
@@ -423,7 +423,7 @@
     </div>
 
     <div class="flex flex-col">
-      <label class="font-medium mb-1">Joueur 1</label>
+      <label class="mb-1 font-medium">Joueur 1</label>
       <p-select
       [filter]="true"
       filterBy="fullname"
@@ -436,7 +436,7 @@
     </div>
 
     <div class="flex flex-col">
-      <label class="font-medium mb-1">Joueur 2</label>
+      <label class="mb-1 font-medium">Joueur 2</label>
       <p-select
       [filter]="true"
       filterBy="fullname"
@@ -450,9 +450,9 @@
   </div>
 
   <!-- Ligne but -->
-  <div *ngIf="ev.get('type')?.value === 'GOAL'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  <div *ngIf="ev.get('type')?.value === 'GOAL'" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
     <div class="flex flex-col">
-      <label class=" font-medium mb-1">Type de but</label>
+      <label class="mb-1 font-medium ">Type de but</label>
       <p-select
         [options]="goalTypeOptions || []"
         optionLabel="label"
@@ -464,9 +464,9 @@
   </div>
 
   <!-- Ligne carton -->
-  <div *ngIf="ev.get('type')?.value === 'CARD'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  <div *ngIf="ev.get('type')?.value === 'CARD'" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
     <div class="flex flex-col">
-      <label class=" font-medium mb-1">Type de carton</label>
+      <label class="mb-1 font-medium ">Type de carton</label>
       <p-select
         [options]="cardTypeOptions || []"
         optionLabel="label"
@@ -476,7 +476,7 @@
       ></p-select>
     </div>
     <div class="flex flex-col">
-      <label class="font-medium mb-1">Raison</label>
+      <label class="mb-1 font-medium">Raison</label>
       <input
       pInputText
         formControlName="card_reason"
@@ -507,7 +507,7 @@
             </div>
           </div>
 
-           <div class="mt-4 flex justify-between">
+           <div class="flex justify-between mt-4">
             <p-button severity="secondary" label="Précédent" (onClick)="goToStep(1)"></p-button>
             <p-button label="Valider" (onClick)="saveResult()"></p-button>
           </div>
@@ -522,7 +522,7 @@
                           <h3 class="mb-4">Résumé du match</h3>
           <pre>{{ resultForm.value | json }}</pre>
 
-          <div class="mt-4 flex justify-between">
+          <div class="flex justify-between mt-4">
             <p-button label="Précédent" (onClick)="goToStep(2)"></p-button>
             <p-button label="Valider" (onClick)="saveResult()"></p-button>
           </div>
@@ -543,13 +543,13 @@
   >
     <!-- HEADER AVEC SCORE -->
     <ng-template pTemplate="header">
-      <div class="flex items-center justify-center gap-6 w-full">
+      <div class="flex items-center justify-center w-full gap-6">
         <div class="flex flex-col items-center">
-          <img [src]="match.team_one.logo" alt="" class="w-12 h-12 object-contain" />
+          <img [src]="match.team_one.logo" alt="" class="object-contain w-12 h-12" />
           <span class="font-semibold">{{ match.team_one.abbreviation }}</span>
         </div>
 
-        <div class="text-2xl font-bold flex items-center gap-2">
+        <div class="flex items-center gap-2 text-2xl font-bold">
           <span [ngClass]="getScoreClass(match.result.home_score, match.result.away_score)">
             {{ match.result.home_score }}
           </span>
@@ -560,7 +560,7 @@
         </div>
 
         <div class="flex flex-col items-center">
-          <img [src]="match.team_two.logo" alt="" class="w-12 h-12 object-contain" />
+          <img [src]="match.team_two.logo" alt="" class="object-contain w-12 h-12" />
           <span class="font-semibold">{{ match.team_two.abbreviation }}</span>
         </div>
       </div>
@@ -570,7 +570,7 @@
     <p-tabView>
       <!-- Résumé -->
       <p-tabPanel header="Résumé">
-        <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="grid grid-cols-2 gap-6 p-4 text-center md:grid-cols-4">
           <div>
             <div class="text-sm text-gray-500">Stade</div>
             <div class="font-medium">{{ match.stadium.name }}</div>
@@ -591,7 +591,7 @@
 
         <p-divider></p-divider>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="grid grid-cols-2 gap-6 text-center md:grid-cols-4">
           <div>
             <div class="text-sm text-gray-500">Mi-temps</div>
             <div class="font-semibold">
@@ -633,11 +633,11 @@
 
       <!-- Équipes -->
           <p-tabPanel header="Équipes">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+      <div class="grid grid-cols-1 gap-6 p-4 md:grid-cols-2">
 
         <!-- Équipe 1 -->
         <div>
-          <h3 class="font-bold mb-2">{{ match.team_one.abbreviation }}</h3>
+          <h3 class="mb-2 font-bold">{{ match.team_one.abbreviation }}</h3>
 
           <!-- Titulaires -->
           <h4 class="mt-2 mb-1">Titulaires</h4>
@@ -657,7 +657,7 @@
                 <td>
                   {{ player.first_name }} {{ player.last_name }}
                   <span *ngIf="match.team_one_callup.captain_id === player.player_id"
-                        class="text-white fw-bold ml-1 bg-red-500 px-1">C</span>
+                        class="px-1 ml-1 text-white bg-red-500 fw-bold">C</span>
                 </td>
                 <td>{{ getPositionLabel(player.position) || player.position }}</td>
               </tr>
@@ -682,7 +682,7 @@
                 <td>
                   {{ player.first_name }} {{ player.last_name }}
                   <span *ngIf="match.team_two_callup.captain_id === player.player_id"
-                        class="text-white fw-bold ml-1 bg-red-500 px-1">C</span>
+                        class="px-1 ml-1 text-white bg-red-500 fw-bold">C</span>
                 </td>
                 <td>{{ getPositionLabel(player.position) || player.position }}</td>
               </tr>
@@ -692,7 +692,7 @@
 
         <!-- Équipe 2 -->
         <div>
-          <h3 class="font-bold mb-2">{{ match.team_two.abbreviation }}</h3>
+          <h3 class="mb-2 font-bold">{{ match.team_two.abbreviation }}</h3>
 
           <!-- Titulaires -->
           <h4 class="mt-2 mb-1">Titulaires</h4>
@@ -712,7 +712,7 @@
                 <td>
                   {{ player.first_name }} {{ player.last_name }}
                   <span *ngIf="player.is_captain"
-                        class="text-white fw-bold ml-1 bg-red-500 px-1">C</span>
+                        class="px-1 ml-1 text-white bg-red-500 fw-bold">C</span>
                 </td>
                 <td>{{ getPositionLabel(player.position) || player.position }}</td>
               </tr>
@@ -737,7 +737,7 @@
                 <td>
                   {{ player.first_name }} {{ player.last_name }}
                   <span *ngIf="player.is_captain"
-                        class="text-white fw-bold ml-1 bg-red-500 px-1">C</span>
+                        class="px-1 ml-1 text-white bg-red-500 fw-bold">C</span>
                 </td>
                 <td>{{ getPositionLabel(player.position) || player.position }}</td>
               </tr>
@@ -757,21 +757,21 @@
     (period.key === 'EXTRA_TIME' && (match.result_type === 'EXTRA_TIME' || match.result_type === 'PENALTIES')) ||
     (period.key === 'PENALTIES' && match.result_type === 'PENALTIES')
   ">
-            <h4 class="font-semibold mb-2">{{ period.label }}</h4>
+            <h4 class="mb-2 font-semibold">{{ period.label }}</h4>
             <div class="space-y-2">
 
-      <div *ngFor="let ev of getEventsByPeriod(period.key)" class="event-card flex items-center gap-3 p-2 rounded border">
+      <div *ngFor="let ev of getEventsByPeriod(period.key)" class="flex items-center gap-3 p-2 border rounded event-card">
   <span class="minute">{{ ev.minute }}'</span>
 
   <ng-container [ngSwitch]="ev.type">
-    <span *ngSwitchCase="'GOAL'" ><i class="custom-icon ball text-green-600 "></i></span>
+    <span *ngSwitchCase="'GOAL'" ><i class="text-green-600 custom-icon ball "></i></span>
     <span *ngSwitchCase="'CARD'" [ngClass]="{'yellow': ev.card_type==='YELLOW', 'red': ev.card_type==='RED'}"></span>
 
-    <span *ngSwitchCase="'SUBSTITUTION'" class="badge sub"><i class="custom-icon swap text-gray-500"></i></span>
+    <span *ngSwitchCase="'SUBSTITUTION'" class="badge sub"><i class="text-gray-500 custom-icon swap"></i></span>
   </ng-container>
 
   <span class="player">{{ ev.player.first_name }} {{ ev.player.last_name }}</span>
-  <span class="team text-gray-500">{{ ev.team_name }}</span>
+  <span class="text-gray-500 team">{{ ev.team_name }}</span>
 </div>
 
 
@@ -782,21 +782,21 @@
       </p-tabPanel> -->
     <p-tabPanel header="Événements">
   <div class="p-4 space-y-6">
-    <div *ngFor="let ev of match.events" class="event-card flex items-center gap-3 p-2 rounded border">
+    <div *ngFor="let ev of match.events" class="flex items-center gap-3 p-2 border rounded event-card">
       <span class="minute">{{ ev.minute }}'</span>
 
       <ng-container [ngSwitch]="ev.type">
         <span *ngSwitchCase="'GOAL'">
-          <i class="custom-icon ball text-green-600"></i>
+          <i class="text-green-600 custom-icon ball"></i>
         </span>
         <span *ngSwitchCase="'CARD'" [ngClass]="{'yellow': ev.card_type==='YELLOW', 'red': ev.card_type==='RED'}"></span>
         <span *ngSwitchCase="'SUBSTITUTION'" class="badge sub">
-          <i class="custom-icon swap text-gray-500"></i>
+          <i class="text-gray-500 custom-icon swap"></i>
         </span>
       </ng-container>
 
       <span class="player">{{ ev?.player_name }} </span>
-      <span class="team text-gray-500">{{ ev.team_name }}</span>
+      <span class="text-gray-500 team">{{ ev.team_name }}</span>
       <span class="text-gray-500">{{ (ev?.secondary_player_name)}}</span>
     </div>
   </div>

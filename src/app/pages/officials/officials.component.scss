@@ -321,4 +321,18 @@ table.custom-table {
     font-size: 0.75rem;
     padding: 6px 8px;
   }
+
+  .error {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
+}
+
+input.ng-invalid.ng-touched,
+p-select.ng-invalid.ng-touched .p-dropdown,
+p-datepicker.ng-invalid.ng-touched .p-inputtext {
+  border: 1px solid red !important;
+}
+
 }

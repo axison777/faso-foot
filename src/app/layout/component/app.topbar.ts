@@ -23,6 +23,8 @@ import { UserService } from '../../service/user.service';
     CommonModule,
     StyleClassModule,
     MenuModule,
+//     TieredMenuModule
+//   ],
     TieredMenuModule,
     DialogModule,
     InputTextModule,
@@ -221,7 +223,7 @@ export class AppTopbar {
     private messageService: MessageService,
     private userService: UserService
   ) {}
-  
+
   ngOnInit(): void {
     this.user = this.authService.currentUser;
     this.changePassForm = this.fb.group({
@@ -241,7 +243,7 @@ export class AppTopbar {
         command: () => this.logout()
       }
     ];
- 
+
   }
 
   openChangePassword(): void {
@@ -272,6 +274,34 @@ export class AppTopbar {
     });
   }
 
+//   openChangePassword(): void {
+//     this.showProfile = false;
+//     this.showChangePass = true;
+//   }
+
+//   submitChangePassword(): void {
+//     if (this.changePassForm.invalid) {
+//       this.changePassForm.markAllAsTouched();
+//       this.messageService.add({ severity: 'warn', summary: 'Formulaire invalide', detail: 'Veuillez corriger les erreurs.' });
+//       return;
+//     }
+//     const { current_password, new_password, new_password_confirmation } = this.changePassForm.value as any;
+//     const token = this.authService.token || '';
+//     this.loading = true;
+//     this.userService.resetPassword({ token, current_password, new_password, new_password_confirmation }).subscribe({
+//       next: (res) => {
+//         this.messageService.add({ severity: 'success', summary: 'Succès', detail: res.message || 'Mot de passe changé avec succès.' });
+//         this.showChangePass = false;
+//         this.changePassForm.reset();
+//       },
+//       error: (err) => {
+//         const msg = err?.error?.message || 'Erreur lors du changement de mot de passe.';
+//         this.messageService.add({ severity: 'error', summary: 'Erreur', detail: msg });
+//       },
+//       complete: () => { this.loading = false; }
+//     });
+//   }
+
   logout(): void {
     // log out logic (à adapter)
     this.authService.logout();
@@ -280,6 +310,8 @@ export class AppTopbar {
 
   getUserFullName(): string {
   const user = this.authService.user();
+ // console.log(user);
+
   return user ? `${user.first_name} ${user.last_name}` : '';
 }
 

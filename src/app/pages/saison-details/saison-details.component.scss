@@ -23,16 +23,29 @@ $green: rgb(50,145,87);
 
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 12px;
+  align-items: stretch; // 🔑 force les enfants à s’étirer en hauteur
+  margin-top: 10px;
+  row-gap: 25px;
+}
 
 .match-card {
-  margin-bottom: 1rem;
+  height: 100% !important; // 🔑 prend toute la hauteur de la cellule
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 0; // plus besoin, le gap gère l'espacement
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1),0 1px 2px -1px rgba(0,0,0,0.1);
+
+  border-radius: 12px;
+
 
   .match-teams {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    //gap: 0.5rem;
+    padding-bottom: 10px;
   }
 
   .team-row {
@@ -57,18 +70,22 @@ $green: rgb(50,145,87);
     }
   }
 
+  .match-meta {
+    padding-top: 0;
+    font-size: 0.85rem;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+  }
+
   .match-actions {
     margin-top: 0.75rem;
     display: flex;
     gap: 0.5rem;
     justify-content: center;
   }
-}
-
-
-
-
-
 }
 
 p-table {
@@ -263,7 +280,6 @@ p-table {
   color: #3b82f6;
 }
 .yellow {
-    
     padding: 8px;
   background-color: #facc15;
 }

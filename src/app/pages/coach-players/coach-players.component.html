@@ -1,0 +1,218 @@
+<div class="players-page">
+    <!-- En-tête de la page -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Effectif de l'Équipe</h1>
+            <p>Gérez les joueurs de votre équipe</p>
+        </div>
+    </div>
+
+    <!-- Barre d'Action et de Filtrage -->
+    <div class="filters-section">
+        <div class="search-and-actions">
+            <div class="search-container">
+                <i class="pi pi-search"></i>
+                <input
+                    type="text"
+                    [(ngModel)]="searchTerm"
+                    (input)="filterPlayers()"
+                    placeholder="Rechercher un joueur..."
+                    class="search-input">
+            </div>
+
+            <div class="action-buttons">
+                <button class="add-player-btn" (click)="addPlayer()">
+                    <i class="pi pi-plus"></i>
+                    Ajouter un joueur
+                </button>
+                <button class="export-btn" (click)="exportToSheets()">
+                    <i class="pi pi-file-excel"></i>
+                    Exporter vers Sheets
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtres Rapides -->
+        <div class="quick-filters">
+            <div class="filter-group">
+                <h4>Filtres Rapides</h4>
+                <div class="filter-tags">
+                    <button class="filter-tag"
+                            [class.active]="selectedFilters.includes('ALL')"
+                            (click)="toggleFilter('ALL')">
+                        Tous
+                    </button>
+                    <button class="filter-tag injured"
+                            [class.active]="selectedFilters.includes('INJURED')"
+                            (click)="toggleFilter('INJURED')">
+                        <i class="pi pi-heart"></i>
+                        Blessés
+                    </button>
+                    <button class="filter-tag suspended"
+                            [class.active]="selectedFilters.includes('SUSPENDED')"
+                            (click)="toggleFilter('SUSPENDED')">
+                        <i class="pi pi-ban"></i>
+                        Suspendus
+                    </button>
+                    <button class="filter-tag contract-ending"
+                            [class.active]="selectedFilters.includes('CONTRACT_ENDING')"
+                            (click)="toggleFilter('CONTRACT_ENDING')">
+                        <i class="pi pi-clock"></i>
+                        Fin de Contrat
+                    </button>
+                    <button class="filter-tag optimal-form"
+                            [class.active]="selectedFilters.includes('OPTIMAL_FORM')"
+                            (click)="toggleFilter('OPTIMAL_FORM')">
+                        <i class="pi pi-star"></i>
+                        Forme Optimale
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h4>Position</h4>
+                <p-dropdown
+                    [options]="positionOptions"
+                    [(ngModel)]="selectedPosition"
+                    (onChange)="filterPlayers()"
+                    placeholder="Toutes les positions"
+                    class="position-dropdown">
+                </p-dropdown>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des Joueurs -->
+    <div class="players-table-section">
+        <div class="table-header">
+            <h3>Effectif ({{ filteredPlayers.length }} joueurs)</h3>
+            <div class="table-actions">
+                <button class="action-btn" (click)="refreshPlayers()">
+                    <i class="pi pi-refresh"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <p-table
+                [value]="filteredPlayers"
+                [paginator]="true"
+                [rows]="10"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} joueurs"
+                [rowsPerPageOptions]="[5, 10, 25, 50]"
+                styleClass="players-table">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 60px">#</th>
+                        <th style="width: 200px">Joueur & Photo</th>
+                        <th style="width: 80px">Âge</th>
+                        <th style="width: 100px">Position</th>
+                        <th style="width: 120px">Stats (B/PD)</th>
+                        <th style="width: 120px">Forme</th>
+                        <th style="width: 100px">Actions</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-player let-rowIndex="rowIndex">
+                    <tr [ngClass]="getRowClass(player)">
+                        <td class="jersey-number">
+                            <span class="jersey-badge">{{ player.jersey_number }}</span>
+                        </td>
+
+                        <td class="player-info">
+                            <div class="player-avatar">
+                                <img *ngIf="player.photo"
+                                     [src]="player.photo"
+                                     [alt]="player.first_name + ' ' + player.last_name">
+                                <div *ngIf="!player.photo" class="avatar-placeholder">
+                                    {{ getInitials(player.first_name, player.last_name) }}
+                                </div>
+                            </div>
+                            <div class="player-details">
+                                <div class="player-name">{{ player.first_name }} {{ player.last_name }}</div>
+                                <div class="player-status" [ngClass]="getStatusClass(player.status)">
+                                    {{ getStatusLabel(player.status) }}
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="age">
+                            <div class="age-value">{{ player.age }} ans</div>
+                            <div class="birth-date">{{ player.date_of_birth | date:'dd/MM/yyyy' }}</div>
+                        </td>
+
+                        <td class="position">
+                            <span class="position-badge" [ngClass]="getPositionClass(player.preferred_position)">
+                                {{ player.preferred_position }}
+                            </span>
+                        </td>
+
+                        <td class="stats">
+                            <div class="stats-container">
+                                <div class="stat-item">
+                                    <i class="pi pi-bullseye"></i>
+                                    <span>{{ player.statistics?.goals || 0 }}</span>
+                                </div>
+                                <div class="stat-separator">/</div>
+                                <div class="stat-item">
+                                    <i class="pi pi-send"></i>
+                                    <span>{{ player.statistics?.assists || 0 }}</span>
+                                </div>
+                            </div>
+                            <div class="cards-info">
+                                <span class="yellow-cards">{{ player.statistics?.yellow_cards || 0 }}🟨</span>
+                                <span class="red-cards">{{ player.statistics?.red_cards || 0 }}🟥</span>
+                            </div>
+                        </td>
+
+                        <td class="fitness">
+                            <div class="fitness-indicator" [ngClass]="getFitnessClass(player.fitness_level)">
+                                <div class="fitness-bar">
+                                    <div class="fitness-fill" [style.width.%]="getFitnessPercentage(player.fitness_level)"></div>
+                                </div>
+                                <span class="fitness-label">{{ getFitnessLabel(player.fitness_level) }}</span>
+                            </div>
+                        </td>
+
+                        <td class="actions">
+                            <div class="action-buttons">
+                                <button class="action-btn details" (click)="viewPlayerDetails(player)" title="Voir détails">
+                                    <i class="pi pi-eye"></i>
+                                </button>
+                                <button class="action-btn edit" (click)="editPlayer(player)" title="Modifier">
+                                    <i class="pi pi-pencil"></i>
+                                </button>
+                                <button class="action-btn delete" (click)="deletePlayer(player)" title="Supprimer">
+                                    <i class="pi pi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="7" class="empty-message">
+                            <div class="empty-state">
+                                <i class="pi pi-users"></i>
+                                <h4>Aucun joueur trouvé</h4>
+                                <p>Aucun joueur ne correspond à vos critères de recherche.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de détails du joueur -->
+<app-player-details-modal-v2
+    [(visible)]="showPlayerDetails"
+    [player]="selectedPlayer"
+    (editPlayerEvent)="onEditPlayer($event)">
+</app-player-details-modal-v2>
+
+<p-toast></p-toast>

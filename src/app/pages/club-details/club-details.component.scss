@@ -24,6 +24,8 @@ $green-dark: #0f7a32;
   }
 }
 
+
+
 /* Carte équipe */
 .team-card {
   background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,.06);
@@ -229,3 +231,8 @@ $green-dark: #0f7a32;
   .contract-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eef2f7; }
   .ec-list { list-style:none; padding:0; margin:0; }
   .empty { color:#94a3b8; }
+
+
+::ng-deep  .p-tablist-content{
+    overflow-x: auto !important;
+  }

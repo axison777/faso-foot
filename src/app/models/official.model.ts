@@ -1,3 +1,5 @@
+import { User } from "./user.model";
+
 export interface Specialization {
     id?: number;
     officialId?: string;
@@ -49,6 +51,12 @@ export interface Match {
 
 export interface Official {
     id?: string;
+    user: User;
+
+    // date_of_birth?: Date;
+    // birth_place?: string;
+    // nationality?: string;
+    phone?: string;
     first_name: string;
     last_name: string;
     date_of_birth?: Date;

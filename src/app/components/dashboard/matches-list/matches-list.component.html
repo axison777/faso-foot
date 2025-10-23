@@ -1,0 +1,34 @@
+<div class="toolbar">
+  <div class="left">
+    <app-competition-filter [competitions]="competitions" [(selectedId)]="competitionId" (selectedIdChange)="load()"></app-competition-filter>
+    <p-dropdown [options]="[{label: 'À jouer', value: 'UPCOMING'}, {label: 'Joués', value: 'PLAYED'}]" [(ngModel)]="status" (onChange)="load()"></p-dropdown>
+  </div>
+</div>
+
+<p-table [value]="rows()" [loading]="loading" [paginator]="true" [rows]="10">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>N°</th>
+      <th>Date</th>
+      <th>Heure</th>
+      <th>Adversaire</th>
+      <th>Stade</th>
+      <th>Résultat</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-row let-i="rowIndex">
+    <tr>
+      <td>{{ row.number || i + 1 }}</td>
+      <td>{{ row.scheduledAt | date:'dd/MM/yyyy' }}</td>
+      <td>{{ row.scheduledAt | date:'HH:mm' }}</td>
+      <td>{{ row.opponent?.name }} <span class="phase" *ngIf="row.phase"> - {{ row.phase }}</span></td>
+      <td>{{ row.stadium?.name }}</td>
+      <td>
+        <ng-container *ngIf="row.status==='PLAYED' && row.score; else dash">{{ row.score.home }} - {{ row.score.away }}</ng-container>
+        <ng-template #dash>-</ng-template>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<div *ngIf="!(rows()?.length) && !loading" class="empty">Aucun match</div>

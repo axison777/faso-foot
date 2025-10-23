@@ -40,4 +40,6 @@ export interface Team {
   status?:  "ACTIVE" | "INACTIVE" | "SUSPENDED" | "DISSOLVED";
   suspensions?: Suspension[]
 
+  full_name?: string
+
 }

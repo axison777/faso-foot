@@ -226,18 +226,18 @@
 
               &:first-child {
         border-top-left-radius: 12px;
-        width: 5%;
+        width:3%;
 
 
       }
       /* child 2 */
       &:nth-child(2) {
-          width: 65%;
+          width: 75%;
           text-align: left ! important;
       }
         &:not(:first-child) {
 
-            width: 30%;
+            width: 20%;
             text-align: center;
         }
 
@@ -483,11 +483,11 @@
       }
       /* child 2 */
     thead th:nth-child(2) {
-          width: 65%;
+          width: 75%;
       }
 
     thead th:last-child {
-      width: 35%;
+      width: 15%;
     }
   }
 
@@ -521,4 +521,37 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+
+
+.club-cell {
+  padding: 8px;
+}
+
+.club-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+   font-weight: 600;
+          color: #1e293b; /* Vert principal */
+          font-size: 1.05rem;
+}
+
+.club-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+}
+
+.club-logo.placeholder {
+  background-color: #e5e7eb; /* gris clair */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #6b7280; /* gris foncé */
+  font-weight: bold;
 }
