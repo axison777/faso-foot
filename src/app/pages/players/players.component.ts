@@ -218,9 +218,33 @@ export class PlayersComponent implements OnInit {
     this.loading = true;
     this.playerService.getAll().subscribe({
       next: (res: any) => {
-        // console.log(res);
+        console.log('=== DONNÉES JOUEURS REÇUES ===');
+        console.log('Nombre de joueurs:', res?.length || 0);
+        console.log('Premier joueur (toutes les données):', JSON.stringify(res?.[0], null, 2));
 
-        this.players = res || [];
+        // Construire l'URL de la photo si elle n'existe pas déjà
+        const players = (res || []).map((player: any) => {
+          // Si photo_url existe déjà, on l'utilise
+          if (player.photo_url) {
+            return player;
+          }
+          
+          // Sinon, on construit l'URL à partir de photo si elle existe
+          if (player.photo && !player.photo.startsWith('http')) {
+            // Si photo est un chemin relatif, on construit l'URL complète
+            player.photo_url = `http://192.168.11.121:8000/storage/${player.photo}`;
+          } else if (player.photo) {
+            // Si photo est déjà une URL complète
+            player.photo_url = player.photo;
+          }
+          
+          return player;
+        });
+        
+        console.log('Premier joueur après traitement:', players?.[0]);
+        console.log('Photo URL finale:', players?.[0]?.photo_url);
+
+        this.players = players;
         this.loading = false;
       },
       error: () => {

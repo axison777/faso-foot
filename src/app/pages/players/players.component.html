@@ -36,8 +36,8 @@
           <tr *ngFor="let p of filteredPlayers; let i = index">
             <td>{{ i + 1 }}</td>
             <td class="player-cell">
-              <div class="hidden avatar lg:block" [ngStyle]="{'background-image': p.photo_url ? 'url('+p.photo_url+')' : 'linear-gradient(135deg,#118c46,#118c46)'}">
-                <span *ngIf="!p.photo_url">{{ (p.first_name?.charAt(0) || '') + (p.last_name?.charAt(0) || '') }}</span>
+              <div class="avatar" [ngStyle]="{'background-image': p.photo_url ? 'url('+p.photo_url+')' : 'linear-gradient(135deg,#118c46,#118c46)'}">
+                <span *ngIf="!p.photo_url" class="avatar-initials">{{ (p.first_name?.charAt(0) || '') + (p.last_name?.charAt(0) || '') }}</span>
               </div>
               <div class="player-meta">
                 <div class="name">{{ p.first_name }} {{ p.last_name }}</div>

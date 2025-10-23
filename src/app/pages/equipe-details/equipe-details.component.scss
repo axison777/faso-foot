@@ -215,6 +215,14 @@ $green-dark: #0f7a32;
             padding: 16px 15px;
             vertical-align: middle;
             text-align: center;
+            
+            &.player-cell {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                justify-content: flex-start;
+                text-align: left;
+            }
         }
         .cell-strong {
             font-weight: 600;
@@ -225,6 +233,42 @@ $green-dark: #0f7a32;
             text-align: center;
             white-space: nowrap;
         }
+    }
+}
+
+.avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    border: 2px solid #e2e8f0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-initials {
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.player-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    
+    .name {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #1e293b;
     }
 }
 

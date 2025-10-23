@@ -366,7 +366,33 @@ export class EquipeDetailsComponent implements OnInit {
         this.loadingPlayers = true;
         this.playerService.getByTeamId(this.team_id!).subscribe({
             next: (data: any) => {
-                this.players = data || [];
+                console.log('=== JOUEURS DE L\'ÉQUIPE CHARGÉS ===');
+                console.log('Nombre de joueurs:', data?.length || 0);
+                console.log('Premier joueur (toutes les données):', JSON.stringify(data?.[0], null, 2));
+                
+                // Construire l'URL de la photo si elle n'existe pas déjà
+                const players = (data || []).map((player: any) => {
+                    // Si photo_url existe déjà, on l'utilise
+                    if (player.photo_url) {
+                        return player;
+                    }
+                    
+                    // Sinon, on construit l'URL à partir de photo si elle existe
+                    if (player.photo && !player.photo.startsWith('http')) {
+                        // Si photo est un chemin relatif, on construit l'URL complète
+                        player.photo_url = `${this.getApiBaseUrl()}/storage/${player.photo}`;
+                    } else if (player.photo) {
+                        // Si photo est déjà une URL complète
+                        player.photo_url = player.photo;
+                    }
+                    
+                    return player;
+                });
+                
+                console.log('Premier joueur après traitement:', players?.[0]);
+                console.log('Photo URL finale:', players?.[0]?.photo_url);
+                
+                this.players = players;
                 this.loadingPlayers = false;
             },
             error: () => {
@@ -378,6 +404,11 @@ export class EquipeDetailsComponent implements OnInit {
                 });
             }
         });
+    }
+    
+    getApiBaseUrl(): string {
+        // Récupère l'URL de base de l'API depuis l'environnement
+        return 'http://192.168.11.121:8000'; // ou environment.apiUrl sans '/api/v1'
     }
 
     // ---------- GETTERS ----------
