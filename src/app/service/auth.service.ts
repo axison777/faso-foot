@@ -5,10 +5,12 @@ import { User, Permission as UserPermission } from '../models/user.model';
 import { environment } from '../../environments/environment';
 
 interface LoginResponse {
-    data: {
+
+       data: {
         user: User;
         access_token: string;
-    };
+       }
+
 }
 
 @Injectable({ providedIn: 'root' })
@@ -42,7 +44,7 @@ export class AuthService {
   login(credentials: { email: string; password: string }): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(this.apiUrl + 'login', credentials).pipe(
       tap(response => {
-        console.log('🔐 [AUTH] Réponse complète du backend:', response);
+        console.log('🔐 [AUTH] Réponse complète du backend:', response.data);
         console.log('👤 [AUTH] User reçu:', response?.data?.user);
         console.log('🏷️ [AUTH] User ID:', response?.data?.user?.id);
         console.log('🏟️ [AUTH] Team ID:', response?.data?.user?.team_id);

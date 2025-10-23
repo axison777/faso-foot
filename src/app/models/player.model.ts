@@ -8,6 +8,7 @@ export interface Player {
   date_of_birth?: string; // format: date-time
   birth_place?: string;
   nationality?: string;
+  gender?: "MALE" | "FEMALE";
 
   phone?: string;
   email?: string; // format: email

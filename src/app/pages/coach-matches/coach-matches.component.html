@@ -28,10 +28,10 @@
             <label>Rechercher un adversaire</label>
             <span class="p-input-icon-left" style="width: 100%;">
               <i class="pi pi-search"></i>
-              <input 
-                type="text" 
-                pInputText 
-                [(ngModel)]="searchOpponent" 
+              <input
+                type="text"
+                pInputText
+                [(ngModel)]="searchOpponent"
                 (input)="onSearchChange()"
                 placeholder="Nom de l'équipe adverse..."
                 style="width: 100%;" />
@@ -40,11 +40,11 @@
 
           <div class="filter-item">
             <label>Statut</label>
-            <p-dropdown 
-              [options]="statusOptions" 
-              [(ngModel)]="selectedStatus" 
+            <p-dropdown
+              [options]="statusOptions"
+              [(ngModel)]="selectedStatus"
               (onChange)="onStatusChange()"
-              optionLabel="label" 
+              optionLabel="label"
               optionValue="value"
               placeholder="Statut">
             </p-dropdown>
@@ -52,11 +52,11 @@
 
           <div class="filter-item">
             <label>Période</label>
-            <p-dropdown 
-              [options]="periodOptions" 
-              [(ngModel)]="selectedPeriod" 
+            <p-dropdown
+              [options]="periodOptions"
+              [(ngModel)]="selectedPeriod"
               (onChange)="onPeriodChange()"
-              optionLabel="label" 
+              optionLabel="label"
               optionValue="value"
               placeholder="Période">
             </p-dropdown>
@@ -64,23 +64,25 @@
 
           <div class="filter-item">
             <label>Saison</label>
-            <p-dropdown 
-              [options]="seasons()" 
-              [(ngModel)]="selectedSeason" 
+            <p-dropdown
+              [options]="seasons()"
+              [(ngModel)]="selectedSeason"
               (onChange)="onSeasonChange()"
-              optionLabel="label" 
+              optionLabel="label"
               placeholder="Toutes les saisons"
-              [showClear]="true">
+              [showClear]="true"
+              [loading]="loadingSeasons()"
+              [disabled]="loadingSeasons()">
             </p-dropdown>
           </div>
 
           <div class="filter-item">
             <label>Compétition</label>
-            <p-dropdown 
-              [options]="competitions()" 
-              [(ngModel)]="selectedCompetition" 
+            <p-dropdown
+              [options]="competitions()"
+              [(ngModel)]="selectedCompetition"
               (onChange)="onCompetitionChange()"
-              optionLabel="name" 
+              optionLabel="name"
               placeholder="Toutes les compétitions"
               [showClear]="true">
             </p-dropdown>
@@ -88,27 +90,27 @@
 
           <div class="filter-item">
             <label>Trier par</label>
-            <p-dropdown 
-              [options]="sortOptions" 
-              [(ngModel)]="sortBy" 
+            <p-dropdown
+              [options]="sortOptions"
+              [(ngModel)]="sortBy"
               (onChange)="onSortChange()"
-              optionLabel="label" 
+              optionLabel="label"
               optionValue="value">
             </p-dropdown>
           </div>
 
           <div class="filter-actions">
-            <button 
-              pButton 
-              label="Réinitialiser" 
-              icon="pi pi-filter-slash" 
+            <button
+              pButton
+              label="Réinitialiser"
+              icon="pi pi-filter-slash"
               class="p-button-secondary"
               (click)="resetFilters()">
             </button>
-            <button 
-              pButton 
-              label="Actualiser" 
-              icon="pi pi-refresh" 
+            <button
+              pButton
+              label="Actualiser"
+              icon="pi pi-refresh"
               class="p-button-success"
               (click)="refreshMatches()">
             </button>
@@ -119,8 +121,8 @@
 
     <!-- Liste des matchs -->
     <div class="matches-list-section">
-      <h2><i class="pi pi-list"></i> Tous les Matchs ({{ filteredMatches().length }})</h2>
-      
+      <h2><i class="pi pi-list"></i> Tous les Matchs ({{ totalRecords() }})</h2>
+
       @if (filteredMatches().length === 0) {
         <div class="empty-state">
           <i class="pi pi-calendar-times"></i>
@@ -153,7 +155,7 @@
 
                 <div class="teams-compact">
                   <div class="team-row" [class.my-team]="match.isHome">
-                    <img [src]="match.team_one.logo || 'assets/default-team.png'" 
+                    <img [src]="match.team_one.logo || 'assets/default-team.png'"
                          [alt]="match.team_one.name" class="team-logo-sm" />
                     <span class="team-name">{{ match.team_one.abbreviation || match.team_one.name }}</span>
                     @if (match.isHome) {
@@ -162,7 +164,7 @@
                   </div>
 
                   <div class="team-row" [class.my-team]="!match.isHome">
-                    <img [src]="match.team_two.logo || 'assets/default-team.png'" 
+                    <img [src]="match.team_two.logo || 'assets/default-team.png'"
                          [alt]="match.team_two.name" class="team-logo-sm" />
                     <span class="team-name">{{ match.team_two.abbreviation || match.team_two.name }}</span>
                     @if (!match.isHome) {
@@ -194,10 +196,10 @@
                   }
                 </div>
 
-                <button 
-                  pButton 
-                  label="Détails" 
-                  icon="pi pi-arrow-right" 
+                <button
+                  pButton
+                  label="Détails"
+                  icon="pi pi-arrow-right"
                   class="p-button-text p-button-sm"
                   (click)="openMatchDetails(match)">
                 </button>
@@ -205,25 +207,97 @@
             </p-card>
           }
         </div>
+        <!-- Pagination Personnalisée avec Liens Laravel -->
+        <div class="custom-pagination-section">
+          <div class="pagination-controls">
+            <!-- Bouton Première Page -->
+            <button
+              pButton
+              type="button"
+              icon="pi pi-angle-double-left"
+              class="p-button-text p-button-rounded"
+              [disabled]="!hasFirstLink() || loadingFirst()"
+              [loading]="loadingFirst()"
+              [pTooltip]="'Première page'"
+              tooltipPosition="top"
+              (click)="goToFirstPage()">
+            </button>
+
+            <!-- Bouton Page Précédente -->
+            <button
+              pButton
+              type="button"
+              icon="pi pi-angle-left"
+              class="p-button-text p-button-rounded"
+              [disabled]="!hasPrevLink() || loadingPrev()"
+              [loading]="loadingPrev()"
+              [pTooltip]="'Page précédente'"
+              tooltipPosition="top"
+              (click)="goToPreviousPage()">
+            </button>
+
+            <!-- Affichage de la page actuelle -->
+            <span class="page-info">
+              Page {{ currentPage() + 1 }} sur {{ getTotalPages() }}
+              ({{ totalRecords() }} résultat{{ totalRecords() > 1 ? 's' : '' }})
+            </span>
+
+            <!-- Bouton Page Suivante -->
+            <button
+              pButton
+              type="button"
+              icon="pi pi-angle-right"
+              class="p-button-text p-button-rounded"
+              [disabled]="!hasNextLink() || loadingNext()"
+              [loading]="loadingNext()"
+              [pTooltip]="'Page suivante'"
+              tooltipPosition="top"
+              (click)="goToNextPage()">
+            </button>
+
+            <!-- Bouton Dernière Page -->
+            <button
+              pButton
+              type="button"
+              icon="pi pi-angle-double-right"
+              class="p-button-text p-button-rounded"
+              [disabled]="!hasLastLink() || loadingLast()"
+              [loading]="loadingLast()"
+              [pTooltip]="'Dernière page'"
+              tooltipPosition="top"
+              (click)="goToLastPage()">
+            </button>
+          </div>
+        </div>
+
+        <!-- Pagination Alternative avec PrimeNG (caché mais conservé) -->
+        <div class="hidden">
+          <p-paginator
+            [rows]="pageSize()"
+            [totalRecords]="totalRecords()"
+            [pageLinkSize]="5"
+            (onPageChange)="onPageChange($event)">
+          </p-paginator>
+        </div>
       }
     </div>
   }
 
   <!-- Modal des détails -->
-  <p-dialog 
-    [(visible)]="showDetailsModal" 
-    [modal]="true" 
+  <p-dialog
+    [(visible)]="showDetailsModal"
+    [modal]="true"
     [style]="{ width: '800px' }"
     [draggable]="false"
     [resizable]="false"
     header="Détails du Match">
-    
+
     @if (selectedMatch(); as match) {
       <div class="match-details-modal">
         <div class="modal-header">
           <div class="match-teams">
             <div class="team-detail home">
-              <img [src]="match.team_one.logo || 'assets/default-team.png'" 
+              <img [src]="match.team_one.logo || 'assets/default-team.png'"
                    [alt]="match.team_one.name" />
               <div class="team-text">
                 <h3>{{ match.team_one.name }}</h3>
@@ -244,7 +318,7 @@
                 <h3>{{ match.team_two.name }}</h3>
                 <span class="badge">{{ !match.isHome ? 'Mon Équipe' : 'Adversaire' }}</span>
               </div>
-              <img [src]="match.team_two.logo || 'assets/default-team.png'" 
+              <img [src]="match.team_two.logo || 'assets/default-team.png'"
                    [alt]="match.team_two.name" />
             </div>
           </div>
@@ -289,7 +363,7 @@
             <h4><i class="pi pi-flag"></i> Équipes</h4>
             <div class="teams-detail-grid">
               <div class="team-card">
-                <img [src]="match.team_one.logo || 'assets/default-team.png'" 
+                <img [src]="match.team_one.logo || 'assets/default-team.png'"
                      [alt]="match.team_one.name" />
                 <h5>{{ match.team_one.name }}</h5>
                 <p>{{ match.team_one.abbreviation }}</p>
@@ -298,7 +372,7 @@
                 }
               </div>
               <div class="team-card">
-                <img [src]="match.team_two.logo || 'assets/default-team.png'" 
+                <img [src]="match.team_two.logo || 'assets/default-team.png'"
                      [alt]="match.team_two.name" />
                 <h5>{{ match.team_two.name }}</h5>
                 <p>{{ match.team_two.abbreviation }}</p>
@@ -321,10 +395,10 @@
         </div>
 
         <div class="modal-footer">
-          <button 
-            pButton 
-            label="Fermer" 
-            icon="pi pi-times" 
+          <button
+            pButton
+            label="Fermer"
+            icon="pi pi-times"
             class="p-button-secondary"
             (click)="closeDetailsModal()">
           </button>

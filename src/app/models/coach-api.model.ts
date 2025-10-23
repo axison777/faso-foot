@@ -25,7 +25,7 @@ export interface CoachPlayer {
   license_number: string;
   status: 'ACTIVE' | 'INJURED' | 'SUSPENDED' | 'TIRED';
   photo?: string;
-  
+
   // Optional fields that might be added later
   fitness_level?: 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR';
   injury_type?: string;
@@ -34,7 +34,7 @@ export interface CoachPlayer {
   suspension_reason?: string;
   suspension_end_date?: string;
   contract_end_date?: string;
-  
+
   // Statistics
   statistics?: PlayerStatistics;
 }
@@ -59,7 +59,7 @@ export interface PlayerStatistics {
 /**
  * Statuts possibles d'un match (basés sur le backend)
  */
-export type MatchStatus = 
+export type MatchStatus =
   | 'not_started'
   | 'in_progress'
   | 'finished'
@@ -88,7 +88,7 @@ export interface CoachMatch {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  
+
   // Relations
   team_one: CoachTeam;
   team_two: CoachTeam;
@@ -249,7 +249,7 @@ export interface PlayerWithStats extends CoachPlayer {
  */
 export function getMatchStatusLabel(status: MatchStatus | undefined): string {
   if (!status) return 'Non défini';
-  
+
   const labels: Record<MatchStatus, string> = {
     'not_started': 'Non commencé',
     'planned': 'Planifié',
@@ -260,7 +260,7 @@ export function getMatchStatusLabel(status: MatchStatus | undefined): string {
     'postponed': 'Reporté',
     'cancelled': 'Annulé'
   };
-  
+
   return labels[status] || status;
 }
 
@@ -269,7 +269,7 @@ export function getMatchStatusLabel(status: MatchStatus | undefined): string {
  */
 export function getMatchStatusClass(status: MatchStatus | undefined): string {
   if (!status) return 'status-unknown';
-  
+
   const classes: Record<MatchStatus, string> = {
     'not_started': 'status-not-started',
     'planned': 'status-planned',
@@ -280,6 +280,34 @@ export function getMatchStatusClass(status: MatchStatus | undefined): string {
     'postponed': 'status-postponed',
     'cancelled': 'status-cancelled'
   };
-  
+
   return classes[status] || 'status-unknown';
 }
+
+// ============================================
+// PAGINATION MODELS
+// ============================================
+
+export interface PaginationMeta {
+  current_page: number;
+  per_page: number;
+  total: number;
+  last_page: number;
+  from: number;
+  to: number;
+}
+
+export interface PaginationLinks {
+  first: string | null;
+  last: string | null;
+  prev: string | null;
+  next: string | null;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
+  links: PaginationLinks;
+}
+
+export interface CoachMatchResponse extends PaginatedResponse<CoachMatch> {}
