@@ -43,7 +43,12 @@ export class EquipeService {
     }
 
     update(id?: string, equipe?: Partial<any>): Observable<any> {
-        return this.http.put<any>(`${this.apiUrl}/${id}`, equipe).pipe(map((res: any) => res?.data || res));
+        //we add _method=PUT to the body to make it work with the backend
+        if (equipe) {
+            equipe['_method'] = 'PUT';
+        }
+
+        return this.http.post<any>(`${this.apiUrl}/${id}`, equipe).pipe(map((res: any) => res?.data || res));
     }
 
     delete(id?: string): Observable<void> {

@@ -5,48 +5,39 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class PlayerService {
     apiUrl = environment.apiUrl + '/players';
 
-  constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {}
 
-  getAll(): Observable<any[]> {
-    return this.http.get<any>(this.apiUrl).pipe(
-      map((res: any) => res?.data?.players || [])
-    );
-  }
+    getAll(): Observable<any[]> {
+        return this.http.get<any>(this.apiUrl).pipe(map((res: any) => res?.data?.players || []));
+    }
 
-  create(player: Partial<any>): Observable<any> {
-    return this.http.post<any>(this.apiUrl, player).pipe(
-      map((res: any) => res?.data || res)
-    );
-  }
+    create(player: Partial<any>): Observable<any> {
+        return this.http.post<any>(this.apiUrl, player).pipe(map((res: any) => res?.data || res));
+    }
 
-  update(id: string, player: Partial<any>): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, player).pipe(
-      map((res: any) => res?.data || res)
-    );
-  }
+    update(id: string, player: Partial<any>): Observable<any> {
+        if (player) {
+            player['_method'] = 'PUT';
+        }
 
-  delete(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/delete/${id}`).pipe(
-      map((res: any) => res?.data || res)
-    );
-  }
+        return this.http.post<any>(`${this.apiUrl}/${id}`, player).pipe(map((res: any) => res?.data || res));
+    }
 
-  getByTeamId(teamId: string): Observable<any[]> {
-    return this.http.get<any>(`${environment.apiUrl}/teams/${teamId}/players`).pipe(
-      map((res: any) => res?.data?.players || [])
-    );
-  }
+    delete(id: string): Observable<any> {
+        return this.http.delete<any>(`${this.apiUrl}/delete/${id}`).pipe(map((res: any) => res?.data || res));
+    }
 
-  show(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/show/${id}`).pipe(
-      map((res: any) => res?.data || res)
-    );
-  }
+    getByTeamId(teamId: string): Observable<any[]> {
+        return this.http.get<any>(`${environment.apiUrl}/teams/${teamId}/players`).pipe(map((res: any) => res?.data?.players || []));
+    }
+
+    show(id: string): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/show/${id}`).pipe(map((res: any) => res?.data || res));
+    }
 }
