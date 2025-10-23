@@ -87,7 +87,7 @@ export class MatchSetupComponent implements OnInit {
         { label: 'Arbitre Principal', value: 'MAIN_REFEREE' },
         { label: 'Assistant 1', value: 'ASSISTANT_1' },
         { label: 'Assistant 2', value: 'ASSISTANT_2' },
-        { label: 'Quatrième Arbitre', value: 'FOURTH_REFEREE' },
+        { label: 'Quatrième Arbitre', value: 'FOURTH_OFFICIAL' },
         { label: 'Commissaire', value: 'COMMISSIONER' }
     ];
 
@@ -263,7 +263,7 @@ export class MatchSetupComponent implements OnInit {
         }
 
         const payload = {
-            reason: 'Désassignation par l\'organisateur' // Optionnel
+            reason: "Désassignation par l'organisateur" // Optionnel
         };
 
         this.officialService.unassign(this.matchId, officialId, payload).subscribe({
@@ -281,7 +281,7 @@ export class MatchSetupComponent implements OnInit {
                     summary: "Désassignation d'officiel",
                     detail: "Une erreur est survenue lors de la désassignation de l'officiel."
                 });
-                console.error("Erreur lors de la désassignation", error);
+                console.error('Erreur lors de la désassignation', error);
             }
         });
     }
@@ -407,7 +407,7 @@ export class MatchSetupComponent implements OnInit {
                 return 'Assistant 1';
             case 'ASSISTANT_2':
                 return 'Assistant 2';
-            case 'FOURTH_REFERE':
+            case 'FOURTH_OFFICIAL':
                 return 'Quatrième Arbitre';
             case 'COMMISSIONER':
                 return 'Commissaire';

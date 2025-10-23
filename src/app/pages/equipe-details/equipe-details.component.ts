@@ -179,11 +179,23 @@ export class EquipeDetailsComponent implements OnInit {
         }
     ];
 
+    // positionOptions = [
+    //     { label: 'Gardien', value: 'GOALKEEPER' },
+    //     { label: 'Défenseur', value: 'DEFENSE' },
+    //     { label: 'Milieu', value: 'MIDFIELD' },
+    //     { label: 'Attaquant', value: 'ATTACK' }
+    // ];
     positionOptions = [
-        { label: 'Gardien', value: 'GOALKEEPER' },
-        { label: 'Défenseur', value: 'DEFENSE' },
-        { label: 'Milieu', value: 'MIDFIELD' },
-        { label: 'Attaquant', value: 'ATTACK' }
+        { label: 'Gardien de but', value: 'GK' },
+        { label: 'Défenseur central', value: 'CB' },
+        { label: 'Arrière gauche', value: 'LB' },
+        { label: 'Arrière droit', value: 'RB' },
+        { label: 'Milieu défensif', value: 'CDM' },
+        { label: 'Milieu central', value: 'CM' },
+        { label: 'Milieu offensif', value: 'CAM' },
+        { label: 'Ailier gauche', value: 'LW' },
+        { label: 'Ailier droit', value: 'RW' },
+        { label: 'Attaquant', value: 'ST' }
     ];
     footOptions = [
         { label: 'Gauche', value: 'LEFT' },
@@ -801,7 +813,6 @@ export class EquipeDetailsComponent implements OnInit {
     }
 
     saveStaff() {
-        
         if (this.staffForm.invalid) {
             this.staffForm.markAllAsTouched();
             return;
