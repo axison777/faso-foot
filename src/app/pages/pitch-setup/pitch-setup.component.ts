@@ -163,6 +163,9 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     this.team.substitutes = [];
     this.team.captainId = null;
     this.finalized = false;
+    
+    // Synchroniser les listes
+    this.syncLists();
   }
 
   get formationKeys(): string[] {
@@ -186,6 +189,8 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     if (!key) return;
     this.team.formationKey = key;
     this.resetPositionsToFormation(key);
+    // Synchroniser les listes après changement de formation
+    this.syncLists();
   }
 
   // ---- methods demanded by template ----
@@ -196,6 +201,7 @@ export class PitchSetupComponent implements OnInit, OnChanges {
 
   assignPlayerToPosition(playerId: string) {
     if (this.selectedPositionIndex === null) return;
+    
     // remove player from other positions / lists
     this.team.positions.forEach(p => { if (p.playerId === playerId) p.playerId = undefined; });
     this.team.substitutes = this.team.substitutes.filter(id => id !== playerId);
@@ -204,15 +210,8 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     // assign to selected position
     this.team.positions[this.selectedPositionIndex].playerId = playerId;
 
-    // ensure starters list contains the player
-    const pl = this.getPlayer(playerId);
-    if (pl && !this.starters.find(s => s.id === playerId)) {
-      this.starters.push(pl);
-    }
-
-    // remove from unselected & substitutes UI
-    this.unselected = this.unselected.filter(p => p.id !== playerId);
-    this.substitutes = this.substitutes.filter(p => p.id !== playerId);
+    // Synchroniser les listes
+    this.syncLists();
 
     // close selector
     this.selectedPositionIndex = null;
@@ -243,8 +242,9 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     this.team.positions.forEach(p => { if (p.playerId === playerId) p.playerId = undefined; });
 
     this.team.positions[idx].playerId = playerId;
-    this.starters.push(player);
-    this.unselected = this.unselected.filter(p => p.id !== playerId);
+    
+    // Synchroniser les listes
+    this.syncLists();
   }
 
   addAsSubstitute(playerId: string) {
@@ -256,18 +256,19 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     this.removeFromAllLists(playerId);
     this.team.positions.forEach(p => { if (p.playerId === playerId) p.playerId = undefined; });
 
-    this.substitutes.push(player);
     if (!this.team.substitutes.includes(playerId)) this.team.substitutes.push(playerId);
-    this.unselected = this.unselected.filter(p => p.id !== playerId);
+    
+    // Synchroniser les listes
+    this.syncLists();
   }
 
   removeFromSubstitutes(playerId: string) {
     if (!playerId) return;
-    this.substitutes = this.substitutes.filter(p => p.id !== playerId);
     this.team.substitutes = this.team.substitutes.filter(id => id !== playerId);
-    const pl = this.getPlayer(playerId);
-    if (pl && !this.unselected.find(p => p.id === playerId)) this.unselected.push(pl);
     if (this.team.captainId === playerId) this.team.captainId = null;
+    
+    // Synchroniser les listes
+    this.syncLists();
   }
 
   private removeFromAllLists(playerId: string) {
@@ -276,6 +277,39 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     this.unselected = this.unselected.filter(p => p.id !== playerId);
     this.team.substitutes = this.team.substitutes.filter(id => id !== playerId);
     if (this.team.captainId === playerId) this.team.captainId = null;
+  }
+
+  private syncLists() {
+    // Reconstruire les listes à partir de l'état actuel
+    const assignedPlayerIds = new Set<string>();
+    
+    // Collecter les joueurs assignés sur le terrain
+    this.team.positions.forEach(pos => {
+      if (pos.playerId) {
+        assignedPlayerIds.add(pos.playerId);
+      }
+    });
+    
+    // Collecter les remplaçants
+    this.team.substitutes.forEach(id => {
+      assignedPlayerIds.add(id);
+    });
+    
+    // Reconstruire la liste des titulaires
+    this.starters = this.team.positions
+      .filter(pos => pos.playerId)
+      .map(pos => this.getPlayer(pos.playerId!))
+      .filter(p => p) as Player[];
+    
+    // Reconstruire la liste des remplaçants
+    this.substitutes = this.team.substitutes
+      .map(id => this.getPlayer(id))
+      .filter(p => p) as Player[];
+    
+    // Reconstruire la liste des non sélectionnés
+    this.unselected = this.roster.filter(player => 
+      !assignedPlayerIds.has(player.id)
+    );
   }
 
   // drag/drop handler (used if you re-enable cdk lists)
@@ -586,6 +620,12 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     }
   }
 
+  getPositionDropData(index: number): Player[] {
+    const pos = this.team.positions[index];
+    const player = pos?.playerId ? this.getPlayer(pos.playerId) : null;
+    return player ? [player] : [];
+  }
+
   // Nouvelles méthodes pour la nouvelle interface
   
   setActiveTab(tab: 'callup' | 'composition' | 'sheet') {
@@ -632,26 +672,22 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     if (event.previousContainer !== event.container) {
       const player = event.previousContainer.data[event.previousIndex] as Player;
       if (player) {
-        // Retirer le joueur de sa position actuelle
+        // Nettoyer complètement le joueur de toutes les positions et listes
+        this.removeFromAllLists(player.id);
         this.team.positions.forEach(pos => {
           if (pos.playerId === player.id) pos.playerId = undefined;
         });
         
-        // Retirer des remplaçants si nécessaire
-        this.team.substitutes = this.team.substitutes.filter(id => id !== player.id);
-        this.removeFromAllLists(player.id);
-        
         // Assigner à la nouvelle position
         this.team.positions[positionIndex].playerId = player.id;
         
-        // Ajouter aux titulaires
+        // Ajouter aux titulaires si pas déjà présent
         if (!this.starters.find(s => s.id === player.id)) {
           this.starters.push(player);
         }
         
-        // Retirer des autres listes
-        this.unselected = this.unselected.filter(p => p.id !== player.id);
-        this.substitutes = this.substitutes.filter(p => p.id !== player.id);
+        // Synchroniser les listes
+        this.syncLists();
       }
     }
   }
@@ -663,14 +699,19 @@ export class PitchSetupComponent implements OnInit, OnChanges {
       // Joueur déplacé depuis le terrain ou les remplaçants vers la liste disponible
       const player = event.previousContainer.data[event.previousIndex] as Player;
       if (player) {
+        // Nettoyer complètement le joueur
         this.removeFromAllLists(player.id);
         this.team.positions.forEach(pos => {
           if (pos.playerId === player.id) pos.playerId = undefined;
         });
         
+        // Ajouter à la liste des non sélectionnés
         if (!this.unselected.find(p => p.id === player.id)) {
           this.unselected.push(player);
         }
+        
+        // Synchroniser les listes
+        this.syncLists();
       }
     }
   }
@@ -684,7 +725,18 @@ export class PitchSetupComponent implements OnInit, OnChanges {
       // Joueur déplacé depuis une autre liste vers les remplaçants
       const player = event.previousContainer.data[event.previousIndex] as Player;
       if (player && !this.substitutes.find(s => s.id === player.id)) {
-        this.addAsSubstitute(player.id);
+        // Nettoyer le joueur de toutes les autres positions
+        this.removeFromAllLists(player.id);
+        this.team.positions.forEach(pos => {
+          if (pos.playerId === player.id) pos.playerId = undefined;
+        });
+        
+        // Ajouter aux remplaçants
+        this.substitutes.push(player);
+        this.team.substitutes.push(player.id);
+        
+        // Synchroniser les listes
+        this.syncLists();
       }
     }
   }

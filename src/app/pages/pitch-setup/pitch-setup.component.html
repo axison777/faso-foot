@@ -110,7 +110,7 @@
                 [style.top.%]="pos.y"
                 (click)="openPlayerSelector(i)"
                 cdkDropList
-                [cdkDropListData]="[pos]"
+                [cdkDropListData]="getPositionDropData(i)"
                 (cdkDropListDropped)="onPlayerDropped($event, i)"
               >
                 <div 
