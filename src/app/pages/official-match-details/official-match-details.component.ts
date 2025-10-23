@@ -16,7 +16,7 @@ export class OfficialMatchDetailsComponent implements OnInit {
     match$!: Observable<OfficialMatch | null>;
     matchCallups$!: Observable<MatchCallups | null>;
     matchId: string = '';
-    
+
     showFormationView: 'team1' | 'team2' | null = null;
     hoveredPlayerId: string | null = null;
 
@@ -30,14 +30,14 @@ export class OfficialMatchDetailsComponent implements OnInit {
     ngOnInit() {
         this.matchId = this.route.snapshot.paramMap.get('id') || '';
         console.log('[OfficialMatchDetails] Match ID:', this.matchId);
-        
+
         // Essayer d'abord getMatchDetails
         this.match$ = this.officialMatchService.getMatchDetails(this.matchId);
-        
+
         // Si getMatchDetails retourne null, chercher dans la liste des matchs
         this.match$.subscribe(match => {
             console.log('[OfficialMatchDetails] Match data from getMatchDetails:', match);
-            
+
             if (!match) {
                 console.log('[OfficialMatchDetails] Match null, recherche dans la liste des matchs...');
                 this.officialMatchService.getAssignedMatches().subscribe(matches => {
@@ -49,9 +49,9 @@ export class OfficialMatchDetailsComponent implements OnInit {
                 });
             }
         });
-        
+
         this.matchCallups$ = this.matchCallupService.getMatchCallups(this.matchId);
-        
+
         this.matchCallups$.subscribe(callups => {
             console.log('[OfficialMatchDetails] Callups data:', callups);
         });
@@ -105,13 +105,13 @@ export class OfficialMatchDetailsComponent implements OnInit {
         return icons[role] || 'pi pi-user';
     }
 
-    getStarters(players: any[]): any[] {
+    getStarters(players: any[] | null): any[] {
         if (!players) return [];
         const starters = players.filter(p => {
             // Gérer tous les formats possibles pour is_starter
-            return p.is_starter === true || 
-                   p.is_starter === 'true' || 
-                   p.is_starter === '1' || 
+            return p.is_starter === true ||
+                   p.is_starter === 'true' ||
+                   p.is_starter === '1' ||
                    p.is_starter === 1;
         });
         console.log(`[getStarters] ${starters.length} titulaires trouvés sur ${players.length} joueurs`);
@@ -121,12 +121,12 @@ export class OfficialMatchDetailsComponent implements OnInit {
         return starters;
     }
 
-    getSubstitutes(players: any[]): any[] {
+    getSubstitutes(players: any[] | null): any[] {
         if (!players) return [];
         const subs = players.filter(p => {
-            return p.is_starter === false || 
-                   p.is_starter === 'false' || 
-                   p.is_starter === '0' || 
+            return p.is_starter === false ||
+                   p.is_starter === 'false' ||
+                   p.is_starter === '0' ||
                    p.is_starter === 0;
         });
         console.log(`[getSubstitutes] ${subs.length} remplaçants trouvés sur ${players.length} joueurs`);
@@ -198,14 +198,14 @@ export class OfficialMatchDetailsComponent implements OnInit {
         };
 
         const formationPositions = formations[formation] || formations['4-4-2'];
-        
+
         // Retourner la position selon l'index du joueur
         // Limite à 11 positions maximum
         if (index < formationPositions.length) {
             console.log(`[getPlayerPosition] Joueur index ${index} -> position:`, formationPositions[index]);
             return { x: formationPositions[index].x, y: formationPositions[index].y };
         }
-        
+
         // Si plus de 11 joueurs, on les met au centre
         console.warn(`[getPlayerPosition] Index ${index} hors limites (max ${formationPositions.length})`);
         return { x: 50, y: 50 };
