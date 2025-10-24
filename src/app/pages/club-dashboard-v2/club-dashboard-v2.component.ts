@@ -10,6 +10,7 @@ import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ClubService, MyClub } from '../../service/club.service';
+import { ClubManagerService } from '../../service/club-manager.service';
 import { AuthService } from '../../service/auth.service';
 import { CoachDashboardV2Component } from '../coach-dashboard-v2/coach-dashboard-v2.component';
 
@@ -55,6 +56,7 @@ interface ClubManager {
 })
 export class ClubDashboardV2Component implements OnInit {
   private clubService = inject(ClubService);
+  private clubManagerService = inject(ClubManagerService);
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private router = inject(Router);
@@ -138,9 +140,11 @@ export class ClubDashboardV2Component implements OnInit {
     if (!this.clubId) return;
 
     this.loading = true;
-    this.clubService.getById(this.clubId).subscribe({
-      next: (res: any) => {
-        const clubData = res?.club || res?.data?.club || res;
+    console.log('🏢 [CLUB DASHBOARD] Chargement du club avec ClubManagerService:', this.clubId);
+    
+    this.clubManagerService.getClubById(this.clubId).subscribe({
+      next: (clubData: any) => {
+        console.log('✅ [CLUB DASHBOARD] Données du club reçues:', clubData);
         this.club.set(clubData);
         
         const currentUser = this.authService.currentUser;
@@ -175,6 +179,7 @@ export class ClubDashboardV2Component implements OnInit {
           }))
         };
 
+        console.log('✅ [CLUB DASHBOARD] Manager créé avec', manager.teams.length, 'équipes');
         this.manager.set(manager);
         this.teamOptions = manager.teams.map(team => ({
           label: `${team.name} (${team.category})`,
@@ -203,7 +208,7 @@ export class ClubDashboardV2Component implements OnInit {
           summary: 'Erreur',
           detail: 'Erreur lors du chargement des données du club'
         });
-        console.error('Erreur chargement club:', err);
+        console.error('❌ [CLUB DASHBOARD] Erreur chargement club:', err);
       }
     });
   }

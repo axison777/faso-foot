@@ -1,7 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CoachPlayersComponent } from '../coach-players/coach-players.component';
-import { ClubService, MyClub } from '../../service/club.service';
+import { ClubManagerService } from '../../service/club-manager.service';
+import { AuthService } from '../../service/auth.service';
+import { ClubManagerTeam } from '../../models/club-manager-api.model';
 
 interface ClubTeam {
     id: string;
@@ -29,8 +31,21 @@ interface ClubTeam {
                 <p>Gérez les joueurs de toutes les équipes</p>
             </div>
 
+            <!-- État de chargement -->
+            <div *ngIf="isLoading()" class="loading-container">
+                <div class="spinner"></div>
+                <p>Chargement des données du club...</p>
+            </div>
+
+            <!-- État d'erreur -->
+            <div *ngIf="error() && !isLoading()" class="error-container">
+                <i class="pi pi-exclamation-triangle"></i>
+                <h3>Erreur</h3>
+                <p>{{ error() }}</p>
+            </div>
+
             <!-- Liste des équipes -->
-            <div class="teams-container">
+            <div *ngIf="!isLoading() && !error()" class="teams-container">
                 <h2>Équipes du Club</h2>
                 <div class="teams-list">
                     <div 
@@ -86,6 +101,59 @@ interface ClubTeam {
             margin: 0 auto;
             background: #f8fafc;
             min-height: 100vh;
+        }
+
+        .loading-container,
+        .error-container {
+            background: white;
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 2rem;
+
+            i {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+            }
+
+            p, h3 {
+                margin: 0.5rem 0;
+                color: #6b7280;
+            }
+        }
+
+        .error-container {
+            border-color: #fecaca;
+            background: #fef2f2;
+
+            i {
+                color: #ef4444;
+            }
+
+            h3 {
+                color: #dc2626;
+                font-weight: 600;
+            }
+
+            p {
+                color: #dc2626;
+            }
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .page-header {
@@ -312,43 +380,72 @@ interface ClubTeam {
     `]
 })
 export class ClubPlayersComponent implements OnInit {
-    private clubService = inject(ClubService);
+    private clubManagerService = inject(ClubManagerService);
+    private authService = inject(AuthService);
     
-    club = signal<MyClub | null>(null);
+    club = signal<any | null>(null);
     teams: ClubTeam[] = [];
     selectedTeamId = '';
+    isLoading = signal<boolean>(false);
+    error = signal<string | null>(null);
 
     ngOnInit() {
         this.loadClubData();
     }
 
     loadClubData() {
-        this.clubService.getMyClub().subscribe(c => {
-            this.club.set(c);
-            
-            // Créer les données des équipes basées sur les données du club
-            this.teams = (c?.teams || []).map(team => ({
-                id: team.id,
-                name: team.name,
-                category: team.category || 'Senior',
-                logo: team.logo,
-                coach: {
-                    id: '1',
-                    name: 'Coach assigné',
-                    email: 'coach@club.com'
-                },
-                players: 25,
-                status: 'ACTIVE'
-            }));
+        const currentUser = this.authService.currentUser;
+        const clubId = currentUser?.club_id;
 
-            // Sélectionner la première équipe par défaut
-            if (this.teams.length > 0) {
-                this.selectedTeamId = this.teams[0].id;
+        if (!clubId) {
+            console.error('❌ [CLUB PLAYERS] Club ID manquant');
+            this.error.set('Aucun club associé à votre compte');
+            return;
+        }
+
+        console.log('🏢 [CLUB PLAYERS] Chargement du club:', clubId);
+        this.isLoading.set(true);
+        this.error.set(null);
+
+        this.clubManagerService.getClubById(clubId).subscribe({
+            next: (clubData) => {
+                console.log('✅ [CLUB PLAYERS] Club chargé:', clubData);
+                this.club.set(clubData);
+                
+                // Mapper les équipes avec les vraies données
+                this.teams = (clubData?.teams || []).map((team: ClubManagerTeam) => ({
+                    id: team.id,
+                    name: team.name,
+                    category: team.category?.name || 'Senior',
+                    logo: team.logo,
+                    coach: {
+                        id: '1',
+                        name: 'Coach assigné',
+                        email: team.email || 'coach@club.com'
+                    },
+                    players: team.player_count || 0,
+                    status: team.status === 'ACTIVE' ? 'ACTIVE' as const : 'INACTIVE' as const
+                }));
+
+                console.log('✅ [CLUB PLAYERS] Équipes chargées:', this.teams.length);
+
+                // Sélectionner la première équipe par défaut
+                if (this.teams.length > 0) {
+                    this.selectedTeamId = this.teams[0].id;
+                }
+                
+                this.isLoading.set(false);
+            },
+            error: (err) => {
+                console.error('❌ [CLUB PLAYERS] Erreur lors du chargement du club:', err);
+                this.error.set('Erreur lors du chargement des données du club');
+                this.isLoading.set(false);
             }
         });
     }
 
     selectTeam(teamId: string) {
+        console.log('⚽ [CLUB PLAYERS] Équipe sélectionnée:', teamId);
         this.selectedTeamId = teamId;
     }
 
