@@ -19,7 +19,7 @@ export interface Club {
 
   // Adresse
   street?: string;
-  city?: string | City;
+  city?: City;
   city_id?: string;
   country?: string;
 

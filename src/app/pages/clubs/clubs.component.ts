@@ -284,7 +284,7 @@ export class ClubsComponent {
       responsable_position: club.responsable_position,
       street: club.street,
       country: club.country,
-      city: club.city
+      city: typeof club.city === 'string' ? club.city : club.city?.name
     });
     this.selectedFile = null;
     this.showForm = true;
