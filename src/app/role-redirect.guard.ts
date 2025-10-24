@@ -24,7 +24,7 @@ export const RoleRedirectGuard: CanActivateFn = (route, state) => {
   // Définir les routes autorisées par rôle
   const roleRoutes: { [key: string]: string } = {
     'admin': '/accueil',
-    'club': '/mon-club/dashboard',
+    'club_manager': '/mon-club/dashboard',
     'coach': '/mon-equipe/dashboard',
     'official': '/officiel/dashboard'
   };

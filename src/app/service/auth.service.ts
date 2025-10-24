@@ -104,6 +104,9 @@ export class AuthService {
    if(user?.is_official){
     return 'official';
    }
+   if(user?.is_club_manager){
+    return 'club_manager';
+   }
    if(user?.roles?.some(r => (r.slug || '').toLowerCase() === 'admin')){
     return 'admin';
    }

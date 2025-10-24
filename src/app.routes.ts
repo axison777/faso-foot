@@ -53,8 +53,8 @@ export const appRoutes: Routes = [
             //{ path: 'documentation', component: Documentation },
             { path: '', component: AccueilComponent,canActivate: [AuthGuard] },
             { path: 'accueil', component: AccueilComponent,canActivate: [AuthGuard] },
-            { 
-                path: 'saisons', 
+            {
+                path: 'saisons',
                 canActivate: [AuthGuard],
                 children: [
                     { path: '', component: SaisonsComponent },
@@ -65,8 +65,8 @@ export const appRoutes: Routes = [
             },
             { path: 'villes', component: VillesComponent,canActivate: [AuthGuard] },
             { path: 'stades', component: StadesComponent, canActivate: [AuthGuard] },
-            { 
-                path: 'equipes', 
+            {
+                path: 'equipes',
                 canActivate: [AuthGuard],
                 children: [
                     { path: '', component: EquipesComponent },
@@ -77,16 +77,16 @@ export const appRoutes: Routes = [
             { path: 'utilisateurs', component: UsersComponent, canActivate: [AuthGuard] },
             { path: 'ligues', component:LiguesComponent, canActivate: [AuthGuard] },
             { path: 'competitions', component:CompetitionsComponent, canActivate: [AuthGuard] },
-            { 
-                path: 'clubs', 
+            {
+                path: 'clubs',
                 canActivate: [AuthGuard],
                 children: [
                     { path: '', component: ClubsComponent },
                     { path: 'details/:id', component: ClubDetailsComponent }
                 ]
             },
-            { 
-                path: 'joueurs', 
+            {
+                path: 'joueurs',
                 canActivate: [AuthGuard],
                 children: [
                     { path: '', component: PlayersComponent },
@@ -95,8 +95,8 @@ export const appRoutes: Routes = [
             },
             { path: 'categories-equipe', component:TeamCategoriesComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
-            { 
-                path: 'officiels', 
+            {
+                path: 'officiels',
                 canActivate: [AuthGuard],
                 children: [
                     { path: '', component: OfficialsComponent },
