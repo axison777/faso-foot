@@ -233,13 +233,6 @@ import { CoachPlayer } from '../../models/coach-api.model';
                             </div>
                         </div>
                     </p-tabPanel>
-
-                    <!-- Données brutes (pour debug) -->
-                    <p-tabPanel header="Données complètes">
-                        <div class="raw-data">
-                            <pre>{{ player | json }}</pre>
-                        </div>
-                    </p-tabPanel>
                 </p-tabView>
             </div>
 

@@ -35,7 +35,9 @@ export class CoachPlayersComponent implements OnInit {
 
     private authService = inject(AuthService);
     private coachService = inject(CoachService);
+    private clubManagerService = inject(ClubManagerService);
     private messageService = inject(MessageService);
+    private confirmationService = inject(ConfirmationService);
 
     searchTerm = '';
     selectedFilters: string[] = ['ALL'];
@@ -44,9 +46,11 @@ export class CoachPlayersComponent implements OnInit {
     players: DisplayPlayer[] = [];
     filteredPlayers: DisplayPlayer[] = [];
     showPlayerDetails = false;
+    showPlayerForm = false;
     selectedPlayer: DisplayPlayer | null = null;
     loading = false;
     error: string | null = null;
+    currentTeamId: string = '';
 
     positionOptions = [
         { label: 'Toutes les positions', value: '' },
@@ -85,6 +89,7 @@ export class CoachPlayersComponent implements OnInit {
             return;
         }
 
+        this.currentTeamId = userTeamId;
         console.log('🔄 [PLAYERS] Appel API GET /teams/' + userTeamId + '/players');
 
         // Utiliser le CoachService directement
@@ -249,27 +254,52 @@ export class CoachPlayersComponent implements OnInit {
     }
 
     addPlayer() {
-        this.messageService.add({
-            severity: 'info',
-            summary: 'Ajouter un joueur',
-            detail: 'Fonctionnalité à implémenter'
-        });
+        this.selectedPlayer = null;
+        this.showPlayerForm = true;
     }
 
     editPlayer(player: DisplayPlayer) {
-        this.messageService.add({
-            severity: 'info',
-            summary: 'Modifier le joueur',
-            detail: `Modification de ${player.first_name} ${player.last_name}`
-        });
+        this.selectedPlayer = player;
+        this.showPlayerForm = true;
     }
 
     deletePlayer(player: DisplayPlayer) {
-        this.messageService.add({
-            severity: 'warn',
-            summary: 'Supprimer le joueur',
-            detail: `Suppression de ${player.first_name} ${player.last_name}`
+        this.confirmationService.confirm({
+            message: `Êtes-vous sûr de vouloir supprimer ${player.first_name} ${player.last_name} ?`,
+            header: 'Confirmation de suppression',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Oui, supprimer',
+            rejectLabel: 'Annuler',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                if (player.id) {
+                    this.clubManagerService.deletePlayer(player.id).subscribe({
+                        next: () => {
+                            this.messageService.add({
+                                severity: 'success',
+                                summary: 'Succès',
+                                detail: 'Joueur supprimé avec succès'
+                            });
+                            this.loadPlayers();
+                        },
+                        error: (err) => {
+                            console.error('Erreur suppression:', err);
+                            this.messageService.add({
+                                severity: 'error',
+                                summary: 'Erreur',
+                                detail: 'Impossible de supprimer le joueur'
+                            });
+                        }
+                    });
+                }
+            }
         });
+    }
+
+    onPlayerSaved() {
+        this.showPlayerForm = false;
+        this.selectedPlayer = null;
+        this.loadPlayers();
     }
 
     exportToSheets() {

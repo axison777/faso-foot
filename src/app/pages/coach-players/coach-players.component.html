@@ -106,12 +106,11 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th style="width: 60px">#</th>
-                        <th style="width: 200px">Joueur & Photo</th>
-                        <th style="width: 80px">Âge</th>
-                        <th style="width: 100px">Position</th>
-                        <th style="width: 120px">Stats (B/PD)</th>
-                        <th style="width: 120px">Forme</th>
-                        <th style="width: 100px">Actions</th>
+                        <th style="width: 250px">Joueur & Photo</th>
+                        <th style="width: 100px">Âge</th>
+                        <th style="width: 120px">Position</th>
+                        <th style="width: 150px">Stats (B/PD)</th>
+                        <th style="width: 120px">Actions</th>
                     </tr>
                 </ng-template>
 
@@ -167,15 +166,6 @@
                             </div>
                         </td>
 
-                        <td class="fitness">
-                            <div class="fitness-indicator" [ngClass]="getFitnessClass(player.fitness_level)">
-                                <div class="fitness-bar">
-                                    <div class="fitness-fill" [style.width.%]="getFitnessPercentage(player.fitness_level)"></div>
-                                </div>
-                                <span class="fitness-label">{{ getFitnessLabel(player.fitness_level) }}</span>
-                            </div>
-                        </td>
-
                         <td class="actions">
                             <div class="action-buttons">
                                 <button class="action-btn details" (click)="viewPlayerDetails(player)" title="Voir détails">
@@ -194,7 +184,7 @@
 
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="7" class="empty-message">
+                        <td colspan="6" class="empty-message">
                             <div class="empty-state">
                                 <i class="pi pi-users"></i>
                                 <h4>Aucun joueur trouvé</h4>
@@ -215,4 +205,13 @@
     (editPlayerEvent)="onEditPlayer($event)">
 </app-player-details-modal-v2>
 
+<!-- Modal de création/édition du joueur -->
+<app-player-create-edit-modal
+    [(visible)]="showPlayerForm"
+    [player]="selectedPlayer"
+    [teamId]="currentTeamId"
+    (playerSaved)="onPlayerSaved()">
+</app-player-create-edit-modal>
+
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
