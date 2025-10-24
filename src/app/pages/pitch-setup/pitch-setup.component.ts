@@ -211,26 +211,39 @@ export class PitchSetupComponent implements OnInit, OnChanges {
             return;
         }
 
-    this.roster = list.map((p: any) => ({
-      id: p.id,
-      first_name: p.first_name,
-      last_name: p.last_name,
-      name: p.name ?? (p.first_name ? `${p.first_name} ${p.last_name ?? ''}`.trim() : undefined),
-      jersey_number: p.jersey_number,
-      preferred_position: p.preferred_position,
-      status: p.status,
-      photo_url: p.photo_url,
-      birth_place: p.birth_place,
-      nationality: p.nationality,
-      phone: p.phone,
-      email: p.email,
-      date_of_birth: p.date_of_birth,
-      height: p.height,
-      weight: p.weight,
-      blood_type: p.blood_type,
-      foot_preference: p.foot_preference,
-      license_number: p.license_number
-    }));
+    this.roster = list.map((p: any) => {
+      // Construire photo_url si elle n'existe pas
+      let photoUrl = p.photo_url;
+      if (!photoUrl && p.photo) {
+        // Si photo est un chemin relatif, construire l'URL complète
+        if (!p.photo.startsWith('http')) {
+          photoUrl = `http://192.168.11.121:8000/storage/${p.photo}`;
+        } else {
+          photoUrl = p.photo;
+        }
+      }
+      
+      return {
+        id: p.id,
+        first_name: p.first_name,
+        last_name: p.last_name,
+        name: p.name ?? (p.first_name ? `${p.first_name} ${p.last_name ?? ''}`.trim() : undefined),
+        jersey_number: p.jersey_number,
+        preferred_position: p.preferred_position,
+        status: p.status,
+        photo_url: photoUrl,
+        birth_place: p.birth_place,
+        nationality: p.nationality,
+        phone: p.phone,
+        email: p.email,
+        date_of_birth: p.date_of_birth,
+        height: p.height,
+        weight: p.weight,
+        blood_type: p.blood_type,
+        foot_preference: p.foot_preference,
+        license_number: p.license_number
+      };
+    });
 
     // reset UI lists but keep team.positions coords intact
     this.starters = [];

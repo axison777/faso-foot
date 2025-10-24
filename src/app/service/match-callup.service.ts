@@ -92,12 +92,37 @@ export class MatchCallupService {
                         team_two_players: callups.team_two_callup?.players?.length || 0
                     });
 
+                    // Construire les URLs des photos pour les joueurs
+                    const processPlayers = (players: CallupPlayer[] | undefined) => {
+                        if (!players) return [];
+                        return players.map(player => {
+                            // Si photo existe et n'est pas déjà une URL complète
+                            if (player.photo && !player.photo.startsWith('http')) {
+                                player.photo = `http://192.168.11.121:8000/storage/${player.photo}`;
+                            }
+                            return player;
+                        });
+                    };
+
+                    if (callups.team_one_callup?.players) {
+                        callups.team_one_callup.players = processPlayers(callups.team_one_callup.players);
+                    }
+                    if (callups.team_two_callup?.players) {
+                        callups.team_two_callup.players = processPlayers(callups.team_two_callup.players);
+                    }
+
                     // Log détaillé des premiers joueurs pour vérifier la structure
                     if (callups.team_one_callup?.players?.length > 0) {
-                        console.log('[MatchCallupService] Premier joueur team_one:', callups.team_one_callup.players[0]);
+                        console.log('[MatchCallupService] Premier joueur team_one avec photo:', {
+                            name: `${callups.team_one_callup.players[0].first_name} ${callups.team_one_callup.players[0].last_name}`,
+                            photo: callups.team_one_callup.players[0].photo
+                        });
                     }
                     if (callups.team_two_callup?.players?.length > 0) {
-                        console.log('[MatchCallupService] Premier joueur team_two:', callups.team_two_callup.players[0]);
+                        console.log('[MatchCallupService] Premier joueur team_two avec photo:', {
+                            name: `${callups.team_two_callup.players[0].first_name} ${callups.team_two_callup.players[0].last_name}`,
+                            photo: callups.team_two_callup.players[0].photo
+                        });
                     }
                 } else {
                     console.warn('[MatchCallupService] Aucun callup trouvé dans la réponse');
