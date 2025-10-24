@@ -11,9 +11,9 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { AuthService } from '../../service/auth.service';
-import { ClubManagerService } from '../../service/club-manager.service';
-import { ClubManagerStaffMember } from '../../models/club-manager-api.model';
+import { AuthService } from '../../../service/auth.service';
+import { ClubManagerService } from '../../../service/club-manager.service';
+import { ClubManagerStaffMember } from '../../../models/club-manager-api.model';
 
 @Component({
   selector: 'app-parametres-page',
@@ -320,12 +320,12 @@ export class ParametresPageComponent implements OnInit {
   loadStaff() {
     this.loading.set(true);
     this.clubManagerService.getTeamStaff(this.currentTeamId).subscribe({
-      next: (staff) => {
+      next: (staff: any) => {
         console.log('✅ Staff chargé:', staff);
         this.staffMembers.set(staff);
         this.loading.set(false);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('❌ Erreur chargement staff:', err);
         this.messageService.add({
           severity: 'error',
@@ -376,7 +376,7 @@ export class ParametresPageComponent implements OnInit {
               });
               this.loadStaff();
             },
-            error: (err) => {
+            error: (err: any) => {
               console.error('Erreur suppression:', err);
               this.messageService.add({
                 severity: 'error',
@@ -414,7 +414,7 @@ export class ParametresPageComponent implements OnInit {
           this.closeStaffForm();
           this.loadStaff();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Erreur modification:', err);
           this.messageService.add({
             severity: 'error',
@@ -435,7 +435,7 @@ export class ParametresPageComponent implements OnInit {
           this.closeStaffForm();
           this.loadStaff();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Erreur création:', err);
           this.messageService.add({
             severity: 'error',

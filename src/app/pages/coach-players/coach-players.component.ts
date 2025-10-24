@@ -9,11 +9,14 @@ import { TableModule } from 'primeng/table';
 import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
 import { PlayerDetailsModalV2Component } from './player-details-modal-v2.component';
+import { PlayerCreateEditModalComponent } from './player-create-edit-modal.component';
 import { AuthService } from '../../service/auth.service';
 import { CoachService } from '../../service/coach.service';
+import { ClubManagerService } from '../../service/club-manager.service';
 import { CoachPlayer } from '../../models/coach-api.model';
 
 // Interface locale pour affichage avec âge calculé
@@ -25,8 +28,8 @@ interface DisplayPlayer extends CoachPlayer {
 @Component({
     selector: 'app-coach-players',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, DropdownModule, TagModule, TableModule, MenuModule, DialogModule, ToastModule, PlayerDetailsModalV2Component],
-    providers: [MessageService],
+    imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, DropdownModule, TagModule, TableModule, MenuModule, DialogModule, ToastModule, ConfirmDialogModule, PlayerDetailsModalV2Component, PlayerCreateEditModalComponent],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './coach-players.component.html',
     styleUrls: ['./coach-players.component.scss']
 })
@@ -282,7 +285,7 @@ export class CoachPlayersComponent implements OnInit {
                             });
                             this.loadPlayers();
                         },
-                        error: (err) => {
+                        error: (err: any) => {
                             console.error('Erreur suppression:', err);
                             this.messageService.add({
                                 severity: 'error',
