@@ -296,7 +296,7 @@ export class SaisonsComponent implements OnInit {
     }
 
     voirCalendrier(saison: Saison) {
-        if (saison?.pools?.length == 1) this.router.navigate(['/calendrier'], { queryParams: { groupId: saison?.pools[0]?.id, seasonId: saison.id } });
+        if (saison?.pools?.length == 1) this.router.navigate(['/saisons/calendrier'], { queryParams: { groupId: saison?.pools[0]?.id, seasonId: saison.id } });
         else {
             this.displayGroupChoiceDialog = true;
             this.groupChoices = saison?.pools;
