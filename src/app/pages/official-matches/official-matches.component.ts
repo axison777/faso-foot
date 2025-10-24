@@ -57,7 +57,16 @@ import { MatchDetailsModalComponent } from './match-details-modal.component';
                     <!-- Équipes -->
                     <div class="teams-section">
                         <div class="team home-team">
-                            <div class="team-icon">⚽</div>
+                            <div class="team-logo-container">
+                                <img *ngIf="match.homeTeam.logo" 
+                                     [src]="match.homeTeam.logo" 
+                                     [alt]="match.homeTeam.name"
+                                     class="team-logo"
+                                     (error)="onLogoError($event)">
+                                <div *ngIf="!match.homeTeam.logo" class="team-logo-placeholder">
+                                    <i class="pi pi-shield"></i>
+                                </div>
+                            </div>
                             <div class="team-name">{{ match.homeTeam.name }}</div>
                         </div>
                         <div class="vs-section">
@@ -67,7 +76,16 @@ import { MatchDetailsModalComponent } from './match-details-modal.component';
                             </div>
                         </div>
                         <div class="team away-team">
-                            <div class="team-icon">⚽</div>
+                            <div class="team-logo-container">
+                                <img *ngIf="match.awayTeam.logo" 
+                                     [src]="match.awayTeam.logo" 
+                                     [alt]="match.awayTeam.name"
+                                     class="team-logo"
+                                     (error)="onLogoError($event)">
+                                <div *ngIf="!match.awayTeam.logo" class="team-logo-placeholder">
+                                    <i class="pi pi-shield"></i>
+                                </div>
+                            </div>
                             <div class="team-name">{{ match.awayTeam.name }}</div>
                         </div>
                     </div>
@@ -338,8 +356,35 @@ import { MatchDetailsModalComponent } from './match-details-modal.component';
             gap: 0.75rem;
         }
 
-        .team-icon {
-            font-size: 1.5rem;
+        .team-logo-container {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .team-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            background: white;
+            padding: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-logo-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 1.2rem;
         }
 
         .team-name {
@@ -642,6 +687,14 @@ export class OfficialMatchesComponent implements OnInit {
                 return 'competition-tournament';
             default:
                 return 'competition-league';
+        }
+    }
+
+    onLogoError(event: Event) {
+        const img = event.target as HTMLImageElement;
+        if (img) {
+            // Cacher l'image et laisser le placeholder s'afficher
+            img.style.display = 'none';
         }
     }
 }
