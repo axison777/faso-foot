@@ -15,6 +15,17 @@
     <!-- Contenu Principal -->
     <div class="composition-content">
       
+      <!-- Bouton Toggle pour Mobile/Tablette -->
+      <button 
+        class="mobile-toggle-btn" 
+        (click)="toggleMobileSidebar()"
+        type="button"
+        title="Afficher/Masquer la liste des joueurs"
+      >
+        <i class="pi" [ngClass]="isMobileSidebarOpen ? 'pi-times' : 'pi-users'"></i>
+        <span class="toggle-label">{{ isMobileSidebarOpen ? 'Fermer' : 'Joueurs' }}</span>
+      </button>
+      
       <!-- Panneau Principal de Composition (Côté Gauche) -->
       <main class="main-panel">
         
@@ -110,7 +121,9 @@
                 [style.top.%]="pos.y"
                 (click)="openPlayerSelector(i)"
                 cdkDropList
+                [id]="'position-' + i"
                 [cdkDropListData]="getPositionDropData(i)"
+                [cdkDropListConnectedTo]="['available-players', 'substitutes-list']"
                 (cdkDropListDropped)="onPlayerDropped($event, i)"
               >
                 <div 
@@ -142,8 +155,15 @@
 
       </main>
 
+      <!-- Overlay pour fermer la sidebar en mobile -->
+      <div 
+        class="mobile-sidebar-overlay" 
+        [class.active]="isMobileSidebarOpen"
+        (click)="closeMobileSidebar()"
+      ></div>
+
       <!-- Panneau des Joueurs (Côté Droit) -->
-      <aside class="players-panel">
+      <aside class="players-panel" [class.mobile-open]="isMobileSidebarOpen">
         
         <!-- Bouton d'Action Principal -->
         <div class="action-section">
@@ -165,7 +185,14 @@
             Liste des Joueurs
           </h3>
           
-          <div class="players-list" cdkDropList [cdkDropListData]="unselected" (cdkDropListDropped)="onPlayerListDrop($event)">
+          <div 
+            class="players-list" 
+            cdkDropList 
+            id="available-players"
+            [cdkDropListData]="unselected" 
+            [cdkDropListConnectedTo]="getPositionIds().concat(['substitutes-list'])"
+            (cdkDropListDropped)="onPlayerListDrop($event)"
+          >
             <div 
               *ngFor="let player of unselected" 
               class="player-card"
@@ -219,7 +246,14 @@
             <span class="count-badge">{{ substitutes.length }}</span>
           </h3>
           
-          <div class="substitutes-container" cdkDropList [cdkDropListData]="substitutes" (cdkDropListDropped)="onSubstitutesDrop($event)">
+          <div 
+            class="substitutes-container" 
+            cdkDropList 
+            id="substitutes-list"
+            [cdkDropListData]="substitutes" 
+            [cdkDropListConnectedTo]="getPositionIds().concat(['available-players'])"
+            (cdkDropListDropped)="onSubstitutesDrop($event)"
+          >
             <div 
               *ngFor="let player of substitutes; let i = index" 
               class="substitute-card"

@@ -305,7 +305,7 @@ export class SaisonsComponent implements OnInit {
     }
 
     voirDetails(id: string) {
-        this.router.navigate(['/saison-details', id]);
+        this.router.navigate(['/saisons/details', id]);
     }
 
     ///
@@ -353,7 +353,7 @@ export class SaisonsComponent implements OnInit {
         );
     }
     addSeason() {
-        this.router.navigate(['/ajout-saison']);
+        this.router.navigate(['/saisons/ajout']);
     }
 
     removeVille(index: number) {

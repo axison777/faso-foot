@@ -185,6 +185,9 @@ export class PitchSetupComponent implements OnInit, OnChanges {
     { key: '3-4-3', name: '3-4-3', lines: [1, 3, 4, 3] }
   ];
 
+  // État de la sidebar mobile
+  isMobileSidebarOpen = false;
+
     constructor(private hostRef: ElementRef) {}
 
     ngOnInit(): void {
@@ -833,7 +836,13 @@ export class PitchSetupComponent implements OnInit, OnChanges {
 
   onPlayerDropped(event: CdkDragDrop<any>, positionIndex: number) {
     if (event.previousContainer !== event.container) {
-      const player = event.previousContainer.data[event.previousIndex] as Player;
+      // Récupérer le joueur depuis le container précédent
+      let player: Player | undefined;
+      
+      if (Array.isArray(event.previousContainer.data)) {
+        player = event.previousContainer.data[event.previousIndex] as Player;
+      }
+      
       if (player) {
         // Nettoyer complètement le joueur de toutes les positions et listes
         this.removeFromAllLists(player.id);
@@ -852,6 +861,9 @@ export class PitchSetupComponent implements OnInit, OnChanges {
         // Synchroniser les listes
         this.syncLists();
       }
+    } else {
+      // Déplacement au sein de la même position (ne rien faire)
+      return;
     }
   }
 
@@ -902,5 +914,19 @@ export class PitchSetupComponent implements OnInit, OnChanges {
         this.syncLists();
       }
     }
+  }
+
+  // Toggle de la sidebar mobile
+  toggleMobileSidebar() {
+    this.isMobileSidebarOpen = !this.isMobileSidebarOpen;
+  }
+
+  closeMobileSidebar() {
+    this.isMobileSidebarOpen = false;
+  }
+
+  // Récupérer tous les IDs des positions pour connecter les drop lists
+  getPositionIds(): string[] {
+    return this.team.positions.map((_, index) => `position-${index}`);
   }
 }

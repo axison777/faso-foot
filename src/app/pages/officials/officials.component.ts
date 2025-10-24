@@ -267,7 +267,7 @@ export class OfficialsComponent implements OnInit {
   }
 
   viewOfficialDetails(official: Official): void {
-    this.router.navigate(['/officiel-details', official.id], { state: { official } });
+    this.router.navigate(['/officiels/details', official.id], { state: { official } });
   }
 
   get filteredOfficials(): Official[] {

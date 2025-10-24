@@ -99,8 +99,11 @@ body {
 
 .layout-menu ul a.active-route {
     font-weight: 700;
-    color: #c73e3e !important;
-    background-color: #e7fffb;
+    color: rgb(42, 157, 82) !important;
+    background-color: #ffffff !important;
+    border-left: 4px solid rgb(42, 157, 82) !important;
+    padding-left: calc(1rem - 4px) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 
