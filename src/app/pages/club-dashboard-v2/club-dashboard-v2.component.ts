@@ -287,13 +287,13 @@ export class ClubDashboardV2Component implements OnInit {
 
   // Navigation vers les détails d'une équipe
   goToTeamDetails(teamId: string) {
-    this.router.navigate(['/equipe-details', teamId]);
+    this.router.navigate(['/equipes/details', teamId]);
   }
 
   // Navigation vers la vue complète du club
   goToClubDetails() {
     if (this.clubId) {
-      this.router.navigate(['/club-details', this.clubId]);
+      this.router.navigate(['/clubs/details', this.clubId]);
     }
   }
 

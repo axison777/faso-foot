@@ -523,7 +523,7 @@ export class PlayersComponent implements OnInit {
     openPlayerDetails(p: Player) {
         /* this.currentPlayer = p;
     this.showPlayerDetails = true; */
-        this.router.navigate(['/joueur-details', p.id]);
+        this.router.navigate(['/joueurs/details', p.id]);
     }
 
     getPositionLabel(pos: string | undefined): string {

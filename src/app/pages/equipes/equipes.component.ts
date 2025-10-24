@@ -322,7 +322,7 @@ export class EquipesComponent implements OnInit {
   viewTeamDetails(team: Team): void {
     /* this.selectedTeam = team;
     this.showDetails = true; */
-    this.router.navigate(['/equipe-details', team.id], { state: { team } });
+    this.router.navigate(['/equipes/details', team.id], { state: { team } });
   }
 
   editTeam(team: Team): void {

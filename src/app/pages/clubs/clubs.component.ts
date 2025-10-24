@@ -445,13 +445,13 @@ updateGlobalSelection() {
   }
 
   goToTeamDetails(teamId: string): void {
-    this.router.navigate(['/equipe-details', teamId]);
+    this.router.navigate(['/equipes/details', teamId]);
   }
 
   goToClubDetails(id: string): void {
     /* this.selectedTeam = team;
     this.showDetails = true; */
-    this.router.navigate(['/club-details', id],);
+    this.router.navigate(['/clubs/details', id],);
   }
 
 

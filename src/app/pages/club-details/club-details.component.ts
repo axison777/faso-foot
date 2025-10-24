@@ -667,7 +667,7 @@ availableReasons: any[]|undefined;
   openPlayerDetails(p: Player) {
     /* this.currentPlayer = p;
     this.showPlayerDetails = true; */
-    this.router.navigate(['/joueur-details', p.id]);
+    this.router.navigate(['/joueurs/details', p.id]);
   }
 
    get ecControls() { return (this.playerForm.get('emergency_contact') as FormArray).controls as FormGroup[]; }
@@ -1002,7 +1002,7 @@ loadTeams() {
   );
 }
 goToTeamDetails(teamId: string): void {
-    this.router.navigate(['/equipe-details', teamId]);
+    this.router.navigate(['/equipes/details', teamId]);
   }
 
 showSuspensionDialog(suspension?: any): void {

@@ -53,29 +53,57 @@ export const appRoutes: Routes = [
             //{ path: 'documentation', component: Documentation },
             { path: '', component: AccueilComponent,canActivate: [AuthGuard] },
             { path: 'accueil', component: AccueilComponent,canActivate: [AuthGuard] },
-            { path: 'saisons', component: SaisonsComponent, canActivate: [AuthGuard] },
+            { 
+                path: 'saisons', 
+                canActivate: [AuthGuard],
+                children: [
+                    { path: '', component: SaisonsComponent },
+                    { path: 'ajout', component: FormulaireSaisonComponent },
+                    { path: 'details/:id', component: SaisonDetailsComponent },
+                    { path: 'calendrier', component: CalendrierComponent }
+                ]
+            },
             { path: 'villes', component: VillesComponent,canActivate: [AuthGuard] },
             { path: 'stades', component: StadesComponent, canActivate: [AuthGuard] },
-            { path: 'equipes', component: EquipesComponent, canActivate: [AuthGuard] },
-             {path: 'matchs/:id', component: MatchsComponent, canActivate: [AuthGuard] },
-             {path: 'utilisateurs', component: UsersComponent, canActivate: [AuthGuard] },
-             {path: 'ligues', component:LiguesComponent, canActivate: [AuthGuard] },
-             {path: 'competitions', component:CompetitionsComponent, canActivate: [AuthGuard] },
-             {path: 'clubs', component:ClubsComponent, canActivate: [AuthGuard] },
-             {path: 'joueurs', component:PlayersComponent, canActivate: [AuthGuard] },
-             {path: 'equipe-details/:id', component:EquipeDetailsComponent, canActivate: [AuthGuard] },
-             {path: 'joueur-details/:id', component:PlayerDetailsComponent, canActivate: [AuthGuard] },
-             {path: 'categories-equipe', component:TeamCategoriesComponent, canActivate: [AuthGuard] },
-             {path: 'club-details/:id', component:ClubDetailsComponent, canActivate: [AuthGuard] },
-             {path: 'saison-details/:id', component:SaisonDetailsComponent, canActivate: [AuthGuard] },
-
-            {path: 'ajout-saison', component: FormulaireSaisonComponent, canActivate: [AuthGuard] },
-            {path: 'calendrier', component: CalendrierComponent, canActivate: [AuthGuard] },
+            { 
+                path: 'equipes', 
+                canActivate: [AuthGuard],
+                children: [
+                    { path: '', component: EquipesComponent },
+                    { path: 'details/:id', component: EquipeDetailsComponent }
+                ]
+            },
+            { path: 'matchs/:id', component: MatchsComponent, canActivate: [AuthGuard] },
+            { path: 'utilisateurs', component: UsersComponent, canActivate: [AuthGuard] },
+            { path: 'ligues', component:LiguesComponent, canActivate: [AuthGuard] },
+            { path: 'competitions', component:CompetitionsComponent, canActivate: [AuthGuard] },
+            { 
+                path: 'clubs', 
+                canActivate: [AuthGuard],
+                children: [
+                    { path: '', component: ClubsComponent },
+                    { path: 'details/:id', component: ClubDetailsComponent }
+                ]
+            },
+            { 
+                path: 'joueurs', 
+                canActivate: [AuthGuard],
+                children: [
+                    { path: '', component: PlayersComponent },
+                    { path: 'details/:id', component: PlayerDetailsComponent }
+                ]
+            },
+            { path: 'categories-equipe', component:TeamCategoriesComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
-
-            {path: 'officiels', component: OfficialsComponent, canActivate: [AuthGuard] },
-            {path: 'officiel-details/:id', component: OfficialDetailsComponent, canActivate: [AuthGuard] },
-                {path: 'match-setup/:id', component: MatchSetupComponent, canActivate: [AuthGuard] },
+            { 
+                path: 'officiels', 
+                canActivate: [AuthGuard],
+                children: [
+                    { path: '', component: OfficialsComponent },
+                    { path: 'details/:id', component: OfficialDetailsComponent }
+                ]
+            },
+            { path: 'match-setup/:id', component: MatchSetupComponent, canActivate: [AuthGuard] },
 
         ]
     },

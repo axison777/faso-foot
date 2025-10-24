@@ -756,7 +756,7 @@ loadClubs() {
 
 
 goToTeamDetails(teamId: string): void {
-    this.router.navigate(['/equipe-details', teamId]);
+    this.router.navigate(['/equipes/details', teamId]);
   }
 
   showPlayerAllDetails(){
