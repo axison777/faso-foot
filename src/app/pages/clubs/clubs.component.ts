@@ -75,12 +75,22 @@ export class ClubsComponent {
     private equipeService: EquipeService
   ) {
     this.clubForm = this.fb.group({
-      name: ['', Validators.required],
-      city: ['', Validators.required],
-      abbreviation: [''],
-      founded_year: [''],
+      name: ['', [Validators.required, Validators.maxLength(255)]],
+      abbreviation: ['', [Validators.required, Validators.maxLength(255)]],
       logo: [''],
-      status: ['', Validators.required]
+      email: ['', [Validators.email]],
+      fonded_year: [''],
+      phone: [''],
+      status: ['ACTIVE', Validators.required],
+      website: [''],
+      responsable_first_name: ['', [Validators.maxLength(255)]],
+      responsable_last_name: ['', [Validators.maxLength(255)]],
+      responsable_phone: [''],
+      responsable_email: ['', [Validators.email]],
+      responsable_position: ['', [Validators.maxLength(255)]],
+      street: ['', [Validators.maxLength(255)]],
+      country: [''],
+      city: ['']
     });
 
     this.teamsForm = this.fb.group({
@@ -140,9 +150,21 @@ export class ClubsComponent {
   resetForm(): void {
     this.clubForm.reset({
       name: '',
-      teams_count: '',
-      pools_count: 1, // Valeur par défaut
-      logo: ''
+      abbreviation: '',
+      logo: '',
+      email: '',
+      fonded_year: '',
+      phone: '',
+      status: 'ACTIVE',
+      website: '',
+      responsable_first_name: '',
+      responsable_last_name: '',
+      responsable_phone: '',
+      responsable_email: '',
+      responsable_position: '',
+      street: '',
+      country: '',
+      city: ''
     });
     this.fileUploader?.clear();
     this.isEditing = false;
@@ -168,20 +190,49 @@ export class ClubsComponent {
     this.loading = true;
     const formData = new FormData();
 
+    // Champs requis
     if (this.clubForm.get('name')?.value)
       formData.append('name', this.clubForm.get('name')?.value);
     if (this.clubForm.get('abbreviation')?.value)
       formData.append('abbreviation', this.clubForm.get('abbreviation')?.value);
-    if (this.clubForm.get('founded_year')?.value)
-      formData.append('fonded_year', new Date(this.clubForm.get('founded_year')?.value).getFullYear().toString()); ;
     if (this.clubForm.get('status')?.value)
       formData.append('status', this.clubForm.get('status')?.value);
+    
+    // Logo
     if (this.selectedFile) {
       formData.append('logo', this.selectedFile);
     }
-    if(this.clubForm.get('city')?.value){
+    
+    // Informations du club
+    if (this.clubForm.get('email')?.value)
+      formData.append('email', this.clubForm.get('email')?.value);
+    if (this.clubForm.get('fonded_year')?.value)
+      formData.append('fonded_year', new Date(this.clubForm.get('fonded_year')?.value).getFullYear().toString());
+    if (this.clubForm.get('phone')?.value)
+      formData.append('phone', this.clubForm.get('phone')?.value);
+    if (this.clubForm.get('website')?.value)
+      formData.append('website', this.clubForm.get('website')?.value);
+    
+    // Informations du responsable
+    if (this.clubForm.get('responsable_first_name')?.value)
+      formData.append('responsable_first_name', this.clubForm.get('responsable_first_name')?.value);
+    if (this.clubForm.get('responsable_last_name')?.value)
+      formData.append('responsable_last_name', this.clubForm.get('responsable_last_name')?.value);
+    if (this.clubForm.get('responsable_phone')?.value)
+      formData.append('responsable_phone', this.clubForm.get('responsable_phone')?.value);
+    if (this.clubForm.get('responsable_email')?.value)
+      formData.append('responsable_email', this.clubForm.get('responsable_email')?.value);
+    if (this.clubForm.get('responsable_position')?.value)
+      formData.append('responsable_position', this.clubForm.get('responsable_position')?.value);
+    
+    // Adresse
+    if (this.clubForm.get('street')?.value)
+      formData.append('street', this.clubForm.get('street')?.value);
+    if (this.clubForm.get('country')?.value)
+      formData.append('country', this.clubForm.get('country')?.value);
+    if (this.clubForm.get('city')?.value)
       formData.append('city', this.clubForm.get('city')?.value);
-    }
+    
     if (this.isEditing) {
       formData.append('_method', 'PUT');
     }
@@ -220,10 +271,20 @@ export class ClubsComponent {
     this.clubForm.patchValue({
       name: club.name,
       abbreviation: club.abbreviation,
-      founded_year: club.fonded_year  ,
-      status: club.status,
       logo: club.logo ? club.logo : '',
-      city: club?.city
+      email: club.email,
+      fonded_year: club.fonded_year,
+      phone: club.phone,
+      status: club.status,
+      website: club.website,
+      responsable_first_name: club.responsable_first_name,
+      responsable_last_name: club.responsable_last_name,
+      responsable_phone: club.responsable_phone,
+      responsable_email: club.responsable_email,
+      responsable_position: club.responsable_position,
+      street: club.street,
+      country: club.country,
+      city: club.city
     });
     this.selectedFile = null;
     this.showForm = true;

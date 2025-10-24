@@ -11,9 +11,9 @@
     </button>
   </div>
 
-  <p-dialog [(visible)]="showForm" [style]="{ width: '500px' }" [header]="isEditing ? 'Modifier le club' : 'Ajouter un nouveaux club'" [modal]="true" [closable]="false">
+  <p-dialog [(visible)]="showForm" [style]="{ width: '700px', maxHeight: '90vh' }" [header]="isEditing ? 'Modifier le club' : 'Ajouter un nouveau club'" [modal]="true" [closable]="false" [contentStyle]="{'overflow-y': 'auto'}">
     <ng-template #content>
-      <form [formGroup]="clubForm" (ngSubmit)="saveClub()" class="flex flex-col gap-6">
+      <form [formGroup]="clubForm" (ngSubmit)="saveClub()" class="flex flex-col gap-4">
 
         <!-- Nom de la ligue -->
         <div>
@@ -46,51 +46,115 @@
           </small>
         </div>
 
-        <div>
-          <label for="city" class="block mb-2 font-bold">Ville </label>
-          <p-select [options]="villes" optionLabel="name" optionValue="name" formControlName="city" placeholder="Sélectionnez une ville" class="w-full" appendTo="body"></p-select>
+        <!-- Section: Informations générales -->
+        <h3 class="text-lg font-bold text-green-700 border-b pb-2 mb-2">Informations Générales</h3>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="email" class="block mb-2 font-semibold">Email</label>
+            <input pInputText type="email" id="email" formControlName="email" placeholder="email@club.com" class="w-full" />
+            <small class="text-red-500" *ngIf="clubForm.get('email')?.invalid && clubForm.get('email')?.touched">
+              Email invalide.
+            </small>
+          </div>
 
-          <small class="text-red-500" *ngIf="clubForm.get('city')?.invalid && clubForm.get('city')?.touched">
-            La ville est requise.
-          </small>
+          <div>
+            <label for="phone" class="block mb-2 font-semibold">Téléphone</label>
+            <input pInputText type="tel" id="phone" formControlName="phone" placeholder="+226 XX XX XX XX" class="w-full" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="fonded_year" class="block mb-2 font-semibold">Année de création</label>
+            <p-datepicker
+              id="fonded_year"
+              formControlName="fonded_year"
+              placeholder="Année de création"
+              view="year"
+              dateFormat="yy"
+              class="w-full"
+              appendTo="body"
+              [showIcon]="true"
+            />
+          </div>
+
+          <div>
+            <label for="status" class="block mb-2 font-semibold">Statut <span class="text-red-500">*</span></label>
+            <p-select
+              id="status"
+              formControlName="status"
+              placeholder="Statut du club"
+              class="w-full"
+              appendTo="body"
+              [options]="statusOptions"
+              optionLabel="name"
+              optionValue="value"
+            />
+            <small class="text-red-500" *ngIf="clubForm.get('status')?.invalid && clubForm.get('status')?.touched">
+              Le statut est requis.
+            </small>
+          </div>
         </div>
 
         <div>
-          <!-- <label for="founded_year" class="block mb-2 font-bold">Année de création </label> -->
-          <label for="founded_year" class="block mb-2 font-bold">Année de création <span class="text-red-500">*</span></label>
-          <p-datepicker
-            id="founded_year"
-            formControlName="founded_year"
-            placeholder="Entrez l'année de création du club"
-            view="year"
-            dateFormat="yy"
-            class="w-full"
-            appendTo="body"
-            [showIcon]="true"
-            [style]="{ width: '100%' }"
+          <label for="website" class="block mb-2 font-semibold">Site web</label>
+          <input pInputText type="url" id="website" formControlName="website" placeholder="https://www.club.com" class="w-full" />
+        </div>
 
-          />
-          <small class="text-red-500" *ngIf="clubForm.get('founded_year')?.invalid && clubForm.get('founded_year')?.touched">
-            L'année de création est requise.
-          </small>
+        <!-- Section: Adresse -->
+        <h3 class="text-lg font-bold text-green-700 border-b pb-2 mb-2 mt-4">Adresse</h3>
+        
+        <div>
+          <label for="street" class="block mb-2 font-semibold">Rue</label>
+          <input pInputText type="text" id="street" formControlName="street" placeholder="Adresse du club" class="w-full" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="city" class="block mb-2 font-semibold">Ville</label>
+            <p-select [options]="villes" optionLabel="name" optionValue="name" formControlName="city" placeholder="Sélectionnez une ville" class="w-full" appendTo="body"></p-select>
+          </div>
+
+          <div>
+            <label for="country" class="block mb-2 font-semibold">Pays</label>
+            <input pInputText type="text" id="country" formControlName="country" placeholder="Burkina Faso" class="w-full" />
+          </div>
+        </div>
+
+        <!-- Section: Responsable -->
+        <h3 class="text-lg font-bold text-green-700 border-b pb-2 mb-2 mt-4">Responsable du Club</h3>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="responsable_first_name" class="block mb-2 font-semibold">Prénom</label>
+            <input pInputText type="text" id="responsable_first_name" formControlName="responsable_first_name" placeholder="Prénom du responsable" class="w-full" />
+          </div>
+
+          <div>
+            <label for="responsable_last_name" class="block mb-2 font-semibold">Nom</label>
+            <input pInputText type="text" id="responsable_last_name" formControlName="responsable_last_name" placeholder="Nom du responsable" class="w-full" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="responsable_email" class="block mb-2 font-semibold">Email</label>
+            <input pInputText type="email" id="responsable_email" formControlName="responsable_email" placeholder="email@responsable.com" class="w-full" />
+            <small class="text-red-500" *ngIf="clubForm.get('responsable_email')?.invalid && clubForm.get('responsable_email')?.touched">
+              Email invalide.
+            </small>
+          </div>
+
+          <div>
+            <label for="responsable_phone" class="block mb-2 font-semibold">Téléphone</label>
+            <input pInputText type="tel" id="responsable_phone" formControlName="responsable_phone" placeholder="+226 XX XX XX XX" class="w-full" />
+          </div>
         </div>
 
         <div>
-          <label for="status" class="block mb-2 font-bold">Statut <span class="text-red-500">*</span></label>
-          <p-select
-            id="status"
-            formControlName="status"
-            placeholder="Sélectionnez le statut du club"
-            class="w-full"
-            appendTo="body"
-            [options]="statusOptions"
-            optionLabel="name"
-            optionValue="value"
-
-          />
-          <small class="text-red-500" *ngIf="clubForm.get('status')?.invalid && clubForm.get('status')?.touched">
-            Le statut est requis.
-          </small>
+          <label for="responsable_position" class="block mb-2 font-semibold">Fonction</label>
+          <input pInputText type="text" id="responsable_position" formControlName="responsable_position" placeholder="Ex: Président, Directeur Sportif..." class="w-full" />
         </div>
 
 

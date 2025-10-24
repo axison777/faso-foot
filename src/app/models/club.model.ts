@@ -12,30 +12,33 @@ export interface Club {
   fonded_year?: string;
   status?:  "ACTIVE" | "INACTIVE" | "SUSPENDED" | "DISSOLVED";
 
-
-  //////////
- phone?: string;
+  // Informations de contact
+  phone?: string;
   email?: string;
+  website?: string;
 
+  // Adresse
+  street?: string;
+  city?: string | City;
   city_id?: string;
-  city?: City;
+  country?: string;
 
-
+  // Relations
   teams?: Team[];
-  team_count?: number
+  team_count?: number;
 
+  // Responsable
   responsable_first_name?: string;
   responsable_last_name?: string;
   responsable_position?: string;
   responsable_phone?: string;
   responsable_email?: string;
 
+  // Équipements
   kits?: TeamKit[];
   stadium_id?: string;
   stadium?: Stadium;
-  suspensions?: Suspension[]
-
-
+  suspensions?: Suspension[];
 }
 
 
