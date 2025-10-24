@@ -1,0 +1,165 @@
+<div class="club-manager-dashboard">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="club-info" *ngIf="club()">
+            <img *ngIf="club()?.logo" [src]="club()?.logo" alt="Logo du club" class="club-logo">
+            <div class="club-details">
+                <h1>{{ club()?.name }}</h1>
+                <p class="club-status">{{ club()?.status }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="isLoading()" class="loading-container">
+        <div class="spinner"></div>
+        <p>Chargement des données...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error()" class="error-container">
+        <i class="pi pi-exclamation-triangle"></i>
+        <p>{{ error() }}</p>
+    </div>
+
+    <!-- Teams overview -->
+    <div *ngIf="!isLoading() && !error() && hasTeams()" class="teams-section">
+        <h2>Vos équipes ({{ teams().length }})</h2>
+        
+        <div class="teams-grid">
+            <div 
+                *ngFor="let team of teams()" 
+                class="team-card"
+                [class.selected]="selectedTeam()?.id === team.id"
+                (click)="selectTeam(team)">
+                
+                <div class="team-card-header">
+                    <img *ngIf="team.logo" [src]="team.logo" alt="Logo équipe" class="team-logo">
+                    <div class="team-info">
+                        <h3>{{ team.name }}</h3>
+                        <p class="team-category">{{ team.category?.name }}</p>
+                        <span class="team-status" [class]="'status-' + team.status?.toLowerCase()">
+                            {{ team.status }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="team-card-body">
+                    <div class="stat-item">
+                        <i class="pi pi-users"></i>
+                        <span>{{ team.player_count || 0 }} joueurs</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="pi pi-briefcase"></i>
+                        <span>{{ team.staff_count || 0 }} staff</span>
+                    </div>
+                </div>
+
+                <div class="team-card-actions">
+                    <button 
+                        class="btn btn-sm btn-primary" 
+                        (click)="navigateToTeamDetails(team.id); $event.stopPropagation()">
+                        <i class="pi pi-eye"></i>
+                        Détails
+                    </button>
+                    <button 
+                        class="btn btn-sm btn-secondary" 
+                        (click)="navigateToTeamPlayers(team.id); $event.stopPropagation()">
+                        <i class="pi pi-users"></i>
+                        Joueurs
+                    </button>
+                    <button 
+                        class="btn btn-sm btn-secondary" 
+                        (click)="navigateToTeamStaff(team.id); $event.stopPropagation()">
+                        <i class="pi pi-briefcase"></i>
+                        Staff
+                    </button>
+                    <button 
+                        class="btn btn-sm btn-secondary" 
+                        (click)="navigateToTeamMatches(team.id); $event.stopPropagation()">
+                        <i class="pi pi-calendar"></i>
+                        Matchs
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selected team details -->
+    <div *ngIf="selectedTeam() && !isLoading()" class="team-details-section">
+        <h2>{{ selectedTeam()?.name }} - Détails</h2>
+
+        <div class="details-grid">
+            <!-- Players summary -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <i class="pi pi-users"></i>
+                    <h3>Joueurs</h3>
+                </div>
+                <div class="card-body">
+                    <p class="count">{{ selectedTeam()?.players?.length || 0 }}</p>
+                    <button 
+                        class="btn btn-link" 
+                        (click)="navigateToTeamPlayers(selectedTeam()!.id)">
+                        Voir tous les joueurs →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Staff summary -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <i class="pi pi-briefcase"></i>
+                    <h3>Staff</h3>
+                </div>
+                <div class="card-body">
+                    <p class="count">{{ selectedTeam()?.staff?.length || 0 }}</p>
+                    <button 
+                        class="btn btn-link" 
+                        (click)="navigateToTeamStaff(selectedTeam()!.id)">
+                        Voir tout le staff →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upcoming matches -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <i class="pi pi-calendar"></i>
+                    <h3>Matchs à venir</h3>
+                </div>
+                <div class="card-body">
+                    <p class="count">{{ selectedTeam()?.upcomingMatches?.length || 0 }}</p>
+                    <button 
+                        class="btn btn-link" 
+                        (click)="navigateToTeamMatches(selectedTeam()!.id)">
+                        Voir tous les matchs →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Past matches -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <i class="pi pi-history"></i>
+                    <h3>Matchs passés</h3>
+                </div>
+                <div class="card-body">
+                    <p class="count">{{ selectedTeam()?.pastMatches?.length || 0 }}</p>
+                    <button 
+                        class="btn btn-link" 
+                        (click)="navigateToTeamMatches(selectedTeam()!.id)">
+                        Voir l'historique →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoading() && !error() && !hasTeams()" class="empty-state">
+        <i class="pi pi-inbox"></i>
+        <h3>Aucune équipe</h3>
+        <p>Votre club n'a pas encore d'équipe enregistrée.</p>
+    </div>
+</div>

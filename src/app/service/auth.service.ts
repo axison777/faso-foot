@@ -48,8 +48,12 @@ export class AuthService {
         console.log('👤 [AUTH] User reçu:', response?.data?.user);
         console.log('🏷️ [AUTH] User ID:', response?.data?.user?.id);
         console.log('🏟️ [AUTH] Team ID:', response?.data?.user?.team_id);
+        console.log('🏢 [AUTH] Club ID:', response?.data?.user?.club_id);
         console.log('👔 [AUTH] Coach ID:', response?.data?.user?.coach_id);
+        console.log('⚖️ [AUTH] Official ID:', response?.data?.user?.official_id);
         console.log('✅ [AUTH] Is Coach:', response?.data?.user?.is_coach);
+        console.log('🏢 [AUTH] Is Club Manager:', response?.data?.user?.is_club_manager);
+        console.log('⚖️ [AUTH] Is Official:', response?.data?.user?.is_official);
         console.log('📋 [AUTH] Roles:', response?.data?.user?.roles);
         console.log('🔑 [AUTH] Token:', response?.data?.access_token ? 'Token présent' : 'Token absent');
 
