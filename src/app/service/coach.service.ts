@@ -43,13 +43,23 @@ export class CoachService {
 
     /**
      * Récupère tous les joueurs d'une équipe
-     * Avec cache automatique et réponse normalisée par l'intercepteur
+     * Endpoint: GET /v1/teams/{teamId}/players
+     * Avec cache automatique et réponse normalisée
      */
     getTeamPlayers(teamId: string): Observable<CoachPlayer[]> {
-        return this.http.get<CoachPlayer[]>(`${this.baseUrl}/teams/${teamId}/players`).pipe(
+        console.log('👥 [COACH SERVICE] Récupération des joueurs de l\'équipe:', teamId);
+        
+        return this.http.get<any>(`${this.baseUrl}/teams/${teamId}/players`).pipe(
+            map((response) => {
+                console.log('✅ [COACH SERVICE] Réponse brute joueurs:', response);
+                // Le vrai endpoint retourne { status: true, data: { players: [...] }, message: "..." }
+                const players = response?.data?.players || response?.players || response?.data || [];
+                console.log('✅ [COACH SERVICE] Joueurs extraits:', players.length);
+                return players;
+            }),
             shareReplay(1, this.CACHE_DURATION),
             catchError((err) => {
-                console.error('Erreur lors du chargement des joueurs:', err);
+                console.error('❌ [COACH SERVICE] Erreur lors du chargement des joueurs:', err);
                 return of([]);
             })
         );
@@ -252,13 +262,23 @@ export class CoachService {
 
     /**
      * Récupère le staff d'une équipe
-     * Avec cache automatique et réponse normalisée par l'intercepteur
+     * Endpoint: GET /v1/teams/{teamId}/staffs
+     * Avec cache automatique et réponse normalisée
      */
     getTeamStaff(teamId: string): Observable<CoachStaffMember[]> {
-        return this.http.get<CoachStaffMember[]>(`${this.baseUrl}/teams/${teamId}/staffs`).pipe(
+        console.log('👔 [COACH SERVICE] Récupération du staff de l\'équipe:', teamId);
+        
+        return this.http.get<any>(`${this.baseUrl}/teams/${teamId}/staffs`).pipe(
+            map((response) => {
+                console.log('✅ [COACH SERVICE] Réponse brute staff:', response);
+                // Le vrai endpoint retourne { status: true, data: { staffs: [...] }, message: "..." }
+                const staffs = response?.data?.staffs || response?.staffs || response?.data || [];
+                console.log('✅ [COACH SERVICE] Staff extrait:', staffs.length);
+                return staffs;
+            }),
             shareReplay(1, this.CACHE_DURATION),
             catchError((err) => {
-                console.error('Erreur lors du chargement du staff:', err);
+                console.error('❌ [COACH SERVICE] Erreur lors du chargement du staff:', err);
                 return of([]);
             })
         );

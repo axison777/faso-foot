@@ -126,15 +126,18 @@ export class ClubManagerService {
 
     /**
      * Récupère tous les joueurs d'une équipe
+     * Endpoint: GET /v1/teams/{teamId}/players
      */
     getTeamPlayers(teamId: string): Observable<ClubManagerPlayer[]> {
         console.log('👥 [CLUB MANAGER SERVICE] Récupération des joueurs de l\'équipe:', teamId);
         
         return this.http.get<any>(`${this.baseUrl}/teams/${teamId}/players`).pipe(
             map((response) => {
-                console.log('✅ [CLUB MANAGER SERVICE] Joueurs reçus:', response);
-                // Gérer les différents formats de réponse
-                return response.data?.players || response.data || response;
+                console.log('✅ [CLUB MANAGER SERVICE] Réponse brute joueurs:', response);
+                // Le vrai endpoint retourne { status: true, data: { players: [...] }, message: "..." }
+                const players = response?.data?.players || response?.players || response?.data || [];
+                console.log('✅ [CLUB MANAGER SERVICE] Joueurs extraits:', players);
+                return players;
             }),
             shareReplay(1, this.CACHE_DURATION),
             catchError((err) => {
@@ -146,6 +149,7 @@ export class ClubManagerService {
 
     /**
      * Récupère les détails complets d'un joueur
+     * Endpoint: GET /v1/players/show/{id}
      */
     getPlayerDetails(playerId: string): Observable<ClubManagerPlayer> {
         console.log('👤 [CLUB MANAGER SERVICE] Récupération du joueur:', playerId);
@@ -159,6 +163,86 @@ export class ClubManagerService {
             catchError((err) => {
                 console.error('❌ [CLUB MANAGER SERVICE] Erreur lors du chargement du joueur:', err);
                 throw err;
+            })
+        );
+    }
+
+    /**
+     * Crée un nouveau joueur
+     * Endpoint: POST /v1/players
+     */
+    createPlayer(playerData: Partial<ClubManagerPlayer>): Observable<ClubManagerPlayer> {
+        console.log('➕ [CLUB MANAGER SERVICE] Création d\'un joueur:', playerData);
+        
+        return this.http.post<any>(`${this.baseUrl}/players`, playerData).pipe(
+            map((response) => {
+                console.log('✅ [CLUB MANAGER SERVICE] Joueur créé:', response);
+                return response.data?.player || response.data || response;
+            }),
+            catchError((err) => {
+                console.error('❌ [CLUB MANAGER SERVICE] Erreur lors de la création du joueur:', err);
+                throw err;
+            })
+        );
+    }
+
+    /**
+     * Modifie un joueur existant
+     * Endpoint: PUT /v1/players/{playerId}
+     */
+    updatePlayer(playerId: string, playerData: Partial<ClubManagerPlayer>): Observable<ClubManagerPlayer> {
+        console.log('✏️ [CLUB MANAGER SERVICE] Modification du joueur:', playerId, playerData);
+        
+        return this.http.put<any>(`${this.baseUrl}/players/${playerId}`, playerData).pipe(
+            map((response) => {
+                console.log('✅ [CLUB MANAGER SERVICE] Joueur modifié:', response);
+                return response.data?.player || response.data || response;
+            }),
+            catchError((err) => {
+                console.error('❌ [CLUB MANAGER SERVICE] Erreur lors de la modification du joueur:', err);
+                throw err;
+            })
+        );
+    }
+
+    /**
+     * Supprime un joueur
+     * Endpoint: DELETE /v1/players/delete/{playerId}
+     */
+    deletePlayer(playerId: string): Observable<any> {
+        console.log('🗑️ [CLUB MANAGER SERVICE] Suppression du joueur:', playerId);
+        
+        return this.http.delete<any>(`${this.baseUrl}/players/delete/${playerId}`).pipe(
+            map((response) => {
+                console.log('✅ [CLUB MANAGER SERVICE] Joueur supprimé:', response);
+                return response;
+            }),
+            catchError((err) => {
+                console.error('❌ [CLUB MANAGER SERVICE] Erreur lors de la suppression du joueur:', err);
+                throw err;
+            })
+        );
+    }
+
+    /**
+     * Récupère la liste paginée de tous les joueurs
+     * Endpoint: GET /v1/players/paginate
+     */
+    getAllPlayersPaginated(page: number = 1, perPage: number = 15): Observable<any> {
+        console.log('👥 [CLUB MANAGER SERVICE] Récupération paginée des joueurs, page:', page);
+        
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('per_page', perPage.toString());
+        
+        return this.http.get<any>(`${this.baseUrl}/players/paginate`, { params }).pipe(
+            map((response) => {
+                console.log('✅ [CLUB MANAGER SERVICE] Joueurs paginés reçus:', response);
+                return response;
+            }),
+            catchError((err) => {
+                console.error('❌ [CLUB MANAGER SERVICE] Erreur lors du chargement des joueurs paginés:', err);
+                return of({ data: [], meta: { current_page: 1, per_page: perPage, total: 0 } });
             })
         );
     }
@@ -203,19 +287,118 @@ export class ClubManagerService {
 
     /**
      * Récupère le staff d'une équipe
+     * Endpoint: GET /v1/teams/{teamId}/staffs
      */
     getTeamStaff(teamId: string): Observable<ClubManagerStaffMember[]> {
         console.log('👔 [CLUB MANAGER SERVICE] Récupération du staff de l\'équipe:', teamId);
         
         return this.http.get<any>(`${this.baseUrl}/teams/${teamId}/staffs`).pipe(
             map((response) => {
-                console.log('✅ [CLUB MANAGER SERVICE] Staff reçu:', response);
-                // Gérer les différents formats de réponse
-                return response.data?.staff || response.data || response;
+                console.log('✅ [CLUB MANAGER SERVICE] Réponse brute staff:', response);
+                // Le vrai endpoint retourne { status: true, data: { staffs: [...] }, message: "..." }
+                const staffs = response?.data?.staffs || response?.staffs || response?.data || [];
+                console.log('✅ [CLUB MANAGER SERVICE] Staff extrait:', staffs);
+                return staffs;
             }),
             shareReplay(1, this.CACHE_DURATION),
             catchError((err) => {
                 console.error('❌ [CLUB MANAGER SERVICE] Erreur lors du chargement du staff:', err);
+                return of([]);
+            })
+        );
+    }
+
+    /**
+     * Récupère les détails d'un membre du staff
+     * Endpoint: GET /v1/staffs/{id}
+     */
+    getStaffDetails(staffId: string): Observable<ClubManagerStaffMember> {
+        console.log('👤 [CLUB MANAGER SERVICE] Récupération du membre du staff:', staffId);
+        
+        return this.http.get<any>(`${this.baseUrl}/staffs/${staffId}`).pipe(
+            map((response) => {
+                console.log('✅ [CLUB MANAGER SERVICE] Staff reçu:', response);
+                return response.data?.staff || response.data || response;
+            }),
+            shareReplay(1, this.CACHE_DURATION),
+            catchError((err) => {
+                console.error('❌ [CLUB MANAGER SERVICE] Erreur lors du chargement du membre du staff:', err);
+                throw err;
+            })
+        );
+    }
+
+    /**
+     * Crée un nouveau membre du staff
+     * Endpoint: POST /v1/staffs
+     */
+    createStaff(staffData: Partial<ClubManagerStaffMember>): Observable<ClubManagerStaffMember> {
+        console.log('➕ [CLUB MANAGER SERVICE] Création d\'un membre du staff:', staffData);
+        
+        return this.http.post<any>(`${this.baseUrl}/staffs`, staffData).pipe(
+            map((response) => {
+                console.log('✅ [CLUB MANAGER SERVICE] Staff créé:', response);
+                return response.data?.staff || response.data || response;
+            }),
+            catchError((err) => {
+                console.error('❌ [CLUB MANAGER SERVICE] Erreur lors de la création du staff:', err);
+                throw err;
+            })
+        );
+    }
+
+    /**
+     * Modifie un membre du staff existant
+     * Endpoint: PUT /v1/staffs/{id}
+     */
+    updateStaff(staffId: string, staffData: Partial<ClubManagerStaffMember>): Observable<ClubManagerStaffMember> {
+        console.log('✏️ [CLUB MANAGER SERVICE] Modification du staff:', staffId, staffData);
+        
+        return this.http.put<any>(`${this.baseUrl}/staffs/${staffId}`, staffData).pipe(
+            map((response) => {
+                console.log('✅ [CLUB MANAGER SERVICE] Staff modifié:', response);
+                return response.data?.staff || response.data || response;
+            }),
+            catchError((err) => {
+                console.error('❌ [CLUB MANAGER SERVICE] Erreur lors de la modification du staff:', err);
+                throw err;
+            })
+        );
+    }
+
+    /**
+     * Supprime un membre du staff
+     * Endpoint: DELETE /v1/staffs/{id}
+     */
+    deleteStaff(staffId: string): Observable<any> {
+        console.log('🗑️ [CLUB MANAGER SERVICE] Suppression du staff:', staffId);
+        
+        return this.http.delete<any>(`${this.baseUrl}/staffs/${staffId}`).pipe(
+            map((response) => {
+                console.log('✅ [CLUB MANAGER SERVICE] Staff supprimé:', response);
+                return response;
+            }),
+            catchError((err) => {
+                console.error('❌ [CLUB MANAGER SERVICE] Erreur lors de la suppression du staff:', err);
+                throw err;
+            })
+        );
+    }
+
+    /**
+     * Récupère la liste complète du staff
+     * Endpoint: GET /v1/staffs
+     */
+    getAllStaff(): Observable<ClubManagerStaffMember[]> {
+        console.log('👔 [CLUB MANAGER SERVICE] Récupération de tout le staff');
+        
+        return this.http.get<any>(`${this.baseUrl}/staffs`).pipe(
+            map((response) => {
+                console.log('✅ [CLUB MANAGER SERVICE] Staff complet reçu:', response);
+                return response.data?.staffs || response.data || [];
+            }),
+            catchError((err) => {
+                console.error('❌ [CLUB MANAGER SERVICE] Erreur lors du chargement du staff complet:', err);
                 return of([]);
             })
         );
