@@ -26,6 +26,7 @@ export interface User {
   is_active?: boolean;
   is_official?: boolean; // Indicateur pour les officiels
   is_coach?: boolean | number; // Indicateur pour les coachs (peut être boolean ou 0/1)
+  is_club_manager?: boolean | number; // Indicateur pour les managers (peut être boolean ou 0/1)
   created_at?: string;
   updated_at?: string;
 }
