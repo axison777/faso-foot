@@ -53,8 +53,43 @@ export class CoachService {
             map((response) => {
                 console.log('✅ [COACH SERVICE] Réponse brute joueurs:', response);
                 // Le vrai endpoint retourne { status: true, data: { players: [...] }, message: "..." }
-                const players = response?.data?.players || response?.players || response?.data || [];
-                console.log('✅ [COACH SERVICE] Joueurs extraits:', players.length);
+                const rawPlayers = response?.data?.players || response?.players || response?.data || [];
+                console.log('✅ [COACH SERVICE] Joueurs extraits:', rawPlayers.length);
+                
+                // Mapper les joueurs et construire l'URL complète de la photo
+                const players = rawPlayers.map((player: any) => {
+                    console.log('📸 [COACH SERVICE] Joueur photo mapping:', {
+                        id: player.id,
+                        name: `${player.first_name} ${player.last_name}`,
+                        photo: player.photo,
+                        photo_url: player.photo_url
+                    });
+                    
+                    // Construire l'URL de la photo
+                    let photoUrl = null;
+                    
+                    // Cas 1: photo_url existe déjà et est une URL complète
+                    if (player.photo_url) {
+                        photoUrl = player.photo_url;
+                    }
+                    // Cas 2: photo existe et est une URL complète
+                    else if (player.photo && player.photo.startsWith('http')) {
+                        photoUrl = player.photo;
+                    }
+                    // Cas 3: photo existe et est un chemin relatif
+                    else if (player.photo && !player.photo.startsWith('http')) {
+                        // Construire l'URL complète (ajuster selon votre backend)
+                        const baseUrl = this.baseUrl.replace('/api/v1', '');
+                        photoUrl = `${baseUrl}/storage/${player.photo}`;
+                    }
+                    
+                    return {
+                        ...player,
+                        photo: photoUrl // Normaliser sur le champ 'photo'
+                    };
+                });
+                
+                console.log('✅ [COACH SERVICE] Joueurs avec photos:', players);
                 return players;
             }),
             shareReplay(1, this.CACHE_DURATION),

@@ -253,7 +253,7 @@ import { CoachPlayer } from '../../models/coach-api.model';
             gap: 2rem;
             margin-bottom: 2rem;
             padding: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             border-radius: 12px;
             color: white;
         }
@@ -263,7 +263,7 @@ import { CoachPlayer } from '../../models/coach-api.model';
             height: 80px;
             border-radius: 50%;
             background: white;
-            color: #667eea;
+            color: #10b981;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -348,7 +348,7 @@ import { CoachPlayer } from '../../models/coach-api.model';
         .jersey-large {
             font-size: 2rem !important;
             font-weight: 700 !important;
-            color: #667eea !important;
+            color: #10b981 !important;
         }
 
         .stats-grid {
@@ -368,14 +368,14 @@ import { CoachPlayer } from '../../models/coach-api.model';
         }
 
         .stat-card:hover {
-            border-color: #667eea;
+            border-color: #10b981;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
         }
 
         .stat-card i {
             font-size: 2rem;
-            color: #667eea;
+            color: #10b981;
             margin-bottom: 0.5rem;
         }
 

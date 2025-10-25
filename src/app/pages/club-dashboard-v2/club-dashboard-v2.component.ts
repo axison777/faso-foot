@@ -11,8 +11,10 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ClubService, MyClub } from '../../service/club.service';
 import { ClubManagerService } from '../../service/club-manager.service';
+import { TeamKitService } from '../../service/team-kit.service';
 import { AuthService } from '../../service/auth.service';
 import { CoachDashboardV2Component } from '../coach-dashboard-v2/coach-dashboard-v2.component';
+import { KitsDisplayComponent } from '../../components/kits-display/kits-display.component';
 
 interface ClubTeam {
     id: string;
@@ -48,7 +50,8 @@ interface ClubManager {
   standalone: true,
   imports: [
     CommonModule, FormsModule, ButtonModule, DropdownModule, CardModule,
-    TabViewModule, DividerModule, ToastModule, CoachDashboardV2Component
+    TabViewModule, DividerModule, ToastModule, CoachDashboardV2Component,
+    KitsDisplayComponent
   ],
   providers: [MessageService],
   templateUrl: './club-dashboard-v2.component.html',
@@ -57,12 +60,14 @@ interface ClubManager {
 export class ClubDashboardV2Component implements OnInit {
   private clubService = inject(ClubService);
   private clubManagerService = inject(ClubManagerService);
+  private teamKitService = inject(TeamKitService);
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private router = inject(Router);
   
   club = signal<any | null>(null);
   manager = signal<ClubManager | null>(null);
+  kits = signal<any[]>([]);
   selectedTeamId = '';
   activeTabIndex = 0;
   loading = false;
@@ -115,12 +120,14 @@ export class ClubDashboardV2Component implements OnInit {
     if (currentUser && (currentUser as any).club_id) {
       this.clubId = (currentUser as any).club_id;
       this.loadClubData();
+      this.loadKits();
     } else {
       // Si pas de club_id dans le user, essayer de récupérer depuis localStorage
       const storedClubId = localStorage.getItem('user_club_id');
       if (storedClubId) {
         this.clubId = storedClubId;
         this.loadClubData();
+        this.loadKits();
       } else {
         this.messageService.add({
           severity: 'error',
@@ -162,21 +169,48 @@ export class ClubDashboardV2Component implements OnInit {
             phone: clubData?.phone || '',
             email: clubData?.email || ''
           },
-          teams: (clubData?.teams || []).map((team: any) => ({
-            id: team.id,
-            name: team.name,
-            category: team.category?.name || 'Senior',
-            logo: team.logo,
-            coach: {
-              id: team.coach?.id || '1',
-              name: team.manager_first_name && team.manager_last_name 
-                ? `${team.manager_first_name} ${team.manager_last_name}` 
-                : 'Coach non assigné',
-              email: team.email || ''
-            },
-            players: team.player_count || 0,
-            status: team.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE'
-          }))
+          teams: (clubData?.teams || []).map((team: any) => {
+            console.log('🔍 [MAPPING TEAM]:', team);
+            
+            // Essayer de trouver le coach depuis plusieurs sources possibles
+            let coachName = 'Coach non assigné';
+            let coachId = '1';
+            let coachEmail = '';
+            
+            // Cas 1: coach est un objet avec first_name/last_name
+            if (team.coach?.first_name || team.coach?.last_name) {
+              coachName = `${team.coach.first_name || ''} ${team.coach.last_name || ''}`.trim();
+              coachId = team.coach.id || '1';
+              coachEmail = team.coach.email || '';
+            }
+            // Cas 2: manager_first_name/manager_last_name directement sur team
+            else if (team.manager_first_name || team.manager_last_name) {
+              coachName = `${team.manager_first_name || ''} ${team.manager_last_name || ''}`.trim();
+            }
+            // Cas 3: staff members - chercher le COACH
+            else if (team.staff_members && Array.isArray(team.staff_members)) {
+              const coach = team.staff_members.find((s: any) => s.role === 'COACH');
+              if (coach) {
+                coachName = `${coach.first_name || ''} ${coach.last_name || ''}`.trim();
+                coachId = coach.id || '1';
+                coachEmail = coach.email || '';
+              }
+            }
+            
+            return {
+              id: team.id,
+              name: team.name || 'Équipe',
+              category: team.category?.name || team.category || 'Senior',
+              logo: team.logo || team.logo_url,
+              coach: {
+                id: coachId,
+                name: coachName,
+                email: coachEmail
+              },
+              players: team.player_count || team.players_count || 0,
+              status: team.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE'
+            };
+          })
         };
 
         console.log('✅ [CLUB DASHBOARD] Manager créé avec', manager.teams.length, 'équipes');
@@ -229,6 +263,18 @@ export class ClubDashboardV2Component implements OnInit {
       severity: 'info',
       summary: 'Équipe sélectionnée',
       detail: `Affichage des données de ${this.selectedTeam()?.name}`
+    });
+  }
+
+  loadKits() {
+    this.teamKitService.getAll().subscribe({
+      next: (res: any) => {
+        console.log('✅ Maillots chargés:', res);
+        this.kits.set(res?.data?.jerseys || []);
+      },
+      error: (err: any) => {
+        console.error('❌ Erreur chargement maillots:', err);
+      }
     });
   }
 
